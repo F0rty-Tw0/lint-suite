@@ -1,24 +1,61 @@
 {
   "name": "lint-suite",
   "version": "0.0.1",
+  "description": "Reusable ESLint configurations",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/lint-suite"
+  },
+  "keywords": [
+    "eslint",
+    "eslintconfig",
+    "lint",
+    "typescript",
+    "jest",
+    "angular",
+    "storybook",
+    "json"
+  ],
+  "license": "MIT",
+  "author": "Artiom Tofan artiomtofancv@gmail.com",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
+    },
+    "./base": {
+      "types": "./dist/configs/base.d.ts",
+      "import": "./dist/configs/base.js",
+      "require": "./dist/configs/base.cjs",
+      "default": "./dist/configs/base.js"
+    },
+    "./typescript": {
+      "types": "./dist/configs/typescript.d.ts",
+      "import": "./dist/configs/typescript.js",
+      "require": "./dist/configs/typescript.cjs",
+      "default": "./dist/configs/typescript.js"
     }
   },
   "files": [
     "dist",
+    "README.md",
+    "LICENSE",
     "!**/*.tsbuildinfo"
   ],
-  "dependencies": {
-    "tslib": "^2.3.0"
+  "scripts": {
+    "build": "nx build my-eslint-config",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {},
+  "publishConfig": {
+    "access": "public"
   }
 }
