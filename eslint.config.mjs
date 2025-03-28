@@ -8,35 +8,17 @@ export default [
     ignores: ['**/dist'],
   },
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    files: ['**/*.json'],
     rules: {
-      '@nx/enforce-module-boundaries': [
+      '@nx/dependency-checks': [
         'error',
         {
-          enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?js$'],
-          depConstraints: [
-            {
-              sourceTag: '*',
-              onlyDependOnLibsWithTags: ['*'],
-            },
-          ],
+          ignoredFiles: ['{projectRoot}/eslint.config.{js,cjs,mjs}'],
         },
       ],
     },
-  },
-  {
-    files: [
-      '**/*.ts',
-      '**/*.tsx',
-      '**/*.cts',
-      '**/*.mts',
-      '**/*.js',
-      '**/*.jsx',
-      '**/*.cjs',
-      '**/*.mjs',
-    ],
-    // Override or add rules here
-    rules: {},
+    languageOptions: {
+      parser: await import('jsonc-eslint-parser'),
+    },
   },
 ];
