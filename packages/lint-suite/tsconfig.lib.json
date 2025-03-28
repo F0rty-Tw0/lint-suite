@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
+    "declaration": true,
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
