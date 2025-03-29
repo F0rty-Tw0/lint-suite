@@ -5,7 +5,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
-    "directory": "packages/lint-suite"
+    "directory": "./"
   },
   "keywords": [
     "eslint",
@@ -20,45 +20,35 @@
   "license": "MIT",
   "author": "Artiom Tofan artiomtofancv@gmail.com",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./index.cjs",
+  "module": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "nx build lint-suite",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major",
+    "publish": "npm publish --access public"
   },
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
-    },
-    "./base": {
-      "types": "./dist/lib/base.d.ts",
-      "import": "./dist/lib/base.js",
-      "require": "./dist/lib/base.cjs",
-      "default": "./dist/lib/base.js"
-    },
-    "./typescript": {
-      "types": "./dist/lib/typescript.d.ts",
-      "import": "./dist/lib/typescript.js",
-      "require": "./dist/lib/typescript.cjs",
-      "default": "./dist/lib/typescript.js"
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
     }
   },
   "files": [
-    "dist",
-    "README.md",
-    "LICENSE",
+    "./",
     "!**/*.tsbuildinfo"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "@nx/eslint-plugin": "20.6.4"
+  "dependencies": {},
+  "peerDependencies": {
+    "@nx/eslint-plugin": "^20.6.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -102,7 +92,7 @@
         "defaultConfiguration": "production",
         "options": {
           "main": "src/index.ts",
-          "outputPath": "dist/lint-suite",
+          "outputPath": "./dist",
           "outputFileName": "index.js",
           "tsConfig": "tsconfig.lib.json",
           "platform": "node",
@@ -111,12 +101,15 @@
             "cjs"
           ],
           "assets": [
-            "README.md",
-            "LICENSE",
             {
-              "input": "src/lib",
-              "glob": "**/*.js",
-              "output": "src/lib"
+              "input": ".", 
+              "glob": "README.md",
+              "output": "." 
+            },
+            {
+              "input": ".", 
+              "glob": "LICENSE",
+              "output": "." 
             }
           ],
           "minify": false,

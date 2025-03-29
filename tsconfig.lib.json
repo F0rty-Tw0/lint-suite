@@ -4,9 +4,9 @@
     "baseUrl": ".",
     "rootDir": "src",
     "allowJs": true,
-    "outDir": "dist",
+    "outDir": "./dist",
     "declaration": true,
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "tsBuildInfoFile": "./dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
     "types": ["node"]
