@@ -1,6 +1,6 @@
 {
   "name": "lint-suite",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Reusable ESLint configurations",
   "repository": {
     "type": "git",
@@ -25,7 +25,6 @@
   "types": "./index.d.ts",
   "scripts": {
     "build": "nx build lint-suite",
-    "prepublishOnly": "npm run build",
     "patch": "npm version patch",
     "minor": "npm version minor",
     "major": "npm version major",
