@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": "src",
+    "allowJs": true,
     "outDir": "dist",
     "declaration": true,
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
@@ -10,6 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/lib/**/*.js"],
   "references": []
 }

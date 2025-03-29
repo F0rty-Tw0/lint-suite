@@ -24,7 +24,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "nx build my-eslint-config",
+    "build": "nx build lint-suite",
     "prepublishOnly": "npm run build"
   },
   "exports": {
@@ -36,16 +36,16 @@
       "default": "./dist/index.js"
     },
     "./base": {
-      "types": "./dist/configs/base.d.ts",
-      "import": "./dist/configs/base.js",
-      "require": "./dist/configs/base.cjs",
-      "default": "./dist/configs/base.js"
+      "types": "./dist/lib/base.d.ts",
+      "import": "./dist/lib/base.js",
+      "require": "./dist/lib/base.cjs",
+      "default": "./dist/lib/base.js"
     },
     "./typescript": {
-      "types": "./dist/configs/typescript.d.ts",
-      "import": "./dist/configs/typescript.js",
-      "require": "./dist/configs/typescript.cjs",
-      "default": "./dist/configs/typescript.js"
+      "types": "./dist/lib/typescript.d.ts",
+      "import": "./dist/lib/typescript.js",
+      "require": "./dist/lib/typescript.cjs",
+      "default": "./dist/lib/typescript.js"
     }
   },
   "files": [
@@ -57,16 +57,19 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@nx/eslint-plugin": "20.6.4"
+  },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
+    "@nx/esbuild": "^20.6.4",
     "@nx/eslint": "20.6.4",
-    "@nx/eslint-plugin": "20.6.4",
     "@nx/js": "20.6.4",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@types/node": "18.16.9",
+    "esbuild": "^0.19.2",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
     "jsonc-eslint-parser": "^2.1.0",
@@ -78,7 +81,10 @@
     "verdaccio": "^6.0.5"
   },
   "nx": {
-    "includedScripts": [],
+    "name": "lint-suite",
+    "$schema": "node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "src",
+    "projectType": "library",
     "targets": {
       "local-registry": {
         "executor": "@nx/js:verdaccio",
@@ -86,6 +92,41 @@
           "port": 4873,
           "config": ".verdaccio/config.yml",
           "storage": "tmp/local-registry/storage"
+        }
+      },
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "main": "src/index.ts",
+          "outputPath": "dist/lint-suite",
+          "outputFileName": "index.js",
+          "tsConfig": "tsconfig.lib.json",
+          "platform": "node",
+          "format": [
+            "esm",
+            "cjs"
+          ],
+          "assets": [
+            "README.md",
+            "LICENSE",
+            {
+              "input": "src/lib",
+              "glob": "**/*.js",
+              "output": "lib"
+            }
+          ],
+          "minify": false,
+          "sourcemap": true,
+          "dependenciesFieldType": "peerDependencies",
+          "bundle": true,
+          "external": [
+            "@nx/eslint-plugin"
+          ],
+          "thirdParty": false
         }
       }
     }
