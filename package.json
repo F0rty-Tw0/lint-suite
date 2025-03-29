@@ -1,6 +1,6 @@
 {
   "name": "lint-suite",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Reusable ESLint configurations",
   "repository": {
     "type": "git",
@@ -102,14 +102,14 @@
           ],
           "assets": [
             {
-              "input": ".", 
+              "input": ".",
               "glob": "README.md",
-              "output": "." 
+              "output": "."
             },
             {
-              "input": ".", 
+              "input": ".",
               "glob": "LICENSE",
-              "output": "." 
+              "output": "."
             }
           ],
           "minify": false,
