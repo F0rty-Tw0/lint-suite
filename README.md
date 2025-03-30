@@ -1,4 +1,7 @@
 # Lint Suite
+[![NPM Version](https://img.shields.io/npm/v/lint-suite.svg)](https://www.npmjs.com/package/lint-suite)
+[![License](https://img.shields.io/npm/l/lint-suite.svg)](https://github.com/F0rty-Tw0/lint-suite/blob/main/LICENSE)
+[![NPM Downloads](https://img.shields.io/npm/dm/lint-suite.svg)](https://www.npmjs.com/package/lint-suite)
 
 A comprehensive collection of ESLint Flat configurations for modern web applications.
 
