@@ -1,6 +1,6 @@
 {
   "name": "lint-suite",
-  "version": "0.0.12",
+  "version": "1.0.0",
   "description": "Reusable ESLint configurations",
   "repository": {
     "type": "git",
