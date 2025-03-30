@@ -2,15 +2,17 @@ import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 
 export const typescript = [
-  importPlugin.flatConfigs.typescript,
   ...nx.configs['flat/typescript'],
+  importPlugin.flatConfigs.typescript,
   {
-    files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
         projectService: true,
       },
     },
+  },
+  {
+    files: ['**/*.ts'],
     rules: {
       '@typescript-eslint/explicit-member-accessibility': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',

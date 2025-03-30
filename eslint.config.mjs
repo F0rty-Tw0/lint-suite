@@ -8,7 +8,7 @@ export default [
     ignores: ['**/dist'],
   },
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    files: ['**/*.ts', '**/*.js'],
     rules: {
       '@nx/enforce-module-boundaries': [
         'error',
