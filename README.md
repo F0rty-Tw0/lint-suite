@@ -1,4 +1,7 @@
 # Lint Suite
+[![NPM Version](https://img.shields.io/npm/v/lint-suite.svg)](https://www.npmjs.com/package/lint-suite)
+[![License](https://img.shields.io/npm/l/lint-suite.svg)](https://github.com/F0rty-Tw0/lint-suite/blob/main/LICENSE)
+[![NPM Downloads](https://img.shields.io/npm/dm/lint-suite.svg)](https://www.npmjs.com/package/lint-suite)
 
 A comprehensive collection of ESLint Flat configurations for modern web applications.
 
@@ -37,10 +40,10 @@ You can selectively include configurations you need.
 
 ## Available Configurations
 
-- `base`: Core JavaScript rules and formatting
+- `base`: Core JavaScript and Typescript rules and formatting
 - `typescript`: TypeScript-specific rules
 - `angular`: Angular component best practices
-- `angular-template`: HTML template rules with accessibility focus
+- `angular-template`: Angular HTML template rules with accessibility focus
 - `rxjs`: Observable patterns and operator safety
 - `jest`: Testing configurations
 - `json`: JSON file linting
