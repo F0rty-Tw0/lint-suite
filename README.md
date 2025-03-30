@@ -37,10 +37,10 @@ You can selectively include configurations you need.
 
 ## Available Configurations
 
-- `base`: Core JavaScript rules and formatting
+- `base`: Core JavaScript and Typescript rules and formatting
 - `typescript`: TypeScript-specific rules
 - `angular`: Angular component best practices
-- `angular-template`: HTML template rules with accessibility focus
+- `angular-template`: Angular HTML template rules with accessibility focus
 - `rxjs`: Observable patterns and operator safety
 - `jest`: Testing configurations
 - `json`: JSON file linting
