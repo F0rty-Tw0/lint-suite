@@ -2,7 +2,7 @@
 
 ## Overview
 
-Lint Suite provides a comprehensive set of ESLint configurations for modern web applications with a focus on Angular, TypeScript, and RxJS development. It emphasizes code quality, maintainability, and accessibility through carefully curated rule sets.
+Lint Suite provides a comprehensive set of ESLint Flat configurations for modern web applications with a focus on Angular, TypeScript, and RxJS development. It emphasizes code quality, maintainability, and accessibility through carefully curated rule sets.
 
 ## Key Features
 
@@ -75,11 +75,12 @@ Lint Suite provides a comprehensive set of ESLint configurations for modern web 
 Install the package and extend your ESLint configuration with the specific rule sets you need:
 
 ```js
-module.exports = {
-  extends: [
-    '@your-org/lint-suite/angular',
-    '@your-org/lint-suite/typescript',
-    '@your-org/lint-suite/rxjs',
-  ],
-};
+import { base, javascript, typescript } from 'lint-suite';
+
+export default [
+  ...base,
+  ...javascript,
+  ...typescript,
+  // Rest of the required configurations
+];
 ```
