@@ -2,6 +2,7 @@ import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 
 export const typescript = [
+  // NOTE: Checks for 'prettier' and 'eslint-plugin-prettier'
   ...nx.configs['flat/typescript'],
   importPlugin.flatConfigs.typescript,
   {
@@ -19,17 +20,6 @@ export const typescript = [
       '@typescript-eslint/explicit-function-return-type': 'warn',
       '@typescript-eslint/prefer-readonly': 'error',
       '@typescript-eslint/no-empty-function': 'error',
-      'sort-imports': [
-        'error',
-        {
-          ignoreCase: false,
-          ignoreDeclarationSort: true,
-          ignoreMemberSort: false,
-          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
-          allowSeparatedGroups: true,
-        },
-      ],
-      'class-methods-use-this': 'error',
     },
   },
   {

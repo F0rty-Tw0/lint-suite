@@ -61,6 +61,17 @@ export const base: Linter.Config[] = [
           ],
         },
       ],
+      'sort-imports': [
+        'error',
+        {
+          ignoreCase: false,
+          ignoreDeclarationSort: true,
+          ignoreMemberSort: false,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+          allowSeparatedGroups: true,
+        },
+      ],
+      'class-methods-use-this': 'error',
     },
   },
 ];
