@@ -1,3 +1,9 @@
+export { angularTemplate } from './lib/angular-template.js';
+export { angular } from './lib/angular.js';
 export { base } from './lib/base.js';
 export { typescript } from './lib/typescript.js';
+export { jest } from './lib/jest.js';
+export { json } from './lib/json.js';
+export { rxjs } from './lib/rxjs.js';
+export { storybook } from './lib/storybook.js';
 export { javascript } from './lib/javascript.js';
