@@ -1,0 +1,58 @@
+{
+  "name": "lint-suite",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/lint-suite/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}/src",
+        "currentVersionResolver": "git-tag",
+        "fallbackCurrentVersionResolver": "disk"
+      }
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "main": "packages/lint-suite/src/index.ts",
+        "outputPath": "dist",
+        "outputFileName": "packages/lint-suite/src/index.js",
+        "tsConfig": "packages/lint-suite/tsconfig.lib.json",
+        "platform": "node",
+        "format": ["esm", "cjs"],
+        "assets": [
+          {
+            "glob": "README.md",
+            "input": "packages/lint-suite",
+            "output": "packages/lint-suite/src"
+          },
+          {
+            "glob": "LICENSE",
+            "input": "packages/lint-suite",
+            "output": "packages/lint-suite/src"
+          },
+          {
+            "glob": "package.json",
+            "input": "packages/lint-suite",
+            "output": "packages/lint-suite/src"
+          }
+        ],
+        "minify": false,
+        "generatePackageJson": false,
+        "sourcemap": true,
+        "bundle": true,
+        "thirdParty": false
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

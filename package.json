@@ -1,54 +1,9 @@
 {
-  "name": "lint-suite",
-  "version": "0.0.9",
-  "description": "Reusable ESLint configurations",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
-    "directory": "./"
-  },
-  "keywords": [
-    "eslint",
-    "eslintconfig",
-    "lint",
-    "typescript",
-    "jest",
-    "angular",
-    "storybook",
-    "json"
-  ],
+  "name": "suites",
   "license": "MIT",
   "author": "Artiom Tofan artiomtofancv@gmail.com",
   "type": "module",
-  "main": "./index.cjs",
-  "module": "./index.js",
-  "types": "./index.d.ts",
-  "scripts": {
-    "build": "nx build lint-suite",
-    "patch": "npm version patch",
-    "minor": "npm version minor",
-    "major": "npm version major",
-    "publish": "npm publish --access public"
-  },
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "types": "./index.d.ts",
-      "import": "./index.js",
-      "require": "./index.cjs"
-    }
-  },
-  "files": [
-    "./**",
-    "!**/*.tsbuildinfo"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {},
-  "peerDependencies": {
-    "@nx/eslint-plugin": "^20.6.4"
-  },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "@nx/esbuild": "^20.6.4",
@@ -58,6 +13,7 @@
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@types/node": "18.16.9",
+    "@nx/eslint-plugin": "^20.6.4",
     "esbuild": "^0.19.2",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
@@ -66,61 +22,6 @@
     "prettier": "^2.6.2",
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.19.0",
-    "verdaccio": "^6.0.5"
-  },
-  "nx": {
-    "name": "lint-suite",
-    "$schema": "node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "src",
-    "projectType": "library",
-    "targets": {
-      "local-registry": {
-        "executor": "@nx/js:verdaccio",
-        "options": {
-          "port": 4873,
-          "config": ".verdaccio/config.yml",
-          "storage": "tmp/local-registry/storage"
-        }
-      },
-      "build": {
-        "executor": "@nx/esbuild:esbuild",
-        "outputs": [
-          "{options.outputPath}"
-        ],
-        "defaultConfiguration": "production",
-        "options": {
-          "main": "src/index.ts",
-          "outputPath": "./dist",
-          "outputFileName": "index.js",
-          "tsConfig": "tsconfig.lib.json",
-          "platform": "node",
-          "format": [
-            "esm",
-            "cjs"
-          ],
-          "assets": [
-            {
-              "input": ".",
-              "glob": "README.md",
-              "output": "."
-            },
-            {
-              "input": ".",
-              "glob": "LICENSE",
-              "output": "."
-            }
-          ],
-          "minify": false,
-          "sourcemap": true,
-          "dependenciesFieldType": "peerDependencies",
-          "bundle": true,
-          "external": [
-            "@nx/eslint-plugin"
-          ],
-          "thirdParty": false
-        }
-      }
-    }
+    "typescript-eslint": "^8.19.0"
   }
 }

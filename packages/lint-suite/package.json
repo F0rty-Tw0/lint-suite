@@ -1,0 +1,52 @@
+{
+  "name": "lint-suite",
+  "version": "0.0.10",
+  "description": "Reusable ESLint configurations",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/lint-suite"
+  },
+  "keywords": [
+    "eslint",
+    "eslintconfig",
+    "lint",
+    "typescript",
+    "jest",
+    "angular",
+    "storybook",
+    "json"
+  ],
+  "license": "MIT",
+  "author": "Artiom Tofan artiomtofancv@gmail.com",
+  "type": "module",
+  "main": "./index.cjs",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "eslint": "^9.8.0",
+    "@nx/eslint-plugin": "^20.6.4"
+  },
+  "scripts": {
+    "build": "nx build lint-suite",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major",
+    "publish": "npm publish --access public"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "files": [
+    "./**",
+    "!**/*.tsbuildinfo"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
