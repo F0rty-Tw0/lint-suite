@@ -1,11 +1,22 @@
 import rxjsEslint from '@smarttools/eslint-plugin-rxjs';
 import type { Linter } from 'eslint';
+import { workspaceRoot } from '@nx/devkit';
 
 export const rxjs: Linter.Config[] = [
-  rxjsEslint.configs.recommended,
+  {
+    files: ['**/*'],
+    plugins: {
+      rxjs: rxjsEslint,
+    },
+  },
   {
     files: ['**/*.ts'],
-    plugins: { rxjs: rxjsEslint },
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: workspaceRoot,
+      },
+    },
     rules: {
       'rxjs/prefer-observer': 'error',
       'rxjs/finnish': 'warn',
@@ -25,4 +36,5 @@ export const rxjs: Linter.Config[] = [
       'rxjs/no-ignored-subscription': 'off',
     },
   },
+  rxjsEslint.configs.recommended,
 ];

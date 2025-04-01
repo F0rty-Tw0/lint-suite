@@ -31,7 +31,9 @@
     "@smarttools/eslint-plugin-rxjs": "^1.0.18",
     "eslint-plugin-storybook": "^0.12.0",
     "eslint-plugin-import": "^2.31.0",
-    "@stylistic/eslint-plugin": "^4.2.0"
+    "@stylistic/eslint-plugin": "^4.2.0",
+    "typescript-eslint": "^8.29.0",
+    "@nx/devkit": "^20.6.4"
   },
   "scripts": {
     "build": "nx build lint-suite",

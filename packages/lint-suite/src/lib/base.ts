@@ -7,12 +7,11 @@ import type { Linter } from 'eslint';
 export const base: Linter.Config[] = [
   ...nx.configs['flat/base'],
   importPlugin.flatConfigs.recommended,
-  stylistic.configs.recommended,
   {
     files: ['**/*.js', '**/*.ts', '**/*.html'],
     plugins: { '@stylistic': stylistic },
     rules: {
-      // 'import/namespace': 'off', //NOTE: CAN BE REMOVED WHEN IT DOESN'T CHECK FOR HTML
+      'import/namespace': 'off', //NOTE: CAN BE REMOVED WHEN IT DOESN'T CHECK FOR HTML
       'no-console': 'warn',
       'max-len': [
         'error',

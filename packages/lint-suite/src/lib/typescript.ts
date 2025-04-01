@@ -6,13 +6,6 @@ export const typescript = [
   ...nx.configs['flat/typescript'],
   importPlugin.flatConfigs.typescript,
   {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-      },
-    },
-  },
-  {
     files: ['**/*.ts'],
     rules: {
       '@typescript-eslint/explicit-member-accessibility': 'error',
