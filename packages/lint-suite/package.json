@@ -33,7 +33,16 @@
     "eslint-plugin-import": "^2.31.0",
     "@stylistic/eslint-plugin": "^4.2.0",
     "typescript-eslint": "^8.29.0",
+    "eslint-config-prettier": "^10.1.1",
     "@nx/devkit": "^20.6.4"
+  },
+  "peerDependencies": {
+    "eslint-config-prettier": "^10.1.1"
+  },
+  "peerDependenciesMeta": {
+    "eslint-config-prettier": {
+      "optional": true
+    }
   },
   "scripts": {
     "build": "nx build lint-suite",

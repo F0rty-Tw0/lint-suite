@@ -1,7 +1,17 @@
 import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import stylistic from '@stylistic/eslint-plugin';
+import { packageExists } from './utils/package-exists.js';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
+const isPrettierAvailable =
+  packageExists('prettier') && packageExists('eslint-config-prettier');
+
+console.log('prettier available:', packageExists('prettier'));
+console.log(
+  'eslint-config-prettier available:',
+  packageExists('eslint-config-prettier')
+);
 export const base = [
   ...nx.configs['flat/base'],
   {
@@ -28,7 +38,19 @@ export const base = [
       '**/*.cts',
       '**/*.mts',
     ],
-    plugins: { '@stylistic': stylistic },
+    ...stylistic.configs.recommended,
+  },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
     rules: {
       'no-console': 'warn',
       'class-methods-use-this': 'error',
@@ -119,4 +141,5 @@ export const base = [
       ],
     },
   },
+  isPrettierAvailable ? eslintConfigPrettier : {},
 ];
