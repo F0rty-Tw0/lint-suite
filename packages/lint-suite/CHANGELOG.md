@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 (2025-04-02)
+
+- Fixed rxjs plugin
+
 ## 1.0.2 (2025-04-02)
 
 - Fixed the parser issues
