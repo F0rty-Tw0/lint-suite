@@ -2,10 +2,35 @@ import rxjsEslint from '@smarttools/eslint-plugin-rxjs';
 import type { Linter } from 'eslint';
 
 export const rxjs: Linter.Config[] = [
-  rxjsEslint.configs.recommended,
   {
-    files: ['**/*.ts'],
-    plugins: { rxjs: rxjsEslint },
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    ...rxjsEslint.configs.recommended,
+  },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
     rules: {
       'rxjs/prefer-observer': 'error',
       'rxjs/finnish': 'warn',
@@ -20,7 +45,7 @@ export const rxjs: Linter.Config[] = [
     },
   },
   {
-    files: ['**/*.spec.ts'],
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
       'rxjs/no-ignored-subscription': 'off',
     },

@@ -1,8 +1,21 @@
 import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import stylistic from '@stylistic/eslint-plugin';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 import type { Linter } from 'eslint';
+
+const packageExists = (name: string): boolean => {
+  try {
+    require.resolve(name);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const isPrettierAvailable =
+  packageExists('prettier') && packageExists('eslint-config-prettier');
 
 export const base: Linter.Config[] = [
   ...nx.configs['flat/base'],
@@ -19,26 +32,38 @@ export const base: Linter.Config[] = [
     ],
     ...importPlugin.flatConfigs.recommended,
   },
-  stylistic.configs.recommended,
   {
-    files: ['**/*.js', '**/*.ts', '**/*.html'],
-    plugins: { '@stylistic': stylistic },
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
+    ...stylistic.configs.recommended,
+  },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
     rules: {
-      // 'import/namespace': 'off', //NOTE: CAN BE REMOVED WHEN IT DOESN'T CHECK FOR HTML
       'no-console': 'warn',
+      'class-methods-use-this': 'error',
       'max-len': [
         'error',
         {
           code: 135,
           ignoreComments: true,
-        },
-      ],
-      'max-lines': [
-        'error',
-        {
-          max: 150,
-          skipBlankLines: true,
-          skipComments: true,
         },
       ],
       'spaced-comment': [
@@ -83,7 +108,43 @@ export const base: Linter.Config[] = [
           allowSeparatedGroups: true,
         },
       ],
-      'class-methods-use-this': 'error',
     },
   },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+      '**/*.html',
+    ],
+    rules: {
+      'max-lines': [
+        'error',
+        {
+          max: 150,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
+    rules: {
+      'max-lines': [
+        'error',
+        {
+          max: 300,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+    },
+  },
+  isPrettierAvailable ? eslintConfigPrettier : {},
 ];

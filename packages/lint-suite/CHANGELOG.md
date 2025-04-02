@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 (2025-04-02)
+
+- Fixed the parser issues
+- Added new @stylistic support for prettier
+
 ## 1.0.1 (2025-03-31)
 
 - Updated README.md to have badges
