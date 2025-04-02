@@ -1,5 +1,4 @@
 import nx from '@nx/eslint-plugin';
-
 export const angular = [
   ...nx.configs['flat/angular'],
   {

@@ -2,30 +2,41 @@ import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import stylistic from '@stylistic/eslint-plugin';
 
-import type { Linter } from 'eslint';
-
-export const base: Linter.Config[] = [
+export const base = [
   ...nx.configs['flat/base'],
-  importPlugin.flatConfigs.recommended,
   {
-    files: ['**/*.js', '**/*.ts', '**/*.html'],
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
+    ...importPlugin.flatConfigs.recommended,
+  },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
     plugins: { '@stylistic': stylistic },
     rules: {
-      'import/namespace': 'off', //NOTE: CAN BE REMOVED WHEN IT DOESN'T CHECK FOR HTML
       'no-console': 'warn',
+      'class-methods-use-this': 'error',
       'max-len': [
         'error',
         {
           code: 135,
           ignoreComments: true,
-        },
-      ],
-      'max-lines': [
-        'error',
-        {
-          max: 150,
-          skipBlankLines: true,
-          skipComments: true,
         },
       ],
       'spaced-comment': [
@@ -70,7 +81,42 @@ export const base: Linter.Config[] = [
           allowSeparatedGroups: true,
         },
       ],
-      'class-methods-use-this': 'error',
+    },
+  },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+      '**/*.html',
+    ],
+    rules: {
+      'max-lines': [
+        'error',
+        {
+          max: 150,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
+    rules: {
+      'max-lines': [
+        'error',
+        {
+          max: 300,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
     },
   },
 ];

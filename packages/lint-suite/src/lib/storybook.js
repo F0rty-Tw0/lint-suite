@@ -1,7 +1,6 @@
 import storybookEslint from 'eslint-plugin-storybook';
-import type { Linter } from 'eslint';
 
-export const storybook: Linter.Config[] = [
+export const storybook = [
   ...storybookEslint.configs['flat/recommended'],
   {
     ignores: ['!.storybook'],

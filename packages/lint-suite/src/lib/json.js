@@ -1,7 +1,6 @@
 import jsonEslint from 'eslint-plugin-json';
-import type { Linter } from 'eslint';
 
-export const json: Linter.Config[] = [
+export const json = [
   {
     files: ['**/*.json'],
     ...jsonEslint.configs.recommended,

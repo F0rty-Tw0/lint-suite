@@ -1,9 +1,8 @@
 import jestEslint from 'eslint-plugin-jest';
-import type { Linter } from 'eslint';
 
-export const jest: Linter.Config[] = [
+export const jest = [
   {
-    files: ['**/*.spec.ts'],
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     ...jestEslint.configs['flat/recommended'],
     rules: {
       ...jestEslint.configs['flat/recommended'].rules,
