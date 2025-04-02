@@ -31,6 +31,21 @@ export const rxjs: Linter.Config[] = [
       '**/*.cts',
       '**/*.mts',
     ],
+    plugins: {
+      rxjs: rxjsEslint,
+    },
+  },
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
     rules: {
       'rxjs/prefer-observer': 'error',
       'rxjs/finnish': 'warn',
