@@ -6,7 +6,19 @@ import type { Linter } from 'eslint';
 
 export const base: Linter.Config[] = [
   ...nx.configs['flat/base'],
-  importPlugin.flatConfigs.recommended,
+  {
+    files: [
+      '**/*.js',
+      '**/*.jsx',
+      '**/*.cjs',
+      '**/*.mjs',
+      '**/*.ts',
+      '**/*.tsx',
+      '**/*.cts',
+      '**/*.mts',
+    ],
+    ...importPlugin.flatConfigs.recommended,
+  },
   stylistic.configs.recommended,
   {
     files: ['**/*.js', '**/*.ts', '**/*.html'],
