@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4 (2025-04-02)
+
+- Removed unnecessary Prettier plugin from the base configuration, NX handles that
+
 ## 1.0.3 (2025-04-02)
 
 - Fixed rxjs plugin

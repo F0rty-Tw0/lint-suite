@@ -31,16 +31,7 @@
     "@smarttools/eslint-plugin-rxjs": "^1.0.18",
     "eslint-plugin-storybook": "^0.12.0",
     "eslint-plugin-import": "^2.31.0",
-    "@stylistic/eslint-plugin": "^4.2.0",
-    "eslint-config-prettier": "^10.1.1"
-  },
-  "peerDependencies": {
-    "eslint-config-prettier": "^10.1.1"
-  },
-  "peerDependenciesMeta": {
-    "eslint-config-prettier": {
-      "optional": true
-    }
+    "@stylistic/eslint-plugin": "^4.2.0"
   },
   "scripts": {
     "build": "nx build lint-suite",

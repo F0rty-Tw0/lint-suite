@@ -1,21 +1,8 @@
 import nx from '@nx/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import stylistic from '@stylistic/eslint-plugin';
-import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 import type { Linter } from 'eslint';
-
-const packageExists = (name: string): boolean => {
-  try {
-    require.resolve(name);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const isPrettierAvailable =
-  packageExists('prettier') && packageExists('eslint-config-prettier');
 
 export const base: Linter.Config[] = [
   ...nx.configs['flat/base'],
@@ -146,5 +133,4 @@ export const base: Linter.Config[] = [
       ],
     },
   },
-  isPrettierAvailable ? eslintConfigPrettier : {},
 ];
