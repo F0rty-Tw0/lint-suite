@@ -1,5 +1,5 @@
 declare module 'eslint-plugin-json' {
-  import type { Rule, Linter, ESLint } from 'eslint';
+  import type { ESLint, Linter, Rule } from 'eslint';
 
   interface ESLintPlugin extends ESLint.Plugin {
     rules: Record<string, Rule.RuleModule>;

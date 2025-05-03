@@ -1,9 +1,32 @@
-export { angularTemplate } from './lib/angular-template.js';
-export { angular } from './lib/angular.js';
-export { base } from './lib/base.js';
-export { typescript } from './lib/typescript.js';
-export { jest } from './lib/jest.js';
-export { json } from './lib/json.js';
-export { rxjs } from './lib/rxjs.js';
-export { storybook } from './lib/storybook.js';
-export { javascript } from './lib/javascript.js';
+import { angularTemplate } from './lib/angular-template.js';
+import { angular } from './lib/angular.js';
+import { base } from './lib/base.js';
+import { javascript } from './lib/javascript.js';
+import { jest } from './lib/jest.js';
+import { json } from './lib/json.js';
+import { rxjs } from './lib/rxjs.js';
+import { storybook } from './lib/storybook.js';
+import { typescript } from './lib/typescript.js';
+
+export const recommended = [
+  ...base,
+  ...javascript,
+  ...typescript,
+  ...angular,
+  ...angularTemplate,
+  ...rxjs,
+  ...jest,
+  ...json,
+  ...storybook
+];
+
+export {
+  typescript,
+  angularTemplate,
+  angular,
+  javascript,
+  rxjs,
+  jest,
+  json,
+  storybook
+};

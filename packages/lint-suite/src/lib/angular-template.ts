@@ -5,6 +5,8 @@ export const angularTemplate = [
   {
     files: ['**/*.html'],
     rules: {
+      '@angular-eslint/template/no-any': 'error',
+      '@angular-eslint/template/no-duplicate-attributes': 'error',
       '@angular-eslint/template/button-has-type': 'error',
       '@angular-eslint/template/no-positive-tabindex': 'error',
       '@angular-eslint/template/valid-aria': 'error',

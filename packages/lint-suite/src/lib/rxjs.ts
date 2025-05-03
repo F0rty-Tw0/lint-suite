@@ -11,14 +11,14 @@ export const rxjs: Linter.Config[] = [
       '**/*.ts',
       '**/*.tsx',
       '**/*.cts',
-      '**/*.mts',
+      '**/*.mts'
     ],
     languageOptions: {
       parserOptions: {
-        projectService: true,
-      },
+        projectService: true
+      }
     },
-    ...rxjsEslint.configs.recommended,
+    ...rxjsEslint.configs.recommended
   },
   {
     files: [
@@ -29,11 +29,11 @@ export const rxjs: Linter.Config[] = [
       '**/*.ts',
       '**/*.tsx',
       '**/*.cts',
-      '**/*.mts',
+      '**/*.mts'
     ],
     plugins: {
-      rxjs: rxjsEslint,
-    },
+      rxjs: rxjsEslint
+    }
   },
   {
     files: [
@@ -44,7 +44,7 @@ export const rxjs: Linter.Config[] = [
       '**/*.ts',
       '**/*.tsx',
       '**/*.cts',
-      '**/*.mts',
+      '**/*.mts'
     ],
     rules: {
       'rxjs/prefer-observer': 'error',
@@ -56,13 +56,13 @@ export const rxjs: Linter.Config[] = [
       'rxjs/no-unsafe-first': 'error',
       'rxjs/no-topromise': 'error',
       'rxjs/throw-error': 'error',
-      'rxjs/no-async-subscribe': 'off',
-    },
+      'rxjs/no-async-subscribe': 'off'
+    }
   },
   {
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
-      'rxjs/no-ignored-subscription': 'off',
-    },
-  },
+      'rxjs/no-ignored-subscription': 'off'
+    }
+  }
 ];

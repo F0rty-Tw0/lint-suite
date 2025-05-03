@@ -1,5 +1,5 @@
-declare module 'eslint-plugin-import' {
-  import type { Rule, Linter } from 'eslint';
+declare module 'eslint-plugin-import-x' {
+  import type { Linter, Rule } from 'eslint';
 
   export const flatConfigs: {
     recommended: Linter.FlatConfig;
