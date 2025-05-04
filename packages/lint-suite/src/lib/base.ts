@@ -68,8 +68,25 @@ export const base: Linter.Config[] = [
       'no-lonely-if': 'error', // Disallow if statements as the only statement in an else block
       'grouped-accessor-pairs': ['error', 'getBeforeSet'], // Enforce consistency for getters/setters
       'class-methods-use-this': 'error',
-      'no-void': 'error',
       'no-underscore-dangle': 'error',
+      'padding-line-between-statements': [
+        'error',
+        {
+          blankLine: 'always',
+          prev: 'export',
+          next: ['export', 'const']
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: 'return'
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: 'if'
+        }
+      ],
       'max-len': [
         'error',
         {
@@ -147,7 +164,7 @@ export const base: Linter.Config[] = [
   {
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
-      'max-line-per-function': 'off',
+      'max-lines-per-function': 'off',
       complexity: ['warn', { max: 1 }],
       'max-lines': [
         'error',

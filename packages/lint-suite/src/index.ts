@@ -21,10 +21,11 @@ export const recommended = [
 ];
 
 export {
-  typescript,
-  angularTemplate,
-  angular,
+  base,
   javascript,
+  typescript,
+  angular,
+  angularTemplate,
   rxjs,
   jest,
   json,

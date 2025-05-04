@@ -45,7 +45,7 @@ export const typescript = [
         'error',
         { ignoreVoid: true }
       ],
-      '@typescript-eslint/no-misused-promises': 'error', // Already in recommended-type-checked
+      '@typescript-eslint/no-misused-promises': 'warn', // Already in recommended-type-checked
       '@typescript-eslint/promise-function-async': 'error',
       '@typescript-eslint/await-thenable': 'error', // Already in recommended-type-checked
 
@@ -120,7 +120,16 @@ export const typescript = [
             'unknown'
           ],
           pathGroups: [
-            { group: 'external', pattern: '@angular/**', position: 'before' },
+            {
+              pattern: '@angular/**',
+              group: 'builtin',
+              position: 'before'
+            },
+            {
+              pattern: '@nestjs/**',
+              group: 'builtin',
+              position: 'before'
+            },
             {
               pattern: '@*/shared/**',
               group: 'internal',
@@ -137,7 +146,7 @@ export const typescript = [
               position: 'after'
             }
           ],
-          pathGroupsExcludedImportTypes: ['@angular/**'],
+          pathGroupsExcludedImportTypes: ['@angular/**', '@nestjs/**'],
           'newlines-between': 'always',
           alphabetize: { order: 'asc', caseInsensitive: true }
         }
@@ -180,7 +189,15 @@ export const typescript = [
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
       '@typescript-eslint/no-empty-function': 'off',
-      '@typescript-eslint/no-unbound-method': 'off'
+      '@typescript-eslint/no-unbound-method': 'off',
+      '@typescript-eslint/consistent-type-assertions': 'off'
+    }
+  },
+  {
+    files: ['**/*.stories.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-assertions': 'off',
+      '@typescript-eslint/naming-convention': 'off'
     }
   }
 ];

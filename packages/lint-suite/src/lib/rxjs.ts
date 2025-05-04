@@ -49,6 +49,7 @@ export const rxjs: Linter.Config[] = [
     rules: {
       'rxjs/prefer-observer': 'error',
       'rxjs/finnish': 'warn',
+      'rxjs/no-ignored-subscription': 'warn',
       'rxjs/no-ignored-error': 'warn',
       'rxjs/no-unsafe-switchmap': 'error',
       'rxjs/no-unsafe-takeuntil': 'error',

@@ -6,8 +6,7 @@ export const jest: Linter.Config[] = [
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     ...jestEslint.configs['flat/all'],
     rules: {
-      'jest/no-done-callback': 'off',
-      'jest/no-unbound-method': 'error'
+      'jest/no-done-callback': 'off'
     }
   }
 ];
