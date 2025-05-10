@@ -48,7 +48,7 @@ export const base: Linter.Config[] = [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
-      curly: ['error', 'all'],
+      curly: ['error', 'multi'],
       'prefer-const': ['error', { destructuring: 'all' }],
       'no-var': 'error',
       'object-shorthand': 'error',
@@ -69,24 +69,6 @@ export const base: Linter.Config[] = [
       'grouped-accessor-pairs': ['error', 'getBeforeSet'], // Enforce consistency for getters/setters
       'class-methods-use-this': 'error',
       'no-underscore-dangle': 'error',
-      'padding-line-between-statements': [
-        'error',
-        {
-          blankLine: 'always',
-          prev: 'export',
-          next: ['export', 'const']
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: 'return'
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: 'if'
-        }
-      ],
       'max-len': [
         'error',
         {
@@ -101,6 +83,24 @@ export const base: Linter.Config[] = [
           block: {
             exceptions: ['*']
           }
+        }
+      ],
+      '@stylistic/padding-line-between-statements': [
+        'error',
+        {
+          blankLine: 'always',
+          prev: 'export',
+          next: ['export', 'const']
+        },
+        {
+          blankLine: 'always',
+          prev: ['const', 'let', 'var'],
+          next: '*'
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: ['for', 'if', 'return']
         }
       ],
       '@stylistic/comma-dangle': [

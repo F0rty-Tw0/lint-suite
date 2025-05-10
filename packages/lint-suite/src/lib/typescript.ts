@@ -39,6 +39,8 @@ export const typescript = [
 
       // C. Null/Undefined Safety (Requires strictNullChecks)
       '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/prefer-optional-chain': 'error',
 
       // D. Promise Handling (Supplementing plugin:promise/recommended)
       '@typescript-eslint/no-floating-promises': [
