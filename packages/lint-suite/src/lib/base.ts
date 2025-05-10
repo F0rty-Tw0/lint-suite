@@ -1,10 +1,10 @@
-import nx from '@nx/eslint-plugin';
+import { configs } from '@nx/eslint-plugin';
 import stylistic from '@stylistic/eslint-plugin';
-import type { Linter } from 'eslint';
 import importPluginX from 'eslint-plugin-import-x';
+import { type ConfigArray, config } from 'typescript-eslint';
 
-export const base: Linter.Config[] = [
-  ...nx.configs['flat/base'],
+export const base: ConfigArray = config([
+  { extends: [...configs['flat/base']] },
   {
     files: [
       '**/*.js',
@@ -16,7 +16,7 @@ export const base: Linter.Config[] = [
       '**/*.cts',
       '**/*.mts'
     ],
-    ...importPluginX.flatConfigs.recommended
+    extends: [importPluginX.flatConfigs.recommended]
   },
   {
     files: [
@@ -29,7 +29,7 @@ export const base: Linter.Config[] = [
       '**/*.cts',
       '**/*.mts'
     ],
-    ...stylistic.configs.recommended
+    extends: [stylistic.configs.recommended]
   },
   {
     files: [
@@ -98,9 +98,23 @@ export const base: Linter.Config[] = [
           next: '*'
         },
         {
+          blankLine: 'any',
+          prev: ['const', 'let', 'var'],
+          next: ['const', 'let', 'var']
+        },
+        {
           blankLine: 'always',
           prev: '*',
-          next: ['for', 'if', 'return']
+          next: [
+            'for',
+            'if',
+            'return',
+            'throw',
+            'switch',
+            'try',
+            'class',
+            'function'
+          ]
         }
       ],
       '@stylistic/comma-dangle': [
@@ -188,4 +202,4 @@ export const base: Linter.Config[] = [
       'class-methods-use-this': 'off'
     }
   }
-];
+]);

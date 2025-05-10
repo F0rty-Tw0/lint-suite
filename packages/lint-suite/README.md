@@ -18,6 +18,12 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 npm install --save-dev lint-suite
 ```
 
+## Dependencies
+
+```bash
+npm install --save-dev eslint typescript-eslint eslint-config-prettier
+```
+
 ## Usage
 
 Create a `.eslintrc.config.mjs` file in your project root:
@@ -28,7 +34,7 @@ import { base, javascript, typescript } from 'lint-suite';
 export default [
   ...base,
   ...javascript,
-  ...typescript,
+  ...typescript
   // Rest of the required configurations
 ];
 ```
@@ -57,9 +63,9 @@ export default [
   ...typescript,
   {
     rules: {
-      '@typescript-eslint/explicit-function-return-type': 'off',
-    },
-  },
+      '@typescript-eslint/explicit-function-return-type': 'off'
+    }
+  }
 ];
 ```
 
@@ -119,3 +125,11 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 ## License
 
 MIT
+
+```
+
+```
+
+```
+
+```

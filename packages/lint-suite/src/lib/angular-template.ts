@@ -1,9 +1,10 @@
-import nx from '@nx/eslint-plugin';
+import { configs } from 'angular-eslint';
+import { type ConfigArray, config } from 'typescript-eslint';
 
-export const angularTemplate = [
-  ...nx.configs['flat/angular-template'],
+export const angularTemplate: ConfigArray = config([
   {
     files: ['**/*.html'],
+    extends: [...configs.templateAccessibility, ...configs.templateRecommended],
     rules: {
       '@angular-eslint/template/prefer-template-literal': 'error',
       '@angular-eslint/template/no-any': 'error',
@@ -37,4 +38,4 @@ export const angularTemplate = [
       ]
     }
   }
-];
+]);

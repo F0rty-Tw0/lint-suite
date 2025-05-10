@@ -1,8 +1,9 @@
-import nx from '@nx/eslint-plugin';
+import { configs } from '@nx/eslint-plugin';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import importPluginX from 'eslint-plugin-import-x';
 
 import explicitAccessibilityRule from './rules/explicit-accessibility.js';
+import { config, ConfigArray } from 'typescript-eslint';
 
 const localTypescriptRules = {
   rules: {
@@ -10,10 +11,15 @@ const localTypescriptRules = {
   }
 };
 
-export const typescript = [
+export const typescript: ConfigArray = config([
   // NOTE: Checks for 'prettier' and 'eslint-plugin-prettier'
-  importPluginX.flatConfigs.typescript,
-  ...nx.configs['flat/typescript'],
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
+    extends: [
+      importPluginX.flatConfigs.typescript,
+      ...configs['flat/typescript']
+    ]
+  },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
     plugins: { local: localTypescriptRules },
@@ -202,4 +208,4 @@ export const typescript = [
       '@typescript-eslint/naming-convention': 'off'
     }
   }
-];
+]);

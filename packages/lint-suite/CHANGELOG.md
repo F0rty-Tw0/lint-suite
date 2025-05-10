@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7 (2025-05-12)
+
+- Added strict typescript support
+- Added angular 20 rules
+
 ## 1.0.4 (2025-04-02)
 
 - Removed unnecessary Prettier plugin from the base configuration, NX handles that
