@@ -1,6 +1,6 @@
 {
   "name": "lint-suite",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "Reusable ESLint configurations",
   "repository": {
     "type": "git",
@@ -33,7 +33,10 @@
     "eslint-plugin-import-x": "4.16.1",
     "@stylistic/eslint-plugin": "5.5.0",
     "eslint-import-resolver-typescript": "4.4.4",
-    "@typescript-eslint/utils": "8.46.2"
+    "@typescript-eslint/utils": "8.46.2",
+    "typescript-eslint": "8.46.2",
+    "angular-eslint": "^20.4.0",
+    "globals": "15.15.0"
   },
   "scripts": {
     "build": "nx build lint-suite",
