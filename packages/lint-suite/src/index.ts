@@ -1,3 +1,4 @@
+import { ConfigArray } from 'typescript-eslint';
 import { angularTemplate } from './lib/angular-template.js';
 import { angular } from './lib/angular.js';
 import { base } from './lib/base.js';
@@ -8,7 +9,7 @@ import { rxjs } from './lib/rxjs.js';
 import { storybook } from './lib/storybook.js';
 import { typescript } from './lib/typescript.js';
 
-export const recommended = [
+export const recommended: ConfigArray = [
   ...base,
   ...javascript,
   ...typescript,

@@ -1,10 +1,10 @@
-import nx from '@nx/eslint-plugin';
+import { configs } from '@nx/eslint-plugin';
 import stylistic from '@stylistic/eslint-plugin';
-import type { Linter } from 'eslint';
 import importPluginX from 'eslint-plugin-import-x';
+import { type ConfigArray, config } from 'typescript-eslint';
 
-export const base: Linter.Config[] = [
-  ...nx.configs['flat/base'],
+export const base: ConfigArray = config([
+  { extends: [...configs['flat/base']] },
   {
     files: [
       '**/*.js',
@@ -16,7 +16,7 @@ export const base: Linter.Config[] = [
       '**/*.cts',
       '**/*.mts'
     ],
-    ...importPluginX.flatConfigs.recommended
+    extends: [importPluginX.flatConfigs.recommended]
   },
   {
     files: [
@@ -29,7 +29,7 @@ export const base: Linter.Config[] = [
       '**/*.cts',
       '**/*.mts'
     ],
-    ...stylistic.configs.recommended
+    extends: [stylistic.configs.recommended]
   },
   {
     files: [
@@ -48,7 +48,7 @@ export const base: Linter.Config[] = [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
-      curly: ['error', 'all'],
+      curly: ['error', 'multi'],
       'prefer-const': ['error', { destructuring: 'all' }],
       'no-var': 'error',
       'object-shorthand': 'error',
@@ -69,24 +69,6 @@ export const base: Linter.Config[] = [
       'grouped-accessor-pairs': ['error', 'getBeforeSet'], // Enforce consistency for getters/setters
       'class-methods-use-this': 'error',
       'no-underscore-dangle': 'error',
-      'padding-line-between-statements': [
-        'error',
-        {
-          blankLine: 'always',
-          prev: 'export',
-          next: ['export', 'const']
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: 'return'
-        },
-        {
-          blankLine: 'always',
-          prev: '*',
-          next: 'if'
-        }
-      ],
       'max-len': [
         'error',
         {
@@ -101,6 +83,38 @@ export const base: Linter.Config[] = [
           block: {
             exceptions: ['*']
           }
+        }
+      ],
+      '@stylistic/padding-line-between-statements': [
+        'error',
+        {
+          blankLine: 'always',
+          prev: 'export',
+          next: ['export', 'const']
+        },
+        {
+          blankLine: 'always',
+          prev: ['const', 'let', 'var'],
+          next: '*'
+        },
+        {
+          blankLine: 'any',
+          prev: ['const', 'let', 'var'],
+          next: ['const', 'let', 'var']
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: [
+            'for',
+            'if',
+            'return',
+            'throw',
+            'switch',
+            'try',
+            'class',
+            'function'
+          ]
         }
       ],
       '@stylistic/comma-dangle': [
@@ -188,4 +202,4 @@ export const base: Linter.Config[] = [
       'class-methods-use-this': 'off'
     }
   }
-];
+]);

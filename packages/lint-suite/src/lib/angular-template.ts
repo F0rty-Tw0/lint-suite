@@ -1,10 +1,12 @@
-import nx from '@nx/eslint-plugin';
+import { configs } from 'angular-eslint';
+import { type ConfigArray, config } from 'typescript-eslint';
 
-export const angularTemplate = [
-  ...nx.configs['flat/angular-template'],
+export const angularTemplate: ConfigArray = config([
   {
     files: ['**/*.html'],
+    extends: [...configs.templateAccessibility, ...configs.templateRecommended],
     rules: {
+      '@angular-eslint/template/prefer-template-literal': 'error',
       '@angular-eslint/template/no-any': 'error',
       '@angular-eslint/template/no-duplicate-attributes': 'error',
       '@angular-eslint/template/button-has-type': 'error',
@@ -30,10 +32,10 @@ export const angularTemplate = [
             'INPUT_BINDING', // e.g. `[id]="3"`, `[attr.colspan]="colspan"`, [style.width.%]="100", [@triggerName]="expression", `bind-id="handleChange()"`
             'TWO_WAY_BINDING', // e.g. `[(id)]="id"`, `bindon-id="id"
             'ATTRIBUTE_BINDING', // e.g. `<input required>`, `id="3"`
-            'OUTPUT_BINDING', // e.g. `(idChange)="handleChange()"`, `on-id="handleChange()"`
-          ],
-        },
-      ],
-    },
-  },
-];
+            'OUTPUT_BINDING' // e.g. `(idChange)="handleChange()"`, `on-id="handleChange()"`
+          ]
+        }
+      ]
+    }
+  }
+]);

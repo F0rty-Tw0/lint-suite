@@ -1,12 +1,12 @@
-import type { Linter } from 'eslint';
 import jestEslint from 'eslint-plugin-jest';
+import { type ConfigArray, config } from 'typescript-eslint';
 
-export const jest: Linter.Config[] = [
+export const jest: ConfigArray = config([
   {
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
-    ...jestEslint.configs['flat/all'],
+    extends: [jestEslint.configs['flat/all']],
     rules: {
       'jest/no-done-callback': 'off'
     }
   }
-];
+]);

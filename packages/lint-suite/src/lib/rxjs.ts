@@ -1,7 +1,7 @@
 import rxjsEslint from '@smarttools/eslint-plugin-rxjs';
-import type { Linter } from 'eslint';
+import { type ConfigArray, config } from 'typescript-eslint';
 
-export const rxjs: Linter.Config[] = [
+export const rxjs: ConfigArray = config([
   {
     files: [
       '**/*.js',
@@ -18,7 +18,7 @@ export const rxjs: Linter.Config[] = [
         projectService: true
       }
     },
-    ...rxjsEslint.configs.recommended
+    extends: [rxjsEslint.configs.recommended]
   },
   {
     files: [
@@ -66,4 +66,4 @@ export const rxjs: Linter.Config[] = [
       'rxjs/no-ignored-subscription': 'off'
     }
   }
-];
+]);
