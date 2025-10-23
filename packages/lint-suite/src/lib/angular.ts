@@ -1,11 +1,12 @@
 import globals from 'globals';
-import { configs, processInlineTemplates, tsPlugin } from 'angular-eslint';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { configs, processInlineTemplates } from 'angular-eslint';
+import { defineConfig } from 'eslint/config';
+import type { Config } from 'eslint/config';
 
-export const angular: ConfigArray = config([
+export const angular = defineConfig([
   {
     files: ['**/*.ts'],
-    extends: [...configs.tsRecommended],
+    extends: [...(configs.tsRecommended as Config[])],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -14,7 +15,6 @@ export const angular: ConfigArray = config([
       }
     },
     processor: processInlineTemplates,
-    plugins: { '@angular-eslint': tsPlugin },
     rules: {
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
       '@angular-eslint/prefer-signals': 'error',

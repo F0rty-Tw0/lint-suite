@@ -1,5 +1,9 @@
 # Changelog
 
+## 10.10.1 (2025-10-23)
+
+- Added playwright and vitest plugins
+
 ## 1.0.8 (2025-05-12)
 
 - Updated dependencies to latest versions

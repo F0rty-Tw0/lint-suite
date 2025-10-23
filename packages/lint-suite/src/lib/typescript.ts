@@ -1,23 +1,24 @@
 import { configs } from '@nx/eslint-plugin';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import importPluginX from 'eslint-plugin-import-x';
+import { defineConfig } from 'eslint/config';
+import type { Config } from 'eslint/config';
 
 import explicitAccessibilityRule from './rules/explicit-accessibility.js';
-import { config, ConfigArray } from 'typescript-eslint';
 
-const localTypescriptRules = {
+const localTypescriptRules: Record<string, unknown> = {
   rules: {
     'explicit-accessibility': explicitAccessibilityRule
   }
 };
 
-export const typescript: ConfigArray = config([
+export const typescript = defineConfig([
   // NOTE: Checks for 'prettier' and 'eslint-plugin-prettier'
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
     extends: [
       importPluginX.flatConfigs.typescript,
-      ...configs['flat/typescript']
+      ...(configs['flat/typescript'] as Config[])
     ]
   },
   {

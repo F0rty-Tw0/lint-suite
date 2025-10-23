@@ -1,10 +1,14 @@
 import { configs } from 'angular-eslint';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
+import type { Config } from 'eslint/config';
 
-export const angularTemplate: ConfigArray = config([
+export const angularTemplate = defineConfig([
   {
     files: ['**/*.html'],
-    extends: [...configs.templateAccessibility, ...configs.templateRecommended],
+    extends: [
+      ...(configs.templateAccessibility as Config[]),
+      ...(configs.templateRecommended as Config[])
+    ],
     rules: {
       '@angular-eslint/template/prefer-template-literal': 'error',
       '@angular-eslint/template/no-any': 'error',

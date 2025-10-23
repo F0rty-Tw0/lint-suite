@@ -1,11 +1,10 @@
 import storybookEslint from 'eslint-plugin-storybook';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
 
-export const storybook: ConfigArray = config([
+export const storybook = defineConfig([
   {
     ignores: ['!.storybook'],
     files: ['**/*.stories.ts'],
-    extends: [storybookEslint.configs['flat/recommended']],
-    rules: {}
+    extends: [storybookEslint.configs['flat/recommended']]
   }
 ]);

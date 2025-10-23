@@ -1,7 +1,7 @@
 import rxjsEslint from '@smarttools/eslint-plugin-rxjs';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
 
-export const rxjs: ConfigArray = config([
+export const rxjs = defineConfig([
   {
     files: [
       '**/*.js',

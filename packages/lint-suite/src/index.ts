@@ -8,6 +8,8 @@ import { json } from './lib/json.js';
 import { rxjs } from './lib/rxjs.js';
 import { storybook } from './lib/storybook.js';
 import { typescript } from './lib/typescript.js';
+import { vitest } from './lib/vitest.js';
+import { playwright } from './lib/playwright.js';
 
 export const recommended: ConfigArray = [
   ...base,
@@ -18,7 +20,9 @@ export const recommended: ConfigArray = [
   ...rxjs,
   ...jest,
   ...json,
-  ...storybook
+  ...storybook,
+  ...vitest,
+  ...playwright
 ];
 
 export {
@@ -30,5 +34,7 @@ export {
   rxjs,
   jest,
   json,
-  storybook
+  storybook,
+  vitest,
+  playwright
 };

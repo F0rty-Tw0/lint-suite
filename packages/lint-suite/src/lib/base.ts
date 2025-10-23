@@ -1,9 +1,9 @@
 import { configs } from '@nx/eslint-plugin';
 import stylistic from '@stylistic/eslint-plugin';
 import importPluginX from 'eslint-plugin-import-x';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
 
-export const base: ConfigArray = config([
+export const base = defineConfig([
   { extends: [...configs['flat/base']] },
   {
     files: [
@@ -179,7 +179,7 @@ export const base: ConfigArray = config([
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
       'max-lines-per-function': 'off',
-      complexity: ['warn', { max: 1 }],
+      complexity: ['warn', { max: 3 }],
       'max-lines': [
         'error',
         {

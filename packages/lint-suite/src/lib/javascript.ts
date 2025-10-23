@@ -1,8 +1,8 @@
 import { configs } from '@nx/eslint-plugin';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
+import type { Config } from 'eslint/config';
 
-export const javascript: ConfigArray = config({
+export const javascript = defineConfig({
   files: ['**/*.js', '**/*.jsx', '**/*.cjs', '**/*.mjs'],
-  extends: [...configs['flat/javascript']],
-  rules: {}
+  extends: [...(configs['flat/javascript'] as Config[])]
 });

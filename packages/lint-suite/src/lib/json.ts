@@ -1,10 +1,9 @@
 import jsonEslint from 'eslint-plugin-json';
-import { type ConfigArray, config } from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
 
-export const json: ConfigArray = config([
+export const json = defineConfig([
   {
     files: ['**/*.json'],
-    extends: [jsonEslint.configs.recommended],
-    rules: {}
+    extends: [jsonEslint.configs.recommended]
   }
 ]);
