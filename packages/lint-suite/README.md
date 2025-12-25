@@ -122,6 +122,8 @@ export default [
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
+See [CHANGELOG.md](./CHANGELOG.md) for version history.
+See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for detailed release notes.
 
 ## License
 

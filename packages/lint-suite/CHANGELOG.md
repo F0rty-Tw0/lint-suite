@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.3 (2025-12-25)
+
+### Bug Fixes
+
+- **Imports**: Resolved `import-x/order` configuration issue where internal aliases were misclassified as external packages.
+- **Imports**: Updated `pathGroupsExcludedImportTypes` to strictly exclude `builtin` modules, ensuring correct sorting for internal path aliases.
+
 ## 1.2.0 (2025-12-25)
 
 ### Features

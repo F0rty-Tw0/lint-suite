@@ -39,7 +39,7 @@ Lint Suite provides a comprehensive set of ESLint Flat configurations for modern
 - Consistent comment formatting
 - Standardized comma dangle rules
 - Proper indentation with special cases for ternary expressions
-- Organized imports with consistent grouping
+- Organized imports with consistent grouping and robust internal module detection
 
 ### HTML & Accessibility
 
