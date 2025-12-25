@@ -26,7 +26,6 @@ export const angularTemplate = defineConfig([
       '@angular-eslint/template/prefer-control-flow': 'error',
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
       '@angular-eslint/template/prefer-ngsrc': 'error',
-      '@angular-eslint/template/prefer-empty-for': 'error',
       '@angular-eslint/template/prefer-built-in-pipes': 'error',
       '@angular-eslint/template/no-call-expression': 'error',
       '@angular-eslint/template/no-interpolation-in-attributes': 'error',
