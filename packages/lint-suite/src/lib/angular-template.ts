@@ -29,7 +29,6 @@ export const angularTemplate = defineConfig([
       '@angular-eslint/template/prefer-built-in-pipes': 'error',
       '@angular-eslint/template/no-call-expression': 'error',
       '@angular-eslint/template/no-interpolation-in-attributes': 'error',
-      '@angular-eslint/template/no-empty-control-flow-blocks': 'error',
       '@angular-eslint/template/no-nested-tags': 'error',
       '@angular-eslint/template/use-track-by-function': 'error',
       '@angular-eslint/template/label-has-associated-control': 'error',
