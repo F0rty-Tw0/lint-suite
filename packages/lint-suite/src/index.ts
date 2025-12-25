@@ -10,6 +10,7 @@ import { storybook } from './lib/storybook.js';
 import { typescript } from './lib/typescript.js';
 import { vitest } from './lib/vitest.js';
 import { playwright } from './lib/playwright.js';
+import { boundaries } from './lib/boundaries.js';
 
 export const recommended: ConfigArray = [
   ...base,
@@ -20,6 +21,7 @@ export const recommended: ConfigArray = [
   ...rxjs,
   ...jest,
   ...json,
+  ...boundaries,
   ...storybook,
   ...vitest,
   ...playwright
@@ -34,6 +36,7 @@ export {
   rxjs,
   jest,
   json,
+  boundaries,
   storybook,
   vitest,
   playwright

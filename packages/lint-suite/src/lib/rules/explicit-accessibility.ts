@@ -63,12 +63,6 @@ const getNodeName = (
       return '<destructured parameter>';
     }
     // Handle other potential kinds like RestElement ([...args]), ArrayPattern, ObjectPattern
-    if (
-      param.type === TSESTree.AST_NODE_TYPES.RestElement &&
-      param.argument.type === TSESTree.AST_NODE_TYPES.Identifier
-    ) {
-      return `...${param.argument.name}`;
-    }
 
     return '<complex parameter>';
   }
@@ -118,7 +112,7 @@ export default createRule<Options, 'missingAccessibility'>({
         return; // Already has modifier
       }
 
-      let reportNode: TSESTree.Node | TSESTree.Token | undefined = node;
+      let reportNode: TSESTree.Node | TSESTree.Token = node;
       const name = getNodeName(node);
       // Adjust report node for better highlighting
       if (

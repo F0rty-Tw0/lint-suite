@@ -5,7 +5,7 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 ## Features
 
 - **TypeScript Linting**: Strict typing rules, consistent imports, and code organization
-- **Angular Support**: Component best practices and template accessibility rules
+- **Angular Support**: Component best practices (including Signals), template accessibility rules, and modern control flow
 - **RxJS Guidelines**: Observable patterns, Finnish notation, and operator safety
 - **Code Style**: Formatting rules, line limits, and structural consistency
 - **Accessibility**: ARIA validation, keyboard events, and semantic HTML
@@ -51,6 +51,7 @@ You can selectively include configurations you need.
 - `jest`: Testing configurations
 - `json`: JSON file linting
 - `storybook`: Storybook support
+- `boundaries`: Enforce module boundaries (feature, data-access, ui, etc.)
 
 ## Customization
 

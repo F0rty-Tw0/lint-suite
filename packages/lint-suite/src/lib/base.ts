@@ -63,7 +63,10 @@ export const base = defineConfig([
       yoda: 'error', // Disallow yoda conditions (`if ("red" === color)`)
       complexity: ['warn', 10], // Warn if function complexity is high
       'max-depth': ['warn', 4], // Warn on deeply nested blocks
-      'max-lines-per-function': ['warn', 50], // Warn on long functions
+      'max-lines-per-function': [
+        'warn',
+        { max: 50, skipBlankLines: true, skipComments: true }
+      ], // Warn on long functions
       'max-params': ['warn', 4], // Warn on functions with many parameters
       'no-lonely-if': 'error', // Disallow if statements as the only statement in an else block
       'grouped-accessor-pairs': ['error', 'getBeforeSet'], // Enforce consistency for getters/setters
@@ -176,7 +179,14 @@ export const base = defineConfig([
     }
   },
   {
-    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
+    files: [
+      '**/*.spec.ts',
+      '**/*.test.ts',
+      '**/*.spec.js',
+      '**/*.test.js',
+      '**/*.e2e.ts',
+      '**/*.e2e.js'
+    ],
     rules: {
       'max-lines-per-function': 'off',
       complexity: ['warn', { max: 3 }],

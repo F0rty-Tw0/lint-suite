@@ -140,6 +140,21 @@ export const typescript = defineConfig([
               position: 'before'
             },
             {
+              pattern: '@shared/**',
+              group: 'internal',
+              position: 'before'
+            },
+            {
+              pattern: '@backend/**',
+              group: 'internal',
+              position: 'before'
+            },
+            {
+              pattern: '@frontend/**',
+              group: 'internal',
+              position: 'before'
+            },
+            {
               pattern: '@*/shared/**',
               group: 'internal',
               position: 'before'
@@ -155,7 +170,7 @@ export const typescript = defineConfig([
               position: 'after'
             }
           ],
-          pathGroupsExcludedImportTypes: ['@angular/**', '@nestjs/**'],
+          pathGroupsExcludedImportTypes: ['builtin'],
           'newlines-between': 'always',
           alphabetize: { order: 'asc', caseInsensitive: true }
         }
@@ -195,7 +210,14 @@ export const typescript = defineConfig([
     }
   },
   {
-    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
+    files: [
+      '**/*.spec.ts',
+      '**/*.test.ts',
+      '**/*.spec.js',
+      '**/*.test.js',
+      '**/*.e2e.ts',
+      '**/*.e2e.js'
+    ],
     rules: {
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-unbound-method': 'off',

@@ -21,6 +21,7 @@ Lint Suite provides a comprehensive set of ESLint Flat configurations for modern
 - Comprehensive template accessibility rules
 - Structured attributes ordering for consistent template formatting
 - Controls for self-closing tags, control flow syntax, and ngSrc usage
+- Signal-based component patterns enforcement
 
 ### RxJS Rules
 
@@ -58,6 +59,7 @@ Lint Suite provides a comprehensive set of ESLint Flat configurations for modern
 
 ### Additional Features
 
+- Enforced Module Boundaries (feature, data-access, ui, etc.)
 - JSON file linting
 - Storybook support
 - Base JavaScript configurations
@@ -80,7 +82,7 @@ import { base, javascript, typescript } from 'lint-suite';
 export default [
   ...base,
   ...javascript,
-  ...typescript,
+  ...typescript
   // Rest of the required configurations
 ];
 ```

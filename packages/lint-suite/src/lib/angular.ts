@@ -18,7 +18,10 @@ export const angular = defineConfig([
     rules: {
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
       '@angular-eslint/prefer-signals': 'error',
-      '@angular-eslint/use-injectable-provided-in': 'error'
+      '@angular-eslint/use-injectable-provided-in': 'error',
+      '@angular-eslint/prefer-signal-model': 'error',
+      '@angular-eslint/no-uncalled-signals': 'error',
+      '@angular-eslint/prefer-host-metadata-property': 'error'
     }
   }
 ]);

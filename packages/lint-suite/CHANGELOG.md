@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.0 (2025-12-25)
+
+### Features
+
+- **Angular**: Added support for Angular 19+ Signal inputs (`prefer-signal-model`).
+- **Angular**: Enforced explicit signal invocation in templates (`no-uncalled-signals`).
+- **Angular**: Updated host binding preference to `host` property (`prefer-host-metadata-property`).
+- **Angular Templates**: Added comprehensive formatting and performance rules (`prefer-empty-for`, `no-call-expression`, `prefer-built-in-pipes`).
+- **Imports**: Enhanced `sort-imports` and `import/order` configuration for better grouping ensuring local and external libraries are properly separated.
+- **Boundaries**: Integrated `eslint-plugin-boundaries` to enforce architecture rules (feature, data-access, ui, domain-logic, etc.).
+
+### Improvements
+
+- **General**: Configured `max-lines-per-function` to ignore comments and blank lines, providing a more accurate complexity metric.
+
 ## 10.10.1 (2025-10-23)
 
 - Added playwright and vitest plugins
