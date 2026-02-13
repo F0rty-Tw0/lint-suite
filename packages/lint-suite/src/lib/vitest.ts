@@ -11,7 +11,20 @@ export const vitest = defineConfig([
     plugins: vitestPlugin,
     rules: {
       ...vitestEslint.configs.recommended.rules,
-      'vitest/max-nested-describe': ['error', { max: 3 }]
+      'vitest/max-nested-describe': ['error', { max: 3 }],
+      // Matcher improvements
+      'vitest/prefer-to-be': 'error',
+      'vitest/prefer-to-contain': 'error',
+      'vitest/prefer-to-have-length': 'error',
+      'vitest/prefer-comparison-matcher': 'error',
+      'vitest/prefer-strict-equal': 'warn',
+      // Test quality
+      'vitest/prefer-spy-on': 'error',
+      'vitest/prefer-hooks-on-top': 'error',
+      'vitest/prefer-each': 'warn',
+      'vitest/no-conditional-in-test': 'error',
+      'vitest/no-test-return-statement': 'error',
+      'vitest/prefer-mock-promise-shorthand': 'error'
     }
   }
 ]);

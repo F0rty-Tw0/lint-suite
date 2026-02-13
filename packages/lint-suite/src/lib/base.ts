@@ -56,7 +56,8 @@ export const base = defineConfig([
       'no-useless-concat': 'error',
       'prefer-template': 'error',
       'no-nested-ternary': 'error',
-      'no-return-await': 'error',
+      'no-useless-assignment': 'error', // NEW: Catch unused assignments (ESLint v9)
+      'no-object-constructor': 'error', // Disallow new Object() without arguments
       'no-else-return': ['error', { allowElseIf: false }], // Prefer early returns
       'no-multi-assign': 'error', // Disallow chaining assignments
       radix: 'error', // Require radix parameter for parseInt()

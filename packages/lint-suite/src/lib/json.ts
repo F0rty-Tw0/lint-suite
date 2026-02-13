@@ -5,5 +5,9 @@ export const json = defineConfig([
   {
     files: ['**/*.json'],
     extends: [jsonEslint.configs.recommended]
+  },
+  {
+    files: ['**/tsconfig*.json', '**/.vscode/*.json'],
+    extends: [jsonEslint.configs['recommended-with-comments']]
   }
 ]);

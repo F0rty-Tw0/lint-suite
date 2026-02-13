@@ -40,6 +40,11 @@ export const typescript = defineConfig([
       '@typescript-eslint/no-unsafe-return': 'error',
       '@typescript-eslint/no-unsafe-argument': 'error',
 
+      // New v8 type-safety rules (replacements for deprecated ban-types)
+      '@typescript-eslint/no-empty-object-type': 'error', // Bans confusing {} type
+      '@typescript-eslint/no-unsafe-function-type': 'error', // Bans Function type
+      '@typescript-eslint/no-wrapper-object-types': 'error', // Bans Number, String, Boolean wrappers
+
       // B. Explicit Annotations (partially covered, explicit module boundaries is key)
       '@typescript-eslint/explicit-module-boundary-types': 'error',
       // Consider enabling if maximum explicitness is desired, even if verbose:
@@ -60,7 +65,10 @@ export const typescript = defineConfig([
 
       // E. Best Practices & Potential Errors (Some covered by presets, fine-tuning here)
       '@typescript-eslint/no-inferrable-types': 'warn', // Keep as warn or disable if inference is preferred
-      '@typescript-eslint/no-var-requires': 'error', // Use ES modules
+      '@typescript-eslint/no-require-imports': 'error', // Use ES modules (replaces deprecated no-var-requires)
+      '@typescript-eslint/only-throw-error': 'error', // Replaces deprecated no-throw-literal
+      '@typescript-eslint/no-array-delete': 'error', // Prevents delete arr[0]
+      '@typescript-eslint/return-await': ['error', 'in-try-catch'], // Better stack traces in try/catch
       '@typescript-eslint/require-await': 'error',
       '@typescript-eslint/restrict-template-expressions': [
         'error',
@@ -76,6 +84,22 @@ export const typescript = defineConfig([
       ],
       '@typescript-eslint/no-useless-constructor': 'error',
       '@typescript-eslint/dot-notation': ['error', { allowKeywords: true }], // Prefer dot notation where possible
+
+      // Strict type-checked rules
+      '@typescript-eslint/no-unnecessary-condition': 'error', // Catches always-true/false conditions
+      '@typescript-eslint/no-confusing-void-expression': 'error', // Prevent confusing void usage
+      '@typescript-eslint/no-dynamic-delete': 'error', // Use Map instead of delete obj[key]
+      '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }], // Allow Angular classes
+      '@typescript-eslint/no-invalid-void-type': 'error', // Restrict void to return types
+      '@typescript-eslint/unified-signatures': 'error', // Merge overloads where possible
+      '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error', // Forbids foo! ?? bar
+
+      // Stylistic type-checked rules
+      '@typescript-eslint/prefer-find': 'error', // Use find() instead of filter()[0]
+      '@typescript-eslint/prefer-for-of': 'error', // Modern iteration
+      '@typescript-eslint/prefer-includes': 'error', // indexOf() → includes()
+      '@typescript-eslint/prefer-string-starts-ends-with': 'error', // Modern string methods
+      '@typescript-eslint/prefer-regexp-exec': 'error', // Better regex performance
 
       // F. Consistency & Style (Some covered by stylistic-type-checked)
       '@typescript-eslint/consistent-type-assertions': [
@@ -178,10 +202,14 @@ export const typescript = defineConfig([
       'import-x/no-unresolved': 'error',
       'import-x/no-duplicates': 'error',
       'import-x/prefer-default-export': 'off',
-      'import-x/no-useless-path-segments': 'error',
+      'import-x/no-useless-path-segments': ['error', { noUselessIndex: true }],
       'import-x/newline-after-import': 'error',
       'import-x/first': 'error',
-      'import-x/no-mutable-exports': 'error'
+      'import-x/no-mutable-exports': 'error',
+      'import-x/no-self-import': 'error', // Prevents modules importing themselves
+      'import-x/no-cycle': ['error', { maxDepth: 2, ignoreExternal: true }], // Prevents circular dependencies
+      'import-x/consistent-type-specifier-style': ['error', 'prefer-top-level'], // Consistent type imports
+      'import-x/no-anonymous-default-export': 'error' // Improve code searchability
     },
     settings: {
       'import-x/resolver-next': [

@@ -5,6 +5,7 @@ import { base } from './lib/base.js';
 import { javascript } from './lib/javascript.js';
 import { jest } from './lib/jest.js';
 import { json } from './lib/json.js';
+import { prettier } from './lib/prettier.js';
 import { rxjs } from './lib/rxjs.js';
 import { storybook } from './lib/storybook.js';
 import { typescript } from './lib/typescript.js';
@@ -24,7 +25,8 @@ export const recommended: ConfigArray = [
   ...boundaries,
   ...storybook,
   ...vitest,
-  ...playwright
+  ...playwright,
+  ...prettier // Must be last to disable formatting rules that conflict with Prettier
 ];
 
 export {
@@ -39,5 +41,6 @@ export {
   boundaries,
   storybook,
   vitest,
-  playwright
+  playwright,
+  prettier
 };

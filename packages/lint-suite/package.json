@@ -1,6 +1,6 @@
 {
   "name": "lint-suite",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "description": "Reusable ESLint configurations",
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "eslint-plugin-json": "^4.0.1",
     "eslint-plugin-playwright": "2.5.1",
     "eslint-plugin-storybook": "10.2.8",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-boundaries": "^5.4.0",
     "globals": "17.3.0",
     "typescript-eslint": "8.55.0"

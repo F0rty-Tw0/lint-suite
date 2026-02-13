@@ -57,7 +57,10 @@ export const rxjs = defineConfig([
       'rxjs/no-unsafe-first': 'error',
       'rxjs/no-topromise': 'error',
       'rxjs/throw-error': 'error',
-      'rxjs/no-async-subscribe': 'off'
+      'rxjs/no-async-subscribe': 'off',
+      'rxjs/no-exposed-subjects': 'error', // Enforce subject encapsulation
+      'rxjs/no-cyclic-action': 'error', // Prevent infinite loops in NgRx effects
+      'rxjs/no-subscribe-handlers': 'warn' // Prefer observer objects (complements prefer-observer)
     }
   },
   {

@@ -49,6 +49,8 @@ export const boundaries = defineConfig([
     },
     rules: {
       ...boundariesPlugin.configs.recommended.rules,
+      'boundaries/no-unknown': 'warn', // Warn on imports from uncategorized files
+      'boundaries/no-unknown-files': 'warn', // Warn on files not matching any element type
       'boundaries/element-types': [
         'error',
         {

@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.3.0 (2026-02-13)
+
+### Features
+
+- **Prettier**: Added new `prettier` configuration module using `eslint-config-prettier` to disable formatting rules that conflict with Prettier. Must be last in the configuration array.
+- **Angular Templates**: Added Angular 21+ control flow rules (`prefer-at-else`, `prefer-at-empty`, `prefer-contextual-for-variables`, `no-empty-control-flow`).
+- **Angular Templates**: Added performance rules (`prefer-class-binding`, `prefer-static-string-properties`, `no-call-expression`, `conditional-complexity`).
+- **Angular**: Added Angular 21.2.0 rules (`no-implicit-take-until-destroyed`, `no-async-lifecycle-method`, `prefer-output-readonly`, `prefer-output-emitter-ref`, `sort-lifecycle-methods`).
+- **TypeScript**: Added v8 type-safety replacements for deprecated `ban-types` (`no-empty-object-type`, `no-unsafe-function-type`, `no-wrapper-object-types`).
+- **TypeScript**: Added strict type-checked rules (`no-unnecessary-condition`, `no-confusing-void-expression`, `no-dynamic-delete`, `no-extraneous-class`, `no-invalid-void-type`, `unified-signatures`, `no-non-null-asserted-nullish-coalescing`).
+- **TypeScript**: Added stylistic type-checked rules (`prefer-find`, `prefer-for-of`, `prefer-includes`, `prefer-string-starts-ends-with`, `prefer-regexp-exec`).
+- **TypeScript**: Replaced deprecated rules — `no-var-requires` → `no-require-imports`, `no-throw-literal` → `only-throw-error`.
+- **TypeScript**: Added `no-array-delete` and `return-await` (in-try-catch) for safer code patterns.
+- **Imports**: Added `no-self-import`, `no-cycle` (max depth 2), `consistent-type-specifier-style`, and `no-anonymous-default-export`.
+- **Imports**: Enhanced `no-useless-path-segments` with `noUselessIndex` option.
+- **Jest**: Overhauled configuration — switched from `flat/all` to `flat/recommended` with curated best-practice rules (`consistent-test-it`, `prefer-comparison-matcher`, `prefer-hooks-on-top`, `no-conditional-in-test`, and more).
+- **Vitest**: Expanded rule set with matcher improvements, test quality rules, and `prefer-mock-promise-shorthand`.
+- **Playwright**: Expanded rule set with locator best practices (`prefer-locator`, `prefer-native-locators`), matcher improvements, and test structure rules.
+- **RxJS**: Added `no-exposed-subjects`, `no-cyclic-action`, and `no-subscribe-handlers` for better observable hygiene.
+- **Storybook**: Added `csf-component` and `no-stories-of` rules to enforce modern CSF patterns.
+- **Boundaries**: Added `no-unknown` and `no-unknown-files` warnings for uncategorized imports/files.
+- **JSON**: Added `recommended-with-comments` config for `tsconfig*.json` and `.vscode/*.json` files.
+- **Base**: Added `no-useless-assignment` (ESLint v9) and `no-object-constructor` rules.
+
+### Breaking Changes
+
+- **Jest**: Changed from `flat/all` to `flat/recommended` as the base preset. Projects relying on rules from `flat/all` that are not explicitly re-enabled may see rules disappear. Review the curated rule list if migrating.
+- **Base**: Removed `no-return-await` (replaced by TypeScript-aware `@typescript-eslint/return-await`).
+- **TypeScript**: `no-var-requires` replaced by `no-require-imports`; `no-throw-literal` replaced by `only-throw-error`.
+
 ## 1.2.3 (2025-12-25)
 
 ### Bug Fixes

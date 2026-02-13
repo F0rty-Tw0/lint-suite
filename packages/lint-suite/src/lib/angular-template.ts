@@ -31,6 +31,14 @@ export const angularTemplate = defineConfig([
       '@angular-eslint/template/no-nested-tags': 'error',
       '@angular-eslint/template/use-track-by-function': 'error',
       '@angular-eslint/template/label-has-associated-control': 'error',
+      '@angular-eslint/template/prefer-at-else': 'error', // v21: @if/@else syntax
+      '@angular-eslint/template/prefer-at-empty': 'error', // v21: @for/@empty syntax
+      '@angular-eslint/template/prefer-contextual-for-variables': 'error', // v21: Use $index, $first, etc.
+      '@angular-eslint/template/no-empty-control-flow': 'error', // v21: Catch incomplete refactoring
+      '@angular-eslint/template/prefer-class-binding': 'error', // v21.2.0: Prefer [class] over ngClass
+      '@angular-eslint/template/prefer-static-string-properties': 'error', // Reduce change detection
+      '@angular-eslint/template/no-call-expression': 'warn', // Performance: avoid method calls in templates
+      '@angular-eslint/template/conditional-complexity': ['warn', { maxComplexity: 5 }], // Template readability
       '@angular-eslint/template/attributes-order': [
         'error',
         {
