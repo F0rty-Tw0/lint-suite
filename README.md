@@ -19,7 +19,7 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 ## Installation
 
 ```bash
-npm install --save-dev lint-suite
+pnpm add -D lint-suite
 ```
 
 ## Usage

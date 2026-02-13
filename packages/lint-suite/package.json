@@ -46,10 +46,10 @@
   },
   "scripts": {
     "build": "nx build lint-suite",
-    "patch": "npm version patch",
-    "minor": "npm version minor",
-    "major": "npm version major",
-    "publish": "npm publish --access public"
+    "patch": "pnpm version patch",
+    "minor": "pnpm version minor",
+    "major": "pnpm version major",
+    "publish": "pnpm publish --access public"
   },
   "exports": {
     "./package.json": "./package.json",

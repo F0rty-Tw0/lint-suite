@@ -7,20 +7,20 @@ Thank you for your interest in contributing to Lint Suite! This document provide
 ### Prerequisites
 
 - Node.js (v22 or higher)
-- npm or yarn
+- pnpm (v10 or higher)
 
 ### Setup
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/your-username/lint-suite.git`
 3. Navigate to the project directory: `cd lint-suite`
-4. Install dependencies: `npm install`
+4. Install dependencies: `pnpm install`
 
 ## Development Workflow
 
 1. Create a new branch: `git checkout -b feature/your-feature-name`
 2. Make your changes
-3. Ensure all linting checks pass: `npm run lint`
+3. Ensure all linting checks pass: `pnpm lint`
 4. Commit your changes using conventional commits format
 
 ## Pull Request Process

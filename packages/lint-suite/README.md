@@ -15,13 +15,13 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 ## Installation
 
 ```bash
-npm install --save-dev lint-suite
+pnpm add -D lint-suite
 ```
 
 ## Dependencies
 
 ```bash
-npm install --save-dev eslint typescript-eslint eslint-config-prettier
+pnpm add -D eslint typescript-eslint eslint-config-prettier
 ```
 
 ## Usage
