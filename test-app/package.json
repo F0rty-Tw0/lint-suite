@@ -1,0 +1,54 @@
+{
+  "name": "test-app",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "storybook": "ng run test-app:storybook",
+    "build-storybook": "ng run test-app:build-storybook"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.29.3",
+  "dependencies": {
+    "@angular/common": "^21.1.0",
+    "@angular/compiler": "^21.1.0",
+    "@angular/core": "^21.1.0",
+    "@angular/forms": "^21.1.0",
+    "@angular/platform-browser": "^21.1.0",
+    "@angular/router": "^21.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@analogjs/vitest-angular": "^2.2.3",
+    "@angular/build": "^21.1.4",
+    "@angular/cli": "^21.1.4",
+    "@angular/compiler-cli": "^21.1.0",
+    "@compodoc/compodoc": "^1.2.1",
+    "@playwright/test": "^1.58.2",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/angular": "^10.2.8",
+    "eslint": "^9.39.2",
+    "jsdom": "^28.0.0",
+    "lint-suite": "workspace:*",
+    "storybook": "^10.2.8",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.18"
+  }
+}
