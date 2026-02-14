@@ -1,5 +1,15 @@
 # Lint Suite Release Notes
 
+## v1.3.2
+
+Patch release relaxing the `no-confusing-void-expression` rule for better developer experience.
+
+### Changes
+
+- **TypeScript**: `@typescript-eslint/no-confusing-void-expression` now allows arrow shorthand (`ignoreArrowShorthand: true`) and void operator (`ignoreVoidOperator: true`) — common patterns like `() => void doSomething()` and `() => someVoidFn()` no longer trigger errors
+
+---
+
 ## v1.3.1
 
 Patch release with rule adjustments based on real-world usage feedback.

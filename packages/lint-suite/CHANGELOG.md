@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2 (2026-02-14)
+
+### Improvements
+
+- **TypeScript**: Relaxed `@typescript-eslint/no-confusing-void-expression` — enabled `ignoreArrowShorthand` and `ignoreVoidOperator` options to allow common patterns like `() => void doSomething()` and shorthand arrow returns
+
 ## 1.3.1 (2026-02-14)
 
 ### Improvements
