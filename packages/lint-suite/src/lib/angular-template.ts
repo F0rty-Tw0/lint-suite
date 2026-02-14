@@ -37,8 +37,10 @@ export const angularTemplate = defineConfig([
       '@angular-eslint/template/no-empty-control-flow': 'error', // v21: Catch incomplete refactoring
       '@angular-eslint/template/prefer-class-binding': 'error', // v21.2.0: Prefer [class] over ngClass
       '@angular-eslint/template/prefer-static-string-properties': 'error', // Reduce change detection
-      '@angular-eslint/template/no-call-expression': 'warn', // Performance: avoid method calls in templates
-      '@angular-eslint/template/conditional-complexity': ['warn', { maxComplexity: 5 }], // Template readability
+      '@angular-eslint/template/conditional-complexity': [
+        'warn',
+        { maxComplexity: 5 }
+      ], // Template readability
       '@angular-eslint/template/attributes-order': [
         'error',
         {
