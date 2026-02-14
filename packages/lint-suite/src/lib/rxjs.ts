@@ -66,7 +66,8 @@ export const rxjs = defineConfig([
   {
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
-      'rxjs/no-ignored-subscription': 'off'
+      'rxjs/no-ignored-subscription': 'off',
+      'rxjs/no-subscribe-handlers': 'off'
     }
   }
 ]);

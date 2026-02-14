@@ -234,7 +234,8 @@ export const typescript = defineConfig([
   {
     files: ['**/*.action.ts'],
     rules: {
-      '@typescript-eslint/no-namespace': 'off'
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off'
     }
   },
   {

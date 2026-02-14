@@ -1,5 +1,18 @@
 # Lint Suite Release Notes
 
+## v1.3.1
+
+Patch release with rule adjustments based on real-world usage feedback.
+
+### Changes
+
+- **RxJS**: `rxjs/no-subscribe-handlers` is now `off` in test files — subscribe handlers are common and acceptable in tests
+- **TypeScript**: `@typescript-eslint/no-extraneous-class` is now `off` in `.action.ts` files — NgRx action classes are intentionally empty
+- **Boundaries**: Removed `boundaries/no-unknown` — produced too much noise on real projects
+- **Vitest**: Removed `vitest/no-conditional-in-test` — overly strict for real-world test scenarios
+
+---
+
 ## v1.3.0
 
 This release is a comprehensive expansion of lint-suite, adding **60+ new rules** across all configuration modules, a new Prettier integration module, and modernized presets for Angular 21, TypeScript-ESLint v8, and testing frameworks.

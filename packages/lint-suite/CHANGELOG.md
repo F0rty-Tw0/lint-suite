@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.1 (2026-02-14)
+
+### Improvements
+
+- **RxJS**: Disabled `rxjs/no-subscribe-handlers` in test files — subscribe handlers are acceptable in tests
+- **TypeScript**: Disabled `@typescript-eslint/no-extraneous-class` in `.action.ts` files — NgRx action classes are intentionally empty
+
+### Removed
+
+- **Boundaries**: Removed `boundaries/no-unknown` rule — too noisy for most projects
+- **Vitest**: Removed `vitest/no-conditional-in-test` — overly strict for real-world test scenarios
+
 ## 1.3.0 (2026-02-13)
 
 ### Features

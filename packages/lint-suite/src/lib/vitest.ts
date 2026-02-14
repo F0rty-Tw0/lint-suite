@@ -22,7 +22,6 @@ export const vitest = defineConfig([
       'vitest/prefer-spy-on': 'error',
       'vitest/prefer-hooks-on-top': 'error',
       'vitest/prefer-each': 'warn',
-      'vitest/no-conditional-in-test': 'error',
       'vitest/no-test-return-statement': 'error',
       'vitest/prefer-mock-promise-shorthand': 'error'
     }
