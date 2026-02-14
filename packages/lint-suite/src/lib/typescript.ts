@@ -87,7 +87,10 @@ export const typescript = defineConfig([
 
       // Strict type-checked rules
       '@typescript-eslint/no-unnecessary-condition': 'error', // Catches always-true/false conditions
-      '@typescript-eslint/no-confusing-void-expression': 'error', // Prevent confusing void usage
+      '@typescript-eslint/no-confusing-void-expression': [
+        'error',
+        { ignoreArrowShorthand: true, ignoreVoidOperator: true }
+      ], // Prevent confusing void usage
       '@typescript-eslint/no-dynamic-delete': 'error', // Use Map instead of delete obj[key]
       '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }], // Allow Angular classes
       '@typescript-eslint/no-invalid-void-type': 'error', // Restrict void to return types
