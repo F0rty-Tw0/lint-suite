@@ -217,8 +217,7 @@ export const typescript = defineConfig([
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
-          alwaysTryTypes: true,
-          project: 'tsconfig.base.json'
+          alwaysTryTypes: true
         })
       ]
     }

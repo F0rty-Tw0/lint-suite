@@ -62,8 +62,6 @@ const getNodeName = (
        */
       return '<destructured parameter>';
     }
-    // Handle other potential kinds like RestElement ([...args]), ArrayPattern, ObjectPattern
-
     return '<complex parameter>';
   }
 
@@ -134,7 +132,7 @@ export default createRule<Options, 'missingAccessibility'>({
       }
 
       context.report({
-        node: reportNode,
+        node: reportNode ?? node,
         messageId: 'missingAccessibility',
         data: { name },
         fix(fixer) {
