@@ -1,6 +1,14 @@
 # Changelog
 
-## 1.3.2 (2026-02-14)
+## [Unreleased]
+
+### Improvements
+
+- **Imports**: Removed hardcoded `tsconfig.base.json` from import resolver — auto-discovers tsconfig for portability across consuming projects
+- **Release**: Added `release-it` with automated changelog, git tagging, and GitHub Releases
+- **CI**: Added GitHub Actions CI and release workflows
+
+## [1.3.2] - 2026-02-14
 
 ### Improvements
 
