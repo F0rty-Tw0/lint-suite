@@ -2,13 +2,15 @@
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **Imports**: Fixed import resolver failing to find `tsconfig` in consuming projects — resolver now auto-discovers tsconfig files instead of requiring a hardcoded path
+
 ## [1.3.4] - 2026-03-30
 
-### Improvements
+### Bug Fixes
 
-- **Imports**: Removed hardcoded `tsconfig.base.json` from import resolver — auto-discovers tsconfig for portability across consuming projects
-- **Release**: Added `release-it` with automated changelog, git tagging, and GitHub Releases
-- **CI**: Added GitHub Actions CI and release workflows
+- **Imports**: Fixed import resolver failing to find `tsconfig` in consuming projects when using `eslint-import-resolver-typescript`
 
 ## [1.3.2] - 2026-02-14
 
