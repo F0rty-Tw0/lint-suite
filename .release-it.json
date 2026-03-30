@@ -18,7 +18,6 @@
     "releaseName": "v${version}"
   },
   "hooks": {
-    "before:init": "pnpm exec nx run lint-suite:build",
     "after:bump": "node -e \"const fs=require('fs');const p=JSON.parse(fs.readFileSync('packages/lint-suite/package.json'));p.version='${version}';fs.writeFileSync('packages/lint-suite/package.json',JSON.stringify(p,null,2)+'\\n')\"",
     "before:release": "pnpm exec nx run lint-suite:build"
   },
