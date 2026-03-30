@@ -19,7 +19,8 @@
   },
   "hooks": {
     "after:bump": "node -e \"const fs=require('fs');const p=JSON.parse(fs.readFileSync('packages/lint-suite/package.json'));p.version='${version}';fs.writeFileSync('packages/lint-suite/package.json',JSON.stringify(p,null,2)+'\\n')\"",
-    "before:release": "pnpm exec nx run lint-suite:build"
+    "before:release": "pnpm exec nx run lint-suite:build",
+    "after:git:release": "cd dist/packages/lint-suite/src && pnpm publish --provenance --access public --no-git-checks"
   },
   "plugins": {
     "@release-it/keep-a-changelog": {

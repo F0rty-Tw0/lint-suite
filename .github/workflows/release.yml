@@ -59,6 +59,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           RELEASE_VERSION: ${{ inputs.version }}
-        run: >
-          pnpm run release:ci -- "$RELEASE_VERSION"
-          --hooks.after:git:release="cd dist/packages/lint-suite/src && pnpm publish --provenance --access public --no-git-checks"
+        run: pnpm run release:ci -- "$RELEASE_VERSION"
