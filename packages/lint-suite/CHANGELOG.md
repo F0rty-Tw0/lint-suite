@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.7] - 2026-03-30
+
 ### Bug Fixes
 
 - **Imports**: Fixed import resolver failing to find `tsconfig` in consuming projects — resolver now auto-discovers tsconfig files instead of requiring a hardcoded path
@@ -190,5 +192,7 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.4...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.7...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+
+[1.3.7]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.4...v1.3.7
