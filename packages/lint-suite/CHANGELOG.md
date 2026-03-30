@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-03-30
+
 ### Improvements
 
 - **Imports**: Removed hardcoded `tsconfig.base.json` from import resolver — auto-discovers tsconfig for portability across consuming projects
@@ -185,3 +187,6 @@
 
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
+
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.4...HEAD
+[1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
