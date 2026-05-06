@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Features
+
+- **Angular**: Added new rules for safer components — `computed-must-return`, `no-conflicting-lifecycle`, `no-duplicates-in-metadata-arrays`, `no-lifecycle-call`, `require-lifecycle-on-prototype`, `relative-url-prefix`, `use-component-selector`, `no-developer-preview`, and `no-experimental`.
+- **Angular Templates**: Added `no-non-null-assertion` to forbid `!` assertions in templates and `no-inline-styles` to forbid inline `style="..."` attributes.
+
+### Bug Fixes
+
+- **TypeScript**: Fixed `explicit-member-accessibility` autofix inserting accessibility modifiers in the wrong position in some cases.
+
 ## [1.3.7] - 2026-03-30
 
 ### Bug Fixes
