@@ -136,9 +136,9 @@ export default createRule<Options, 'missingAccessibility'>({
         messageId: 'missingAccessibility',
         data: { name },
         fix(fixer) {
-          let tokenToInsertBefore: TSESTree.Token | null = null;
           let insertText = `${defaultAccessibility} `;
 
+          let tokenToInsertBefore: TSESTree.Token | null;
           if (node.decorators.length > 0) {
             const lastDecorator = node.decorators[node.decorators.length - 1];
             tokenToInsertBefore = sourceCode.getTokenAfter(lastDecorator);
