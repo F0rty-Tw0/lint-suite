@@ -92,7 +92,10 @@ export const typescript = defineConfig([
         { ignoreArrowShorthand: true, ignoreVoidOperator: true }
       ], // Prevent confusing void usage
       '@typescript-eslint/no-dynamic-delete': 'error', // Use Map instead of delete obj[key]
-      '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }], // Allow Angular classes
+      '@typescript-eslint/no-extraneous-class': [
+        'error',
+        { allowWithDecorator: true }
+      ], // Allow Angular classes
       '@typescript-eslint/no-invalid-void-type': 'error', // Restrict void to return types
       '@typescript-eslint/unified-signatures': 'error', // Merge overloads where possible
       '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error', // Forbids foo! ?? bar
