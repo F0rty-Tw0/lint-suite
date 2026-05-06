@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.8] - 2026-05-06
+
 ### Features
 
 - **Angular**: Added new rules for safer components — `computed-must-return`, `no-conflicting-lifecycle`, `no-duplicates-in-metadata-arrays`, `no-lifecycle-call`, `require-lifecycle-on-prototype`, `relative-url-prefix`, `use-component-selector`, `no-developer-preview`, and `no-experimental`.
@@ -201,7 +203,8 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.7...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.8...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
 
+[1.3.8]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.4...v1.3.7
