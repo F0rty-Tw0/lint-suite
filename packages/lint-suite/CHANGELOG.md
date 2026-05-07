@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.10] - 2026-05-07
+
 ### Breaking Changes
 
 - **JSON**: Replaced `eslint-plugin-json` with the official `@eslint/json` plugin. `eslint-plugin-json@4` is incompatible with ESLint 10 (uses removed `context.getFilename()` API). Consumers using the `json` config module continue to get `**/*.json` and `**/tsconfig*.json` / `**/.vscode/*.json` (JSONC) coverage, now via `language: 'json/json'` and `language: 'json/jsonc'`.
@@ -213,9 +215,10 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.9...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.10...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
 
+[1.3.10]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.9...v1.3.10
 [1.3.9]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.8...v1.3.9
 [1.3.8]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.4...v1.3.7
