@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **JSON**: Replaced `eslint-plugin-json` with the official `@eslint/json` plugin. `eslint-plugin-json@4` is incompatible with ESLint 10 (uses removed `context.getFilename()` API). Consumers using the `json` config module continue to get `**/*.json` and `**/tsconfig*.json` / `**/.vscode/*.json` (JSONC) coverage, now via `language: 'json/json'` and `language: 'json/jsonc'`.
+
 ## [1.3.9] - 2026-05-07
 
 ### Bug Fixes

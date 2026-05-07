@@ -28,6 +28,7 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.2.0",
     "@nx/eslint-plugin": "22.7.1",
     "@smarttools/eslint-plugin-rxjs": "1.0.22",
     "@stylistic/eslint-plugin": "5.10.0",
@@ -40,7 +41,6 @@
     "eslint-plugin-boundaries": "6.0.2",
     "eslint-plugin-import-x": "4.16.2",
     "eslint-plugin-jest": "29.15.2",
-    "eslint-plugin-json": "^4.0.1",
     "eslint-plugin-playwright": "2.10.2",
     "eslint-plugin-storybook": "10.3.6",
     "globals": "17.6.0",

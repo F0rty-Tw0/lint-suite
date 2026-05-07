@@ -1,13 +1,13 @@
-import jsonEslint from 'eslint-plugin-json';
+import jsonPlugin from '@eslint/json';
 import { defineConfig } from 'eslint/config';
 
 export const json = defineConfig([
   {
-    files: ['**/*.json'],
-    extends: [jsonEslint.configs.recommended]
+    plugins: { json: jsonPlugin }
   },
   {
-    files: ['**/tsconfig*.json', '**/.vscode/*.json'],
-    extends: [jsonEslint.configs['recommended-with-comments']]
+    files: ['**/*.json'],
+    language: 'json/json',
+    extends: [jsonPlugin.configs.recommended]
   }
 ]);

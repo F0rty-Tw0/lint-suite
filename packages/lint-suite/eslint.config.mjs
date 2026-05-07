@@ -8,7 +8,8 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
-          ignoredFiles: ['{projectRoot}/eslint.config.mjs']
+          ignoredFiles: ['{projectRoot}/eslint.config.mjs'],
+          ignoredDependencies: ['@eslint/js']
         }
       ]
     },
