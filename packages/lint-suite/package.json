@@ -27,6 +27,7 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
+    "@eslint/js": "^10.0.1",
     "@nx/eslint-plugin": "22.7.1",
     "@smarttools/eslint-plugin-rxjs": "1.0.22",
     "@stylistic/eslint-plugin": "5.10.0",

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **Dependencies**: Declared `@eslint/js` as a runtime dependency. `@nx/eslint-plugin` requires it via `require('@eslint/js')` without declaring it itself, so consumers were crashing with `Cannot find module '@eslint/js'` whenever `@eslint/js` was not transitively hoisted from elsewhere.
+
 ## [1.3.8] - 2026-05-06
 
 ### Features
