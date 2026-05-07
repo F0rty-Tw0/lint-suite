@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.9] - 2026-05-07
+
 ### Bug Fixes
 
 - **Dependencies**: Declared `@eslint/js` as a runtime dependency. `@nx/eslint-plugin` requires it via `require('@eslint/js')` without declaring it itself, so consumers were crashing with `Cannot find module '@eslint/js'` whenever `@eslint/js` was not transitively hoisted from elsewhere.
@@ -207,8 +209,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.8...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.9...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
 
+[1.3.9]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.8...v1.3.9
 [1.3.8]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.4...v1.3.7
