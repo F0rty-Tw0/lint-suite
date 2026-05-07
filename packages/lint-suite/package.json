@@ -46,11 +46,7 @@
     "typescript-eslint": "8.59.2"
   },
   "scripts": {
-    "build": "nx build lint-suite",
-    "patch": "pnpm version patch",
-    "minor": "pnpm version minor",
-    "major": "pnpm version major",
-    "publish": "pnpm publish --access public"
+    "build": "nx build lint-suite"
   },
   "exports": {
     "./package.json": "./package.json",
