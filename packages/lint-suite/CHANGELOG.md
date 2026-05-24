@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Features
+
+- **Angular**: Downgraded `no-developer-preview` and `no-experimental` from `error` to `warn` so consumers can adopt Angular preview/experimental APIs without disabling the rules.
+
+### Bug Fixes
+
+- **Boundaries**: Migrated config to `eslint-plugin-boundaries` v6. Renamed `boundaries/element-types` to `boundaries/dependencies` and converted legacy string selectors to object-based form (`from: { type: ... }`, `allow: [{ to: { type: ... } }]`). Silences the v5→v6 deprecation warnings.
+- **Dependencies**: Bumped `@nx/eslint-plugin` 22.7.1 → 22.7.3, `@typescript-eslint/utils` and `typescript-eslint` 8.59.2 → 8.59.4, `@vitest/eslint-plugin` 1.6.16 → 1.6.18, `eslint-plugin-playwright` 2.10.2 → 2.10.4, `eslint-plugin-storybook` 10.3.6 → 10.4.1, `angular-eslint` ^21.3.1 → ^21.4.0, and `eslint` ^10.3.0 → ^10.4.0.
+
 ## [1.3.10] - 2026-05-07
 
 ### Breaking Changes

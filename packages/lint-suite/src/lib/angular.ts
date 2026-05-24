@@ -34,8 +34,8 @@ export const angular = defineConfig([
       '@angular-eslint/require-lifecycle-on-prototype': 'error', // Lifecycle hooks must be methods, not arrow-fn fields
       '@angular-eslint/relative-url-prefix': 'error', // Require ./ in templateUrl/styleUrl for portability
       '@angular-eslint/use-component-selector': 'error', // All components must declare a selector
-      '@angular-eslint/no-developer-preview': 'error', // Block APIs marked @developerPreview (no breaking-change policy)
-      '@angular-eslint/no-experimental': 'error' // Block APIs marked @experimental
+      '@angular-eslint/no-developer-preview': 'warn', // Flag APIs marked @developerPreview (no breaking-change policy)
+      '@angular-eslint/no-experimental': 'warn' // Flag APIs marked @experimental
     }
   }
 ]);

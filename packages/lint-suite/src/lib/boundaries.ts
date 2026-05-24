@@ -49,7 +49,7 @@ export const boundaries = defineConfig([
     },
     rules: {
       ...boundariesPlugin.configs.recommended.rules,
-      'boundaries/element-types': [
+      'boundaries/dependencies': [
         'error',
         {
           default: 'disallow',
@@ -57,28 +57,50 @@ export const boundaries = defineConfig([
             '${dependency.type} is not allowed to be imported in ${file.type}',
           rules: [
             {
-              from: 'feature',
-              allow: ['feature', 'ui', 'domain-logic', 'utils', 'common']
+              from: { type: 'feature' },
+              allow: [
+                { to: { type: 'feature' } },
+                { to: { type: 'ui' } },
+                { to: { type: 'domain-logic' } },
+                { to: { type: 'utils' } },
+                { to: { type: 'common' } }
+              ]
             },
             {
-              from: 'domain-logic',
-              allow: ['domain-logic', 'data-access', 'utils', 'common']
+              from: { type: 'domain-logic' },
+              allow: [
+                { to: { type: 'domain-logic' } },
+                { to: { type: 'data-access' } },
+                { to: { type: 'utils' } },
+                { to: { type: 'common' } }
+              ]
             },
             {
-              from: 'data-access',
-              allow: ['data-access', 'utils', 'common']
+              from: { type: 'data-access' },
+              allow: [
+                { to: { type: 'data-access' } },
+                { to: { type: 'utils' } },
+                { to: { type: 'common' } }
+              ]
             },
             {
-              from: 'ui',
-              allow: ['ui', 'utils', 'common']
+              from: { type: 'ui' },
+              allow: [
+                { to: { type: 'ui' } },
+                { to: { type: 'utils' } },
+                { to: { type: 'common' } }
+              ]
             },
             {
-              from: 'utils',
-              allow: ['utils', 'common']
+              from: { type: 'utils' },
+              allow: [
+                { to: { type: 'utils' } },
+                { to: { type: 'common' } }
+              ]
             },
             {
-              from: 'common',
-              allow: ['common']
+              from: { type: 'common' },
+              allow: [{ to: { type: 'common' } }]
             }
           ]
         }
@@ -88,7 +110,7 @@ export const boundaries = defineConfig([
   {
     files: ['**/*.stories.ts'],
     rules: {
-      'boundaries/element-types': 'off'
+      'boundaries/dependencies': 'off'
     }
   }
 ]);
