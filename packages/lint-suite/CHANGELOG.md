@@ -2,8 +2,6 @@
 
 ## [Unreleased]
 
-## [1.3.11] - 2026-05-25
-
 ### Features
 
 - **Angular**: Downgraded `no-developer-preview` and `no-experimental` from `error` to `warn` so consumers can adopt Angular preview/experimental APIs without disabling the rules.
@@ -226,10 +224,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.10...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
 
-[1.3.11]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.10...v1.3.11
 [1.3.10]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.9...v1.3.10
 [1.3.9]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.8...v1.3.9
 [1.3.8]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.7...v1.3.8
