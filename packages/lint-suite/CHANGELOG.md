@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **Jest**: Removed the `jest` config module and the `eslint-plugin-jest` dependency. The `jest` export is gone and `recommended` no longer applies Jest rules to `**/*.spec.{ts,js}`. Consumers relying on Jest linting should use the `vitest` config or pin `lint-suite@1.3.11`.
+
 ## [1.3.11] - 2026-05-25
 
 ### Features

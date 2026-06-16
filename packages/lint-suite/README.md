@@ -9,7 +9,7 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 - **RxJS Guidelines**: Observable patterns, Finnish notation, subject encapsulation, and operator safety
 - **Code Style**: Formatting rules, line limits, and structural consistency
 - **Accessibility**: ARIA validation, keyboard events, and semantic HTML
-- **Testing**: Jest, Vitest, and Playwright configurations with best-practice rules
+- **Testing**: Vitest and Playwright configurations with best-practice rules
 - **Prettier**: Automatic disabling of formatting rules that conflict with Prettier
 - **Architecture**: Module boundary enforcement with `eslint-plugin-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
@@ -59,7 +59,6 @@ export default [
 | `angular`           | Angular component best practices with Signal support     |
 | `angularTemplate`   | HTML template rules with accessibility and performance   |
 | `rxjs`              | Observable patterns, operator safety, and subscriptions  |
-| `jest`              | Jest testing best practices and matchers                 |
 | `vitest`            | Vitest testing rules and matcher improvements            |
 | `playwright`        | Playwright e2e locator and matcher best practices        |
 | `json`              | JSON linting with comment support for tsconfig/vscode    |
@@ -92,14 +91,6 @@ export default [
 
 - `@nx/enforce-module-boundaries`: Enforces module boundary restrictions
 - `@nx/dependency-checks`: Validates dependencies in workspace projects
-- ...
-
-### eslint-plugin-jest
-
-- `jest/consistent-test-it`: Enforces consistent test function usage (`it`)
-- `jest/prefer-comparison-matcher`: Enforces comparison matchers
-- `jest/prefer-hooks-on-top`: Ensures hooks are at the top of describe blocks
-- `jest/no-conditional-in-test`: Warns against conditionals in tests
 - ...
 
 ### @vitest/eslint-plugin

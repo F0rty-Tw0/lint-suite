@@ -3,7 +3,6 @@ import { angularTemplate } from './lib/angular-template.js';
 import { angular } from './lib/angular.js';
 import { base } from './lib/base.js';
 import { javascript } from './lib/javascript.js';
-import { jest } from './lib/jest.js';
 import { json } from './lib/json.js';
 import { prettier } from './lib/prettier.js';
 import { rxjs } from './lib/rxjs.js';
@@ -20,7 +19,6 @@ export const recommended: ConfigArray = [
   ...angular,
   ...angularTemplate,
   ...rxjs,
-  ...jest,
   ...json,
   ...boundaries,
   ...storybook,
@@ -36,7 +34,6 @@ export {
   angular,
   angularTemplate,
   rxjs,
-  jest,
   json,
   boundaries,
   storybook,
