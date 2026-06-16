@@ -12,7 +12,7 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 - **Testing**: Vitest and Playwright configurations with best-practice rules
 - **Prettier**: Automatic disabling of formatting rules that conflict with Prettier (`eslint-config-prettier`)
 - **Prettier config**: Standalone formatting preset (subpath `lint-suite/prettier`) with the suite's house defaults and Angular/HTML overrides
-- **Stylelint**: Standalone SCSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement
+- **Stylelint**: Standalone SCSS/CSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement
 - **Architecture**: Module boundary enforcement with `eslint-plugin-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
 
@@ -26,6 +26,12 @@ pnpm add -D lint-suite
 
 ```bash
 pnpm add -D eslint typescript-eslint eslint-config-prettier
+```
+
+If you use the Prettier preset (`lint-suite/prettier`), also install its peer dependency:
+
+```bash
+pnpm add -D prettier
 ```
 
 ## Usage
@@ -51,6 +57,24 @@ export default [
 ];
 ```
 
+### Composing framework configs on top
+
+`recommended` is intentionally framework-agnostic — it ships only the language + architecture + format baseline (`base`, `javascript`, `typescript`, `json`, `boundaries`, `prettier`). Add the framework/tooling configs your project actually uses:
+
+```js
+import { recommended, angular, angularTemplate, rxjs, vitest } from 'lint-suite/eslint';
+
+export default [
+  ...recommended,
+  ...angular,
+  ...angularTemplate,
+  ...rxjs,
+  ...vitest
+];
+```
+
+`recommended` already ends with `prettier`. The composable configs above are rule-only, so appending them after `recommended` is safe — but if a config you add re-enables a formatting rule, append `...prettier` again at the very end.
+
 ## Available Configurations
 
 | Configuration       | Description                                              |
@@ -67,7 +91,7 @@ export default [
 | `storybook`         | Storybook CSF enforcement                                |
 | `boundaries`        | Module boundary rules (feature, data-access, ui, etc.)   |
 | `prettier`          | Disables rules that conflict with Prettier (use last)    |
-| **`recommended`**   | **All of the above combined in the correct order**       |
+| **`recommended`**   | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
 
 ## Customization
 
@@ -171,21 +195,21 @@ The Prettier preset is published with `prettier` as a peer dependency. The Style
 
 ### stylelint
 
-- Scoped to `**/*.scss` via an `overrides` entry
+- Scoped to `**/*.scss` and `**/*.css` via an `overrides` entry (SCSS is a CSS superset; SCSS-only rules simply don't fire on `.css`)
 - Extends `stylelint-config-standard`, `stylelint-config-standard-scss`, and `stylelint-config-recess-order`
 - `selector-class-pattern`: BEM-aware class names with ITCSS-style namespace prefixes (`o-`, `c-`, `u-`, `is-`, `has-`, `js-`, `qa-`, etc.)
-- `plugin/selector-bem-pattern`: enforces BEM selectors, treats `*.component.scss` as implicit components, ignores `--mdc`/`--sys` custom properties
+- `plugin/selector-bem-pattern`: enforces BEM selectors, treats `*.component.scss`/`*.component.css` as implicit components, ignores `--mdc`/`--sys` custom properties
 - `no-descending-specificity`: disabled
 
 ### prettier (format config)
 
-- `singleQuote: true`, `semi: true`, `tabWidth: 2`, `printWidth: 130`
+- `singleQuote: true`, `semi: true`, `tabWidth: 2`, `printWidth: 135`
 - `trailingComma: 'none'`, `bracketSpacing: true`, `bracketSameLine: true`, `arrowParens: 'always'`, `endOfLine: 'lf'`
 - Overrides: `*.html` → `html` parser, `*.component.html` → `angular` parser
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
+See [CONTRIBUTING.md](https://github.com/F0rty-Tw0/lint-suite/blob/main/CONTRIBUTING.md) for contribution guidelines.
 See [CHANGELOG.md](./CHANGELOG.md) for version history.
 See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for detailed release notes.
 

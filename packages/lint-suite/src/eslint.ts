@@ -16,14 +16,8 @@ export const recommended: ConfigArray = [
   ...base,
   ...javascript,
   ...typescript,
-  ...angular,
-  ...angularTemplate,
-  ...rxjs,
   ...json,
   ...boundaries,
-  ...storybook,
-  ...vitest,
-  ...playwright,
   ...prettier // Must be last to disable formatting rules that conflict with Prettier
 ];
 
