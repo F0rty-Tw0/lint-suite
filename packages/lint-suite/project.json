@@ -18,9 +18,12 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "main": "packages/lint-suite/src/index.ts",
+        "main": "packages/lint-suite/src/eslint.ts",
+        "additionalEntryPoints": [
+          "packages/lint-suite/src/stylelint.ts",
+          "packages/lint-suite/src/prettier.ts"
+        ],
         "outputPath": "dist",
-        "outputFileName": "packages/lint-suite/src/index.js",
         "tsConfig": "packages/lint-suite/tsconfig.lib.json",
         "platform": "node",
         "format": ["esm", "cjs"],
@@ -45,7 +48,10 @@
         "generatePackageJson": false,
         "sourcemap": true,
         "bundle": true,
-        "thirdParty": false
+        "thirdParty": false,
+        "esbuildOptions": {
+          "outbase": "."
+        }
       }
     },
     "nx-release-publish": {

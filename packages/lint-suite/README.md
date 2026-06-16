@@ -10,7 +10,9 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 - **Code Style**: Formatting rules, line limits, and structural consistency
 - **Accessibility**: ARIA validation, keyboard events, and semantic HTML
 - **Testing**: Vitest and Playwright configurations with best-practice rules
-- **Prettier**: Automatic disabling of formatting rules that conflict with Prettier
+- **Prettier**: Automatic disabling of formatting rules that conflict with Prettier (`eslint-config-prettier`)
+- **Prettier config**: Standalone formatting preset (subpath `lint-suite/prettier`) with the suite's house defaults and Angular/HTML overrides
+- **Stylelint**: Standalone SCSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement
 - **Architecture**: Module boundary enforcement with `eslint-plugin-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
 
@@ -31,7 +33,7 @@ pnpm add -D eslint typescript-eslint eslint-config-prettier
 Create an `eslint.config.mjs` file in your project root:
 
 ```js
-import { recommended } from 'lint-suite';
+import { recommended } from 'lint-suite/eslint';
 
 export default [...recommended];
 ```
@@ -39,7 +41,7 @@ export default [...recommended];
 Or selectively include configurations:
 
 ```js
-import { base, javascript, typescript, prettier } from 'lint-suite';
+import { base, javascript, typescript, prettier } from 'lint-suite/eslint';
 
 export default [
   ...base,
@@ -72,7 +74,7 @@ export default [
 You can override any rules by adding a `rules` section to your ESLint config:
 
 ```js
-import { typescript, prettier } from 'lint-suite';
+import { typescript, prettier } from 'lint-suite/eslint';
 
 export default [
   ...typescript,
@@ -84,6 +86,26 @@ export default [
   ...prettier
 ];
 ```
+
+## Stylelint and Prettier presets
+
+These are standalone configs exported as subpaths — they are not part of the `recommended` ESLint array.
+
+```js
+// stylelint.config.mjs
+import { stylelint } from 'lint-suite/stylelint';
+
+export default stylelint;
+```
+
+```js
+// prettier.config.mjs
+import { prettier } from 'lint-suite/prettier';
+
+export default prettier;
+```
+
+The Prettier preset is published with `prettier` as a peer dependency. The Stylelint preset requires `stylelint` and the referenced shared configs/plugins, which ship as dependencies of this package.
 
 ## Available Rules (you can add more as you prefer)
 
@@ -146,6 +168,20 @@ export default [
 
 - Automatically disables all ESLint rules that conflict with Prettier
 - Must be the last configuration in the array
+
+### stylelint
+
+- Scoped to `**/*.scss` via an `overrides` entry
+- Extends `stylelint-config-standard`, `stylelint-config-standard-scss`, and `stylelint-config-recess-order`
+- `selector-class-pattern`: BEM-aware class names with ITCSS-style namespace prefixes (`o-`, `c-`, `u-`, `is-`, `has-`, `js-`, `qa-`, etc.)
+- `plugin/selector-bem-pattern`: enforces BEM selectors, treats `*.component.scss` as implicit components, ignores `--mdc`/`--sys` custom properties
+- `no-descending-specificity`: disabled
+
+### prettier (format config)
+
+- `singleQuote: true`, `semi: true`, `tabWidth: 2`, `printWidth: 130`
+- `trailingComma: 'none'`, `bracketSpacing: true`, `bracketSameLine: true`, `arrowParens: 'always'`, `endOfLine: 'lf'`
+- Overrides: `*.html` → `html` parser, `*.component.html` → `angular` parser
 
 ## Contributing
 

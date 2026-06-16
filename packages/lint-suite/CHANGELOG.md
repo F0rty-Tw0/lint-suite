@@ -2,8 +2,14 @@
 
 ## [Unreleased]
 
+### Features
+
+- **Stylelint**: Added a shared `stylelint` config as a named export on subpath `lint-suite/stylelint` (`import { stylelint } from 'lint-suite/stylelint'`) for SCSS — extends `stylelint-config-standard`, `stylelint-config-standard-scss`, `stylelint-config-recess-order` with BEM selector enforcement, scoped to `**/*.scss`.
+- **Prettier**: Added a shared `prettier` config as a named export on subpath `lint-suite/prettier` (`import { prettier } from 'lint-suite/prettier'`) with the suite's house formatting defaults and Angular/HTML template overrides.
+
 ### Breaking Changes
 
+- **ESLint**: Moved all ESLint configs to the `lint-suite/eslint` subpath; the root `lint-suite` import no longer exports them. Update imports to `import { recommended } from 'lint-suite/eslint'`.
 - **Jest**: Removed the `jest` config module and the `eslint-plugin-jest` dependency. The `jest` export is gone and `recommended` no longer applies Jest rules to `**/*.spec.{ts,js}`. Consumers relying on Jest linting should use the `vitest` config or pin `lint-suite@1.3.11`.
 
 ## [1.3.11] - 2026-05-25
