@@ -121,17 +121,7 @@ export const base = defineConfig([
           ]
         }
       ],
-      '@stylistic/comma-dangle': [
-        'error',
-        {
-          functions: 'never',
-          arrays: 'always-multiline',
-          exports: 'always-multiline',
-          imports: 'always-multiline',
-          objects: 'always-multiline',
-          enums: 'always-multiline'
-        }
-      ],
+      '@stylistic/comma-dangle': ['error', 'never'],
       '@stylistic/indent': [
         'error',
         2,
