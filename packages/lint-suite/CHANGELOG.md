@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-16
+
 ### Features
 
 - **Stylelint**: Added a shared `stylelint` config as a named export on subpath `lint-suite/stylelint` (`import { stylelint } from 'lint-suite/stylelint'`) for SCSS — extends `stylelint-config-standard`, `stylelint-config-standard-scss`, `stylelint-config-recess-order` with BEM selector enforcement, scoped to `**/*.scss`.
@@ -236,9 +238,10 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.4.0...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
 
+[1.4.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.4.0
 [1.3.11]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.3.11
 [1.3.10]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.9...v1.3.10
 [1.3.9]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.8...v1.3.9
