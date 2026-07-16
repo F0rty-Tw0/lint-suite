@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-07-16
+
 ### Breaking Changes
 
 - **Angular**: Upgraded `angular-eslint` ^21.4.0 → ^22.1.0 (Angular 22, TypeScript 6, ESLint 9+ flat config only). Removed the `no-conflicting-lifecycle` rule from the `angular` config — the rule was deleted upstream in v22. `prefer-on-push-component-change-detection` changed semantics: it now reports only components that explicitly opt out of OnPush (omitting `changeDetection` means OnPush in Angular v22).
@@ -250,8 +252,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.5.0...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[1.5.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.4.0
 [1.3.11]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.3.11
 [1.3.10]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.9...v1.3.10
