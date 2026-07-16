@@ -3,6 +3,9 @@ import stylelintScss from 'stylelint-scss';
 import bemPattern from 'stylelint-selector-bem-pattern';
 
 export const stylelint: Config = {
+  // Stylelint resolves config for cwd when picking a formatter; without a
+  // top-level `rules` an overrides-only config fails with "No rules found".
+  rules: {},
   overrides: [
     {
       files: ['**/*.scss', '**/*.css'],

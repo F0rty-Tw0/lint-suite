@@ -54,53 +54,53 @@ export const boundaries = defineConfig([
         {
           default: 'disallow',
           message:
-            '${dependency.type} is not allowed to be imported in ${file.type}',
-          rules: [
+            '{{to.element.types}} is not allowed to be imported in {{from.element.types}}',
+          policies: [
             {
-              from: { type: 'feature' },
+              from: { element: { type: 'feature' } },
               allow: [
-                { to: { type: 'feature' } },
-                { to: { type: 'ui' } },
-                { to: { type: 'domain-logic' } },
-                { to: { type: 'utils' } },
-                { to: { type: 'common' } }
+                { to: { element: { type: 'feature' } } },
+                { to: { element: { type: 'ui' } } },
+                { to: { element: { type: 'domain-logic' } } },
+                { to: { element: { type: 'utils' } } },
+                { to: { element: { type: 'common' } } }
               ]
             },
             {
-              from: { type: 'domain-logic' },
+              from: { element: { type: 'domain-logic' } },
               allow: [
-                { to: { type: 'domain-logic' } },
-                { to: { type: 'data-access' } },
-                { to: { type: 'utils' } },
-                { to: { type: 'common' } }
+                { to: { element: { type: 'domain-logic' } } },
+                { to: { element: { type: 'data-access' } } },
+                { to: { element: { type: 'utils' } } },
+                { to: { element: { type: 'common' } } }
               ]
             },
             {
-              from: { type: 'data-access' },
+              from: { element: { type: 'data-access' } },
               allow: [
-                { to: { type: 'data-access' } },
-                { to: { type: 'utils' } },
-                { to: { type: 'common' } }
+                { to: { element: { type: 'data-access' } } },
+                { to: { element: { type: 'utils' } } },
+                { to: { element: { type: 'common' } } }
               ]
             },
             {
-              from: { type: 'ui' },
+              from: { element: { type: 'ui' } },
               allow: [
-                { to: { type: 'ui' } },
-                { to: { type: 'utils' } },
-                { to: { type: 'common' } }
+                { to: { element: { type: 'ui' } } },
+                { to: { element: { type: 'utils' } } },
+                { to: { element: { type: 'common' } } }
               ]
             },
             {
-              from: { type: 'utils' },
+              from: { element: { type: 'utils' } },
               allow: [
-                { to: { type: 'utils' } },
-                { to: { type: 'common' } }
+                { to: { element: { type: 'utils' } } },
+                { to: { element: { type: 'common' } } }
               ]
             },
             {
-              from: { type: 'common' },
-              allow: [{ to: { type: 'common' } }]
+              from: { element: { type: 'common' } },
+              allow: [{ to: { element: { type: 'common' } } }]
             }
           ]
         }
