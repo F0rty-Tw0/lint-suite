@@ -254,7 +254,7 @@ export const typescript = defineConfig([
     ],
     rules: {
       '@typescript-eslint/no-empty-function': 'off',
-      '@typescript-eslint/no-unbound-method': 'off',
+      '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off'
     }
   },
