@@ -3,10 +3,21 @@ import { configs, processInlineTemplates } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 import type { Config } from 'eslint/config';
 
+import noUnusedInstanceFieldsRule from './rules/no-unused-angular-instance-fields/no-unused-angular-instance-fields.js';
+
+const lintSuiteAngularPlugin: Record<string, unknown> = {
+  rules: {
+    'no-unused-instance-fields': noUnusedInstanceFieldsRule
+  }
+};
+
 export const angular = defineConfig([
   {
     files: ['**/*.ts'],
     extends: [...(configs.tsRecommended as Config[])],
+    plugins: {
+      'lint-suite-angular': lintSuiteAngularPlugin
+    },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -16,6 +27,7 @@ export const angular = defineConfig([
     },
     processor: processInlineTemplates,
     rules: {
+      'lint-suite-angular/no-unused-instance-fields': 'error',
       '@angular-eslint/prefer-on-push-component-change-detection': 'error', // v22: flags only explicit opt-out of OnPush (omission now means OnPush)
       '@angular-eslint/prefer-signals': 'error',
       '@angular-eslint/use-injectable-provided-in': 'error',
