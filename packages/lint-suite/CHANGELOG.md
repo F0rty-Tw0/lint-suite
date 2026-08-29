@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Bug Fixes
+
+- **TypeScript**: Corrected the test-file override id `@typescript-eslint/no-unbound-method` → `@typescript-eslint/unbound-method`. The mistyped (non-existent) id meant `unbound-method` was never actually disabled in `*.spec` / `*.test` / `*.e2e` files.
+
+### Dependencies
+
+- Bumped the `prettier` peer requirement to `^3.8.4`.
+
 ## [1.5.0] - 2026-07-16
 
 ### Breaking Changes

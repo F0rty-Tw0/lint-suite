@@ -25,6 +25,7 @@
   "author": "Artiom Tofan artiomtofancv@gmail.com",
   "type": "module",
   "dependencies": {
+    "@angular/compiler": "^22.0.0",
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.0.1",
     "@nx/eslint-plugin": "23.1.0",
