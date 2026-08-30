@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-08-30
+
 ### Features
 
 - **Angular**: Added `lint-suite-angular/no-unused-instance-fields` to report unused component and directive fields and methods while recognizing reads from TypeScript, templates, and host expressions.
@@ -261,8 +263,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.0...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[1.6.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.4.0
 [1.3.11]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.3.11
