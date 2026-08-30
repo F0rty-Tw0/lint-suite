@@ -2,14 +2,30 @@
 
 ## [Unreleased]
 
-## [1.4.0] - 2026-09-01
+### Features
+
+- **Angular**: Added `lint-suite-angular/no-unused-instance-fields` to report unused component and directive fields and methods while recognizing reads from TypeScript, templates, and host expressions.
 
 ### Bug Fixes
 
 - **TypeScript**: Corrected the test-file override id `@typescript-eslint/no-unbound-method` → `@typescript-eslint/unbound-method`. The mistyped (non-existent) id meant `unbound-method` was never actually disabled in `*.spec` / `*.test` / `*.e2e` files.
+- **Dependencies**: Updated compatible Angular, Nx, ESLint, TypeScript ESLint, test, and Stylelint dependencies and regenerated the lockfile to remove known transitive vulnerabilities.
+
+## [1.5.0] - 2026-07-16
+
+### Breaking Changes
+
+- **Angular**: Upgraded `angular-eslint` ^21.4.0 → ^22.1.0 (Angular 22, TypeScript 6, ESLint 9+ flat config only). Removed the `no-conflicting-lifecycle` rule from the `angular` config — the rule was deleted upstream in v22. `prefer-on-push-component-change-detection` changed semantics: it now reports only components that explicitly opt out of OnPush (omitting `changeDetection` means OnPush in Angular v22).
+- **Boundaries**: Upgraded `eslint-plugin-boundaries` 6.0.2 → 7.0.2 and migrated the config to the v7 entity model: `rules` option renamed to `policies`, flat element selectors wrapped as entity selectors (`from: { element: { type: ... } }`), and the custom message migrated from the legacy `${...}` to the `{{...}}` template syntax (`{{to.element.types}}` / `{{from.element.types}}`). Report behavior is unchanged; default report messages from the plugin now include entity information, so exact-string assertions may need re-recording.
+- **JSON**: Upgraded `@eslint/json` ^1.2.0 → ^2.0.1.
+
+### Bug Fixes
+
 - **Stylelint**: Added an empty top-level `rules: {}` to the shared `stylelint` config. Stylelint 17 resolves the configuration for the working directory when picking a formatter, and an overrides-only config failed there with `ConfigurationError: No rules found within configuration`.
 - **Dependencies**: Migrated the workspace to Nx 23.1 and bumped `@nx/eslint-plugin` 22.7.3 → 23.1.0, `typescript-eslint` and `@typescript-eslint/utils` 8.59.4 → 8.64.0, `@vitest/eslint-plugin` 1.6.18 → 1.6.23, `eslint-import-resolver-typescript` 4.4.4 → 4.4.5, `eslint-plugin-import-x` 4.16.2 → 4.17.1, `eslint-plugin-playwright` 2.10.4 → 2.10.5, `eslint-plugin-storybook` 10.4.1 → 10.5.2, `globals` 17.6.0 → 17.7.0, `stylelint` 17.12.0 → 17.14.0, and `stylelint-scss` 7.1.1 → 7.2.0.
 - **Workspace**: Migrated to pnpm 11.13.1 — the removed `onlyBuiltDependencies` setting was replaced with `allowBuilds` in `pnpm-workspace.yaml`. Adopted the TypeScript 6 defaults by dropping the `ignoreDeprecations`/`esModuleInterop: false`/`types: ["*"]`/`noUncheckedSideEffectImports: false` pins the Nx migration had written into the tsconfigs (`module: nodenext` already implies `esModuleInterop`). Fixed `nx.json` `defaultBase` from `main` to the actual `master` branch. CI/release workflows: pnpm 10.33.0 → 11.13.1, `actions/checkout` v4 → v7.0.0, `actions/setup-node` v4 → v7.0.0, `pnpm/action-setup` v6.0.3 → v6.0.9 (all SHA-pinned).
+
+## [1.4.0] - 2026-06-16
 
 ### Features
 
@@ -18,9 +34,6 @@
 
 ### Breaking Changes
 
-- **Angular**: Upgraded `angular-eslint` ^21.4.0 → ^22.1.0 (Angular 22, TypeScript 6, ESLint 9+ flat config only). Removed the `no-conflicting-lifecycle` rule from the `angular` config — the rule was deleted upstream in v22. `prefer-on-push-component-change-detection` changed semantics: it now reports only components that explicitly opt out of OnPush (omitting `changeDetection` means OnPush in Angular v22).
-- **Boundaries**: Upgraded `eslint-plugin-boundaries` 6.0.2 → 7.0.2 and migrated the config to the v7 entity model: `rules` option renamed to `policies`, flat element selectors wrapped as entity selectors (`from: { element: { type: ... } }`), and the custom message migrated from the legacy `${...}` to the `{{...}}` template syntax (`{{to.element.types}}` / `{{from.element.types}}`). Report behavior is unchanged; default report messages from the plugin now include entity information, so exact-string assertions may need re-recording.
-- **JSON**: Upgraded `@eslint/json` ^1.2.0 → ^2.0.1.
 - **ESLint**: Moved all ESLint configs to the `lint-suite/eslint` subpath; the root `lint-suite` import no longer exports them. Update imports to `import { recommended } from 'lint-suite/eslint'`.
 - **Jest**: Removed the `jest` config module and the `eslint-plugin-jest` dependency. The `jest` export is gone and `recommended` no longer applies Jest rules to `**/*.spec.{ts,js}`. Consumers relying on Jest linting should use the `vitest` config or pin `lint-suite@1.3.11`.
 
