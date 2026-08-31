@@ -62,7 +62,13 @@ export default [
 `recommended` is intentionally framework-agnostic — it ships only the language + architecture + format baseline (`base`, `javascript`, `typescript`, `json`, `boundaries`, `prettier`). Add the framework/tooling configs your project actually uses:
 
 ```js
-import { recommended, angular, angularTemplate, rxjs, vitest } from 'lint-suite/eslint';
+import {
+  recommended,
+  angular,
+  angularTemplate,
+  rxjs,
+  vitest
+} from 'lint-suite/eslint';
 
 export default [
   ...recommended,
@@ -77,21 +83,28 @@ export default [
 
 ## Available Configurations
 
-| Configuration       | Description                                              |
-| ------------------- | -------------------------------------------------------- |
-| `base`              | Core JavaScript rules, formatting, and complexity limits |
-| `javascript`        | JavaScript-specific rules via `@nx/eslint-plugin`        |
-| `typescript`        | TypeScript strict typing, imports, and naming conventions |
-| `angular`           | Angular component best practices with Signal support     |
-| `angularTemplate`   | HTML template rules with accessibility and performance   |
-| `rxjs`              | Observable patterns, operator safety, and subscriptions  |
-| `vitest`            | Vitest testing rules and matcher improvements            |
-| `playwright`        | Playwright e2e locator and matcher best practices        |
-| `json`              | JSON linting with comment support for tsconfig/vscode    |
-| `storybook`         | Storybook CSF enforcement                                |
-| `boundaries`        | Module boundary rules (feature, data-access, ui, etc.)   |
-| `prettier`          | Disables rules that conflict with Prettier (use last)    |
-| **`recommended`**   | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
+| Configuration                                                                                                 | Description                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `base`                                                                                                        | Core JavaScript rules, formatting, and complexity limits                                                               |
+| `javascript`                                                                                                  | JavaScript-specific rules via `@nx/eslint-plugin`                                                                      |
+| `typescript`                                                                                                  | TypeScript strict typing, imports, and naming conventions                                                              |
+| `angular`                                                                                                     | Angular component best practices with Signal support                                                                   |
+| `angularTemplate`                                                                                             | HTML template rules with accessibility and performance                                                                 |
+| `rxjs`                                                                                                        | Observable patterns, operator safety, and subscriptions                                                                |
+| `vitest`                                                                                                      | Vitest testing rules and matcher improvements                                                                          |
+| `playwright`                                                                                                  | Playwright e2e locator and matcher best practices                                                                      |
+| `json`                                                                                                        | JSON linting with comment support for tsconfig/vscode                                                                  |
+| `storybook`                                                                                                   | Storybook CSF enforcement                                                                                              |
+| `boundaries`                                                                                                  | Module boundary rules (feature, data-access, ui, etc.)                                                                 |
+| `prettier`                                                                                                    | Disables rules that conflict with Prettier (use last)                                                                  |
+| **`recommended`**                                                                                             | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
+| **Angular project analysis:** The `angular` preset enables `projectService: true` and project analysis for    |
+| `lint-suite-angular/no-unused-instance-fields`. It counts exact reads in the configured TypeScript/Angular    |
+| Program, including external parent templates/TypeScript, subclasses, and Angular interface implementations;   |
+| code outside that Program is unknowable. Project mode also reports unused public/protected directive members. |
+| Direct rule usage remains local by default, and `allowEffectFields` is opt-in. After cross-file or template   |
+| changes, do not use ESLint `--cache` for correctness gates; run a full non-cached lint (for example,          |
+| `eslint --no-cache`).                                                                                         |
 
 ## Customization
 

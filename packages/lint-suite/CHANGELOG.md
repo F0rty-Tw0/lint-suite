@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **Angular**: The `angular` preset now requires typed parser services (`projectService: true`) and runs
+  `lint-suite-angular/no-unused-instance-fields` in project mode. It recognizes exact reads in the configured
+  TypeScript/Angular Program, including external parent templates/TypeScript, subclasses, and Angular interface
+  implementations. Project mode now reports unused public/protected directive members. Direct rule usage remains
+  local by default, and `allowEffectFields` remains opt-in. After cross-file or template changes, do not use
+  ESLint `--cache` for correctness gates; run a full non-cached lint.
+
+### Bug Fixes
+
+- **Dependencies**: Added `@angular/compiler-cli` and pinned `@angular/compiler` for Angular project analysis.
+
 ## [1.6.0] - 2026-08-30
 
 ### Features

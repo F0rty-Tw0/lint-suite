@@ -25,7 +25,8 @@
   "author": "Artiom Tofan artiomtofancv@gmail.com",
   "type": "module",
   "dependencies": {
-    "@angular/compiler": "^22.1.4",
+    "@angular/compiler": "22.1.4",
+    "@angular/compiler-cli": "22.1.4",
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.0.1",
     "@nx/eslint-plugin": "23.1.2",
@@ -51,7 +52,8 @@
     "typescript-eslint": "8.68.0"
   },
   "peerDependencies": {
-    "prettier": "^3.8.4"
+    "prettier": "^3.8.4",
+    "typescript": ">=6.0 <6.1"
   },
   "scripts": {
     "build": "nx build lint-suite"
@@ -80,5 +82,8 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
