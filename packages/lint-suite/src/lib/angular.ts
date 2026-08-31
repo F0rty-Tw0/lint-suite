@@ -23,11 +23,17 @@ export const angular = defineConfig([
         ...globals.browser,
         ...globals.es2025,
         ...globals.node
+      },
+      parserOptions: {
+        projectService: true
       }
     },
     processor: processInlineTemplates,
     rules: {
-      'lint-suite-angular/no-unused-instance-fields': 'error',
+      'lint-suite-angular/no-unused-instance-fields': [
+        'error',
+        { analysis: 'project' }
+      ],
       '@angular-eslint/prefer-on-push-component-change-detection': 'error', // v22: flags only explicit opt-out of OnPush (omission now means OnPush)
       '@angular-eslint/prefer-signals': 'error',
       '@angular-eslint/use-injectable-provided-in': 'error',

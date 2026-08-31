@@ -171,6 +171,30 @@ ruleTester.run('lint-suite-angular/no-unused-instance-fields', rule, {
         }`
     },
     {
+      name: 'accepts an unread Angular effect field when allowEffectFields is true',
+      code: component(
+        `private readonly cleanup = effect(() => undefined);`,
+        "template: ''",
+        'Component, effect'
+      ),
+      options: [{ allowEffectFields: true }]
+    },
+    {
+      name: 'accepts an unread aliased Angular effect field when allowEffectFields is true',
+      code: component(
+        `private readonly cleanup = angularEffect(() => undefined);`,
+        "template: ''",
+        'Component, effect as angularEffect'
+      ),
+      options: [{ allowEffectFields: true }]
+    },
+    {
+      name: 'accepts an unread namespace Angular effect field when allowEffectFields is true',
+      code: `import * as ng from '@angular/core'; @ng.Component({ template: '' })
+        class TestComponent { private readonly cleanup = ng.effect(() => undefined); }`,
+      options: [{ allowEffectFields: true }]
+    },
+    {
       name: 'exempts Angular signal APIs and decorator-managed fields',
       code: component(
         `@Input() public decoratedInput = ''; @ViewChild('content') private content: unknown;
@@ -207,6 +231,66 @@ ruleTester.run('lint-suite-angular/no-unused-instance-fields', rule, {
         { messageId: 'unusedField', data: { name: 'test' } },
         { messageId: 'unusedField', data: { name: 'test2' } }
       ]
+    },
+    {
+      name: 'reports an unread Angular effect field when allowEffectFields is false',
+      code: component(
+        `private readonly cleanup = effect(() => undefined);`,
+        "template: ''",
+        'Component, effect'
+      ),
+      options: [{ allowEffectFields: false }],
+      errors: [{ messageId: 'unusedField', data: { name: 'cleanup' } }]
+    },
+    {
+      name: 'reports an unread Angular effect field by default',
+      code: component(
+        `private readonly cleanup = effect(() => undefined);`,
+        "template: ''",
+        'Component, effect'
+      ),
+      errors: [{ messageId: 'unusedField', data: { name: 'cleanup' } }]
+    },
+    {
+      name: 'reports an unread same-named non-Angular effect field when allowEffectFields is true',
+      code: `import { Component } from '@angular/core';
+        function effect(callback: () => void): unknown { callback(); return {}; }
+        @Component({ template: '' }) class TestComponent {
+          private readonly cleanup = effect(() => undefined);
+        }`,
+      options: [{ allowEffectFields: true }],
+      errors: [{ messageId: 'unusedField', data: { name: 'cleanup' } }]
+    },
+    {
+      name: 'reports an unread Angular effect field shadowed by an enclosing parameter when allowEffectFields is true',
+      code: `import { Component, effect } from '@angular/core';
+        function createComponent(effect: unknown) {
+          @Component({ template: '' }) class TestComponent {
+            private readonly cleanup = effect(() => undefined);
+          }
+        }`,
+      options: [{ allowEffectFields: true }],
+      errors: [{ messageId: 'unusedField', data: { name: 'cleanup' } }]
+    },
+    {
+      name: 'reports an unread Angular effect field with quoted manualCleanup when allowEffectFields is true',
+      code: component(
+        `private readonly cleanup = effect(() => undefined, { 'manualCleanup': true });`,
+        "template: ''",
+        'Component, effect'
+      ),
+      options: [{ allowEffectFields: true }],
+      errors: [{ messageId: 'unusedField', data: { name: 'cleanup' } }]
+    },
+    {
+      name: 'reports an unread Angular effect field with manualCleanup when allowEffectFields is true',
+      code: component(
+        `private readonly cleanup = effect(() => undefined, { manualCleanup: true });`,
+        "template: ''",
+        'Component, effect'
+      ),
+      options: [{ allowEffectFields: true }],
+      errors: [{ messageId: 'unusedField', data: { name: 'cleanup' } }]
     },
     {
       name: 'reports an unread public component method',

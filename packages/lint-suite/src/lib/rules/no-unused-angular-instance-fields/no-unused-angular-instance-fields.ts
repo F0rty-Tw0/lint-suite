@@ -1,5 +1,6 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
+import type ts from 'typescript';
 
 import {
   addAngularImport,
@@ -9,24 +10,28 @@ import type {
   AngularClassNode,
   AngularImports,
   ClassEntry,
-  DynamicClasses
+  DynamicClasses,
+  RuleOptions
 } from './common/no-unused-angular-instance-fields.type.js';
+import { projectUsage } from './project-usage/project-usage.js';
 import {
   destructuredThisReads,
   isThisExpression,
   isWriteOnly
 } from './utils/typescript-field-reads.util.js';
 
-type Options = [];
+const defaultOptions: Required<RuleOptions[0]> = {
+  allowEffectFields: false,
+  analysis: 'local'
+};
 type MessageIds = 'unusedField' | 'unusedMethod';
 type FunctionNode =
   | TSESTree.ArrowFunctionExpression
   | TSESTree.FunctionDeclaration
   | TSESTree.FunctionExpression;
 type DestructuringNode =
-  | TSESTree.AssignmentExpression
-  | TSESTree.VariableDeclarator;
-type RuleContext = Readonly<TSESLint.RuleContext<MessageIds, Options>>;
+  TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
+type RuleContext = Readonly<TSESLint.RuleContext<MessageIds, RuleOptions>>;
 
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://eslint.org/docs/latest/rules/no-unused-private-class-members'
@@ -48,10 +53,7 @@ const enterClass = (
   thisStack.push(true);
 };
 
-const componentThis = (
-  node: FunctionNode,
-  thisStack: boolean[]
-): boolean =>
+const componentThis = (node: FunctionNode, thisStack: boolean[]): boolean =>
   node.type === TSESTree.AST_NODE_TYPES.ArrowFunctionExpression
     ? (thisStack.at(-1) ?? false)
     : node.parent.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
@@ -155,7 +157,9 @@ const visitor = (
   imports: AngularImports,
   classes: ClassEntry[],
   stack: ClassEntry[],
-  dynamicClasses: DynamicClasses
+  dynamicClasses: DynamicClasses,
+  allowEffectFields: boolean,
+  projectMemberUsed: ((node: TSESTree.ClassElement) => boolean) | undefined
 ): TSESLint.RuleListener => {
   const thisStack: boolean[] = [];
 
@@ -185,12 +189,19 @@ const visitor = (
       trackDestructuringRead(node, stack, thisStack, dynamicClasses);
     },
     'Program:exit'(): void {
-      reportUnusedMembers(context, imports, classes, dynamicClasses);
+      reportUnusedMembers(
+        context,
+        imports,
+        classes,
+        dynamicClasses,
+        allowEffectFields,
+        projectMemberUsed
+      );
     }
   };
 };
 
-export default createRule<Options, MessageIds>({
+export default createRule<RuleOptions, MessageIds>({
   name: 'no-unused-instance-fields',
   meta: {
     type: 'problem',
@@ -202,10 +213,40 @@ export default createRule<Options, MessageIds>({
       unusedField: "Angular instance field '{{name}}' is never read.",
       unusedMethod: "Angular instance method '{{name}}' is never read."
     },
-    schema: []
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          allowEffectFields: {
+            type: 'boolean'
+          },
+          analysis: {
+            type: 'string',
+            enum: ['local', 'project']
+          }
+        },
+        additionalProperties: false
+      }
+    ]
   },
-  defaultOptions: [],
-  create(context): TSESLint.RuleListener {
+  defaultOptions: [defaultOptions],
+  create(context, [options]): TSESLint.RuleListener {
+    const { allowEffectFields, analysis } = { ...defaultOptions, ...options };
+    let projectMemberUsed:
+      ((node: TSESTree.ClassElement) => boolean) | undefined;
+
+    if (analysis === 'project') {
+      const services = ESLintUtils.getParserServices(context);
+      const usage = projectUsage(services.program);
+
+      if (!usage) {
+        return {};
+      }
+
+      projectMemberUsed = (node: TSESTree.ClassElement): boolean =>
+        usage.has(services.esTreeNodeToTSNodeMap.get(node) as ts.Declaration);
+    }
+
     const imports: AngularImports = new Map();
     for (const node of context.sourceCode.ast.body) {
       if (node.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
@@ -220,6 +261,14 @@ export default createRule<Options, MessageIds>({
     const stack: ClassEntry[] = [];
     const dynamicClasses: DynamicClasses = new Set();
 
-    return visitor(context, imports, classes, stack, dynamicClasses);
+    return visitor(
+      context,
+      imports,
+      classes,
+      stack,
+      dynamicClasses,
+      allowEffectFields,
+      projectMemberUsed
+    );
   }
 });
