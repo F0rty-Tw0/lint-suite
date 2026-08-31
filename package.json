@@ -8,6 +8,10 @@
     "release:ci": "release-it --ci"
   },
   "devDependencies": {
+    "@angular/common": "22.1.4",
+    "@angular/core": "22.1.4",
+    "@angular/forms": "22.1.4",
+    "@angular/platform-browser": "22.1.4",
     "@eslint/js": "^10.0.1",
     "@nx/esbuild": "23.1.2",
     "@nx/eslint": "23.1.2",
