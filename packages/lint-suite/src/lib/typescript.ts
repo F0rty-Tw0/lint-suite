@@ -4,7 +4,7 @@ import importPluginX from 'eslint-plugin-import-x';
 import { defineConfig } from 'eslint/config';
 import type { Config } from 'eslint/config';
 
-import explicitAccessibilityRule from './rules/explicit-accessibility.js';
+import explicitAccessibilityRule from './rules/explicit-accessibility/explicit-accessibility.js';
 
 const localTypescriptRules: Record<string, unknown> = {
   rules: {
@@ -26,7 +26,6 @@ export const typescript = defineConfig([
     plugins: { local: localTypescriptRules },
     rules: {
       'local/explicit-accessibility': 'error',
-      '@typescript-eslint/explicit-member-accessibility': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-empty-function': 'error',
       '@typescript-eslint/no-unused-vars': 'error',

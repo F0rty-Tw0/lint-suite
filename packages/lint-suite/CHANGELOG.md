@@ -11,6 +11,12 @@
   local by default, and `allowEffectFields` remains opt-in. After cross-file or template changes, do not use
   ESLint `--cache` for correctness gates; run a full non-cached lint.
 
+### Changed
+
+- **TypeScript**: `local/explicit-accessibility` auto-fix now inserts `public` by default (was `private`); `defaultAccessibility` still configures it (new value `'none'` reports without an auto-fix), and IDE suggestions offer the remaining levels.
+- **TypeScript**: The `typescript` preset no longer enables `@typescript-eslint/explicit-member-accessibility` alongside `local/explicit-accessibility`; every missing modifier was reported twice.
+- **Angular**: `lint-suite-angular/no-unused-instance-fields` project analysis reuses the ESLint program's parsed source files for the Angular compiler and checks external template freshness at an amortized rate instead of once per linted file, cutting project-mode overhead by roughly two thirds.
+
 ### Features
 
 - **Angular**: Extended `lint-suite-angular/no-unused-instance-fields` with optional project-wide TypeScript and Angular template usage analysis, auto-cleaned effect handling, and signal query recognition.
@@ -18,6 +24,8 @@
 ### Bug Fixes
 
 - **Dependencies**: Added `@angular/compiler-cli` and pinned `@angular/compiler` for Angular project analysis.
+- **Angular**: `lint-suite-angular/no-unused-instance-fields` local analysis no longer reports non-private members of `abstract` components/directives, nor `ControlValueAccessor`/`Validator`/`AsyncValidator` methods on classes that implement them.
+- **TypeScript**: `local/explicit-accessibility` no longer fixes constructors to `private`, no longer reports `#private` members, no longer inserts a doubled space before fixed methods, and now reports abstract and `accessor` members.
 - **Angular**: Excluded fields typed with Angular's `ComponentRef` from `no-unused-instance-fields` reports without exempting unrelated same-named local types.
 
 ## [1.6.0] - 2026-08-30

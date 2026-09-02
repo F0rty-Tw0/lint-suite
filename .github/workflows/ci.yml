@@ -41,3 +41,6 @@ jobs:
 
       - name: Lint
         run: pnpm exec nx run lint-suite:lint
+
+      - name: Test
+        run: pnpm exec nx run lint-suite:test

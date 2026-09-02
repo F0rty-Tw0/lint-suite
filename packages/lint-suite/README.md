@@ -161,6 +161,37 @@ templates can read a component or directive member:
   as framework-managed.
 - Fields typed with `ComponentRef` imported from `@angular/core` are excluded
   from unused-field reports.
+- In local mode, non-private members of `abstract` components and directives
+  are exempt: subclasses that read them live in other files. Project mode
+  resolves those subclass reads and reports the members normally.
+
+### Explicit accessibility
+
+The `typescript` preset enables `local/explicit-accessibility`, which reports
+class members (fields, methods, accessors, abstract members, and constructor
+parameter properties) without an explicit `public`, `private`, or `protected`
+modifier. `#private` members are ignored: TypeScript forbids a modifier there.
+
+```js
+{
+  rules: {
+    'local/explicit-accessibility': [
+      'error',
+      { defaultAccessibility: 'private' }
+    ]
+  }
+}
+```
+
+- `defaultAccessibility` defaults to `public` and drives `eslint --fix`; the
+  IDE offers the other two levels as suggestions.
+- `defaultAccessibility: 'none'` reports without an auto-fix and offers all
+  three levels as suggestions.
+- Constructors are always fixed to `public`. A private constructor breaks
+  `new` and dependency injection.
+- The fix does not default to `private` because members implementing an
+  interface or read by an Angular template must stay non-private, and the
+  rule cannot see either.
 
 ## Stylelint and Prettier presets
 
