@@ -159,6 +159,8 @@ templates can read a component or directive member:
   `manualCleanup: true` must still be read.
 - Angular signal inputs, models, outputs, and query fields are always treated
   as framework-managed.
+- Fields typed with `ComponentRef` imported from `@angular/core` are excluded
+  from unused-field reports.
 
 ## Stylelint and Prettier presets
 

@@ -158,15 +158,48 @@ const isInstanceMethod = (
   node.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
   node.key.type === TSESTree.AST_NODE_TYPES.Identifier;
 
+const isAngularComponentRefField = (
+  node: InstanceField,
+  sourceCode: TSESLint.SourceCode
+): boolean => {
+  const type = node.typeAnnotation?.typeAnnotation;
+
+  if (
+    type?.type !== TSESTree.AST_NODE_TYPES.TSTypeReference ||
+    type.typeName.type !== TSESTree.AST_NODE_TYPES.Identifier
+  ) {
+    return false;
+  }
+
+  const reference = sourceCode
+    .getScope(type.typeName)
+    .references.find(({ identifier }) => identifier === type.typeName);
+  const variable = reference?.resolved;
+  const definition = variable?.defs[0];
+
+  return (
+    definition?.type === 'ImportBinding' &&
+    definition.node.type === TSESTree.AST_NODE_TYPES.ImportSpecifier &&
+    definition.parent?.type === TSESTree.AST_NODE_TYPES.ImportDeclaration &&
+    definition.parent.source.value === '@angular/core' &&
+    ((definition.node.imported.type === TSESTree.AST_NODE_TYPES.Identifier &&
+      definition.node.imported.name === 'ComponentRef') ||
+      (definition.node.imported.type === TSESTree.AST_NODE_TYPES.Literal &&
+        definition.node.imported.value === 'ComponentRef'))
+  );
+};
+
 const isExcludedField = (
   node: InstanceField,
   component: boolean,
-  projectAnalysis: boolean
+  projectAnalysis: boolean,
+  sourceCode: TSESLint.SourceCode
 ): boolean =>
   node.static ||
   node.declare ||
   node.override ||
   node.decorators.length > 0 ||
+  isAngularComponentRefField(node, sourceCode) ||
   (!component && !projectAnalysis && node.accessibility !== 'private');
 
 const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
@@ -233,7 +266,7 @@ const field = (
 ): MemberCandidate | null => {
   if (
     isInstanceField(node) &&
-    !isExcludedField(node, component, projectAnalysis) &&
+    !isExcludedField(node, component, projectAnalysis, sourceCode) &&
     !isManagedField(node, imports, allowEffectFields, sourceCode)
   ) {
     return { messageId: 'unusedField', name: node.key.name, node };

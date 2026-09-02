@@ -514,6 +514,26 @@ ruleTester.run('lint-suite-angular/no-unused-instance-fields', rule, {
         `template: ''`,
         'Component, viewChild, viewChildren, contentChild, contentChildren'
       )
+    },
+    {
+      name: 'exempts unread fields typed with an Angular ComponentRef import',
+      code: `import { Component } from '@angular/core';
+        import type { ComponentRef } from '@angular/core';
+        @Component({ template: '' }) class TestComponent {
+          private readonly ref!: ComponentRef;
+        }`
+    },
+    {
+      name: 'exempts unread fields typed with an Angular ComponentRef import despite an enclosing same-named value',
+      code: `import { Component } from '@angular/core';
+        import type { ComponentRef } from '@angular/core';
+        function createComponent() {
+          const ComponentRef = undefined;
+          @Component({ template: '' }) class TestComponent {
+            private readonly ref!: ComponentRef;
+          }
+          return TestComponent;
+        }`
     }
   ],
   invalid: [

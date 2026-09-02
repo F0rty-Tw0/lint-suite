@@ -18,6 +18,7 @@
 ### Bug Fixes
 
 - **Dependencies**: Added `@angular/compiler-cli` and pinned `@angular/compiler` for Angular project analysis.
+- **Angular**: Excluded fields typed with Angular's `ComponentRef` from `no-unused-instance-fields` reports without exempting unrelated same-named local types.
 
 ## [1.6.0] - 2026-08-30
 
