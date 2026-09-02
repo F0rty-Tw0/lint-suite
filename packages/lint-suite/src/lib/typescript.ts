@@ -5,10 +5,14 @@ import { defineConfig } from 'eslint/config';
 import type { Config } from 'eslint/config';
 
 import explicitAccessibilityRule from './rules/explicit-accessibility/explicit-accessibility.js';
+import noInlineObjectTypesRule from './rules/no-inline-object-types/no-inline-object-types.js';
+import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.js';
 
 const localTypescriptRules: Record<string, unknown> = {
   rules: {
-    'explicit-accessibility': explicitAccessibilityRule
+    'explicit-accessibility': explicitAccessibilityRule,
+    'readonly-type-properties': readonlyTypePropertiesRule,
+    'no-inline-object-types': noInlineObjectTypesRule
   }
 };
 
@@ -26,6 +30,8 @@ export const typescript = defineConfig([
     plugins: { local: localTypescriptRules },
     rules: {
       'local/explicit-accessibility': 'error',
+      'local/readonly-type-properties': 'error',
+      'local/no-inline-object-types': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-empty-function': 'error',
       '@typescript-eslint/no-unused-vars': 'error',

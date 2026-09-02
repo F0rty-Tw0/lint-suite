@@ -193,6 +193,57 @@ modifier. `#private` members are ignored: TypeScript forbids a modifier there.
   interface or read by an Angular template must stay non-private, and the
   rule cannot see either.
 
+### Readonly type properties
+
+The `typescript` preset enables `local/readonly-type-properties`, which
+reports primitive-typed properties in `type` aliases, interfaces, and
+inline object types that are not marked `readonly`, and auto-fixes them
+with `eslint --fix`. A property is primitive-typed when its annotation is
+`string`, `number`, `boolean`, `bigint`, `symbol`, `null`, `undefined`, a
+literal or template-literal type, or a union/intersection of those.
+
+```ts
+// Before
+type User = { name: string; roles: string[]; profile: Profile };
+
+// After --fix
+type User = { readonly name: string; roles: string[]; profile: Profile };
+```
+
+- Arrays, object types, type references (including string-union aliases
+  like `Status`), functions, and tuples are left untouched because the
+  rule is syntactic and does not resolve types.
+- Index signatures, mapped types, and method signatures are out of scope.
+- Use `// eslint-disable-next-line local/readonly-type-properties` when a
+  property genuinely needs to stay mutable.
+
+### No inline object types
+
+The `typescript` preset enables `local/no-inline-object-types`, which
+reports object type literals nested inside a `type NAME = ...` alias
+declaration (nested properties, array element types, union members,
+intersection members, and generic arguments such as `Readonly<{...}>`).
+It is not auto-fixable: extracting an inline object type requires
+choosing a name.
+
+```ts
+// Before
+type LineItem = { readonly name: string; readonly item: { readonly id: string } };
+
+// After
+type Item = { readonly id: string };
+type LineItem = { readonly name: string; readonly item: Item };
+```
+
+- The direct body of a `type X = {...}` alias is allowed to be an object
+  literal; any object type literal nested inside that alias must reference
+  a named type instead.
+- Positions outside a type alias — function parameters and return types,
+  `as`/`satisfies` expressions, generic call arguments, interface members,
+  and class members — are not checked by this rule.
+- Declare the shape as `type Item = {...}` and reference it instead of
+  inlining the object type.
+
 ## Stylelint and Prettier presets
 
 These are standalone configs exported as subpaths — they are not part of the `recommended` ESLint array.

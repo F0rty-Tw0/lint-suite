@@ -20,6 +20,8 @@
 ### Features
 
 - **Angular**: Extended `lint-suite-angular/no-unused-instance-fields` with optional project-wide TypeScript and Angular template usage analysis, auto-cleaned effect handling, and signal query recognition.
+- **TypeScript**: Added `local/readonly-type-properties`, an auto-fixable rule reporting primitive-typed `type`, interface, and inline object type properties that are not marked `readonly`; array-, object-, and reference-typed properties are left untouched. Enabled in the `typescript` preset.
+- **TypeScript**: Added `local/no-inline-object-types`, reporting object type literals nested inside a `type` alias declaration (only the alias's direct body may be an object literal). Enabled in the `typescript` preset.
 
 ### Bug Fixes
 
