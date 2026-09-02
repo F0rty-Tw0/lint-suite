@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-09-02
+
 ### Breaking Changes
 
 - **Angular**: The `angular` preset now requires typed parser services (`projectService: true`) and runs
@@ -291,8 +293,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.1...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[1.6.1]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.11...v1.4.0
