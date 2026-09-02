@@ -1,7 +1,12 @@
 import * as compilerCli from '@angular/compiler-cli';
 import type { AngularCompilerOptions } from '@angular/compiler-cli';
 import { createCompilerHost, DiagnosticCategory } from 'typescript';
-import type { Declaration, Diagnostic } from 'typescript';
+import type {
+  CompilerHost,
+  Declaration,
+  Diagnostic,
+  Program
+} from 'typescript';
 
 import type { IndexedComponent } from '../common/angular-index.type.js';
 import type { AddDeclaration } from '../common/project-usage.type.js';
@@ -43,7 +48,21 @@ const missingContextRootNames = (errors: Error[]): Set<string> | null => {
   return names;
 };
 
+const reusingCompilerHost = (
+  program: Program,
+  options: AngularCompilerOptions
+): CompilerHost => {
+  const base = createCompilerHost(options, true);
+
+  return {
+    ...base,
+    getSourceFile: (fileName, ...rest) =>
+      program.getSourceFile(fileName) ?? base.getSourceFile(fileName, ...rest)
+  };
+};
+
 export const collectAngularTemplateReads = (
+  program: Program,
   configFilePath: string,
   addDeclaration: AddDeclaration
 ): string[] | null => {
@@ -65,7 +84,7 @@ export const collectAngularTemplateReads = (
   const angularProgram = new compilerCli.NgtscProgram(
     configuration.rootNames,
     configuration.options,
-    createCompilerHost(configuration.options, true)
+    reusingCompilerHost(program, configuration.options)
   );
 
   if (

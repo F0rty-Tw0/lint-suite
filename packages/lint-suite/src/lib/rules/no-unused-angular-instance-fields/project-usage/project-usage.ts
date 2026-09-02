@@ -16,15 +16,11 @@ type TemplateFileVersion = {
 type ProjectUsageCacheEntry = {
   readonly templateFileVersions: TemplateFileVersion[];
   readonly usage: ProjectUsageIndex;
+  checkDuration: number;
+  checkedAt: number;
 };
 
 const projectUsageCache = new WeakMap<Program, ProjectUsageCacheEntry>();
-
-const memberKey = (node: Node): string => {
-  const sourceFile = node.getSourceFile();
-
-  return `${resolve(sourceFile.fileName)}:${node.getStart(sourceFile)}:${node.getEnd()}`;
-};
 
 const templateFileVersion = (fileName: string): TemplateFileVersion => {
   const { mtimeNs, size } = statSync(fileName, { bigint: true });
@@ -46,6 +42,23 @@ const templateFileVersionsAreCurrent = (
   }
 };
 
+// ponytail: re-stat templates at most every 20x the cost of the last check,
+// so the O(files x templates) stat churn stays under ~5% of lint time.
+const cacheEntryIsCurrent = (entry: ProjectUsageCacheEntry): boolean => {
+  const now = performance.now();
+
+  if (now - entry.checkedAt < entry.checkDuration * 20) {
+    return true;
+  }
+
+  const current = templateFileVersionsAreCurrent(entry.templateFileVersions);
+
+  entry.checkedAt = now;
+  entry.checkDuration = performance.now() - now;
+
+  return current;
+};
+
 const buildProjectUsage = (program: Program): ProjectUsageCacheEntry | null => {
   try {
     const configFilePath = program.getCompilerOptions()['configFilePath'];
@@ -54,14 +67,15 @@ const buildProjectUsage = (program: Program): ProjectUsageCacheEntry | null => {
       return null;
     }
 
-    const keys = new Set<string>();
+    const declarations = new Set<Node>();
     const addDeclaration = (declaration: Declaration): void => {
-      keys.add(memberKey(declaration));
+      declarations.add(declaration);
     };
 
     collectTypeScriptReads(program, addDeclaration);
 
     const templateFiles = collectAngularTemplateReads(
+      program,
       configFilePath,
       addDeclaration
     );
@@ -71,9 +85,11 @@ const buildProjectUsage = (program: Program): ProjectUsageCacheEntry | null => {
     }
 
     return {
+      checkDuration: 0,
+      checkedAt: performance.now(),
       templateFileVersions: templateFiles.map(templateFileVersion),
       usage: {
-        has: (node: Node): boolean => keys.has(memberKey(node))
+        has: (node: Node): boolean => declarations.has(node)
       }
     };
   } catch {
@@ -84,10 +100,7 @@ const buildProjectUsage = (program: Program): ProjectUsageCacheEntry | null => {
 export const projectUsage = (program: Program): ProjectUsageIndex | null => {
   const cached = projectUsageCache.get(program);
 
-  if (
-    cached &&
-    templateFileVersionsAreCurrent(cached.templateFileVersions)
-  ) {
+  if (cached && cacheEntryIsCurrent(cached)) {
     return cached.usage;
   }
 

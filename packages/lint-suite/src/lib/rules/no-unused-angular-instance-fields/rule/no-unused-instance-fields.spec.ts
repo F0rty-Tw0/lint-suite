@@ -534,6 +534,29 @@ ruleTester.run('lint-suite-angular/no-unused-instance-fields', rule, {
           }
           return TestComponent;
         }`
+    },
+    {
+      name: 'conservatively ignores non-private members of abstract components',
+      code: component(
+        `protected forSubclass = 'used elsewhere'; helper(): void {}`,
+        "template: ''",
+        'Component',
+        'Component',
+        'abstract class BaseComponent'
+      )
+    },
+    {
+      name: 'exempts Angular forms interface methods declared via implements',
+      code: component(
+        `writeValue(value: unknown): void {}
+         registerOnChange(fn: unknown): void {}
+         registerOnTouched(fn: unknown): void {}
+         setDisabledState(disabled: boolean): void {}`,
+        "template: ''",
+        'Component',
+        'Component',
+        'class TestComponent implements ControlValueAccessor'
+      )
     }
   ],
   invalid: [
@@ -746,6 +769,25 @@ ruleTester.run('lint-suite-angular/no-unused-instance-fields', rule, {
           private readonly ref!: ComponentRef;
         }`,
       errors: [{ messageId: 'unusedField', data: { name: 'ref' } }]
+    },
+    {
+      name: 'reports private unused members of abstract components',
+      code: component(
+        `private internal = 'unused'; private helper(): void {}`,
+        "template: ''",
+        'Component',
+        'Component',
+        'abstract class BaseComponent'
+      ),
+      errors: [
+        { messageId: 'unusedField', data: { name: 'internal' } },
+        { messageId: 'unusedMethod', data: { name: 'helper' } }
+      ]
+    },
+    {
+      name: 'reports an unread validate method when no forms interface is implemented',
+      code: component(`validate(): null { return null; }`),
+      errors: [{ messageId: 'unusedMethod', data: { name: 'validate' } }]
     }
   ]
 });

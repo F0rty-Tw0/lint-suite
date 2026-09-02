@@ -152,6 +152,33 @@ const lifecycleHooks: Readonly<Record<string, true>> = {
   ngOnDestroy: true
 };
 
+const formsInterfaceMethods: Readonly<Record<string, readonly string[]>> = {
+  AsyncValidator: ['validate', 'registerOnValidatorChange'],
+  ControlValueAccessor: [
+    'writeValue',
+    'registerOnChange',
+    'registerOnTouched',
+    'setDisabledState'
+  ],
+  Validator: ['validate', 'registerOnValidatorChange']
+};
+
+const implementedFormsMethods = (node: AngularClassNode): Set<string> => {
+  const methods = new Set<string>();
+
+  for (const heritage of node.implements) {
+    if (heritage.expression.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+      continue;
+    }
+
+    for (const name of formsInterfaceMethods[heritage.expression.name] ?? []) {
+      methods.add(name);
+    }
+  }
+
+  return methods;
+};
+
 const isInstanceMethod = (
   node: TSESTree.ClassElement
 ): node is InstanceMethod =>
@@ -191,8 +218,7 @@ const isAngularComponentRefField = (
 
 const isExcludedField = (
   node: InstanceField,
-  component: boolean,
-  projectAnalysis: boolean,
+  localPrivateOnly: boolean,
   sourceCode: TSESLint.SourceCode
 ): boolean =>
   node.static ||
@@ -200,7 +226,7 @@ const isExcludedField = (
   node.override ||
   node.decorators.length > 0 ||
   isAngularComponentRefField(node, sourceCode) ||
-  (!component && !projectAnalysis && node.accessibility !== 'private');
+  (localPrivateOnly && node.accessibility !== 'private');
 
 const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
   const options = node.arguments[1];
@@ -259,14 +285,13 @@ const isManagedField = (
 const field = (
   node: TSESTree.ClassElement,
   imports: AngularImports,
-  component: boolean,
+  localPrivateOnly: boolean,
   allowEffectFields: boolean,
-  sourceCode: TSESLint.SourceCode,
-  projectAnalysis: boolean
+  sourceCode: TSESLint.SourceCode
 ): MemberCandidate | null => {
   if (
     isInstanceField(node) &&
-    !isExcludedField(node, component, projectAnalysis, sourceCode) &&
+    !isExcludedField(node, localPrivateOnly, sourceCode) &&
     !isManagedField(node, imports, allowEffectFields, sourceCode)
   ) {
     return { messageId: 'unusedField', name: node.key.name, node };
@@ -277,8 +302,8 @@ const field = (
 
 const isExcludedMethod = (
   node: InstanceMethod,
-  component: boolean,
-  projectAnalysis: boolean
+  localPrivateOnly: boolean,
+  implementedMethods: Set<string>
 ): boolean =>
   node.static ||
   node.override ||
@@ -287,16 +312,17 @@ const isExcludedMethod = (
   node.kind !== 'method' ||
   node.value.body === null ||
   lifecycleHooks[node.key.name] === true ||
-  (!component && !projectAnalysis && node.accessibility !== 'private');
+  implementedMethods.has(node.key.name) ||
+  (localPrivateOnly && node.accessibility !== 'private');
 
 const method = (
   node: TSESTree.ClassElement,
-  component: boolean,
-  projectAnalysis: boolean
+  localPrivateOnly: boolean,
+  implementedMethods: Set<string>
 ): MemberCandidate | null => {
   if (
     isInstanceMethod(node) &&
-    !isExcludedMethod(node, component, projectAnalysis)
+    !isExcludedMethod(node, localPrivateOnly, implementedMethods)
   ) {
     return { messageId: 'unusedMethod', name: node.key.name, node };
   }
@@ -346,6 +372,11 @@ export const reportUnusedMembers = (
       continue;
     }
 
+    // ponytail: local analysis cannot see subclasses, so directive and
+    // abstract-class members are only candidates when private.
+    const localPrivateOnly =
+      !projectAnalysis && (!ngClass.component || entry.node.abstract === true);
+    const implementedMethods = implementedFormsMethods(entry.node);
     const members: MemberCandidate[] = [];
 
     for (const node of entry.node.body.body) {
@@ -353,11 +384,10 @@ export const reportUnusedMembers = (
         field(
           node,
           imports,
-          ngClass.component,
+          localPrivateOnly,
           allowEffectFields,
-          context.sourceCode,
-          projectAnalysis
-        ) ?? method(node, ngClass.component, projectAnalysis);
+          context.sourceCode
+        ) ?? method(node, localPrivateOnly, implementedMethods);
 
       if (candidate) {
         members.push(candidate);

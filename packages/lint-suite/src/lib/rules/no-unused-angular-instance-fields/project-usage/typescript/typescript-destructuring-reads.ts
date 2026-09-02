@@ -22,7 +22,10 @@ import type {
   TypeChecker
 } from 'typescript';
 
-import type { AddDeclaration } from '../common/project-usage.type.js';
+import type {
+  AddDeclaration,
+  CandidateNames
+} from '../common/project-usage.type.js';
 import {
   addNamedProperties,
   addSymbolDeclarations,
@@ -30,14 +33,30 @@ import {
   propertyName
 } from './typescript-symbol-reads.js';
 
+type LazyType = () => Type;
+
 const isBindingPattern = (node: Node): node is BindingPattern =>
   isArrayBindingPattern(node) || isObjectBindingPattern(node);
 
+const lazyType = (compute: () => Type): LazyType => {
+  let type: Type | undefined;
+
+  return () => (type ??= compute());
+};
+
+const skippable = (
+  names: string[] | null,
+  nested: boolean,
+  candidateNames: CandidateNames
+): boolean =>
+  !nested && names !== null && !names.some((name) => candidateNames.has(name));
+
 const collectBindingPattern = (
   pattern: BindingPattern,
-  type: Type,
+  type: LazyType,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration
+  addDeclaration: AddDeclaration,
+  candidateNames: CandidateNames
 ): void => {
   if (isArrayBindingPattern(pattern)) {
     for (const [index, element] of pattern.elements.entries()) {
@@ -45,20 +64,28 @@ const collectBindingPattern = (
         continue;
       }
 
+      const names = element.dotDotDotToken ? null : [String(index)];
+      const nested = isBindingPattern(element.name);
+
+      if (skippable(names, nested, candidateNames)) {
+        continue;
+      }
+
       const symbols = addNamedProperties(
         checker,
-        type,
-        element.dotDotDotToken ? null : [String(index)],
+        type(),
+        names,
         addDeclaration
       );
 
-      if (isBindingPattern(element.name)) {
+      if (nested) {
         for (const symbol of symbols) {
           collectBindingPattern(
             element.name,
-            checker.getTypeOfSymbolAtLocation(symbol, element),
+            lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
             checker,
-            addDeclaration
+            addDeclaration,
+            candidateNames
           );
         }
       }
@@ -71,7 +98,7 @@ const collectBindingPattern = (
 
   for (const element of pattern.elements) {
     if (element.dotDotDotToken) {
-      for (const symbol of allPropertySymbols(checker, type)) {
+      for (const symbol of allPropertySymbols(checker, type())) {
         if (!consumed.has(symbol.name)) {
           addSymbolDeclarations(checker, symbol, addDeclaration);
         }
@@ -84,19 +111,27 @@ const collectBindingPattern = (
       : isIdentifier(element.name)
         ? [element.name.text]
         : null;
-    const symbols = addNamedProperties(checker, type, names, addDeclaration);
 
     for (const name of names ?? []) {
       consumed.add(name);
     }
 
-    if (isBindingPattern(element.name)) {
+    const nested = isBindingPattern(element.name);
+
+    if (skippable(names, nested, candidateNames)) {
+      continue;
+    }
+
+    const symbols = addNamedProperties(checker, type(), names, addDeclaration);
+
+    if (nested) {
       for (const symbol of symbols) {
         collectBindingPattern(
           element.name,
-          checker.getTypeOfSymbolAtLocation(symbol, element),
+          lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
           checker,
-          addDeclaration
+          addDeclaration,
+          candidateNames
         );
       }
     }
@@ -105,9 +140,10 @@ const collectBindingPattern = (
 
 const collectAssignmentPattern = (
   pattern: ArrayLiteralExpression | ObjectLiteralExpression,
-  type: Type,
+  type: LazyType,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration
+  addDeclaration: AddDeclaration,
+  candidateNames: CandidateNames
 ): void => {
   if (isArrayLiteralExpression(pattern)) {
     for (const [index, element] of pattern.elements.entries()) {
@@ -115,23 +151,30 @@ const collectAssignmentPattern = (
         continue;
       }
 
+      const names = isSpreadElement(element) ? null : [String(index)];
+      const nested =
+        isArrayLiteralExpression(element) ||
+        isObjectLiteralExpression(element);
+
+      if (skippable(names, nested, candidateNames)) {
+        continue;
+      }
+
       const symbols = addNamedProperties(
         checker,
-        type,
-        isSpreadElement(element) ? null : [String(index)],
+        type(),
+        names,
         addDeclaration
       );
 
-      if (
-        isArrayLiteralExpression(element) ||
-        isObjectLiteralExpression(element)
-      ) {
+      if (nested) {
         for (const symbol of symbols) {
           collectAssignmentPattern(
             element,
-            checker.getTypeOfSymbolAtLocation(symbol, element),
+            lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
             checker,
-            addDeclaration
+            addDeclaration,
+            candidateNames
           );
         }
       }
@@ -144,7 +187,7 @@ const collectAssignmentPattern = (
 
   for (const property of pattern.properties) {
     if (isSpreadAssignment(property)) {
-      for (const symbol of allPropertySymbols(checker, type)) {
+      for (const symbol of allPropertySymbols(checker, type())) {
         if (!consumed.has(symbol.name)) {
           addSymbolDeclarations(checker, symbol, addDeclaration);
         }
@@ -153,25 +196,32 @@ const collectAssignmentPattern = (
     }
 
     const names = propertyName(checker, property.name);
-    const symbols = addNamedProperties(checker, type, names, addDeclaration);
-    const isNestedPropertyAssignment =
+
+    for (const name of names ?? []) {
+      consumed.add(name);
+    }
+
+    const nested =
       isPropertyAssignment(property) &&
       (isArrayLiteralExpression(property.initializer) ||
         isObjectLiteralExpression(property.initializer));
 
-    if (isNestedPropertyAssignment) {
+    if (skippable(names, nested, candidateNames)) {
+      continue;
+    }
+
+    const symbols = addNamedProperties(checker, type(), names, addDeclaration);
+
+    if (nested) {
       for (const symbol of symbols) {
         collectAssignmentPattern(
           property.initializer,
-          checker.getTypeOfSymbolAtLocation(symbol, property),
+          lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, property)),
           checker,
-          addDeclaration
+          addDeclaration,
+          candidateNames
         );
       }
-    }
-
-    for (const name of names ?? []) {
-      consumed.add(name);
     }
   }
 };
@@ -179,7 +229,8 @@ const collectAssignmentPattern = (
 export const collectDestructuringReads = (
   node: Node,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration
+  addDeclaration: AddDeclaration,
+  candidateNames: CandidateNames
 ): void => {
   const isDestructuringBindingPattern =
     isBindingPattern(node) &&
@@ -194,9 +245,10 @@ export const collectDestructuringReads = (
 
     collectBindingPattern(
       node,
-      checker.getTypeAtLocation(source),
+      lazyType(() => checker.getTypeAtLocation(source)),
       checker,
-      addDeclaration
+      addDeclaration,
+      candidateNames
     );
     return;
   }
@@ -210,9 +262,10 @@ export const collectDestructuringReads = (
   if (isDestructuringAssignment) {
     collectAssignmentPattern(
       node.left,
-      checker.getTypeAtLocation(node.right),
+      lazyType(() => checker.getTypeAtLocation(node.right)),
       checker,
-      addDeclaration
+      addDeclaration,
+      candidateNames
     );
   }
 };
