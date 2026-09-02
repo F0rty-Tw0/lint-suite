@@ -58,7 +58,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "command": "node --import @swc-node/register/esm-register --test --test-isolation=none packages/lint-suite/src/lib/rules/no-unused-angular-instance-fields/rule/no-unused-instance-fields.spec.ts packages/lint-suite/src/lib/rules/no-unused-angular-instance-fields/no-unused-angular-instance-fields.fixtures.spec.ts packages/lint-suite/src/lib/rules/explicit-accessibility/explicit-accessibility.spec.ts packages/lint-suite/src/lib/rules/readonly-type-properties/readonly-type-properties.spec.ts packages/lint-suite/src/lib/rules/no-inline-object-types/no-inline-object-types.spec.ts",
+        "command": "node --import @swc-node/register/esm-register --test --test-isolation=none \"packages/lint-suite/src/lib/rules/*/*.spec.ts\" \"packages/lint-suite/src/lib/rules/*/rule/*.spec.ts\"",
         "env": {
           "SWC_NODE_PROJECT": "packages/lint-suite/tsconfig.json"
         }
