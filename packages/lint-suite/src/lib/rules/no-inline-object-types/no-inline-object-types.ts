@@ -1,0 +1,53 @@
+import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
+
+type Options = [];
+type MessageIds = 'inlineObjectType';
+
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/F0rty-Tw0/lint-suite#no-inline-object-types'
+);
+
+const enclosingTypeAlias = (
+  node: TSESTree.Node
+): TSESTree.TSTypeAliasDeclaration | undefined => {
+  let current: TSESTree.Node | undefined = node.parent;
+
+  while (current && current.type !== TSESTree.AST_NODE_TYPES.Program) {
+    if (current.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration) {
+      return current;
+    }
+
+    current = current.parent;
+  }
+
+  return undefined;
+};
+
+export default createRule<Options, MessageIds>({
+  name: 'no-inline-object-types',
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description:
+        'Require nested object types inside a type alias to be extracted to a named type alias'
+    },
+    schema: [],
+    messages: {
+      inlineObjectType:
+        'Inline object type must be extracted to a named type alias.'
+    }
+  },
+  defaultOptions: [],
+  create(context) {
+    return {
+      TSTypeLiteral(node): void {
+        if (
+          node.parent.type !== TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration &&
+          enclosingTypeAlias(node)
+        ) {
+          context.report({ node, messageId: 'inlineObjectType' });
+        }
+      }
+    };
+  }
+});
