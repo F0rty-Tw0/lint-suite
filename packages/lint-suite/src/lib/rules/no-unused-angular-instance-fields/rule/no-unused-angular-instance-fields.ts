@@ -1,37 +1,45 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
-import type { TSESLint } from '@typescript-eslint/utils';
-import type ts from 'typescript';
+import type {
+  ParserServicesWithTypeInformation,
+  TSESLint
+} from '@typescript-eslint/utils';
 
 import {
   addAngularImport,
   reportUnusedMembers
-} from './angular-class-fields.js';
+} from './angular/angular-class-fields.js';
 import type {
   AngularClassNode,
   AngularImports,
   ClassEntry,
   DynamicClasses,
+  ProjectMemberUsed,
   RuleOptions
 } from './common/no-unused-angular-instance-fields.type.js';
-import { projectUsage } from './project-usage/project-usage.js';
+import { projectUsage } from '../project-usage/project-usage.js';
+import type { ProjectUsageIndex } from '../project-usage/common/project-usage.type.js';
+import { isSpecFile } from '../project-usage/utils/spec-file.js';
 import {
   destructuredThisReads,
   isThisExpression,
   isWriteOnly
-} from './utils/typescript-field-reads.util.js';
+} from './typescript/typescript-field-reads.js';
 
-const defaultOptions: Required<RuleOptions[0]> = {
-  allowEffectFields: false,
-  analysis: 'local'
-};
+type Options = [RuleOptions];
 type MessageIds = 'unusedField' | 'unusedMethod';
 type FunctionNode =
   | TSESTree.ArrowFunctionExpression
   | TSESTree.FunctionDeclaration
   | TSESTree.FunctionExpression;
 type DestructuringNode =
-  TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
-type RuleContext = Readonly<TSESLint.RuleContext<MessageIds, RuleOptions>>;
+  | TSESTree.AssignmentExpression
+  | TSESTree.VariableDeclarator;
+type RuleContext = Readonly<TSESLint.RuleContext<MessageIds, Options>>;
+
+const defaultOptions: RuleOptions = {
+  allowEffectFields: false,
+  analysis: 'local'
+};
 
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://eslint.org/docs/latest/rules/no-unused-private-class-members'
@@ -53,7 +61,10 @@ const enterClass = (
   thisStack.push(true);
 };
 
-const componentThis = (node: FunctionNode, thisStack: boolean[]): boolean =>
+const componentThis = (
+  node: FunctionNode,
+  thisStack: boolean[]
+): boolean =>
   node.type === TSESTree.AST_NODE_TYPES.ArrowFunctionExpression
     ? (thisStack.at(-1) ?? false)
     : node.parent.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
@@ -159,7 +170,7 @@ const visitor = (
   stack: ClassEntry[],
   dynamicClasses: DynamicClasses,
   allowEffectFields: boolean,
-  projectMemberUsed: ((node: TSESTree.ClassElement) => boolean) | undefined
+  projectMemberUsed: ProjectMemberUsed | undefined
 ): TSESLint.RuleListener => {
   const thisStack: boolean[] = [];
 
@@ -201,7 +212,19 @@ const visitor = (
   };
 };
 
-export default createRule<RuleOptions, MessageIds>({
+const projectParserServices = (
+  context: RuleContext
+): ParserServicesWithTypeInformation => {
+  try {
+    return ESLintUtils.getParserServices(context);
+  } catch {
+    throw new Error(
+      'Project analysis requires parser services with type information.'
+    );
+  }
+};
+
+export default createRule<Options, MessageIds>({
   name: 'no-unused-instance-fields',
   meta: {
     type: 'problem',
@@ -218,11 +241,13 @@ export default createRule<RuleOptions, MessageIds>({
         type: 'object',
         properties: {
           allowEffectFields: {
-            type: 'boolean'
+            type: 'boolean',
+            description: 'Allow Angular effect() fields with automatic cleanup.'
           },
           analysis: {
             type: 'string',
-            enum: ['local', 'project']
+            enum: ['local', 'project'],
+            description: 'Choose local-file or typed whole-project analysis.'
           }
         },
         additionalProperties: false
@@ -231,21 +256,14 @@ export default createRule<RuleOptions, MessageIds>({
   },
   defaultOptions: [defaultOptions],
   create(context, [options]): TSESLint.RuleListener {
-    const { allowEffectFields, analysis } = { ...defaultOptions, ...options };
-    let projectMemberUsed:
-      ((node: TSESTree.ClassElement) => boolean) | undefined;
+    const analysis = options.analysis ?? 'local';
 
-    if (analysis === 'project') {
-      const services = ESLintUtils.getParserServices(context);
-      const usage = projectUsage(services.program);
-
-      if (!usage) {
-        return {};
-      }
-
-      projectMemberUsed = (node: TSESTree.ClassElement): boolean =>
-        usage.has(services.esTreeNodeToTSNodeMap.get(node) as ts.Declaration);
+    if (analysis === 'project' && isSpecFile(context.filename)) {
+      return {};
     }
+
+    const parserServices =
+      analysis === 'project' ? projectParserServices(context) : undefined;
 
     const imports: AngularImports = new Map();
     for (const node of context.sourceCode.ast.body) {
@@ -254,12 +272,43 @@ export default createRule<RuleOptions, MessageIds>({
       }
     }
 
-    if (imports.size === 0) {
+    let hasAngularClassImport = false;
+    for (const imported of imports.values()) {
+      if (
+        imported === null ||
+        imported === 'Component' ||
+        imported === 'Directive'
+      ) {
+        hasAngularClassImport = true;
+        break;
+      }
+    }
+
+    if (!hasAngularClassImport) {
       return {};
     }
+
+    let projectMemberUsed: ProjectMemberUsed | undefined;
+
+    if (parserServices) {
+      let usage: ProjectUsageIndex | null | undefined;
+
+      projectMemberUsed = (node: TSESTree.ClassElement): boolean => {
+        if (usage === undefined) {
+          usage = projectUsage(parserServices.program);
+        }
+
+        return (
+          usage?.has(parserServices.esTreeNodeToTSNodeMap.get(node)) ?? true
+        );
+      };
+    }
+
     const classes: ClassEntry[] = [];
     const stack: ClassEntry[] = [];
     const dynamicClasses: DynamicClasses = new Set();
+
+    const allowEffectFields = options.allowEffectFields ?? false;
 
     return visitor(
       context,

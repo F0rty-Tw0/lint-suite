@@ -11,6 +11,10 @@
   local by default, and `allowEffectFields` remains opt-in. After cross-file or template changes, do not use
   ESLint `--cache` for correctness gates; run a full non-cached lint.
 
+### Features
+
+- **Angular**: Extended `lint-suite-angular/no-unused-instance-fields` with optional project-wide TypeScript and Angular template usage analysis, auto-cleaned effect handling, and signal query recognition.
+
 ### Bug Fixes
 
 - **Dependencies**: Added `@angular/compiler-cli` and pinned `@angular/compiler` for Angular project analysis.

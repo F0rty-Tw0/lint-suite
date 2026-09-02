@@ -8,13 +8,18 @@ import type {
   AngularImports,
   ClassEntry,
   DynamicClasses,
+  ProjectMemberUsed,
   RuleOptions
-} from './common/no-unused-angular-instance-fields.type.js';
+} from '../common/no-unused-angular-instance-fields.type.js';
 
 const managedApis: Readonly<Record<string, true>> = {
   input: true,
   model: true,
-  output: true
+  output: true,
+  viewChild: true,
+  viewChildren: true,
+  contentChild: true,
+  contentChildren: true
 };
 
 type InstanceField = TSESTree.PropertyDefinition & {
@@ -24,7 +29,7 @@ type InstanceMethod = TSESTree.MethodDefinition & {
   readonly key: TSESTree.Identifier;
 };
 type RuleContext = Readonly<
-  TSESLint.RuleContext<'unusedField' | 'unusedMethod', RuleOptions>
+  TSESLint.RuleContext<'unusedField' | 'unusedMethod', [RuleOptions]>
 >;
 
 type AngularClass = {
@@ -63,6 +68,7 @@ const angularName = (
 
   return angularName(node.object, imports);
 };
+
 const calleeRoot = (
   node: TSESTree.Expression
 ): TSESTree.Identifier | undefined => {
@@ -163,31 +169,35 @@ const isExcludedField = (
   node.decorators.length > 0 ||
   (!component && !projectAnalysis && node.accessibility !== 'private');
 
-const hasManualCleanup = (node: TSESTree.CallExpression): boolean => {
+const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
   const options = node.arguments[1];
 
-  if (options?.type !== TSESTree.AST_NODE_TYPES.ObjectExpression) {
+  if (options === undefined) {
+    return true;
+  }
+
+  if (options.type !== TSESTree.AST_NODE_TYPES.ObjectExpression) {
     return false;
   }
 
-  return options.properties.some((property) => {
-    if (property.type !== TSESTree.AST_NODE_TYPES.Property) {
+  return options.properties.every((property) => {
+    if (
+      property.type !== TSESTree.AST_NODE_TYPES.Property ||
+      property.computed
+    ) {
       return false;
     }
 
-    const name =
-      property.key.type === TSESTree.AST_NODE_TYPES.Identifier &&
-      !property.computed
-        ? property.key.name
-        : property.key.type === TSESTree.AST_NODE_TYPES.Literal &&
-            typeof property.key.value === 'string'
-          ? property.key.value
-          : undefined;
+    const manualCleanup =
+      (property.key.type === TSESTree.AST_NODE_TYPES.Identifier &&
+        property.key.name === 'manualCleanup') ||
+      (property.key.type === TSESTree.AST_NODE_TYPES.Literal &&
+        property.key.value === 'manualCleanup');
 
     return (
-      name === 'manualCleanup' &&
-      property.value.type === TSESTree.AST_NODE_TYPES.Literal &&
-      property.value.value === true
+      !manualCleanup ||
+      (property.value.type === TSESTree.AST_NODE_TYPES.Literal &&
+        property.value.value === false)
     );
   });
 };
@@ -204,19 +214,12 @@ const isManagedField = (
 
   const name = angularName(node.value.callee, imports);
 
-  if (typeof name !== 'string') {
-    return false;
-  }
-
-  if (managedApis[name] === true) {
-    return true;
-  }
-
   return (
-    allowEffectFields &&
-    name === 'effect' &&
-    isImportBinding(node.value.callee, sourceCode) &&
-    !hasManualCleanup(node.value)
+    (typeof name === 'string' && managedApis[name] === true) ||
+    (allowEffectFields &&
+      name === 'effect' &&
+      isImportBinding(node.value.callee, sourceCode) &&
+      hasAutomaticEffectCleanup(node.value))
   );
 };
 
@@ -299,8 +302,10 @@ export const reportUnusedMembers = (
   classes: ClassEntry[],
   dynamicClasses: DynamicClasses,
   allowEffectFields: boolean,
-  projectMemberUsed: ((node: TSESTree.ClassElement) => boolean) | undefined
+  projectMemberUsed: ProjectMemberUsed | undefined
 ): void => {
+  const projectAnalysis = projectMemberUsed !== undefined;
+
   for (const entry of classes) {
     const ngClass = angularClass(entry.node, imports);
 
@@ -318,8 +323,9 @@ export const reportUnusedMembers = (
           ngClass.component,
           allowEffectFields,
           context.sourceCode,
-          projectMemberUsed !== undefined
-        ) ?? method(node, ngClass.component, projectMemberUsed !== undefined);
+          projectAnalysis
+        ) ?? method(node, ngClass.component, projectAnalysis);
+
       if (candidate) {
         members.push(candidate);
       }
@@ -330,8 +336,7 @@ export const reportUnusedMembers = (
     }
 
     const unreadMembers = members.filter(
-      (candidate) =>
-        !entry.reads.has(candidate.name) && !projectMemberUsed?.(candidate.node)
+      (candidate) => !entry.reads.has(candidate.name)
     );
 
     if (unreadMembers.length === 0) {
@@ -350,13 +355,18 @@ export const reportUnusedMembers = (
     }
 
     for (const candidate of unreadMembers) {
-      if (!reads.has(candidate.name)) {
-        context.report({
-          data: { name: candidate.name },
-          messageId: candidate.messageId,
-          node: candidate.node.key
-        });
+      if (
+        reads.has(candidate.name) ||
+        projectMemberUsed?.(candidate.node) === true
+      ) {
+        continue;
       }
+
+      context.report({
+        data: { name: candidate.name },
+        messageId: candidate.messageId,
+        node: candidate.node.key
+      });
     }
   }
 };

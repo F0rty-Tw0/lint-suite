@@ -1,0 +1,104 @@
+import {
+  isBigIntLiteral,
+  isIdentifier,
+  isNumericLiteral,
+  isPrivateIdentifier,
+  isStringLiteralLike,
+  SymbolFlags
+} from 'typescript';
+import type { PropertyName, Symbol, Type, TypeChecker } from 'typescript';
+
+import type { AddDeclaration } from '../common/project-usage.type.js';
+import { symbolsForName } from '../utils/type-property-symbols.js';
+
+export const addSymbolDeclarations = (
+  checker: TypeChecker,
+  symbol: Symbol,
+  addDeclaration: AddDeclaration
+): void => {
+  const resolved =
+    (symbol.flags & SymbolFlags.Alias) === 0
+      ? symbol
+      : checker.getAliasedSymbol(symbol);
+
+  for (const declaration of resolved.declarations ?? []) {
+    addDeclaration(declaration);
+  }
+};
+
+export const allPropertySymbols = (
+  checker: TypeChecker,
+  type: Type
+): Symbol[] => {
+  const symbols = new Set(
+    checker.getPropertiesOfType(checker.getApparentType(type))
+  );
+
+  if (type.isUnionOrIntersection()) {
+    for (const member of type.types) {
+      for (const symbol of allPropertySymbols(checker, member)) {
+        symbols.add(symbol);
+      }
+    }
+  }
+
+  return [...symbols];
+};
+
+export const addNamedProperties = (
+  checker: TypeChecker,
+  type: Type,
+  names: string[] | null,
+  addDeclaration: AddDeclaration
+): Symbol[] => {
+  const symbols = names
+    ? names.flatMap((name) => symbolsForName(checker, type, name))
+    : allPropertySymbols(checker, type);
+
+  for (const symbol of symbols) {
+    addSymbolDeclarations(checker, symbol, addDeclaration);
+  }
+
+  return symbols;
+};
+
+export const literalPropertyNames = (type: Type): string[] | null => {
+  if (type.isStringLiteral() || type.isNumberLiteral()) {
+    return [String(type.value)];
+  }
+
+  if (!type.isUnion()) {
+    return null;
+  }
+
+  const names: string[] = [];
+
+  for (const member of type.types) {
+    const memberNames = literalPropertyNames(member);
+
+    if (!memberNames) {
+      return null;
+    }
+
+    names.push(...memberNames);
+  }
+
+  return names;
+};
+
+export const propertyName = (
+  checker: TypeChecker,
+  node: PropertyName
+): string[] | null => {
+  if (
+    isIdentifier(node) ||
+    isPrivateIdentifier(node) ||
+    isStringLiteralLike(node) ||
+    isNumericLiteral(node) ||
+    isBigIntLiteral(node)
+  ) {
+    return [node.text];
+  }
+
+  return literalPropertyNames(checker.getTypeAtLocation(node.expression));
+};

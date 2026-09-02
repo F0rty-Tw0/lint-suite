@@ -3,7 +3,7 @@ import { configs, processInlineTemplates } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 import type { Config } from 'eslint/config';
 
-import noUnusedInstanceFieldsRule from './rules/no-unused-angular-instance-fields/no-unused-angular-instance-fields.js';
+import noUnusedInstanceFieldsRule from './rules/no-unused-angular-instance-fields/rule/no-unused-angular-instance-fields.js';
 
 const lintSuiteAngularPlugin: Record<string, unknown> = {
   rules: {

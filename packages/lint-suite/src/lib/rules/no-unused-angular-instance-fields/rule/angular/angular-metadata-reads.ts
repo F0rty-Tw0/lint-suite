@@ -12,7 +12,7 @@ import {
 } from '@angular/compiler';
 import type { DirectiveMeta } from '@angular/compiler';
 import { TSESTree } from '@typescript-eslint/utils';
-import { collectAngularExpressionReads } from './utils/angular-expression-reads.util.js';
+import { collectAngularExpressionReads } from './angular-expression-reads.js';
 
 type ExternalTemplateCache = {
   readonly reads: Set<string> | null;

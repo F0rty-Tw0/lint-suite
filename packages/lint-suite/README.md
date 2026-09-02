@@ -124,6 +124,42 @@ export default [
 ];
 ```
 
+### Unused Angular instance fields
+
+The `angular` config enables `lint-suite-angular/no-unused-instance-fields`.
+Local analysis recognizes reads from the class, component template, and host
+expressions. Use project analysis when other TypeScript files or Angular
+templates can read a component or directive member:
+
+```js
+{
+  files: ['**/*.ts'],
+  languageOptions: {
+    parserOptions: {
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname
+    }
+  },
+  rules: {
+    'lint-suite-angular/no-unused-instance-fields': [
+      'error',
+      {
+        analysis: 'project',
+        allowEffectFields: true
+      }
+    ]
+  }
+}
+```
+
+- `analysis` defaults to `'local'`. Project mode excludes spec-file reads and
+  fails closed when it cannot build a reliable TypeScript or Angular index.
+- `allowEffectFields` defaults to `false`. When enabled, fields holding
+  auto-cleaned Angular `effect()` calls are allowed; effects configured with
+  `manualCleanup: true` must still be read.
+- Angular signal inputs, models, outputs, and query fields are always treated
+  as framework-managed.
+
 ## Stylelint and Prettier presets
 
 These are standalone configs exported as subpaths — they are not part of the `recommended` ESLint array.

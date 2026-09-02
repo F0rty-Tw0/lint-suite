@@ -1,18 +1,19 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 
 export type AngularClassNode =
-  TSESTree.ClassDeclaration | TSESTree.ClassExpression;
+  | TSESTree.ClassDeclaration
+  | TSESTree.ClassExpression;
 
 export type AngularImport = string | null;
 
 export type AngularImports = Map<string, AngularImport>;
 
-export type RuleOptions = [
-  {
-    allowEffectFields?: boolean;
-    analysis?: 'local' | 'project';
-  }
-];
+export type RuleOptions = {
+  readonly allowEffectFields?: boolean;
+  readonly analysis?: 'local' | 'project';
+};
+
+export type ProjectMemberUsed = (node: TSESTree.ClassElement) => boolean;
 
 export type ClassEntry = {
   readonly node: AngularClassNode;

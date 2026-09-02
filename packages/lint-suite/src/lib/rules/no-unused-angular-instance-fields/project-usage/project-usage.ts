@@ -1,24 +1,52 @@
+import { statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import type ts from 'typescript';
+import type { Declaration, Node, Program } from 'typescript';
 
-import { collectAngularTemplateReads } from './angular-template-reads.js';
-import { collectTypeScriptReads } from './typescript-reads.js';
+import { collectAngularTemplateReads } from './angular/angular-template-reads.js';
+import type { ProjectUsageIndex } from './common/project-usage.type.js';
+import { collectTypeScriptReads } from './typescript/typescript-reads.js';
 
-type ProjectUsageIndex = {
-  readonly has: (declaration: ts.Declaration) => boolean;
+type TemplateFileVersion = {
+  readonly fileName: string;
+  readonly mtimeNs: bigint;
+  readonly size: bigint;
 };
 
-const projectUsageCache = new WeakMap<ts.Program, ProjectUsageIndex | null>();
-
-// Parser and Angular programs own different nodes; source spans preserve declaration identity.
-const memberKey = (declaration: ts.Declaration): string => {
-  const sourceFile = declaration.getSourceFile();
-
-  return `${resolve(sourceFile.fileName)}:${declaration.getStart(sourceFile)}:${declaration.getEnd()}`;
+type ProjectUsageCacheEntry = {
+  readonly templateFileVersions: TemplateFileVersion[];
+  readonly usage: ProjectUsageIndex;
 };
 
-const buildProjectUsage = (program: ts.Program): ProjectUsageIndex | null => {
+const projectUsageCache = new WeakMap<Program, ProjectUsageCacheEntry>();
+
+const memberKey = (node: Node): string => {
+  const sourceFile = node.getSourceFile();
+
+  return `${resolve(sourceFile.fileName)}:${node.getStart(sourceFile)}:${node.getEnd()}`;
+};
+
+const templateFileVersion = (fileName: string): TemplateFileVersion => {
+  const { mtimeNs, size } = statSync(fileName, { bigint: true });
+
+  return { fileName: resolve(fileName), mtimeNs, size };
+};
+
+const templateFileVersionsAreCurrent = (
+  versions: TemplateFileVersion[]
+): boolean => {
+  try {
+    return versions.every(({ fileName, mtimeNs, size }) => {
+      const current = statSync(fileName, { bigint: true });
+
+      return current.mtimeNs === mtimeNs && current.size === size;
+    });
+  } catch {
+    return false;
+  }
+};
+
+const buildProjectUsage = (program: Program): ProjectUsageCacheEntry | null => {
   try {
     const configFilePath = program.getCompilerOptions()['configFilePath'];
 
@@ -27,32 +55,49 @@ const buildProjectUsage = (program: ts.Program): ProjectUsageIndex | null => {
     }
 
     const keys = new Set<string>();
-    const addDeclaration = (declaration: ts.Declaration): void => {
+    const addDeclaration = (declaration: Declaration): void => {
       keys.add(memberKey(declaration));
     };
 
     collectTypeScriptReads(program, addDeclaration);
 
-    if (!collectAngularTemplateReads(configFilePath, addDeclaration)) {
+    const templateFiles = collectAngularTemplateReads(
+      configFilePath,
+      addDeclaration
+    );
+
+    if (!templateFiles) {
       return null;
     }
 
-    return Object.freeze({
-      has: (declaration: ts.Declaration): boolean =>
-        keys.has(memberKey(declaration))
-    });
+    return {
+      templateFileVersions: templateFiles.map(templateFileVersion),
+      usage: {
+        has: (node: Node): boolean => keys.has(memberKey(node))
+      }
+    };
   } catch {
     return null;
   }
 };
 
-export const projectUsage = (program: ts.Program): ProjectUsageIndex | null => {
-  if (projectUsageCache.has(program)) {
-    return projectUsageCache.get(program) ?? null;
+export const projectUsage = (program: Program): ProjectUsageIndex | null => {
+  const cached = projectUsageCache.get(program);
+
+  if (
+    cached &&
+    templateFileVersionsAreCurrent(cached.templateFileVersions)
+  ) {
+    return cached.usage;
   }
 
-  const usage = buildProjectUsage(program);
+  const built = buildProjectUsage(program);
 
-  projectUsageCache.set(program, usage);
-  return usage;
+  if (!built) {
+    projectUsageCache.delete(program);
+    return null;
+  }
+
+  projectUsageCache.set(program, built);
+  return built.usage;
 };
