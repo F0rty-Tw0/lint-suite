@@ -960,14 +960,20 @@ failingProjectRuleTester.run(
   'lint-suite-angular/no-unused-instance-fields',
   rule,
   {
-    valid: [
+    valid: [],
+    invalid: [
       {
-        name: 'skips reports when the project index cannot be built',
+        name: 'falls back to name matching when a template cannot be parsed',
         code: failingProjectComponentCode,
         filename: failingProjectComponentFilename,
-        options: [{ analysis: 'project' }]
+        options: [{ analysis: 'project' }],
+        errors: [
+          {
+            messageId: 'unusedField',
+            data: { name: 'unreadAfterIndexFailure' }
+          }
+        ]
       }
-    ],
-    invalid: []
+    ]
   }
 );

@@ -16,7 +16,10 @@ import type {
   ProjectMemberUsed,
   RuleOptions
 } from './common/no-unused-angular-instance-fields.type.js';
-import { projectUsage } from '../project-usage/project-usage.js';
+import {
+  projectUsage,
+  projectUsageIsCurrent
+} from '../project-usage/project-usage.js';
 import type { ProjectUsageIndex } from '../project-usage/common/project-usage.type.js';
 import { isSpecFile } from '../project-usage/utils/spec-file.js';
 import {
@@ -32,8 +35,7 @@ type FunctionNode =
   | TSESTree.FunctionDeclaration
   | TSESTree.FunctionExpression;
 type DestructuringNode =
-  | TSESTree.AssignmentExpression
-  | TSESTree.VariableDeclarator;
+  TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
 type RuleContext = Readonly<TSESLint.RuleContext<MessageIds, Options>>;
 
 const defaultOptions: RuleOptions = {
@@ -61,10 +63,7 @@ const enterClass = (
   thisStack.push(true);
 };
 
-const componentThis = (
-  node: FunctionNode,
-  thisStack: boolean[]
-): boolean =>
+const componentThis = (node: FunctionNode, thisStack: boolean[]): boolean =>
   node.type === TSESTree.AST_NODE_TYPES.ArrowFunctionExpression
     ? (thisStack.at(-1) ?? false)
     : node.parent.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
@@ -170,7 +169,8 @@ const visitor = (
   stack: ClassEntry[],
   dynamicClasses: DynamicClasses,
   allowEffectFields: boolean,
-  projectMemberUsed: ProjectMemberUsed | undefined
+  projectMemberUsed: ProjectMemberUsed | undefined,
+  projectIndexed: () => boolean
 ): TSESLint.RuleListener => {
   const thisStack: boolean[] = [];
 
@@ -206,7 +206,8 @@ const visitor = (
         classes,
         dynamicClasses,
         allowEffectFields,
-        projectMemberUsed
+        projectMemberUsed,
+        projectIndexed
       );
     }
   };
@@ -317,7 +318,10 @@ export default createRule<Options, MessageIds>({
       stack,
       dynamicClasses,
       allowEffectFields,
-      projectMemberUsed
+      projectMemberUsed,
+      () =>
+        parserServices !== undefined &&
+        projectUsageIsCurrent(parserServices.program)
     );
   }
 });
