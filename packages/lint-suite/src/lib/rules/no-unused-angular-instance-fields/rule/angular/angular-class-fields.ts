@@ -361,9 +361,13 @@ export const reportUnusedMembers = (
   classes: ClassEntry[],
   dynamicClasses: DynamicClasses,
   allowEffectFields: boolean,
-  projectMemberUsed: ProjectMemberUsed | undefined
+  projectMemberUsed: ProjectMemberUsed | undefined,
+  projectIndexed: () => boolean = () => false
 ): void => {
   const projectAnalysis = projectMemberUsed !== undefined;
+  // ponytail: local template reads short-circuit project lookups, but once
+  // the project index already covers this Program they only repeat work.
+  const localTemplates = !projectAnalysis || !projectIndexed();
 
   for (const entry of classes) {
     const ngClass = angularClass(entry.node, imports);
@@ -406,11 +410,15 @@ export const reportUnusedMembers = (
       continue;
     }
 
+    // ponytail: project analysis indexes the component's own template with
+    // type information, so a template that cannot be read locally (for
+    // example `templateUrl: URL`) defers to the index instead of failing.
     const reads = metadataReads(
       ngClass.metadata,
-      ngClass.component,
+      ngClass.component && localTemplates,
       context.filename,
-      unreadMembers.map((candidate) => candidate.name)
+      unreadMembers.map((candidate) => candidate.name),
+      !projectAnalysis
     );
 
     if (!reads) {

@@ -234,11 +234,18 @@ const componentTemplateReads = (
   );
 };
 
+/**
+ * Names read by a class's host bindings and, for components, its template.
+ * Returns null when the metadata cannot be read statically; with
+ * `requireTemplate` false an unreadable template keeps the host reads
+ * instead, for callers that resolve template reads elsewhere.
+ */
 export const metadataReads = (
   metadata: TSESTree.ObjectExpression,
   component: boolean,
   filename: string,
-  remainingNames: string[]
+  remainingNames: string[],
+  requireTemplate = true
 ): Set<string> | null => {
   if (metadata.properties.some((property) => key(property) === null)) {
     return null;
@@ -253,7 +260,8 @@ export const metadataReads = (
   if (
     (component && remainingNames.every((name) => reads.has(name))) ||
     !component ||
-    componentTemplateReads(metadata, reads, filename)
+    componentTemplateReads(metadata, reads, filename) ||
+    !requireTemplate
   ) {
     return reads;
   }
