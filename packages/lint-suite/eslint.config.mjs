@@ -19,7 +19,9 @@ export default [
           // The Angular packages and rxjs are imported only by the rule test
           // fixtures under src/**/fixtures/** (real APIs for realistic
           // scenarios); they are not runtime dependencies of the package.
+          // vitest is the test runner, imported only by spec files.
           ignoredDependencies: [
+            'vitest',
             '@angular/common',
             '@angular/core',
             '@angular/forms',

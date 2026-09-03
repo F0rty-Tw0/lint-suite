@@ -54,16 +54,6 @@
         }
       }
     },
-    "test": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build"],
-      "options": {
-        "command": "node --import @swc-node/register/esm-register --test --test-isolation=none \"packages/lint-suite/src/lib/rules/*/*.spec.ts\" \"packages/lint-suite/src/lib/rules/*/rule/*.spec.ts\"",
-        "env": {
-          "SWC_NODE_PROJECT": "packages/lint-suite/tsconfig.json"
-        }
-      }
-    },
     "nx-release-publish": {
       "options": {
         "packageRoot": "dist/{projectRoot}/src"
