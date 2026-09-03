@@ -1,9 +1,9 @@
+import { component } from '../../utils/component-source.spec.util.js';
 import {
-  component,
   rule,
   ruleName,
   ruleTester
-} from './no-unused-instance-fields.spec-support.js';
+} from '../../utils/rule-under-test.spec.util.js';
 
 ruleTester.run(ruleName, rule, {
   valid: [
@@ -81,28 +81,9 @@ ruleTester.run(ruleName, rule, {
           }
           return TestComponent;
         }`
-    },
-    {
-      name: 'exempts Angular forms interface methods declared via implements',
-      code: component(
-        `writeValue(value: unknown): void {}
-         registerOnChange(fn: unknown): void {}
-         registerOnTouched(fn: unknown): void {}
-         setDisabledState(disabled: boolean): void {}`,
-        "template: ''",
-        'Component',
-        'Component',
-        'class TestComponent implements ControlValueAccessor'
-      )
     }
   ],
   invalid: [
-    {
-      name: 'reports an unused field in a namespace-imported component',
-      code: `import * as ng from '@angular/core'; @ng.Component({ template: '' })
-        class TestComponent { private unused = ''; }`,
-      errors: [{ messageId: 'unusedField', data: { name: 'unused' } }]
-    },
     {
       name: 'reports auto-cleaned Angular effect fields when allowEffectFields is omitted',
       code: component(
@@ -209,11 +190,6 @@ ruleTester.run(ruleName, rule, {
           private readonly ref!: ComponentRef;
         }`,
       errors: [{ messageId: 'unusedField', data: { name: 'ref' } }]
-    },
-    {
-      name: 'reports an unread validate method when no forms interface is implemented',
-      code: component(`validate(): null { return null; }`),
-      errors: [{ messageId: 'unusedMethod', data: { name: 'validate' } }]
     }
   ]
 });

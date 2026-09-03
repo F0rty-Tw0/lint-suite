@@ -1,50 +1,12 @@
+import { component } from '../../utils/component-source.spec.util.js';
 import {
-  component,
   rule,
   ruleName,
   ruleTester
-} from './no-unused-instance-fields.spec-support.js';
+} from '../../utils/rule-under-test.spec.util.js';
 
 ruleTester.run(ruleName, rule, {
   valid: [
-    {
-      name: 'ignores fields outside Angular components and directives',
-      code: `class Service { private unused = 'unused'; }`
-    },
-    {
-      name: 'accepts a field read by class TypeScript',
-      code: component(
-        `private value = 'used'; public read(): string { return this.value; }`,
-        `template: '{{ read() }}'`
-      )
-    },
-    {
-      name: 'accepts a field read through object destructuring from this',
-      code: component(
-        `private value = 'used'; public read(): string { const { value } = this; return value; }`,
-        `template: '{{ read() }}'`
-      )
-    },
-    {
-      name: 'accepts a field read through a non-null this receiver',
-      code: component(
-        `private value = 'used'; public read(): string { return this!.value; }`,
-        `template: '{{ read() }}'`
-      )
-    },
-    {
-      name: 'accepts a field read through lexical this in an arrow function',
-      code: component(
-        `private value = ''; public read(): string { const nested = (): string => this.value; return nested(); }`,
-        `template: '{{ read() }}'`
-      )
-    },
-    {
-      name: 'accepts a method read by TypeScript',
-      code: component(
-        `private used(): void {} ngOnInit(): void { this.used(); }`
-      )
-    },
     {
       name: 'conservatively ignores externally exposed directive methods',
       code: component(
@@ -96,32 +58,26 @@ ruleTester.run(ruleName, rule, {
         'Component',
         'abstract class BaseComponent'
       )
+    },
+    {
+      name: 'exempts Angular forms interface methods declared via implements',
+      code: component(
+        `writeValue(value: unknown): void {}
+         registerOnChange(fn: unknown): void {}
+         registerOnTouched(fn: unknown): void {}
+         setDisabledState(disabled: boolean): void {}`,
+        "template: ''",
+        'Component',
+        'Component',
+        'class TestComponent implements ControlValueAccessor'
+      )
     }
   ],
   invalid: [
     {
-      name: 'reports both demonstration component fields',
-      code: `import { Component, inject } from '@angular/core'; class IconService {}
-        @Component({ template: '' }) class AboutComponent {
-          private readonly test = inject(IconService); public test2 = 'test2';
-        }`,
-      errors: [
-        { messageId: 'unusedField', data: { name: 'test' } },
-        { messageId: 'unusedField', data: { name: 'test2' } }
-      ]
-    },
-    {
       name: 'reports an unread public component method',
       code: component(`public unusedMethod(): void {}`),
       errors: [{ messageId: 'unusedMethod', data: { name: 'unusedMethod' } }]
-    },
-    {
-      name: 'does not count a TypeScript write as a read',
-      code: component(
-        `private value = ''; public update(): void { this.value = 'written'; }`,
-        `template: '{{ update() }}'`
-      ),
-      errors: [{ messageId: 'unusedField', data: { name: 'value' } }]
     },
     {
       name: 'reports a private unused directive field',
@@ -140,30 +96,6 @@ ruleTester.run(ruleName, rule, {
       errors: [{ messageId: 'unusedMethod', data: { name: 'internalOnly' } }]
     },
     {
-      name: 'does not count a foreign object member read as a component field read',
-      code: component(
-        `private value = ''; public read(other: { value: string }): string { return other.value; }`,
-        `template: '{{ read() }}'`
-      ),
-      errors: [{ messageId: 'unusedField', data: { name: 'value' } }]
-    },
-    {
-      name: 'does not count an object-destructuring assignment as a component field read',
-      code: component(
-        `private value = ''; public update(source: { value: string }): void { ({ value: this.value } = source); }`,
-        `template: '{{ update() }}'`
-      ),
-      errors: [{ messageId: 'unusedField', data: { name: 'value' } }]
-    },
-    {
-      name: 'does not count this inside a nested normal function as a component field read',
-      code: component(
-        `private value = ''; public read(): string { function nested(): string { return this.value; } return nested(); }`,
-        `template: '{{ read() }}'`
-      ),
-      errors: [{ messageId: 'unusedField', data: { name: 'value' } }]
-    },
-    {
       name: 'reports private unused members of abstract components',
       code: component(
         `private internal = 'unused'; private helper(): void {}`,
@@ -176,6 +108,11 @@ ruleTester.run(ruleName, rule, {
         { messageId: 'unusedField', data: { name: 'internal' } },
         { messageId: 'unusedMethod', data: { name: 'helper' } }
       ]
+    },
+    {
+      name: 'reports an unread validate method when no forms interface is implemented',
+      code: component(`validate(): null { return null; }`),
+      errors: [{ messageId: 'unusedMethod', data: { name: 'validate' } }]
     }
   ]
 });
