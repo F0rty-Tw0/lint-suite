@@ -4,21 +4,14 @@ import { CssSelector, SelectorMatcher } from '@angular/compiler';
 import { isIdentifier, isStringLiteralLike } from 'typescript';
 import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
 
-import type { ReadSink } from '../common/project-usage.type.js';
-import type { AngularClass } from './angular-component-discovery.js';
+import type {
+  AngularClass,
+  DirectiveIndex,
+  ReadSink,
+  TemplateFileVersion,
+  TemplateReads
+} from '../common/project-usage.type.js';
 import { addTemplateReads } from './angular-template-read-resolution.js';
-import type { DirectiveIndex } from './angular-template-read-resolution.js';
-
-export type TemplateFileVersion = {
-  readonly fileName: string;
-  readonly mtimeNs: bigint;
-  readonly size: bigint;
-};
-
-export type TemplateReads = {
-  readonly templateVersions: TemplateFileVersion[];
-  readonly usedDirectiveIndex: boolean;
-};
 
 const memberNames = (declaration: ClassLikeDeclaration): string[] =>
   declaration.members.flatMap((member) =>
@@ -41,7 +34,7 @@ const unknownTemplateNames = (
     ? allNames
     : [...memberNames(declaration), ...scope.flatMap(memberNames)];
 
-export const templateFileVersion = (fileName: string): TemplateFileVersion => {
+const templateFileVersion = (fileName: string): TemplateFileVersion => {
   const { mtimeNs, size } = statSync(fileName, { bigint: true });
 
   return { fileName, mtimeNs, size };
@@ -114,7 +107,7 @@ export const buildDirectiveIndex = (
 
 /** Reads made by the templates of the components declared in one file. */
 export const collectAngularTemplateReads = (
-  classes: readonly AngularClass[],
+  classes: AngularClass[],
   checker: TypeChecker,
   sink: ReadSink,
   directives: DirectiveIndex,
