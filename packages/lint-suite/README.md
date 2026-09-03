@@ -152,8 +152,12 @@ templates can read a component or directive member:
 }
 ```
 
-- `analysis` defaults to `'local'`. Project mode excludes spec-file reads and
-  fails closed when it cannot build a reliable TypeScript or Angular index.
+- `analysis` defaults to `'local'`. Project mode excludes spec-file reads. A
+  file it cannot index exactly (a template that does not parse, metadata it
+  cannot evaluate, a read it cannot type) falls back to name matching for
+  that file only: every member whose name that file mentions counts as read.
+  Set `LINT_SUITE_DEBUG=1` to print which files fell back and why, for
+  example `LINT_SUITE_DEBUG=1 eslint --no-cache src/app/some.component.ts`.
 - `allowEffectFields` defaults to `false`. When enabled, fields holding
   auto-cleaned Angular `effect()` calls are allowed; effects configured with
   `manualCleanup: true` must still be read.
@@ -164,6 +168,14 @@ templates can read a component or directive member:
 - In local mode, non-private members of `abstract` components and directives
   are exempt: subclasses that read them live in other files. Project mode
   resolves those subclass reads and reports the members normally.
+- Project analysis is incremental. The index is kept per tsconfig; when an
+  editor hands the rule a changed Program after a save, only the saved file and
+  the files whose reads depended on it are re-indexed, so feedback stays fast
+  in large workspaces. Template references (`#ref`, `#ref="exportAs"`) resolve
+  within a standalone component's `imports`; when that scope cannot be
+  determined statically (NgModule declarations, `hostDirectives`, spreads),
+  every matching component or directive in the Program is a candidate. Extra
+  candidates can only add reads. Metadata strings may be constants.
 
 ### Explicit accessibility
 

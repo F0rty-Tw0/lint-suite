@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Angular**: `lint-suite-angular/no-unused-instance-fields` project analysis now keeps an incremental
+  per-tsconfig index instead of rebuilding the whole project index whenever the TypeScript Program changes.
+  In editors every save produces a new Program; only the saved file and the files whose reads depended on it
+  are re-indexed, so lint feedback after a save drops from seconds to milliseconds (300-component benchmark:
+  2.5 s → 0.05 s per save). Full lints are faster too: template reads are resolved with `@angular/compiler`
+  directly instead of running a whole-program `@angular/compiler-cli` analysis (rule time 4.0 s → 2.4 s on
+  the same project). Template references (`#ref`, `#ref="exportAs"`) resolve within a standalone component's
+  `imports` when those resolve to Program classes, and against every matching component or directive in the
+  Program otherwise (NgModule scopes, `hostDirectives`); extra candidates can only add reads, never reports.
+  See `packages/lint-suite/benchmarks/` to reproduce.
+- **Angular**: `lint-suite-angular/no-unused-instance-fields` project analysis reads `template`, `templateUrl`,
+  `selector`, and `exportAs` given as string constants (local or imported) through the type checker instead of
+  failing closed on anything but a literal.
+- **Angular**: `lint-suite-angular/no-unused-instance-fields` project analysis no longer goes silent for the
+  whole project when one file cannot be indexed. Such a file falls back to name matching (every member whose
+  name it mentions counts as read); set `LINT_SUITE_DEBUG=1` to see which files fell back and why.
+
+### Bug Fixes
+
+- **Dependencies**: Dropped `@angular/compiler-cli`; project analysis only needs `@angular/compiler`.
+
 ## [1.6.1] - 2026-09-02
 
 ### Breaking Changes
