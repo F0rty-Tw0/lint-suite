@@ -8,13 +8,13 @@ import {
 } from 'typescript';
 import type { PropertyName, Symbol, Type, TypeChecker } from 'typescript';
 
-import type { AddDeclaration } from '../common/project-usage.type.js';
+import type { ReadSink } from '../common/project-usage.type.js';
 import { symbolsForName } from '../utils/type-property-symbols.js';
 
 export const addSymbolDeclarations = (
   checker: TypeChecker,
   symbol: Symbol,
-  addDeclaration: AddDeclaration
+  sink: ReadSink
 ): void => {
   const resolved =
     (symbol.flags & SymbolFlags.Alias) === 0
@@ -22,7 +22,7 @@ export const addSymbolDeclarations = (
       : checker.getAliasedSymbol(symbol);
 
   for (const declaration of resolved.declarations ?? []) {
-    addDeclaration(declaration);
+    sink.addDeclaration(declaration);
   }
 };
 
@@ -49,14 +49,16 @@ export const addNamedProperties = (
   checker: TypeChecker,
   type: Type,
   names: string[] | null,
-  addDeclaration: AddDeclaration
+  sink: ReadSink
 ): Symbol[] => {
+  sink.addType(type);
+
   const symbols = names
     ? names.flatMap((name) => symbolsForName(checker, type, name))
     : allPropertySymbols(checker, type);
 
   for (const symbol of symbols) {
-    addSymbolDeclarations(checker, symbol, addDeclaration);
+    addSymbolDeclarations(checker, symbol, sink);
   }
 
   return symbols;

@@ -28,18 +28,13 @@ import type {
   ElementAccessExpression,
   Expression,
   Node,
-  Program,
   PropertyAccessExpression,
   SourceFile,
   Symbol,
   TypeChecker
 } from 'typescript';
 
-import type {
-  AddDeclaration,
-  CandidateNames
-} from '../common/project-usage.type.js';
-import { isSpecFile } from '../utils/spec-file.js';
+import type { CandidateNames, ReadSink } from '../common/project-usage.type.js';
 import { collectDestructuringReads } from './typescript-destructuring-reads.js';
 import {
   addNamedProperties,
@@ -87,33 +82,33 @@ const isWriteOnly = (node: Expression): boolean => {
     parent.initializer === current;
 
   return (
-    isWriteOnlyBinaryAssignment ||
-    isWriteOnlyDelete ||
-    isWriteOnlyIteration
+    isWriteOnlyBinaryAssignment || isWriteOnlyDelete || isWriteOnlyIteration
   );
 };
 
 const addPropertyAccessRead = (
   node: PropertyAccessExpression,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration,
+  sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
   if (!candidateNames.has(node.name.text) || isWriteOnly(node)) {
     return;
   }
 
+  sink.addType(checker.getTypeAtLocation(node.expression));
+
   const symbol = checker.getSymbolAtLocation(node.name);
 
   if (symbol) {
-    addSymbolDeclarations(checker, symbol, addDeclaration);
+    addSymbolDeclarations(checker, symbol, sink);
   }
 };
 
 const addElementAccessRead = (
   node: ElementAccessExpression,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration,
+  sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
   if (isWriteOnly(node) || !node.argumentExpression) {
@@ -132,7 +127,7 @@ const addElementAccessRead = (
     checker,
     checker.getTypeAtLocation(node.expression),
     names,
-    addDeclaration
+    sink
   );
 };
 
@@ -149,7 +144,7 @@ const isAngularInterfaceMethod = (symbol: Symbol): boolean =>
 const collectAngularInterfaceMethods = (
   node: ClassLikeDeclaration,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration
+  sink: ReadSink
 ): void => {
   const implementsClauses = (node.heritageClauses ?? []).filter(
     (clause) => clause.token === SyntaxKind.ImplementsKeyword
@@ -162,9 +157,10 @@ const collectAngularInterfaceMethods = (
   const classType = checker.getTypeAtLocation(node);
 
   for (const clause of implementsClauses) {
-
     for (const heritageType of clause.types) {
       const type = checker.getTypeAtLocation(heritageType);
+
+      sink.addType(type);
 
       for (const interfaceMethod of type.getProperties()) {
         if (!isAngularInterfaceMethod(interfaceMethod)) {
@@ -174,14 +170,15 @@ const collectAngularInterfaceMethods = (
         const implementation = classType.getProperty(interfaceMethod.name);
 
         if (implementation) {
-          addSymbolDeclarations(checker, implementation, addDeclaration);
+          addSymbolDeclarations(checker, implementation, sink);
         }
       }
     }
   }
 };
 
-const collectCandidateNames = (sourceFiles: SourceFile[]): CandidateNames => {
+/** Names of members declared by decorated classes in one source file. */
+export const collectCandidateNames = (sourceFile: SourceFile): Set<string> => {
   const names = new Set<string>();
 
   const visit = (node: Node): void => {
@@ -203,43 +200,29 @@ const collectCandidateNames = (sourceFiles: SourceFile[]): CandidateNames => {
     forEachChild(node, visit);
   };
 
-  for (const sourceFile of sourceFiles) {
-    visit(sourceFile);
-  }
+  visit(sourceFile);
 
   return names;
 };
 
 export const collectTypeScriptReads = (
-  program: Program,
-  addDeclaration: AddDeclaration
+  sourceFile: SourceFile,
+  checker: TypeChecker,
+  sink: ReadSink,
+  candidateNames: CandidateNames
 ): void => {
-  const checker = program.getTypeChecker();
-  const sourceFiles = program
-    .getSourceFiles()
-    .filter(
-      (sourceFile) =>
-        !sourceFile.isDeclarationFile &&
-        !program.isSourceFileFromExternalLibrary(sourceFile) &&
-        !isSpecFile(sourceFile.fileName) &&
-        /\.(?:[cm]?ts|tsx)$/u.test(sourceFile.fileName)
-    );
-  const candidateNames = collectCandidateNames(sourceFiles);
-
   const visit = (node: Node): void => {
     if (isPropertyAccessExpression(node)) {
-      addPropertyAccessRead(node, checker, addDeclaration, candidateNames);
+      addPropertyAccessRead(node, checker, sink, candidateNames);
     } else if (isElementAccessExpression(node)) {
-      addElementAccessRead(node, checker, addDeclaration, candidateNames);
+      addElementAccessRead(node, checker, sink, candidateNames);
     } else if (isClassLike(node)) {
-      collectAngularInterfaceMethods(node, checker, addDeclaration);
+      collectAngularInterfaceMethods(node, checker, sink);
     }
 
-    collectDestructuringReads(node, checker, addDeclaration, candidateNames);
+    collectDestructuringReads(node, checker, sink, candidateNames);
     forEachChild(node, visit);
   };
 
-  for (const sourceFile of sourceFiles) {
-    visit(sourceFile);
-  }
+  visit(sourceFile);
 };

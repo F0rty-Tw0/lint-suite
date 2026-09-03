@@ -22,10 +22,7 @@ import type {
   TypeChecker
 } from 'typescript';
 
-import type {
-  AddDeclaration,
-  CandidateNames
-} from '../common/project-usage.type.js';
+import type { CandidateNames, ReadSink } from '../common/project-usage.type.js';
 import {
   addNamedProperties,
   addSymbolDeclarations,
@@ -55,7 +52,7 @@ const collectBindingPattern = (
   pattern: BindingPattern,
   type: LazyType,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration,
+  sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
   if (isArrayBindingPattern(pattern)) {
@@ -71,12 +68,7 @@ const collectBindingPattern = (
         continue;
       }
 
-      const symbols = addNamedProperties(
-        checker,
-        type(),
-        names,
-        addDeclaration
-      );
+      const symbols = addNamedProperties(checker, type(), names, sink);
 
       if (nested) {
         for (const symbol of symbols) {
@@ -84,7 +76,7 @@ const collectBindingPattern = (
             element.name,
             lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
             checker,
-            addDeclaration,
+            sink,
             candidateNames
           );
         }
@@ -98,9 +90,11 @@ const collectBindingPattern = (
 
   for (const element of pattern.elements) {
     if (element.dotDotDotToken) {
+      sink.addType(type());
+
       for (const symbol of allPropertySymbols(checker, type())) {
         if (!consumed.has(symbol.name)) {
-          addSymbolDeclarations(checker, symbol, addDeclaration);
+          addSymbolDeclarations(checker, symbol, sink);
         }
       }
       continue;
@@ -122,7 +116,7 @@ const collectBindingPattern = (
       continue;
     }
 
-    const symbols = addNamedProperties(checker, type(), names, addDeclaration);
+    const symbols = addNamedProperties(checker, type(), names, sink);
 
     if (nested) {
       for (const symbol of symbols) {
@@ -130,7 +124,7 @@ const collectBindingPattern = (
           element.name,
           lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
           checker,
-          addDeclaration,
+          sink,
           candidateNames
         );
       }
@@ -142,7 +136,7 @@ const collectAssignmentPattern = (
   pattern: ArrayLiteralExpression | ObjectLiteralExpression,
   type: LazyType,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration,
+  sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
   if (isArrayLiteralExpression(pattern)) {
@@ -153,19 +147,13 @@ const collectAssignmentPattern = (
 
       const names = isSpreadElement(element) ? null : [String(index)];
       const nested =
-        isArrayLiteralExpression(element) ||
-        isObjectLiteralExpression(element);
+        isArrayLiteralExpression(element) || isObjectLiteralExpression(element);
 
       if (skippable(names, nested, candidateNames)) {
         continue;
       }
 
-      const symbols = addNamedProperties(
-        checker,
-        type(),
-        names,
-        addDeclaration
-      );
+      const symbols = addNamedProperties(checker, type(), names, sink);
 
       if (nested) {
         for (const symbol of symbols) {
@@ -173,7 +161,7 @@ const collectAssignmentPattern = (
             element,
             lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
             checker,
-            addDeclaration,
+            sink,
             candidateNames
           );
         }
@@ -187,9 +175,11 @@ const collectAssignmentPattern = (
 
   for (const property of pattern.properties) {
     if (isSpreadAssignment(property)) {
+      sink.addType(type());
+
       for (const symbol of allPropertySymbols(checker, type())) {
         if (!consumed.has(symbol.name)) {
-          addSymbolDeclarations(checker, symbol, addDeclaration);
+          addSymbolDeclarations(checker, symbol, sink);
         }
       }
       continue;
@@ -210,7 +200,7 @@ const collectAssignmentPattern = (
       continue;
     }
 
-    const symbols = addNamedProperties(checker, type(), names, addDeclaration);
+    const symbols = addNamedProperties(checker, type(), names, sink);
 
     if (nested) {
       for (const symbol of symbols) {
@@ -218,7 +208,7 @@ const collectAssignmentPattern = (
           property.initializer,
           lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, property)),
           checker,
-          addDeclaration,
+          sink,
           candidateNames
         );
       }
@@ -229,7 +219,7 @@ const collectAssignmentPattern = (
 export const collectDestructuringReads = (
   node: Node,
   checker: TypeChecker,
-  addDeclaration: AddDeclaration,
+  sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
   const isDestructuringBindingPattern =
@@ -247,7 +237,7 @@ export const collectDestructuringReads = (
       node,
       lazyType(() => checker.getTypeAtLocation(source)),
       checker,
-      addDeclaration,
+      sink,
       candidateNames
     );
     return;
@@ -264,7 +254,7 @@ export const collectDestructuringReads = (
       node.left,
       lazyType(() => checker.getTypeAtLocation(node.right)),
       checker,
-      addDeclaration,
+      sink,
       candidateNames
     );
   }
