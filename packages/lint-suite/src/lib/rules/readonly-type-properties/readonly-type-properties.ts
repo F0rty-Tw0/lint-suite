@@ -27,9 +27,7 @@ const PRIMITIVE_KEYWORDS = new Set([
 ]);
 
 const isPrimitive = (type: TSESTree.TypeNode): boolean => {
-  if (PRIMITIVE_KEYWORDS.has(type.type)) {
-    return true;
-  }
+  if (PRIMITIVE_KEYWORDS.has(type.type)) return true;
 
   if (
     type.type === TSESTree.AST_NODE_TYPES.TSLiteralType ||
@@ -69,13 +67,9 @@ export default createRule<Options, MessageIds>({
 
     return {
       TSPropertySignature(node): void {
-        if (node.readonly || !node.typeAnnotation) {
-          return;
-        }
+        if (node.readonly || !node.typeAnnotation) return;
 
-        if (!isPrimitive(node.typeAnnotation.typeAnnotation)) {
-          return;
-        }
+        if (!isPrimitive(node.typeAnnotation.typeAnnotation)) return;
 
         context.report({
           node: node.key,
