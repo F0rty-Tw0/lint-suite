@@ -9,7 +9,7 @@ import {
 import type { PropertyName, Symbol, Type, TypeChecker } from 'typescript';
 
 import type { ReadSink } from '../common/project-usage.type.js';
-import { symbolsForName } from '../utils/type-property-symbols.js';
+import { symbolsForName } from '../utils/type-property-symbols.util.js';
 
 export const addSymbolDeclarations = (
   checker: TypeChecker,
