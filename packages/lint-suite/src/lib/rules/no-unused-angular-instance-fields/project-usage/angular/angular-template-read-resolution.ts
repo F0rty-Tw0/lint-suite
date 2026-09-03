@@ -1,34 +1,56 @@
-import { readFileSync } from 'node:fs';
-
 import {
   Binary,
   Call,
   CombinedRecursiveAstVisitor,
+  createCssSelectorFromNode,
   ImplicitReceiver,
   KeyedRead,
   parseTemplate,
   PropertyRead,
+  R3TargetBinder,
   SafeKeyedRead,
   SafePropertyRead,
-  ThisReceiver
+  ThisReceiver,
+  TmplAstComponent,
+  TmplAstDirective,
+  TmplAstElement,
+  TmplAstReference,
+  TmplAstTemplate
 } from '@angular/compiler';
+import type { DirectiveMeta, SelectorMatcher } from '@angular/compiler';
 import { SignatureKind, TypeFlags } from 'typescript';
-import type { Declaration, TypeChecker } from 'typescript';
+import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
 
-import type {
-  IndexedComponent,
-  IndexedIdentifier,
-  IndexedPropertyIdentifier
-} from '../common/angular-index.type.js';
-import type { AddDeclaration } from '../common/project-usage.type.js';
+import type { ReadSink } from '../common/project-usage.type.js';
+import type { AngularClass } from './angular-component-discovery.js';
 import {
   stringIndexTypes,
   symbolsForName
 } from '../utils/type-property-symbols.js';
-import { inlineTemplate } from './angular-component-discovery.js';
 
-const propertyIdentifierKind = 0;
-const referenceIdentifierKind = 5;
+type ReferenceOwner =
+  TmplAstComponent | TmplAstDirective | TmplAstElement | TmplAstTemplate;
+
+/** Program-wide lookup of the classes a template reference can point at. */
+export type DirectiveIndex = {
+  readonly byDeclaration: ReadonlyMap<ClassLikeDeclaration, AngularClass>;
+  readonly byExportAs: ReadonlyMap<string, readonly ClassLikeDeclaration[]>;
+  readonly componentMatcher: SelectorMatcher<ClassLikeDeclaration[]>;
+};
+
+export type TemplateReadResult = {
+  /** True when a `#reference` was resolved through the directive index. */
+  readonly usedDirectiveIndex: boolean;
+};
+
+/** Every identifier-like token in a text: a superset of what it can read. */
+export const identifierNames = (text: string): Set<string> =>
+  new Set(text.match(/[A-Za-z_$][\w$]*/gu) ?? []);
+
+const chainText = (names: readonly ReadSegment[]): string =>
+  names
+    .map((segment) => `${segment.name}${segment.called ? '()' : ''}`)
+    .join('.');
 
 type ReadSegment = {
   readonly called: boolean;
@@ -40,20 +62,7 @@ type ReadChain = {
   readonly root: PropertyRead;
 };
 
-class RootCollector extends CombinedRecursiveAstVisitor {
-  readonly roots: PropertyRead[] = [];
-
-  override visitPropertyRead(node: PropertyRead, context: unknown): unknown {
-    if (
-      node.receiver instanceof ImplicitReceiver ||
-      node.receiver instanceof ThisReceiver
-    ) {
-      this.roots.push(node);
-    }
-
-    return super.visitPropertyRead(node, context);
-  }
-}
+const templateBinder = new R3TargetBinder<DirectiveMeta>(null);
 
 const readChain = (node: PropertyRead | SafePropertyRead): ReadChain | null => {
   const names: ReadSegment[] = [];
@@ -95,6 +104,7 @@ const readChain = (node: PropertyRead | SafePropertyRead): ReadChain | null => {
 
 class ReadCollector extends CombinedRecursiveAstVisitor {
   readonly reads: ReadChain[] = [];
+  readonly referenceOwners = new Map<TmplAstReference, ReferenceOwner>();
 
   private record(node: PropertyRead | SafePropertyRead): void {
     const chain = readChain(node);
@@ -102,6 +112,32 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
     if (chain) {
       this.reads.push(chain);
     }
+  }
+
+  private recordReferences(owner: ReferenceOwner): void {
+    for (const reference of owner.references) {
+      this.referenceOwners.set(reference, owner);
+    }
+  }
+
+  override visitElement(element: TmplAstElement): void {
+    this.recordReferences(element);
+    super.visitElement(element);
+  }
+
+  override visitTemplate(template: TmplAstTemplate): void {
+    this.recordReferences(template);
+    super.visitTemplate(template);
+  }
+
+  override visitComponent(component: TmplAstComponent): void {
+    this.recordReferences(component);
+    super.visitComponent(component);
+  }
+
+  override visitDirective(directive: TmplAstDirective): void {
+    this.recordReferences(directive);
+    super.visitDirective(directive);
   }
 
   override visitBinary(node: Binary, context: unknown): unknown {
@@ -140,33 +176,25 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
   }
 }
 
-const templateText = (
-  declaration: Declaration,
-  component: IndexedComponent,
-  checker: TypeChecker
-): string | null => {
-  if (component.template.fileUrl === component.fileUrl) {
-    return inlineTemplate(declaration, checker);
-  }
-
-  return readFileSync(component.template.fileUrl, 'utf8');
-};
-
-const isPropertyIdentifier = (
-  identifier: IndexedIdentifier
-): identifier is IndexedPropertyIdentifier =>
-  identifier.kind === propertyIdentifierKind;
+const isAnyOrUnknown = (types: readonly { flags: TypeFlags }[]): boolean =>
+  types.some(
+    (type) => (type.flags & (TypeFlags.Any | TypeFlags.Unknown)) !== 0
+  );
 
 const addResolvedPath = (
-  declaration: Declaration,
+  declaration: ClassLikeDeclaration,
   names: ReadSegment[],
   checker: TypeChecker,
-  addDeclaration: AddDeclaration,
+  sink: ReadSink,
   allowMissingRoot: boolean
 ): boolean => {
   let types = [checker.getTypeAtLocation(declaration)];
 
   for (const [index, segment] of names.entries()) {
+    for (const type of types) {
+      sink.addType(type);
+    }
+
     const symbols = new Set(
       types.flatMap((type) => symbolsForName(checker, type, segment.name))
     );
@@ -181,12 +209,7 @@ const addResolvedPath = (
         continue;
       }
 
-      if (
-        types.some(
-          (type) =>
-            (type.flags & (TypeFlags.Any | TypeFlags.Unknown)) !== 0
-        )
-      ) {
+      if (isAnyOrUnknown(types)) {
         return true;
       }
 
@@ -195,7 +218,7 @@ const addResolvedPath = (
 
     for (const symbol of symbols) {
       for (const memberDeclaration of symbol.declarations ?? []) {
-        addDeclaration(memberDeclaration);
+        sink.addDeclaration(memberDeclaration);
       }
     }
 
@@ -211,16 +234,7 @@ const addResolvedPath = (
       );
 
       if (returnTypes.length === 0) {
-        if (
-          types.some(
-            (type) =>
-              (type.flags & (TypeFlags.Any | TypeFlags.Unknown)) !== 0
-          )
-        ) {
-          return true;
-        }
-
-        return false;
+        return isAnyOrUnknown(types);
       }
 
       types = returnTypes;
@@ -230,108 +244,113 @@ const addResolvedPath = (
   return true;
 };
 
-export const addTemplateReads = (
-  declaration: Declaration,
-  component: IndexedComponent,
-  checker: TypeChecker,
-  addDeclaration: AddDeclaration,
-  missingRootNames: Set<string>
-): boolean => {
-  const source = templateText(declaration, component, checker);
+/**
+ * Classes a `#reference` can resolve to. Candidates come from the whole
+ * Program and are narrowed to the component's standalone `imports` when
+ * that scope is known; a scope member with `hostDirectives` may expose
+ * exportAs names that are not modelled, so it keeps the wider set. Extra
+ * candidates only add reads.
+ */
+const referenceTargets = (
+  reference: TmplAstReference,
+  owner: ReferenceOwner | undefined,
+  directives: DirectiveIndex,
+  scope: readonly ClassLikeDeclaration[] | null
+): readonly ClassLikeDeclaration[] => {
+  const exportAs = reference.value.trim();
+  let targets: ClassLikeDeclaration[] = [];
 
-  if (source === null) {
-    return false;
+  if (exportAs !== '') {
+    targets = [...(directives.byExportAs.get(exportAs) ?? [])];
+  } else if (owner instanceof TmplAstElement) {
+    directives.componentMatcher.match(
+      createCssSelectorFromNode(owner),
+      (_selector, declarations) => {
+        targets.push(...declarations);
+      }
+    );
   }
 
-  const parsed = parseTemplate(source, component.template.fileUrl);
+  const scoped =
+    scope !== null &&
+    !scope.some(
+      (declaration) => directives.byDeclaration.get(declaration)?.hostDirectives
+    );
+
+  return scoped ? targets.filter((target) => scope.includes(target)) : targets;
+};
+
+export const addTemplateReads = (
+  { declaration, scope }: AngularClass,
+  source: string,
+  fileName: string,
+  checker: TypeChecker,
+  sink: ReadSink,
+  directives: DirectiveIndex
+): TemplateReadResult => {
+  const parsed = parseTemplate(source, fileName);
+  const className = declaration.name?.text ?? '(anonymous)';
 
   if (parsed.errors?.length) {
-    return false;
+    sink.addFallbackNames(
+      identifierNames(source),
+      `${fileName}: template of ${className} does not parse (${parsed.errors[0]?.msg ?? 'unknown error'})`
+    );
+
+    return { usedDirectiveIndex: false };
   }
 
-  const roots = new RootCollector();
+  const boundTarget = templateBinder.bind({ template: parsed.nodes });
   const reads = new ReadCollector();
+  let usedDirectiveIndex = false;
 
   for (const node of parsed.nodes) {
-    roots.visit(node);
     reads.visit(node);
   }
 
-  roots.roots.sort((left, right) => left.nameSpan.start - right.nameSpan.start);
-  const indexedRoots = [...component.template.identifiers]
-    .filter(isPropertyIdentifier)
-    .sort((left, right) => left.span.start - right.span.start);
-
-  const indexedByRoot = new Map<PropertyRead, IndexedPropertyIdentifier>();
-  let indexedRootIndex = 0;
-
-  for (const root of roots.roots) {
-    const identifier = indexedRoots[indexedRootIndex];
-
-    if (identifier?.name === root.name) {
-      indexedByRoot.set(root, identifier);
-      indexedRootIndex += 1;
-    } else if (!missingRootNames.has(root.name)) {
-      return false;
-    }
-  }
-
-  if (indexedRootIndex !== indexedRoots.length) {
-    return false;
-  }
-
   for (const chain of reads.reads) {
-    const identifier = indexedByRoot.get(chain.root);
+    const entity =
+      chain.root.receiver instanceof ThisReceiver
+        ? null
+        : boundTarget.getExpressionTarget(chain.root);
 
-    if (!identifier) {
-      if (missingRootNames.has(chain.root.name)) {
-        continue;
+    if (entity === null) {
+      if (!addResolvedPath(declaration, chain.names, checker, sink, true)) {
+        sink.addFallbackNames(
+          chain.names.map((segment) => segment.name),
+          `${fileName}: cannot resolve '${chainText(chain.names)}' on ${className}`
+        );
       }
 
-      return false;
-    }
-
-    if (identifier.target === null) {
-      if (
-        !addResolvedPath(
-          declaration,
-          chain.names,
-          checker,
-          addDeclaration,
-          true
-        )
-      ) {
-        return false;
-      }
       continue;
     }
 
-    if (identifier.target.kind !== referenceIdentifierKind) {
+    if (!(entity instanceof TmplAstReference)) {
       continue;
     }
 
-    const referenceTarget = identifier.target.target;
+    usedDirectiveIndex = true;
 
-    if (!referenceTarget) {
-      return false;
-    }
+    const targets = referenceTargets(
+      entity,
+      reads.referenceOwners.get(entity),
+      directives,
+      scope
+    );
+    const names = chain.names.slice(1);
+    const resolved = targets.map((target) =>
+      addResolvedPath(target, names, checker, sink, false)
+    );
 
-    const targetDeclaration = referenceTarget.directive;
-    const targetNames = chain.names.slice(1);
-    const targetResolved =
-      !targetDeclaration ||
-      addResolvedPath(
-        targetDeclaration,
-        targetNames,
-        checker,
-        addDeclaration,
-        false
+    // ponytail: with several candidates the mismatching ones are expected
+    // to fail; when none resolves, fall back to matching by name.
+    if (resolved.length > 0 && !resolved.includes(true)) {
+      sink.addFallbackNames(
+        names.map((segment) => segment.name),
+        `${fileName}: cannot resolve '#${entity.name}.${chainText(names)}' in ${className}`
       );
-
-    if (!targetResolved) {
-      return false;
     }
   }
 
-  return true;
+  return { usedDirectiveIndex };
 };

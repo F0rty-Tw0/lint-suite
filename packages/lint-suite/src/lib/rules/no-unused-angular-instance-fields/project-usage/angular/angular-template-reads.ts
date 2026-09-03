@@ -1,147 +1,176 @@
-import * as compilerCli from '@angular/compiler-cli';
-import type { AngularCompilerOptions } from '@angular/compiler-cli';
-import { createCompilerHost, DiagnosticCategory } from 'typescript';
-import type {
-  CompilerHost,
-  Declaration,
-  Diagnostic,
-  Program
-} from 'typescript';
+import { readFileSync, statSync } from 'node:fs';
 
-import type { IndexedComponent } from '../common/angular-index.type.js';
-import type { AddDeclaration } from '../common/project-usage.type.js';
-import { isSpecFile } from '../utils/spec-file.js';
+import { CssSelector, SelectorMatcher } from '@angular/compiler';
+import { isIdentifier, isStringLiteralLike } from 'typescript';
+import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
+
+import type { ReadSink } from '../common/project-usage.type.js';
+import type { AngularClass } from './angular-component-discovery.js';
 import { addTemplateReads } from './angular-template-read-resolution.js';
-import { projectComponents } from './angular-component-discovery.js';
+import type { DirectiveIndex } from './angular-template-read-resolution.js';
 
-type AngularConfiguration = {
-  readonly errors: Diagnostic[];
-  readonly options: AngularCompilerOptions;
-  readonly rootNames: string[];
+export type TemplateFileVersion = {
+  readonly fileName: string;
+  readonly mtimeNs: bigint;
+  readonly size: bigint;
 };
 
-type CompilerCliWithReadConfiguration = {
-  readonly readConfiguration: (project: string) => AngularConfiguration;
+export type TemplateReads = {
+  readonly templateVersions: TemplateFileVersion[];
+  readonly usedDirectiveIndex: boolean;
 };
 
-const hasReadConfiguration = (
-  value: object
-): value is CompilerCliWithReadConfiguration =>
-  'readConfiguration' in value &&
-  typeof value.readConfiguration === 'function';
-
-const contextIndexErrorPattern = /^Impossible state: "(.+)" not found in "/u;
-
-const missingContextRootNames = (errors: Error[]): Set<string> | null => {
-  const names = new Set<string>();
-
-  for (const error of errors) {
-    const match = contextIndexErrorPattern.exec(error.message);
-
-    if (!match?.[1]) {
-      return null;
-    }
-
-    names.add(match[1]);
-  }
-
-  return names;
-};
-
-const reusingCompilerHost = (
-  program: Program,
-  options: AngularCompilerOptions
-): CompilerHost => {
-  const base = createCompilerHost(options, true);
-
-  return {
-    ...base,
-    getSourceFile: (fileName, ...rest) =>
-      program.getSourceFile(fileName) ?? base.getSourceFile(fileName, ...rest)
-  };
-};
-
-export const collectAngularTemplateReads = (
-  program: Program,
-  configFilePath: string,
-  addDeclaration: AddDeclaration
-): string[] | null => {
-  if (!hasReadConfiguration(compilerCli)) {
-    return null;
-  }
-
-  const configuration = compilerCli.readConfiguration(configFilePath);
-
-  if (
-    configuration.errors.some(
-      (diagnostic: Diagnostic) =>
-        diagnostic.category === DiagnosticCategory.Error
-    )
-  ) {
-    return null;
-  }
-
-  const angularProgram = new compilerCli.NgtscProgram(
-    configuration.rootNames,
-    configuration.options,
-    reusingCompilerHost(program, configuration.options)
+const memberNames = (declaration: ClassLikeDeclaration): string[] =>
+  declaration.members.flatMap((member) =>
+    member.name &&
+    (isIdentifier(member.name) || isStringLiteralLike(member.name))
+      ? [member.name.text]
+      : []
   );
 
-  if (
-    angularProgram
-      .getNgOptionDiagnostics()
-      .some(
-        (diagnostic: Diagnostic) =>
-          diagnostic.category === DiagnosticCategory.Error
-      )
-  ) {
-    return null;
+/**
+ * What a template we cannot read might reference: the component's own
+ * members and those of every class in its scope, or every candidate name
+ * when the scope is unknown.
+ */
+const unknownTemplateNames = (
+  { declaration, scope }: AngularClass,
+  allNames: ReadonlySet<string>
+): Iterable<string> =>
+  scope === null
+    ? allNames
+    : [...memberNames(declaration), ...scope.flatMap(memberNames)];
+
+export const templateFileVersion = (fileName: string): TemplateFileVersion => {
+  const { mtimeNs, size } = statSync(fileName, { bigint: true });
+
+  return { fileName, mtimeNs, size };
+};
+
+export const templateFileIsCurrent = (
+  version: TemplateFileVersion
+): boolean => {
+  try {
+    const current = statSync(version.fileName, { bigint: true });
+
+    return current.mtimeNs === version.mtimeNs && current.size === version.size;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * A description of every directive's selector and exportAs; when it changes
+ * between programs, cached template reference resolutions are stale.
+ */
+export const directiveShape = (classes: Iterable<AngularClass>): string =>
+  [...classes]
+    .map(
+      ({ component, declaration, exportAs, hostDirectives, name, selector }) =>
+        [
+          declaration.getSourceFile().fileName,
+          name,
+          String(component),
+          String(hostDirectives),
+          selector ?? '',
+          exportAs.join(',')
+        ].join('\0')
+    )
+    .sort()
+    .join('\n');
+
+export const buildDirectiveIndex = (
+  classes: Iterable<AngularClass>
+): DirectiveIndex => {
+  const byDeclaration = new Map<ClassLikeDeclaration, AngularClass>();
+  const byExportAs = new Map<string, ClassLikeDeclaration[]>();
+  const componentMatcher = new SelectorMatcher<ClassLikeDeclaration[]>();
+
+  for (const angularClass of classes) {
+    const { component, declaration, exportAs, selector } = angularClass;
+
+    byDeclaration.set(declaration, angularClass);
+
+    for (const name of exportAs) {
+      const declarations = byExportAs.get(name) ?? [];
+
+      declarations.push(declaration);
+      byExportAs.set(name, declarations);
+    }
+
+    if (component && selector !== null) {
+      try {
+        componentMatcher.addSelectables(CssSelector.parse(selector), [
+          declaration
+        ]);
+      } catch {
+        // An unparsable selector never matches an element.
+      }
+    }
   }
 
-  const indexedComponents = angularProgram.getIndexedComponents() as Map<
-    Declaration,
-    IndexedComponent
-  >;
-  const typescriptProgram = angularProgram.getTsProgram();
-  const checker = typescriptProgram.getTypeChecker();
-  const components = projectComponents(typescriptProgram, checker);
+  return { byDeclaration, byExportAs, componentMatcher };
+};
 
-  if (
-    !components ||
-    components.some((declaration) => !indexedComponents.has(declaration))
-  ) {
-    return null;
-  }
+/** Reads made by the templates of the components declared in one file. */
+export const collectAngularTemplateReads = (
+  classes: readonly AngularClass[],
+  checker: TypeChecker,
+  sink: ReadSink,
+  directives: DirectiveIndex,
+  allNames: ReadonlySet<string>
+): TemplateReads => {
+  const templateVersions: TemplateFileVersion[] = [];
+  let usedDirectiveIndex = false;
 
-  const templateFiles = new Set<string>();
+  for (const angularClass of classes) {
+    const { declaration, template, valid } = angularClass;
+    const fileName = declaration.getSourceFile().fileName;
+    const className = declaration.name?.text ?? '(anonymous)';
 
-  for (const [declaration, component] of indexedComponents) {
-    if (isSpecFile(declaration.getSourceFile().fileName)) {
+    if (!valid) {
+      sink.addFallbackNames(
+        unknownTemplateNames(angularClass, allNames),
+        `${fileName}: metadata of ${className} is not static (template, templateUrl)`
+      );
       continue;
     }
 
-    const missingRootNames = missingContextRootNames(component.errors);
-
-    if (!missingRootNames) {
-      return null;
+    if (!template) {
+      continue;
     }
 
-    if (
-      !addTemplateReads(
-        declaration,
-        component,
-        checker,
-        addDeclaration,
-        missingRootNames
-      )
-    ) {
-      return null;
+    let source: string;
+    let templateFileName = fileName;
+
+    if (template.kind === 'inline') {
+      source = template.source;
+    } else {
+      templateFileName = template.fileName;
+
+      try {
+        templateVersions.push(templateFileVersion(templateFileName));
+        source = readFileSync(templateFileName, 'utf8');
+      } catch {
+        sink.addFallbackNames(
+          unknownTemplateNames(angularClass, allNames),
+          `${fileName}: templateUrl of ${className} cannot be read (${templateFileName})`
+        );
+        continue;
+      }
     }
 
-    if (component.template.fileUrl !== component.fileUrl) {
-      templateFiles.add(component.template.fileUrl);
-    }
+    const result = addTemplateReads(
+      angularClass,
+      source,
+      templateFileName,
+      checker,
+      sink,
+      directives
+    );
+
+    usedDirectiveIndex ||= result.usedDirectiveIndex;
   }
 
-  return [...templateFiles];
+  return { templateVersions, usedDirectiveIndex };
 };
