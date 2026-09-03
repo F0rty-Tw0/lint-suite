@@ -6,7 +6,7 @@
  * that read it, to external templates, and to directive metadata.
  */
 import assert from 'node:assert/strict';
-import { after, before, describe, test } from 'node:test';
+import { afterAll, beforeAll, describe, test } from 'vitest';
 
 import {
   broken,
@@ -22,7 +22,7 @@ import {
   templateSettled,
   widget,
   widgetMembers
-} from './no-unused-angular-instance-fields.incremental.spec-support.js';
+} from './utils/incremental-project.spec.util.js';
 
 let project: ReturnType<typeof createIncrementalProject>;
 
@@ -30,11 +30,11 @@ const lint = (name: string, code: string): string[] => project.lint(name, code);
 const touch = (name: string, content: string): void =>
   project.touch(name, content);
 
-before(() => {
+beforeAll(() => {
   project = createIncrementalProject();
 });
 
-after(() => {
+afterAll(() => {
   project.dispose();
 });
 

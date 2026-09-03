@@ -1,31 +1,18 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { describe, test } from 'node:test';
+import { join } from 'node:path';
+import { describe, test } from 'vitest';
 
 import { Linter } from 'eslint';
 import type { Program } from 'typescript';
-import tseslint from 'typescript-eslint';
 
-import { angular } from '../../angular.js';
 import { projectUsage } from './project-usage/project-usage.js';
+import { fixtureDirectory } from './utils/fixture-project.spec.util.js';
+import { reportedMembers } from './utils/lint-messages.spec.util.js';
+import { lintConfig } from './utils/rule-under-test.spec.util.js';
 
-const rule = angular
-  .map((config) => config.plugins?.['lint-suite-angular'])
-  .find(Boolean)?.rules?.['no-unused-instance-fields'];
-
-assert.ok(rule, 'angular preset must register no-unused-instance-fields');
-
-const fixturesDirectory = join(
-  dirname(fileURLToPath(import.meta.url)),
-  'fixtures'
-);
-const projectDirectory = join(fixturesDirectory, 'project');
-const ruleId = 'lint-suite-angular/no-unused-instance-fields';
-const plugin = {
-  'lint-suite-angular': { rules: { 'no-unused-instance-fields': rule } }
-};
+const localDirectory = fixtureDirectory('local');
+const projectDirectory = fixtureDirectory('project');
 
 const expectationPattern = /\/\/ expect (unusedField|unusedMethod): (\w+)/gu;
 const optionsPattern = /\/\/ options: (.+)/u;
@@ -43,18 +30,6 @@ const fixtureOptions = (code: string): Record<string, boolean> =>
       .filter(Boolean)
       .map((option) => [option, true])
   );
-
-const actual = (messages: Linter.LintMessage[]): string[] =>
-  messages
-    .map((message) => {
-      assert.ok(
-        message.messageId,
-        `unexpected non-rule message: ${message.message}`
-      );
-
-      return `${message.messageId}:${/'([^']+)'/u.exec(message.message)?.[1]}`;
-    })
-    .sort();
 
 const tsFiles = (directory: string): string[] =>
   readdirSync(directory)
@@ -76,46 +51,32 @@ const lintFixtures = (
           filename
         });
 
-        assert.deepEqual(actual(messages), expectations(code));
+        assert.deepEqual(reportedMembers(messages), expectations(code));
       });
     }
   });
 };
 
 const localLinter = new Linter();
-const localConfig = (options: Record<string, boolean>): Linter.Config => ({
-  files: ['**/*.ts'],
-  languageOptions: {
-    ecmaVersion: 'latest',
-    parser: tseslint.parser,
-    sourceType: 'module'
-  },
-  plugins: plugin,
-  rules: { [ruleId]: ['error', { analysis: 'local', ...options }] }
-});
+const localConfig = (options: Record<string, boolean>): Linter.Config =>
+  lintConfig({ analysis: 'local', options });
 
 for (const kind of ['valid', 'invalid']) {
   lintFixtures(
     `local ${kind}`,
-    join(fixturesDirectory, 'local', kind),
+    join(localDirectory, kind),
     localLinter,
     localConfig
   );
 }
 
 const projectLinter = new Linter({ cwd: projectDirectory });
-const projectLanguageOptions: Linter.Config['languageOptions'] = {
-  ecmaVersion: 'latest',
-  parser: tseslint.parser,
-  parserOptions: { projectService: true, tsconfigRootDir: projectDirectory },
-  sourceType: 'module'
-};
-const projectConfig = (options: Record<string, boolean>): Linter.Config => ({
-  files: ['**/*.ts'],
-  languageOptions: projectLanguageOptions,
-  plugins: plugin,
-  rules: { [ruleId]: ['error', { analysis: 'project', ...options }] }
-});
+const projectLanguageOptions = lintConfig({
+  analysis: 'project',
+  directory: projectDirectory
+}).languageOptions;
+const projectConfig = (options: Record<string, boolean>): Linter.Config =>
+  lintConfig({ analysis: 'project', directory: projectDirectory, options });
 
 test('project fixture index builds', () => {
   let program: Program | undefined;
