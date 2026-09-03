@@ -2,32 +2,30 @@ import { configs } from '@nx/eslint-plugin';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import importPluginX from 'eslint-plugin-import-x';
 import { defineConfig } from 'eslint/config';
-import type { Config } from 'eslint/config';
+import type { CompatibleConfigArray } from 'typescript-eslint';
 
 import explicitAccessibilityRule from './rules/explicit-accessibility/explicit-accessibility.js';
 import noInlineObjectTypesRule from './rules/no-inline-object-types/no-inline-object-types.js';
 import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.js';
+import { definePlugin } from './rules/define-plugin.util.js';
 
-const localTypescriptRules: Record<string, unknown> = {
-  rules: {
-    'explicit-accessibility': explicitAccessibilityRule,
-    'readonly-type-properties': readonlyTypePropertiesRule,
-    'no-inline-object-types': noInlineObjectTypesRule
-  }
-};
+const nxTypescript: CompatibleConfigArray = configs['flat/typescript'];
+
+export const localPlugin = definePlugin('local', {
+  'explicit-accessibility': explicitAccessibilityRule,
+  'readonly-type-properties': readonlyTypePropertiesRule,
+  'no-inline-object-types': noInlineObjectTypesRule
+});
 
 export const typescript = defineConfig([
   // NOTE: Checks for 'prettier' and 'eslint-plugin-prettier'
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
-    extends: [
-      importPluginX.flatConfigs.typescript,
-      ...(configs['flat/typescript'] as Config[])
-    ]
+    extends: [importPluginX.flatConfigs.typescript, ...nxTypescript]
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
-    plugins: { local: localTypescriptRules },
+    plugins: { local: localPlugin },
     rules: {
       'local/explicit-accessibility': 'error',
       'local/readonly-type-properties': 'error',

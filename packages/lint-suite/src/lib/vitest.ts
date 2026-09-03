@@ -1,7 +1,7 @@
 import vitestEslint from '@vitest/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 
-const vitestPlugin: Record<string, object> = {
+const vitestPlugin = {
   vitest: vitestEslint
 };
 

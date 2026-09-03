@@ -1,20 +1,18 @@
 import globals from 'globals';
 import { configs, processInlineTemplates } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
-import type { Config } from 'eslint/config';
 
 import noUnusedInstanceFieldsRule from './rules/no-unused-angular-instance-fields/rule/no-unused-angular-instance-fields.js';
+import { definePlugin } from './rules/define-plugin.util.js';
 
-const lintSuiteAngularPlugin: Record<string, unknown> = {
-  rules: {
-    'no-unused-instance-fields': noUnusedInstanceFieldsRule
-  }
-};
+export const lintSuiteAngularPlugin = definePlugin('lint-suite-angular', {
+  'no-unused-instance-fields': noUnusedInstanceFieldsRule
+});
 
 export const angular = defineConfig([
   {
     files: ['**/*.ts'],
-    extends: [...(configs.tsRecommended as Config[])],
+    extends: [...configs.tsRecommended],
     plugins: {
       'lint-suite-angular': lintSuiteAngularPlugin
     },
