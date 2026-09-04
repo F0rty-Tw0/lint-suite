@@ -5,9 +5,13 @@
     "types": [
       "vitest",
       "node"
-    ]
+    ],
+    "rewriteRelativeImportExtensions": false,
+    "allowImportingTsExtensions": true
   },
   "include": [
+    "../../eslint.config.base.ts",
+    "eslint.config.ts",
     "vitest.config.ts",
     "src/**/common/stubs/**/*.ts",
     "src/**/*.spec.ts",

@@ -1,11 +1,9 @@
 import nx from '@nx/eslint-plugin';
-// import { recommended } from './dist/packages/lint-suite/src/index.js';
 
 export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
-  // ...recommended,
   {
     ignores: ['**/dist']
   },
@@ -21,7 +19,7 @@ export default [
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?js$'],
+          allow: ['^.*/eslint\\.config(\\.base)?\\.[cm]?[jt]s$'],
           depConstraints: [
             {
               sourceTag: '*',
