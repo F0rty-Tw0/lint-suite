@@ -15,19 +15,18 @@ type DestructuringParts = {
   readonly source: TSESTree.Expression | null;
 };
 
-const isTypeScriptExpressionWrapper = (
+const expressionWrapperTypes: ReadonlySet<TSESTree.AST_NODE_TYPES> = new Set([
+  TSESTree.AST_NODE_TYPES.TSAsExpression,
+  TSESTree.AST_NODE_TYPES.TSInstantiationExpression,
+  TSESTree.AST_NODE_TYPES.TSNonNullExpression,
+  TSESTree.AST_NODE_TYPES.TSSatisfiesExpression,
+  TSESTree.AST_NODE_TYPES.TSTypeAssertion
+]);
+
+export const isTypeScriptExpressionWrapper = (
   node: TSESTree.Node
 ): node is TypeScriptExpressionWrapper => {
-  switch (node.type) {
-    case TSESTree.AST_NODE_TYPES.TSAsExpression:
-    case TSESTree.AST_NODE_TYPES.TSInstantiationExpression:
-    case TSESTree.AST_NODE_TYPES.TSNonNullExpression:
-    case TSESTree.AST_NODE_TYPES.TSSatisfiesExpression:
-    case TSESTree.AST_NODE_TYPES.TSTypeAssertion:
-      return true;
-    default:
-      return false;
-  }
+  return expressionWrapperTypes.has(node.type);
 };
 
 const unwrapTypeScriptExpression = (
@@ -46,109 +45,6 @@ export const isThisExpression = (node: TSESTree.Expression | null): boolean => {
   const unwrapped = unwrapTypeScriptExpression(node);
 
   return unwrapped?.type === TSESTree.AST_NODE_TYPES.ThisExpression;
-};
-
-const isPatternTarget = (
-  parent: TSESTree.Node | undefined,
-  child: TSESTree.Node
-): boolean => {
-  switch (parent?.type) {
-    case TSESTree.AST_NODE_TYPES.ArrayPattern:
-      return parent.elements.some((element) => element === child);
-    case TSESTree.AST_NODE_TYPES.AssignmentPattern:
-      return parent.left === child;
-    case TSESTree.AST_NODE_TYPES.ObjectPattern:
-      return parent.properties.some((property) => property === child);
-    case TSESTree.AST_NODE_TYPES.Property:
-      return (
-        parent.value === child &&
-        parent.parent.type === TSESTree.AST_NODE_TYPES.ObjectPattern
-      );
-    case TSESTree.AST_NODE_TYPES.RestElement:
-      return parent.argument === child;
-    default:
-      return false;
-  }
-};
-
-const isSimpleAssignmentTarget = (
-  parent: TSESTree.Node | undefined,
-  current: TSESTree.Node
-): boolean => {
-  if (parent?.type !== TSESTree.AST_NODE_TYPES.AssignmentExpression) {
-    return false;
-  }
-
-  return parent.left === current && parent.operator === '=';
-};
-
-const isLoopTarget = (
-  parent: TSESTree.Node | undefined,
-  current: TSESTree.Node
-): boolean => {
-  const isForIn = parent?.type === TSESTree.AST_NODE_TYPES.ForInStatement;
-  const isForOf = parent?.type === TSESTree.AST_NODE_TYPES.ForOfStatement;
-  const isLoop = isForIn || isForOf;
-
-  if (!isLoop) return false;
-
-  return parent.left === current;
-};
-
-const isDirectWrite = (node: TSESTree.MemberExpression): boolean => {
-  let current: TSESTree.Node = node;
-  let parent: TSESTree.Node | undefined = node.parent;
-
-  while (
-    parent &&
-    isTypeScriptExpressionWrapper(parent) &&
-    parent.expression === current
-  ) {
-    current = parent;
-    parent = parent.parent;
-  }
-
-  return (
-    isSimpleAssignmentTarget(parent, current) ||
-    (parent?.type === TSESTree.AST_NODE_TYPES.UnaryExpression &&
-      parent.operator === 'delete')
-  );
-};
-
-const isDestructuringOrLoopTarget = (
-  node: TSESTree.MemberExpression
-): boolean => {
-  let current: TSESTree.Node = node;
-  let parent: TSESTree.Node | undefined = node.parent;
-  let patternTarget = false;
-
-  while (parent) {
-    const wrapper =
-      isTypeScriptExpressionWrapper(parent) && parent.expression === current;
-    const pattern = isPatternTarget(parent, current);
-
-    if (!wrapper && !pattern) break;
-
-    if (pattern) {
-      patternTarget = true;
-    }
-
-    current = parent;
-    parent = parent.parent;
-  }
-
-  return (
-    (patternTarget && isSimpleAssignmentTarget(parent, current)) ||
-    isLoopTarget(parent, current)
-  );
-};
-
-export const isWriteOnly = (node: TSESTree.MemberExpression): boolean => {
-  const isWrite = isDirectWrite(node);
-
-  if (isWrite) return true;
-
-  return isDestructuringOrLoopTarget(node);
 };
 
 const destructuringParts = (
@@ -185,8 +81,6 @@ const propertyName = (
   if (property.key.type === TSESTree.AST_NODE_TYPES.Identifier) {
     return property.key.name;
   }
-
-  if (property.key.type !== TSESTree.AST_NODE_TYPES.Literal) return null;
 
   const { value } = property.key;
 

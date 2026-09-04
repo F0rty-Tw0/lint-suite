@@ -3,19 +3,16 @@ import type { TSESLint } from '@typescript-eslint/utils';
 
 import {
   destructuredThisReads,
-  isThisExpression,
-  isWriteOnly
-} from './typescript-field-reads.js';
+  isThisExpression
+} from './typescript-field-reads.ts';
+import { lexicalThisVisitor } from './typescript-lexical-this.ts';
+import { isWriteOnly } from './typescript-write-targets.ts';
 import type {
   AngularClassNode,
   ClassEntry,
   DynamicClasses
-} from '../common/no-unused-angular-instance-fields.type.js';
+} from '../common/no-unused-angular-instance-fields.type.ts';
 
-type FunctionNode =
-  | TSESTree.ArrowFunctionExpression
-  | TSESTree.FunctionDeclaration
-  | TSESTree.FunctionExpression;
 type DestructuringNode =
   TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
 
@@ -33,18 +30,6 @@ const enterClass = (
   classes.push(entry);
   stack.push(entry);
   thisStack.push(true);
-};
-
-const componentThis = (node: FunctionNode, thisStack: boolean[]): boolean => {
-  if (node.type === TSESTree.AST_NODE_TYPES.ArrowFunctionExpression) {
-    return thisStack.at(-1) ?? false;
-  }
-
-  const { parent } = node;
-
-  if (parent.type !== TSESTree.AST_NODE_TYPES.MethodDefinition) return false;
-
-  return !parent.static;
 };
 
 const trackMemberRead = (
@@ -99,47 +84,6 @@ const trackDestructuringRead = (
   for (const name of reads) {
     current.reads.add(name);
   }
-};
-
-const lexicalThisVisitor = (thisStack: boolean[]): TSESLint.RuleListener => {
-  const listeners: TSESLint.RuleListener = {
-    FunctionDeclaration(node: TSESTree.FunctionDeclaration): void {
-      thisStack.push(componentThis(node, thisStack));
-    },
-    FunctionExpression(node: TSESTree.FunctionExpression): void {
-      thisStack.push(componentThis(node, thisStack));
-    },
-    ArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression): void {
-      thisStack.push(componentThis(node, thisStack));
-    },
-    'FunctionDeclaration:exit'(): void {
-      thisStack.pop();
-    },
-    'FunctionExpression:exit'(): void {
-      thisStack.pop();
-    },
-    'ArrowFunctionExpression:exit'(): void {
-      thisStack.pop();
-    },
-    StaticBlock(): void {
-      thisStack.push(false);
-    },
-    'StaticBlock:exit'(): void {
-      thisStack.pop();
-    },
-    PropertyDefinition(node: TSESTree.PropertyDefinition): void {
-      if (node.static) {
-        thisStack.push(false);
-      }
-    },
-    'PropertyDefinition:exit'(node: TSESTree.PropertyDefinition): void {
-      if (node.static) {
-        thisStack.pop();
-      }
-    }
-  };
-
-  return listeners;
 };
 
 export const classReadVisitor = (
