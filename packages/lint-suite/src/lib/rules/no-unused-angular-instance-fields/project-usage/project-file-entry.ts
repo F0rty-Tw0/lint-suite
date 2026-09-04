@@ -4,9 +4,9 @@ import { collectAngularTemplateReads } from './angular/angular-template-reads.ts
 import type {
   FileEntry,
   ProjectIndex,
-  ReadSink,
   TemplateReads
-} from './common/project-usage.type.ts';
+} from './common/project-index.type.ts';
+import type { ReadSink } from './common/project-usage.type.ts';
 import { collectTypeScriptReads } from './typescript/typescript-reads.ts';
 import { addTypeDependencies } from './typescript/typescript-type-dependencies.ts';
 

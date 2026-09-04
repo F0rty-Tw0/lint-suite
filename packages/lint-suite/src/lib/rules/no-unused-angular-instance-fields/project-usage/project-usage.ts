@@ -5,7 +5,7 @@ import { buildDirectiveIndex } from './angular/angular-directive-index.ts';
 import type {
   ProjectIndex,
   ProjectUsageIndex
-} from './common/project-usage.type.ts';
+} from './common/project-index.type.ts';
 import { reconcile } from './project-index-reconciliation.ts';
 
 const indexes = new Map<string, ProjectIndex>();
