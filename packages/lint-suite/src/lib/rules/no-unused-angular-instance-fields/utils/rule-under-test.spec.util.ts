@@ -55,15 +55,17 @@ export const lintConfig = ({
   directory,
   options
 }: LintConfigOptions): Linter.Config => {
+  const projectParserOptions =
+    directory === undefined
+      ? {}
+      : {
+          parserOptions: { projectService: true, tsconfigRootDir: directory }
+        };
   const linterConfig: Linter.Config = {
     ...LINTER_CONFIG_STUB,
     languageOptions: {
       ...LINTER_CONFIG_STUB.languageOptions,
-      ...(directory === undefined
-        ? {}
-        : {
-            parserOptions: { projectService: true, tsconfigRootDir: directory }
-          })
+      ...projectParserOptions
     },
     plugins: {
       'lint-suite-angular': { rules: { 'no-unused-instance-fields': rule } }
