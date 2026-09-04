@@ -30,7 +30,9 @@ const fixtureOptions = (code: string): Record<string, boolean> => {
   const optionsMatch = optionsPattern.exec(code);
   const optionsText = optionsMatch?.[1] ?? '';
   const names = optionsText.split(',').map((option) => option.trim());
-  const enabled = (option: string): readonly [string, boolean] => [option, true];
+  const enabled = (option: string): readonly [string, boolean] => {
+    return [option, true];
+  };
   const entries = names.filter(Boolean).map(enabled);
 
   return Object.fromEntries(entries);

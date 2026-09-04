@@ -18,7 +18,7 @@ import type {
   RuleOptions
 } from './common/no-unused-angular-instance-fields.type.ts';
 import { classReadVisitor } from './typescript/typescript-class-read-visitor.ts';
-import type { ProjectUsageIndex } from '../project-usage/common/project-usage.type.ts';
+import type { ProjectUsageIndex } from '../project-usage/common/project-index.type.ts';
 import {
   projectUsage,
   projectUsageIsCurrent

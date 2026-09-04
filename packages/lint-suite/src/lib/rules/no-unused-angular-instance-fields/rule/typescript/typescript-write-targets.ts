@@ -64,6 +64,14 @@ const isLoopTarget = (
   return parent.left === current;
 };
 
+const isWrapping = (parent: TSESTree.Node, child: TSESTree.Node): boolean => {
+  const isWrapper = isTypeScriptExpressionWrapper(parent);
+
+  if (!isWrapper) return false;
+
+  return parent.expression === child;
+};
+
 const isDirectWrite = (node: TSESTree.MemberExpression): boolean => {
   let current: TSESTree.Node = node;
   let parent = parentOf(node);
@@ -93,8 +101,7 @@ const isDestructuringOrLoopTarget = (
   let patternTarget = false;
 
   while (parent) {
-    const wrapper =
-      isTypeScriptExpressionWrapper(parent) && parent.expression === current;
+    const wrapper = isWrapping(parent, current);
     const pattern = isPatternTarget(parent, current);
 
     if (!wrapper && !pattern) break;
@@ -107,8 +114,8 @@ const isDestructuringOrLoopTarget = (
     parent = parentOf(parent);
   }
 
-  const isAssignedPattern =
-    patternTarget && isSimpleAssignmentTarget(parent, current);
+  const isSimpleTarget = isSimpleAssignmentTarget(parent, current);
+  const isAssignedPattern = patternTarget && isSimpleTarget;
 
   return isAssignedPattern || isLoopTarget(parent, current);
 };
