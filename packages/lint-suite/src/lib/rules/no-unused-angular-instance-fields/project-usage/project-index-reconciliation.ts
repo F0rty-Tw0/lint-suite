@@ -32,7 +32,9 @@ const dropEntries = (
   stale: (entry: FileEntry) => boolean
 ): void => {
   for (const [fileName, entry] of index.entries) {
-    if (stale(entry)) {
+    const isStale = stale(entry);
+
+    if (isStale) {
       index.entries.delete(fileName);
     }
   }
@@ -83,33 +85,39 @@ const reconcileClasses = (
   const newNames = new Set<string>();
   let changed = false;
   const isCurrent = (fileClasses: FileClasses): boolean => {
-    if (
-      current.get(fileClasses.sourceFile.fileName) !== fileClasses.sourceFile
-    ) {
-      return false;
-    }
+    const indexedSourceFile = current.get(fileClasses.sourceFile.fileName);
+
+    if (indexedSourceFile !== fileClasses.sourceFile) return false;
 
     for (const dependency of fileClasses.dependencies) {
-      if (all.get(dependency.fileName) !== dependency) return false;
+      const indexedDependency = all.get(dependency.fileName);
+
+      if (indexedDependency !== dependency) return false;
     }
 
     return true;
   };
 
   for (const [fileName, fileClasses] of index.classes) {
-    if (!isCurrent(fileClasses)) {
+    const isFileCurrent = isCurrent(fileClasses);
+
+    if (!isFileCurrent) {
       index.classes.delete(fileName);
       changed = true;
     }
   }
 
   for (const [fileName, sourceFile] of current) {
-    if (index.classes.has(fileName)) continue;
+    const isIndexed = index.classes.has(fileName);
+
+    if (isIndexed) continue;
 
     const candidateNames = collectCandidateNames(sourceFile);
 
     for (const name of candidateNames) {
-      if (!index.candidateNames.has(name)) {
+      const isKnownName = index.candidateNames.has(name);
+
+      if (!isKnownName) {
         index.candidateNames.add(name);
         newNames.add(name);
       }
@@ -163,12 +171,14 @@ export const reconcile = (index: ProjectIndex, program: Program): void => {
     }
 
     dropEntries(index, (entry) => {
-      if (current.get(entry.sourceFile.fileName) !== entry.sourceFile) {
-        return true;
-      }
+      const indexedSourceFile = current.get(entry.sourceFile.fileName);
+
+      if (indexedSourceFile !== entry.sourceFile) return true;
 
       for (const dependency of entry.dependencies) {
-        if (all.get(dependency.fileName) !== dependency) return true;
+        const indexedDependency = all.get(dependency.fileName);
+
+        if (indexedDependency !== dependency) return true;
       }
 
       return false;
@@ -191,7 +201,9 @@ export const reconcile = (index: ProjectIndex, program: Program): void => {
     dropStaleTemplateEntries(index, true);
 
     for (const [fileName, sourceFile] of current) {
-      if (!index.entries.has(fileName)) {
+      const isEntryIndexed = index.entries.has(fileName);
+
+      if (!isEntryIndexed) {
         index.entries.set(fileName, computeEntry(index, sourceFile, checker()));
       }
     }
@@ -208,7 +220,9 @@ export const reconcile = (index: ProjectIndex, program: Program): void => {
   index.usage = undefined;
 
   for (const sourceFile of indexableSourceFiles(program)) {
-    if (!index.entries.has(sourceFile.fileName)) {
+    const isEntryIndexed = index.entries.has(sourceFile.fileName);
+
+    if (!isEntryIndexed) {
       index.entries.set(
         sourceFile.fileName,
         computeEntry(index, sourceFile, checker())

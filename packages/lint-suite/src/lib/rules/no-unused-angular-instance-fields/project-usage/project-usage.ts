@@ -35,7 +35,9 @@ const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
 
   index.usage = {
     has: (node) => {
-      if (declarations.has(node)) return true;
+      const hasDeclaration = declarations.has(node);
+
+      if (hasDeclaration) return true;
 
       if (fallbackNames.size === 0) return false;
 

@@ -10,7 +10,9 @@ export const symbolsForName = (
 
   if (symbol) return [symbol];
 
-  if (!type.isUnionOrIntersection()) return [];
+  const isUnionOrIntersection = type.isUnionOrIntersection();
+
+  if (!isUnionOrIntersection) return [];
 
   const symbols = new Set<Symbol>();
 
@@ -31,7 +33,9 @@ export const stringIndexTypes = (checker: TypeChecker, type: Type): Type[] => {
 
   if (indexedType) return [indexedType];
 
-  if (!type.isUnionOrIntersection()) return [];
+  const isUnionOrIntersection = type.isUnionOrIntersection();
+
+  if (!isUnionOrIntersection) return [];
 
   const indexedTypes = new Set<Type>();
 
