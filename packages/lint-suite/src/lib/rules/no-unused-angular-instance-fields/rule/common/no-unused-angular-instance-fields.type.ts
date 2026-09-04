@@ -1,8 +1,7 @@
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 export type AngularClassNode =
-  | TSESTree.ClassDeclaration
-  | TSESTree.ClassExpression;
+  TSESTree.ClassDeclaration | TSESTree.ClassExpression;
 
 export type AngularImport = string | null;
 

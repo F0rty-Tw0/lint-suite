@@ -97,6 +97,7 @@ test('project fixture index builds', () => {
                     parserServices?: { program?: Program };
                   }
                 ).parserServices?.program;
+
                 return {};
               }
             }

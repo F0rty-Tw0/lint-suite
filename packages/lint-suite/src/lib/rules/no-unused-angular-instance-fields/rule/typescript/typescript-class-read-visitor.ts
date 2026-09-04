@@ -49,9 +49,7 @@ const trackMemberRead = (
 ): void => {
   const current = stack.at(-1);
 
-  if (!current || !thisStack.at(-1)) {
-    return;
-  }
+  if (!current || !thisStack.at(-1)) return;
 
   const receiverIsThis = isThisExpression(node.object);
 
@@ -77,18 +75,15 @@ const trackDestructuringRead = (
 ): void => {
   const current = stack.at(-1);
 
-  if (!current || !thisStack.at(-1)) {
-    return;
-  }
+  if (!current || !thisStack.at(-1)) return;
 
   const reads = destructuredThisReads(node);
 
-  if (reads === undefined) {
-    return;
-  }
+  if (reads === undefined) return;
 
   if (reads === null) {
     dynamicClasses.add(current);
+
     return;
   }
 

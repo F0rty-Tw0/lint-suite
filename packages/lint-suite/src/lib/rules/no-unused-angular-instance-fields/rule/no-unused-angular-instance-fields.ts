@@ -80,9 +80,7 @@ export default createRule<Options, MessageIds>({
   create(context, [options]): TSESLint.RuleListener {
     const analysis = options.analysis ?? 'local';
 
-    if (analysis === 'project' && isSpecFile(context.filename)) {
-      return {};
-    }
+    if (analysis === 'project' && isSpecFile(context.filename)) return {};
 
     const parserServices =
       analysis === 'project' ? projectParserServices(context) : undefined;
@@ -106,9 +104,7 @@ export default createRule<Options, MessageIds>({
       }
     }
 
-    if (!hasAngularClassImport) {
-      return {};
-    }
+    if (!hasAngularClassImport) return {};
 
     let projectMemberUsed: ProjectMemberUsed | undefined;
 

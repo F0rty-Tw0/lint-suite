@@ -8,8 +8,7 @@ type TypeScriptExpressionWrapper =
   | TSESTree.TSTypeAssertion;
 
 type DestructuringNode =
-  | TSESTree.AssignmentExpression
-  | TSESTree.VariableDeclarator;
+  TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;
 
 type DestructuringParts = {
   readonly pattern: TSESTree.BindingName | TSESTree.Expression;
@@ -43,9 +42,7 @@ const unwrapTypeScriptExpression = (
   return current;
 };
 
-export const isThisExpression = (
-  node: TSESTree.Expression | null
-): boolean =>
+export const isThisExpression = (node: TSESTree.Expression | null): boolean =>
   unwrapTypeScriptExpression(node)?.type ===
   TSESTree.AST_NODE_TYPES.ThisExpression;
 
@@ -120,9 +117,7 @@ const isDestructuringOrLoopTarget = (
       isTypeScriptExpressionWrapper(parent) && parent.expression === current;
     const pattern = isPatternTarget(parent, current);
 
-    if (!wrapper && !pattern) {
-      break;
-    }
+    if (!wrapper && !pattern) break;
 
     if (pattern) {
       patternTarget = true;
@@ -148,9 +143,7 @@ const destructuringParts = (
     return { pattern: node.id, source: node.init };
   }
 
-  if (node.operator === '=') {
-    return { pattern: node.left, source: node.right };
-  }
+  if (node.operator === '=') return { pattern: node.left, source: node.right };
 
   return null;
 };
@@ -158,10 +151,7 @@ const destructuringParts = (
 const propertyName = (
   property: TSESTree.Property | TSESTree.RestElement
 ): string | null => {
-  if (
-    property.type !== TSESTree.AST_NODE_TYPES.Property ||
-    property.computed
-  ) {
+  if (property.type !== TSESTree.AST_NODE_TYPES.Property || property.computed) {
     return null;
   }
 
@@ -193,9 +183,7 @@ export const destructuredThisReads = (
   for (const property of parts.pattern.properties) {
     const name = propertyName(property);
 
-    if (name === null) {
-      return null;
-    }
+    if (name === null) return null;
 
     reads.push(name);
   }
