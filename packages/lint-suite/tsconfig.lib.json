@@ -3,13 +3,18 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/types/**/*.d.ts"
+  ],
   "exclude": [
     "src/**/fixtures/**",
+    "src/**/common/stubs/**",
     "src/**/*.spec.ts",
-    "src/**/*.spec-support.ts",
-    "src/**/*.project-fixture.ts"
+    "src/**/*.spec.util.ts"
   ]
 }
