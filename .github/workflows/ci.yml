@@ -16,25 +16,17 @@ jobs:
       contents: read
 
     steps:
-      # SHA = actions/checkout@v7.0.0
+      # SHA = actions/checkout@v7.0.1
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      # SHA = pnpm/action-setup@v6.0.9
-      - name: Setup pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86
+      # SHA = pnpm/setup@v2.1.0
+      - name: Setup toolchain and install dependencies
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
         with:
-          version: 11.13.1
-
-      # SHA = actions/setup-node@v7.0.0
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version: 24.20.0
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          runtime: node@24.20.0
+          cache: true
+          require-lockfile: true
 
       - name: Build
         run: pnpm exec nx run lint-suite:build
