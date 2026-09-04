@@ -57,11 +57,12 @@ const trackMemberRead = (
     dynamicClasses.add(current);
   }
 
+  const isPlainThisRead =
+    receiverIsThis && !node.computed && !isWriteOnly(node);
+
   if (
-    receiverIsThis &&
-    !node.computed &&
-    node.property.type === TSESTree.AST_NODE_TYPES.Identifier &&
-    !isWriteOnly(node)
+    isPlainThisRead &&
+    node.property.type === TSESTree.AST_NODE_TYPES.Identifier
   ) {
     current.reads.add(node.property.name);
   }
@@ -92,42 +93,46 @@ const trackDestructuringRead = (
   }
 };
 
-const lexicalThisVisitor = (thisStack: boolean[]): TSESLint.RuleListener => ({
-  FunctionDeclaration(node: TSESTree.FunctionDeclaration): void {
-    thisStack.push(componentThis(node, thisStack));
-  },
-  FunctionExpression(node: TSESTree.FunctionExpression): void {
-    thisStack.push(componentThis(node, thisStack));
-  },
-  ArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression): void {
-    thisStack.push(componentThis(node, thisStack));
-  },
-  'FunctionDeclaration:exit'(): void {
-    thisStack.pop();
-  },
-  'FunctionExpression:exit'(): void {
-    thisStack.pop();
-  },
-  'ArrowFunctionExpression:exit'(): void {
-    thisStack.pop();
-  },
-  StaticBlock(): void {
-    thisStack.push(false);
-  },
-  'StaticBlock:exit'(): void {
-    thisStack.pop();
-  },
-  PropertyDefinition(node: TSESTree.PropertyDefinition): void {
-    if (node.static) {
-      thisStack.push(false);
-    }
-  },
-  'PropertyDefinition:exit'(node: TSESTree.PropertyDefinition): void {
-    if (node.static) {
+const lexicalThisVisitor = (thisStack: boolean[]): TSESLint.RuleListener => {
+  const listeners: TSESLint.RuleListener = {
+    FunctionDeclaration(node: TSESTree.FunctionDeclaration): void {
+      thisStack.push(componentThis(node, thisStack));
+    },
+    FunctionExpression(node: TSESTree.FunctionExpression): void {
+      thisStack.push(componentThis(node, thisStack));
+    },
+    ArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression): void {
+      thisStack.push(componentThis(node, thisStack));
+    },
+    'FunctionDeclaration:exit'(): void {
       thisStack.pop();
+    },
+    'FunctionExpression:exit'(): void {
+      thisStack.pop();
+    },
+    'ArrowFunctionExpression:exit'(): void {
+      thisStack.pop();
+    },
+    StaticBlock(): void {
+      thisStack.push(false);
+    },
+    'StaticBlock:exit'(): void {
+      thisStack.pop();
+    },
+    PropertyDefinition(node: TSESTree.PropertyDefinition): void {
+      if (node.static) {
+        thisStack.push(false);
+      }
+    },
+    'PropertyDefinition:exit'(node: TSESTree.PropertyDefinition): void {
+      if (node.static) {
+        thisStack.pop();
+      }
     }
-  }
-});
+  };
+
+  return listeners;
+};
 
 export const classReadVisitor = (
   classes: ClassEntry[],
@@ -136,7 +141,7 @@ export const classReadVisitor = (
 ): TSESLint.RuleListener => {
   const thisStack: boolean[] = [];
 
-  return {
+  const listeners: TSESLint.RuleListener = {
     ClassDeclaration(node: TSESTree.ClassDeclaration): void {
       enterClass(node, classes, stack, thisStack);
     },
@@ -162,4 +167,6 @@ export const classReadVisitor = (
       trackDestructuringRead(node, stack, thisStack, dynamicClasses);
     }
   };
+
+  return listeners;
 };

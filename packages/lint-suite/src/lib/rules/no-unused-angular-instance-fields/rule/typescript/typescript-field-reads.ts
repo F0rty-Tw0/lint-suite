@@ -140,10 +140,22 @@ const destructuringParts = (
   node: DestructuringNode
 ): DestructuringParts | null => {
   if (node.type === TSESTree.AST_NODE_TYPES.VariableDeclarator) {
-    return { pattern: node.id, source: node.init };
+    const variableParts: DestructuringParts | null = {
+      pattern: node.id,
+      source: node.init
+    };
+
+    return variableParts;
   }
 
-  if (node.operator === '=') return { pattern: node.left, source: node.right };
+  if (node.operator === '=') {
+    const assignmentParts: DestructuringParts | null = {
+      pattern: node.left,
+      source: node.right
+    };
+
+    return assignmentParts;
+  }
 
   return null;
 };
