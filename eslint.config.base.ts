@@ -1,13 +1,15 @@
-import nx from '@nx/eslint-plugin';
+import { configs } from '@nx/eslint-plugin';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import type { CompatibleConfigArray } from 'typescript-eslint';
 
-export default [
-  ...nx.configs['flat/base'],
-  ...nx.configs['flat/typescript'],
-  ...nx.configs['flat/javascript'],
+const nxTypescript: CompatibleConfigArray = configs['flat/typescript'];
+const nxJavascript: CompatibleConfigArray = configs['flat/javascript'];
+
+// Keep workspace policy separate so projects with their own presets do not apply Nx defaults twice.
+export const workspaceConfig = defineConfig([
+  globalIgnores(['**/dist'], 'workspace/build-output'),
   {
-    ignores: ['**/dist']
-  },
-  {
+    name: 'workspace/rules',
     files: ['**/*.ts', '**/*.js'],
     rules: {
       curly: ['error', 'multi-line'],
@@ -30,4 +32,11 @@ export default [
       ]
     }
   }
-];
+]);
+
+export default defineConfig(
+  configs['flat/base'],
+  nxTypescript,
+  nxJavascript,
+  workspaceConfig
+);

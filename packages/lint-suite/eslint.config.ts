@@ -1,11 +1,12 @@
-import baseConfig from '../../eslint.config.base.ts';
-import {
-  base,
-  boundaries,
-  javascript,
-  prettier,
-  typescript
-} from './src/eslint.ts';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import * as jsoncParser from 'jsonc-eslint-parser';
+
+import { workspaceConfig } from '../../eslint.config.base.ts';
+import { base } from './src/lib/base.ts';
+import { boundaries } from './src/lib/boundaries.ts';
+import { javascript } from './src/lib/javascript.ts';
+import { prettier } from './src/lib/prettier.ts';
+import { typescript } from './src/lib/typescript.ts';
 
 // Used only as string locators (stylelint extends), by fixtures (angular, rxjs), or by specs (vitest).
 const ignoredDependencies = [
@@ -23,26 +24,23 @@ const dependencyChecksOptions = {
   ignoredFiles: ['{projectRoot}/eslint.config.ts'],
   ignoredDependencies
 };
-const jsonRules = {
-  '@nx/dependency-checks': ['error', dependencyChecksOptions]
-};
-const jsonLanguageOptions = { parser: await import('jsonc-eslint-parser') };
 
-const config = [
-  ...base,
-  ...javascript,
-  ...typescript,
-  ...boundaries,
-  ...prettier,
-  ...baseConfig,
+const config = defineConfig(
+  base,
+  javascript,
+  typescript,
+  boundaries,
+  prettier,
+  workspaceConfig,
+  globalIgnores(['**/fixtures/**'], 'lint-suite/fixtures'),
   {
-    ignores: ['**/fixtures/**']
-  },
-  {
+    name: 'lint-suite/dependency-checks',
     files: ['**/*.json'],
-    rules: jsonRules,
-    languageOptions: jsonLanguageOptions
+    rules: {
+      '@nx/dependency-checks': ['error', dependencyChecksOptions]
+    },
+    languageOptions: { parser: jsoncParser }
   }
-];
+);
 
 export default config;
