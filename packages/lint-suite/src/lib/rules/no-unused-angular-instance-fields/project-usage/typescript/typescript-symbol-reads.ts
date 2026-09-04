@@ -11,15 +11,20 @@ import type { PropertyName, Symbol, Type, TypeChecker } from 'typescript';
 import type { ReadSink } from '../common/project-usage.type.js';
 import { symbolsForName } from '../utils/type-property-symbols.util.js';
 
+const aliasTarget = (checker: TypeChecker, symbol: Symbol): Symbol => {
+  const isAlias = (symbol.flags & SymbolFlags.Alias) !== 0;
+
+  if (!isAlias) return symbol;
+
+  return checker.getAliasedSymbol(symbol);
+};
+
 export const addSymbolDeclarations = (
   checker: TypeChecker,
   symbol: Symbol,
   sink: ReadSink
 ): void => {
-  const resolved =
-    (symbol.flags & SymbolFlags.Alias) === 0
-      ? symbol
-      : checker.getAliasedSymbol(symbol);
+  const resolved = aliasTarget(checker, symbol);
 
   for (const declaration of resolved.declarations ?? []) {
     sink.addDeclaration(declaration);
@@ -46,6 +51,16 @@ export const allPropertySymbols = (
   return [...symbols];
 };
 
+const namedPropertySymbols = (
+  checker: TypeChecker,
+  type: Type,
+  names: string[] | null
+): Symbol[] => {
+  if (names === null) return allPropertySymbols(checker, type);
+
+  return names.flatMap((name) => symbolsForName(checker, type, name));
+};
+
 export const addNamedProperties = (
   checker: TypeChecker,
   type: Type,
@@ -54,9 +69,7 @@ export const addNamedProperties = (
 ): Symbol[] => {
   sink.addType(type);
 
-  const symbols = names
-    ? names.flatMap((name) => symbolsForName(checker, type, name))
-    : allPropertySymbols(checker, type);
+  const symbols = namedPropertySymbols(checker, type, names);
 
   for (const symbol of symbols) {
     addSymbolDeclarations(checker, symbol, sink);

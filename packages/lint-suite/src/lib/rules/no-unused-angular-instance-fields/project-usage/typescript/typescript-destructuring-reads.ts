@@ -15,6 +15,7 @@ import {
 } from 'typescript';
 import type {
   ArrayLiteralExpression,
+  BindingElement,
   BindingPattern,
   Node,
   ObjectLiteralExpression,
@@ -32,8 +33,12 @@ import {
 
 type LazyType = () => Type;
 
-const isBindingPattern = (node: Node): node is BindingPattern =>
-  isArrayBindingPattern(node) || isObjectBindingPattern(node);
+const isBindingPattern = (node: Node): node is BindingPattern => {
+  const isArrayPattern = isArrayBindingPattern(node);
+  const isObjectPattern = isObjectBindingPattern(node);
+
+  return isArrayPattern || isObjectPattern;
+};
 
 const lazyType = (compute: () => Type): LazyType => {
   let type: Type | undefined;
@@ -45,8 +50,27 @@ const skippable = (
   names: string[] | null,
   nested: boolean,
   candidateNames: CandidateNames
-): boolean =>
-  !nested && names !== null && !names.some((name) => candidateNames.has(name));
+): boolean => {
+  if (nested) return false;
+  if (names === null) return false;
+
+  const hasCandidateName = names.some((name) => candidateNames.has(name));
+
+  return !hasCandidateName;
+};
+
+const bindingNames = (
+  checker: TypeChecker,
+  element: BindingElement
+): string[] | null => {
+  if (element.propertyName) return propertyName(checker, element.propertyName);
+
+  const isIdentifierName = isIdentifier(element.name);
+
+  if (!isIdentifierName) return null;
+
+  return [element.name.text];
+};
 
 const collectBindingPattern = (
   pattern: BindingPattern,
@@ -63,7 +87,8 @@ const collectBindingPattern = (
 
       if (isOmitted) continue;
 
-      const names = element.dotDotDotToken ? null : [String(index)];
+      const indexNames = [String(index)];
+      const names = element.dotDotDotToken ? null : indexNames;
       const nested = isBindingPattern(element.name);
       const isSkippable = skippable(names, nested, candidateNames);
 
@@ -103,11 +128,7 @@ const collectBindingPattern = (
       continue;
     }
 
-    const names = element.propertyName
-      ? propertyName(checker, element.propertyName)
-      : isIdentifier(element.name)
-        ? [element.name.text]
-        : null;
+    const names = bindingNames(checker, element);
 
     for (const name of names ?? []) {
       consumed.add(name);
@@ -149,7 +170,8 @@ const collectAssignmentPattern = (
 
       if (isOmitted) continue;
 
-      const names = isSpreadElement(element) ? null : [String(index)];
+      const indexNames = [String(index)];
+      const names = isSpreadElement(element) ? null : indexNames;
       const nested =
         isArrayLiteralExpression(element) || isObjectLiteralExpression(element);
       const isSkippable = skippable(names, nested, candidateNames);

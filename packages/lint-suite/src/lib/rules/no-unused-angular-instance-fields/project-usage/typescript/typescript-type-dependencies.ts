@@ -8,6 +8,18 @@ import type {
   TypeReference
 } from 'typescript';
 
+const isObjectType = (type: Type): type is ObjectType => {
+  return (type.flags & TypeFlags.Object) !== 0;
+};
+
+const isTypeReference = (type: ObjectType): type is TypeReference => {
+  return (type.objectFlags & ObjectFlags.Reference) !== 0;
+};
+
+const isInterfaceType = (type: ObjectType): type is InterfaceType => {
+  return (type.objectFlags & ObjectFlags.ClassOrInterface) !== 0;
+};
+
 export const addTypeDependencies = (
   checker: TypeChecker,
   type: Type,
@@ -46,17 +58,17 @@ export const addTypeDependencies = (
     return;
   }
 
-  if ((type.flags & TypeFlags.Object) === 0) return;
+  const isObject = isObjectType(type);
 
-  const objectType = type as ObjectType;
-  const target =
-    (objectType.objectFlags & ObjectFlags.Reference) !== 0
-      ? (type as TypeReference).target
-      : objectType;
+  if (!isObject) return;
 
-  if ((target.objectFlags & ObjectFlags.ClassOrInterface) !== 0) {
-    for (const base of checker.getBaseTypes(target as InterfaceType)) {
-      addTypeDependencies(checker, base, dependencies, seen);
-    }
+  const isReference = isTypeReference(type);
+  const target = isReference ? type.target : type;
+  const isClassOrInterface = isInterfaceType(target);
+
+  if (!isClassOrInterface) return;
+
+  for (const base of checker.getBaseTypes(target)) {
+    addTypeDependencies(checker, base, dependencies, seen);
   }
 };

@@ -25,6 +25,7 @@ import {
 } from 'typescript';
 import type {
   ClassLikeDeclaration,
+  Declaration,
   ElementAccessExpression,
   Expression,
   Node,
@@ -42,21 +43,43 @@ import {
   literalPropertyNames
 } from './typescript-symbol-reads.js';
 
-const isExpressionWrapper = (parent: Node, child: Node): boolean =>
-  (isParenthesizedExpression(parent) ||
-    isAsExpression(parent) ||
-    isTypeAssertionExpression(parent) ||
-    isNonNullExpression(parent) ||
-    isSatisfiesExpression(parent)) &&
-  parent.expression === child;
+const isExpressionWrapper = (parent: Node, child: Node): boolean => {
+  const isParenthesized = isParenthesizedExpression(parent);
+  const isAs = isAsExpression(parent);
+  const isTypeAssertion = isTypeAssertionExpression(parent);
+  const isNonNull = isNonNullExpression(parent);
+  const isSatisfies = isSatisfiesExpression(parent);
+  const isCast = isAs || isTypeAssertion || isSatisfies;
+  const isWrapper = isParenthesized || isNonNull || isCast;
 
-const isPatternContainer = (parent: Node, child: Node): boolean =>
-  (isArrayLiteralExpression(parent) &&
-    parent.elements.some((element) => element === child)) ||
-  (isObjectLiteralExpression(parent) &&
-    parent.properties.some((property) => property === child)) ||
-  (isPropertyAssignment(parent) && parent.initializer === child) ||
-  (isSpreadAssignment(parent) && parent.expression === child);
+  if (!isWrapper) return false;
+
+  return parent.expression === child;
+};
+
+const isPatternContainer = (parent: Node, child: Node): boolean => {
+  const isArrayLiteral = isArrayLiteralExpression(parent);
+
+  if (isArrayLiteral) {
+    return parent.elements.some((element) => element === child);
+  }
+
+  const isObjectLiteral = isObjectLiteralExpression(parent);
+
+  if (isObjectLiteral) {
+    return parent.properties.some((property) => property === child);
+  }
+
+  const isAssignment = isPropertyAssignment(parent);
+
+  if (isAssignment) return parent.initializer === child;
+
+  const isSpread = isSpreadAssignment(parent);
+
+  if (!isSpread) return false;
+
+  return parent.expression === child;
+};
 
 const isWriteOnly = (node: Expression): boolean => {
   let current: Node = node;
@@ -137,22 +160,29 @@ const addElementAccessRead = (
   );
 };
 
-const isAngularInterfaceMethod = (symbol: Symbol): boolean =>
-  (symbol.declarations ?? []).some(
-    (declaration) =>
-      isMethodSignature(declaration) &&
-      declaration
-        .getSourceFile()
-        .fileName.replaceAll('\\', '/')
-        .includes('/node_modules/@angular/')
-  );
+const isAngularMethodSignature = (declaration: Declaration): boolean => {
+  const isMethod = isMethodSignature(declaration);
+
+  if (!isMethod) return false;
+
+  const fileName = declaration.getSourceFile().fileName.replaceAll('\\', '/');
+
+  return fileName.includes('/node_modules/@angular/');
+};
+
+const isAngularInterfaceMethod = (symbol: Symbol): boolean => {
+  const declarations = symbol.declarations ?? [];
+
+  return declarations.some(isAngularMethodSignature);
+};
 
 const collectAngularInterfaceMethods = (
   node: ClassLikeDeclaration,
   checker: TypeChecker,
   sink: ReadSink
 ): void => {
-  const implementsClauses = (node.heritageClauses ?? []).filter(
+  const heritageClauses = node.heritageClauses ?? [];
+  const implementsClauses = heritageClauses.filter(
     (clause) => clause.token === SyntaxKind.ImplementsKeyword
   );
 
@@ -190,20 +220,23 @@ export const collectCandidateNames = (sourceFile: SourceFile): Set<string> => {
 
     if (isClass) {
       const isDecoratable = canHaveDecorators(node);
-      const decorators = isDecoratable ? getDecorators(node) : undefined;
-      const decoratorCount = decorators?.length ?? 0;
-      const isDecoratedClass = decoratorCount > 0;
 
-      if (isDecoratedClass) {
-        for (const member of node.members) {
-          if (!member.name) continue;
+      if (isDecoratable) {
+        const decorators = getDecorators(node);
+        const decoratorCount = decorators?.length ?? 0;
+        const isDecoratedClass = decoratorCount > 0;
 
-          const isIdentifierName = isIdentifier(member.name);
-          const isStringName = isStringLiteralLike(member.name);
-          const isNamedMember = isIdentifierName || isStringName;
+        if (isDecoratedClass) {
+          for (const member of node.members) {
+            if (!member.name) continue;
 
-          if (isNamedMember) {
-            names.add(member.name.text);
+            const isIdentifierName = isIdentifier(member.name);
+            const isStringName = isStringLiteralLike(member.name);
+            const isNamedMember = isIdentifierName || isStringName;
+
+            if (isNamedMember) {
+              names.add(member.name.text);
+            }
           }
         }
       }
