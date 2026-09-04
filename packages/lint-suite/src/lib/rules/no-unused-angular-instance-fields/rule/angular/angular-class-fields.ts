@@ -1,3 +1,5 @@
+import type { TSESLint } from '@typescript-eslint/utils';
+
 import { angularClassMetadata } from './angular-imports.js';
 import {
   fieldCandidate,
@@ -10,12 +12,15 @@ import type {
   ClassEntry,
   DynamicClasses,
   MemberCandidate,
+  MessageIds,
   ProjectMemberUsed,
   RuleContext
 } from '../common/no-unused-angular-instance-fields.type.js';
 
+type ReportContext = Pick<RuleContext, 'filename' | 'report' | 'sourceCode'>;
+
 export const reportUnusedMembers = (
-  context: RuleContext,
+  context: ReportContext,
   imports: AngularImports,
   classes: ClassEntry[],
   dynamicClasses: DynamicClasses,
@@ -24,8 +29,6 @@ export const reportUnusedMembers = (
   projectIndexed: () => boolean = () => false
 ): void => {
   const projectAnalysis = projectMemberUsed !== undefined;
-  // ponytail: local template reads short-circuit project lookups, but once
-  // the project index already covers this Program they only repeat work.
   const localTemplates = !projectAnalysis || !projectIndexed();
 
   for (const entry of classes) {
@@ -34,8 +37,6 @@ export const reportUnusedMembers = (
 
     if (!ngClass || isDynamicClass) continue;
 
-    // ponytail: local analysis cannot see subclasses, so directive and
-    // abstract-class members are only candidates when private.
     const localPrivateOnly =
       !projectAnalysis && (!ngClass.component || entry.node.abstract === true);
     const implementedMethods = implementedFormsMethods(entry.node);
@@ -64,15 +65,15 @@ export const reportUnusedMembers = (
 
     if (unreadMembers.length === 0) continue;
 
-    // ponytail: project analysis indexes the component's own template with
-    // type information, so a template that cannot be read locally (for
-    // example `templateUrl: URL`) defers to the index instead of failing.
+    const readsOwnTemplate = ngClass.component && localTemplates;
+    const remainingNames = unreadMembers.map((candidate) => candidate.name);
+    const requireTemplate = !projectAnalysis;
     const reads = metadataReads(
       ngClass.metadata,
-      ngClass.component && localTemplates,
+      readsOwnTemplate,
       context.filename,
-      unreadMembers.map((candidate) => candidate.name),
-      !projectAnalysis
+      remainingNames,
+      requireTemplate
     );
 
     if (!reads) continue;
@@ -86,11 +87,14 @@ export const reportUnusedMembers = (
 
       if (isProjectUsed) continue;
 
-      context.report({
-        data: { name: candidate.name },
+      const data = { name: candidate.name };
+      const report: TSESLint.ReportDescriptor<MessageIds> = {
+        data,
         messageId: candidate.messageId,
         node: candidate.node.key
-      });
+      };
+
+      context.report(report);
     }
   }
 };

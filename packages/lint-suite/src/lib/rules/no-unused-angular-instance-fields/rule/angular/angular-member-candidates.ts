@@ -35,42 +35,65 @@ const formsInterfaceMethods: Readonly<Record<string, string[]>> = {
   Validator: ['validate', 'registerOnValidatorChange']
 };
 
-const isInstanceField = (node: TSESTree.ClassElement): node is InstanceField =>
-  node.type === TSESTree.AST_NODE_TYPES.PropertyDefinition &&
-  node.key.type === TSESTree.AST_NODE_TYPES.Identifier;
+const isInstanceField = (
+  node: TSESTree.ClassElement
+): node is InstanceField => {
+  if (node.type !== TSESTree.AST_NODE_TYPES.PropertyDefinition) return false;
+
+  return node.key.type === TSESTree.AST_NODE_TYPES.Identifier;
+};
 
 const isInstanceMethod = (
   node: TSESTree.ClassElement
-): node is InstanceMethod =>
-  node.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
-  node.key.type === TSESTree.AST_NODE_TYPES.Identifier;
+): node is InstanceMethod => {
+  if (node.type !== TSESTree.AST_NODE_TYPES.MethodDefinition) return false;
+
+  return node.key.type === TSESTree.AST_NODE_TYPES.Identifier;
+};
 
 const isExcludedField = (
   node: InstanceField,
   localPrivateOnly: boolean,
   sourceCode: TSESLint.SourceCode
-): boolean =>
-  node.static ||
-  node.declare ||
-  node.override ||
-  node.decorators.length > 0 ||
-  isAngularComponentRefField(node, sourceCode) ||
-  (localPrivateOnly && node.accessibility !== 'private');
+): boolean => {
+  const isModified = node.static || node.declare || node.override;
+  const isDecorated = node.decorators.length > 0;
+
+  if (isModified || isDecorated) return true;
+
+  const isComponentRef = isAngularComponentRefField(node, sourceCode);
+
+  if (isComponentRef) return true;
+
+  const isNonPrivate = node.accessibility !== 'private';
+
+  return localPrivateOnly && isNonPrivate;
+};
 
 const isExcludedMethod = (
   node: InstanceMethod,
   localPrivateOnly: boolean,
   implementedMethods: Set<string>
-): boolean =>
-  node.static ||
-  node.override ||
-  node.decorators.length > 0 ||
-  node.computed ||
-  node.kind !== 'method' ||
-  node.value.body === null ||
-  lifecycleHooks[node.key.name] === true ||
-  implementedMethods.has(node.key.name) ||
-  (localPrivateOnly && node.accessibility !== 'private');
+): boolean => {
+  const isModified = node.static || node.override || node.computed;
+  const isDecorated = node.decorators.length > 0;
+  const isPlainMethod = node.kind === 'method';
+
+  if (isModified || isDecorated || !isPlainMethod) return true;
+
+  const hasNoBody = node.value.body === null;
+  const isLifecycleHook = lifecycleHooks[node.key.name] === true;
+
+  if (hasNoBody || isLifecycleHook) return true;
+
+  const isImplemented = implementedMethods.has(node.key.name);
+
+  if (isImplemented) return true;
+
+  const isNonPrivate = node.accessibility !== 'private';
+
+  return localPrivateOnly && isNonPrivate;
+};
 
 export const implementedFormsMethods = (
   node: AngularClassNode

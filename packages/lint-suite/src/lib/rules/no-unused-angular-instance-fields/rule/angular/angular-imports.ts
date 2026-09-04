@@ -84,10 +84,9 @@ export const addAngularImport = (
       specifier.type === TSESTree.AST_NODE_TYPES.ImportSpecifier &&
       specifier.importKind !== 'type'
     ) {
-      const importedName =
-        specifier.imported.type === TSESTree.AST_NODE_TYPES.Identifier
-          ? specifier.imported.name
-          : specifier.imported.value;
+      const { imported } = specifier;
+      const isIdentifier = imported.type === TSESTree.AST_NODE_TYPES.Identifier;
+      const importedName = isIdentifier ? imported.name : imported.value;
 
       imports.set(specifier.local.name, importedName);
     }

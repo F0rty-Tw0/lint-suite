@@ -10,7 +10,7 @@ import {
   R3TargetBinder,
   parseTemplate
 } from '@angular/compiler';
-import type { DirectiveMeta } from '@angular/compiler';
+import type { ASTWithSource, DirectiveMeta } from '@angular/compiler';
 import { TSESTree } from '@typescript-eslint/utils';
 import { collectAngularExpressionReads } from './angular-expression-reads.js';
 
@@ -31,10 +31,13 @@ const text = (node: TSESTree.Node | null | undefined): string | null => {
     return node.value;
   }
 
-  return node?.type === TSESTree.AST_NODE_TYPES.TemplateLiteral &&
-    node.expressions.length === 0
-    ? node.quasis[0].value.cooked
-    : null;
+  if (node?.type !== TSESTree.AST_NODE_TYPES.TemplateLiteral) return null;
+
+  const hasExpressions = node.expressions.length > 0;
+
+  if (hasExpressions) return null;
+
+  return node.quasis[0].value.cooked;
 };
 
 const templateReads = (
@@ -74,6 +77,16 @@ const externalTemplateReads = (filename: string): Set<string> | null => {
   }
 };
 
+const parseExpression = (
+  expression: string,
+  span: ParseSourceSpan,
+  action: boolean
+): ASTWithSource => {
+  if (action) return parser.parseAction(expression, span, 0);
+
+  return parser.parseBinding(expression, span, 0);
+};
+
 const expressionReads = (
   expression: string,
   filename: string,
@@ -83,9 +96,7 @@ const expressionReads = (
     const file = new ParseSourceFile(expression, filename);
     const start = new ParseLocation(file, 0, 0, 0);
     const span = new ParseSourceSpan(start, start.moveBy(expression.length));
-    const result = action
-      ? parser.parseAction(expression, span, 0)
-      : parser.parseBinding(expression, span, 0);
+    const result = parseExpression(expression, span, action);
 
     if (result.errors.length > 0) return null;
 
@@ -110,9 +121,11 @@ const key = (property: TSESTree.ObjectLiteralElement): string | null => {
     return null;
   }
 
-  return property.key.type === TSESTree.AST_NODE_TYPES.Identifier
-    ? property.key.name
-    : text(property.key);
+  if (property.key.type === TSESTree.AST_NODE_TYPES.Identifier) {
+    return property.key.name;
+  }
+
+  return text(property.key);
 };
 
 const metadataValue = (
