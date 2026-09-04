@@ -13,9 +13,10 @@ type LintConfigOptions = {
   readonly options?: Record<string, boolean>;
 };
 
-const angularPlugin = angular
-  .map((config) => config.plugins?.['lint-suite-angular'])
-  .find(Boolean);
+const angularPlugins = angular.map(
+  (config) => config.plugins?.['lint-suite-angular']
+);
+const angularPlugin = angularPlugins.find(Boolean);
 const registeredRule = angularPlugin?.rules?.['no-unused-instance-fields'];
 
 assert.ok(
@@ -23,11 +24,6 @@ assert.ok(
   'angular preset must register lint-suite-angular/no-unused-instance-fields'
 );
 
-// ponytail: a project-mode test builds a TypeScript program for its fixture
-// project, and the sibling specs build many of them at once, so a single
-// test can sit well past the default per-test timeout. Every spec that
-// reaches a fixture project imports this module, so raising the timeout
-// here covers them all.
 vi.setConfig({ testTimeout: 120_000 });
 
 RuleTester.describe = describe;
@@ -42,35 +38,52 @@ export const ruleTester = new RuleTester({
   languageOptions: LINTER_CONFIG_STUB.languageOptions
 });
 
-export const projectRuleTester = (directory: string): RuleTester =>
-  new RuleTester({
-    languageOptions: {
-      ...LINTER_CONFIG_STUB.languageOptions,
-      parserOptions: { projectService: true, tsconfigRootDir: directory }
-    }
-  });
+const projectLanguageOptions = (
+  directory: string | undefined
+): Linter.LanguageOptions => {
+  if (directory === undefined) {
+    const localOptions: Linter.LanguageOptions = {};
+
+    return localOptions;
+  }
+
+  const parserOptions = { projectService: true, tsconfigRootDir: directory };
+  const projectOptions: Linter.LanguageOptions = { parserOptions };
+
+  return projectOptions;
+};
+
+export const projectRuleTester = (directory: string): RuleTester => {
+  const parserOptions = { projectService: true, tsconfigRootDir: directory };
+  const languageOptions: Linter.LanguageOptions = {
+    ...LINTER_CONFIG_STUB.languageOptions,
+    parserOptions
+  };
+
+  return new RuleTester({ languageOptions });
+};
 
 export const lintConfig = ({
   analysis,
   directory,
   options
 }: LintConfigOptions): Linter.Config => {
-  const projectParserOptions =
-    directory === undefined
-      ? {}
-      : {
-          parserOptions: { projectService: true, tsconfigRootDir: directory }
-        };
+  const directoryOptions = projectLanguageOptions(directory);
+  const languageOptions: Linter.LanguageOptions = {
+    ...LINTER_CONFIG_STUB.languageOptions,
+    ...directoryOptions
+  };
+  const rulesUnderTest = { 'no-unused-instance-fields': rule };
+  const pluginUnderTest: ESLint.Plugin = { rules: rulesUnderTest };
+  const plugins = { 'lint-suite-angular': pluginUnderTest };
+  const ruleOptions = { analysis, ...options };
+  const ruleEntry: Linter.RuleEntry = ['error', ruleOptions];
+  const rules: Linter.RulesRecord = { [ruleName]: ruleEntry };
   const linterConfig: Linter.Config = {
     ...LINTER_CONFIG_STUB,
-    languageOptions: {
-      ...LINTER_CONFIG_STUB.languageOptions,
-      ...projectParserOptions
-    },
-    plugins: {
-      'lint-suite-angular': { rules: { 'no-unused-instance-fields': rule } }
-    },
-    rules: { [ruleName]: ['error', { analysis, ...options }] }
+    languageOptions,
+    plugins,
+    rules
   };
 
   return linterConfig;

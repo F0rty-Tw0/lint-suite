@@ -17,23 +17,22 @@ type IncrementalProject = {
   readonly dispose: () => void;
 };
 
-export const widget = (
-  members: string
-): string => `import { Component } from '@angular/core';
+export const widget = (members: string): string => {
+  return `import { Component } from '@angular/core';
 
 @Component({ selector: 'app-widget', templateUrl: './widget.component.html' })
 export class WidgetComponent {
 ${members}
 }
 `;
+};
 
 export const widgetMembers = `  readonly title = 'title';
   readonly exposed = 'exposed';
   readonly hidden = 'hidden';`;
 
-export const consumer = (
-  body: string
-): string => `import { Component, viewChild } from '@angular/core';
+export const consumer = (body: string): string => {
+  return `import { Component, viewChild } from '@angular/core';
 
 import { WidgetComponent } from './widget.component';
 
@@ -46,18 +45,19 @@ ${body}
   }
 }
 `;
+};
 
 export const consumerBody = `    return this.widget().exposed;`;
 
-export const panel = (
-  exportAs: string
-): string => `import { Directive } from '@angular/core';
+export const panel = (exportAs: string): string => {
+  return `import { Directive } from '@angular/core';
 
 @Directive({ selector: '[appPanel]'${exportAs} })
 export class PanelDirective {
   readonly state = 'open';
 }
 `;
+};
 
 export const panelHost = `import { Component } from '@angular/core';
 
@@ -79,9 +79,8 @@ export class OtherPanelDirective {
 }
 `;
 
-export const panelHostImporting = (
-  directive: string
-): string => `import { Component } from '@angular/core';
+export const panelHostImporting = (directive: string): string => {
+  return `import { Component } from '@angular/core';
 
 import { OtherPanelDirective } from './other-panel.directive';
 import { PanelDirective } from './panel.directive';
@@ -95,9 +94,11 @@ export class PanelHostComponent {
   protected readonly imported = [OtherPanelDirective, PanelDirective];
 }
 `;
+};
 
-export const paths = (template: string): string =>
-  `export const GALLERY_TEMPLATE_URL = './${template}';\n`;
+export const paths = (template: string): string => {
+  return `export const GALLERY_TEMPLATE_URL = './${template}';\n`;
+};
 
 export const gallery = `import { Component } from '@angular/core';
 
@@ -118,13 +119,13 @@ export class CaptionComponent {
 }
 `;
 
-export const broken = (
-  template: string
-): string => `import { Component } from '@angular/core';
+export const broken = (template: string): string => {
+  return `import { Component } from '@angular/core';
 
 @Component({ selector: 'app-broken', template: '${template}' })
 export class BrokenComponent {}
 `;
+};
 
 const angularCore = join(
   import.meta.dirname,
@@ -174,8 +175,11 @@ export const createIncrementalProject = (): IncrementalProject => {
     projectDirectory,
     linter,
     file,
-    lint: (name: string, code: string): string[] =>
-      reportedMembers(linter.verify(code, config, { filename: file(name) })),
+    lint: (name: string, code: string): string[] => {
+      const messages = linter.verify(code, config, { filename: file(name) });
+
+      return reportedMembers(messages);
+    },
     touch: (name: string, content: string): void => {
       writeFileSync(file(name), content);
       // Bump mtime by a full second so the change is visible on coarse

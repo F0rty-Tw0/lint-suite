@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { describe, test } from 'vitest';
 
 import { Linter } from 'eslint';
+import { TSESLint } from '@typescript-eslint/utils';
+import tseslint from 'typescript-eslint';
 import type { Program } from 'typescript';
 
 import { projectUsage } from './project-usage/project-usage.js';
@@ -17,24 +19,28 @@ const projectDirectory = fixtureDirectory('project');
 const expectationPattern = /\/\/ expect (unusedField|unusedMethod): (\w+)/gu;
 const optionsPattern = /\/\/ options: (.+)/u;
 
-const expectations = (code: string): string[] =>
-  [...code.matchAll(expectationPattern)]
-    .map(([, messageId, name]) => `${messageId}:${name}`)
-    .sort();
+const expectations = (code: string): string[] => {
+  const matches = [...code.matchAll(expectationPattern)];
+  const reported = matches.map(([, messageId, name]) => `${messageId}:${name}`);
 
-const fixtureOptions = (code: string): Record<string, boolean> =>
-  Object.fromEntries(
-    (optionsPattern.exec(code)?.[1] ?? '')
-      .split(',')
-      .map((option) => option.trim())
-      .filter(Boolean)
-      .map((option) => [option, true])
-  );
+  return reported.sort();
+};
 
-const tsFiles = (directory: string): string[] =>
-  readdirSync(directory)
-    .filter((file) => file.endsWith('.ts'))
-    .sort();
+const fixtureOptions = (code: string): Record<string, boolean> => {
+  const optionsMatch = optionsPattern.exec(code);
+  const optionsText = optionsMatch?.[1] ?? '';
+  const names = optionsText.split(',').map((option) => option.trim());
+  const entries = names.filter(Boolean).map((option) => [option, true]);
+
+  return Object.fromEntries(entries);
+};
+
+const tsFiles = (directory: string): string[] => {
+  const files = readdirSync(directory);
+  const tsNames = files.filter((file) => file.endsWith('.ts'));
+
+  return tsNames.sort();
+};
 
 const lintFixtures = (
   suite: string,
@@ -58,8 +64,9 @@ const lintFixtures = (
 };
 
 const localLinter = new Linter();
-const localConfig = (options: Record<string, boolean>): Linter.Config =>
-  lintConfig({ analysis: 'local', options });
+const localConfig = (options: Record<string, boolean>): Linter.Config => {
+  return lintConfig({ analysis: 'local', options });
+};
 
 for (const kind of ['valid', 'invalid']) {
   lintFixtures(
@@ -71,45 +78,57 @@ for (const kind of ['valid', 'invalid']) {
 }
 
 const projectLinter = new Linter({ cwd: projectDirectory });
-const projectLanguageOptions = lintConfig({
-  analysis: 'project',
-  directory: projectDirectory
-}).languageOptions;
-const projectConfig = (options: Record<string, boolean>): Linter.Config =>
-  lintConfig({ analysis: 'project', directory: projectDirectory, options });
+const projectConfig = (options: Record<string, boolean>): Linter.Config => {
+  return lintConfig({
+    analysis: 'project',
+    directory: projectDirectory,
+    options
+  });
+};
 
 test('project fixture index builds', () => {
   let program: Program | undefined;
   const filename = join(projectDirectory, 'src', 'unread-members.component.ts');
+  const captureProgram: TSESLint.AnyRuleCreateFunction = (context) => {
+    program = context.sourceCode.parserServices?.program ?? undefined;
 
-  projectLinter.verify(
-    readFileSync(filename, 'utf8'),
-    {
-      files: ['**/*.ts'],
-      languageOptions: projectLanguageOptions,
-      plugins: {
-        probe: {
-          rules: {
-            program: {
-              create(context) {
-                program = (
-                  context.sourceCode as unknown as {
-                    parserServices?: { program?: Program };
-                  }
-                ).parserServices?.program;
+    const noListeners: TSESLint.RuleListener = {};
 
-                const noListeners = {};
+    return noListeners;
+  };
 
-                return noListeners;
-              }
-            }
-          }
-        }
-      },
-      rules: { 'probe/program': 'error' }
-    },
-    { filename }
-  );
+  const probeMeta: TSESLint.AnyRuleModule['meta'] = {
+    type: 'problem',
+    messages: {},
+    schema: []
+  };
+  const probeRule: TSESLint.AnyRuleModule = {
+    meta: probeMeta,
+    create: captureProgram
+  };
+  const probeRules = { program: probeRule };
+  const probePlugin: TSESLint.FlatConfig.Plugin = { rules: probeRules };
+  const plugins = { probe: probePlugin };
+  const rules: TSESLint.FlatConfig.Rules = { 'probe/program': 'error' };
+  const parserOptions = {
+    projectService: true,
+    tsconfigRootDir: projectDirectory
+  };
+  const languageOptions: TSESLint.FlatConfig.LanguageOptions = {
+    ecmaVersion: 'latest',
+    parser: tseslint.parser,
+    parserOptions,
+    sourceType: 'module'
+  };
+  const probeConfig: TSESLint.FlatConfig.Config = {
+    files: ['**/*.ts'],
+    languageOptions,
+    plugins,
+    rules
+  };
+  const probeLinter = new TSESLint.Linter({ cwd: projectDirectory });
+
+  probeLinter.verify(readFileSync(filename, 'utf8'), probeConfig, { filename });
 
   assert.ok(program, 'parser services must expose a program');
   assert.notEqual(projectUsage(program), null, 'project index must build');

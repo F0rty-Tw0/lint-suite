@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import { Linter } from 'eslint';
+import type { RuleTester } from 'eslint';
 
 import { component } from '../utils/component-source.spec.util.js';
 import {
@@ -20,25 +21,28 @@ const projectTester = projectRuleTester(projectDirectory);
 
 test('requires parser services for project analysis', () => {
   const linter = new Linter();
+  const lintProjectComponent = (): void => {
+    const source = component(`private readonly unread = 'unused';`);
+    const config = lintConfig({ analysis: 'project' });
 
-  assert.throws(
-    () =>
-      linter.verify(
-        component(`private readonly unread = 'unused';`),
-        lintConfig({ analysis: 'project' }),
-        { filename: 'component.ts' }
-      ),
-    /parser services/i
-  );
+    linter.verify(source, config, { filename: 'component.ts' });
+  };
+
+  assert.throws(lintProjectComponent, /parser services/i);
 });
 
-projectTester.run(ruleName, rule, {
-  valid: [
-    {
-      name: 'excludes spec files from project-mode reports',
-      ...fixtureCase(projectDirectory, 'project-excluded.spec.ts'),
-      options: [{ analysis: 'project' }]
-    }
-  ],
-  invalid: []
-});
+const projectAnalysis = { analysis: 'project' };
+const options = [projectAnalysis];
+const excludedSpecCase = fixtureCase(
+  projectDirectory,
+  'project-excluded.spec.ts'
+);
+const excludesSpecFiles: RuleTester.ValidTestCase = {
+  name: 'excludes spec files from project-mode reports',
+  ...excludedSpecCase,
+  options
+};
+const valid = [excludesSpecFiles];
+const invalid: RuleTester.InvalidTestCase[] = [];
+
+projectTester.run(ruleName, rule, { valid, invalid });

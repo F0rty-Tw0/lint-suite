@@ -1,10 +1,3 @@
-/*
- * Editor-style sessions: one Linter with a live project service lints files
- * whose contents change between calls. Every edit hands the rule a new
- * Program, so these tests pin down that the project index is updated
- * incrementally and stays exact across edits to the linted file, to files
- * that read it, to external templates, and to directive metadata.
- */
 import assert from 'node:assert/strict';
 import { afterAll, beforeAll, describe, test } from 'vitest';
 
@@ -27,8 +20,9 @@ import {
 let project: ReturnType<typeof createIncrementalProject>;
 
 const lint = (name: string, code: string): string[] => project.lint(name, code);
-const touch = (name: string, content: string): void =>
+const touch = (name: string, content: string): void => {
   project.touch(name, content);
+};
 
 beforeAll(() => {
   project = createIncrementalProject();

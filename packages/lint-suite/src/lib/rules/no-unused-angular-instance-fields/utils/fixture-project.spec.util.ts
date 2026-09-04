@@ -13,8 +13,9 @@ type FixtureProject = {
   readonly dispose: () => void;
 };
 
-export const fixtureDirectory = (name: string): string =>
-  join(import.meta.dirname, '..', 'common', 'fixtures', name);
+export const fixtureDirectory = (name: string): string => {
+  return join(import.meta.dirname, '..', 'common', 'fixtures', name);
+};
 
 export const fixtureCase = (directory: string, file: string): FixtureCase => {
   const filename = join(directory, file);
