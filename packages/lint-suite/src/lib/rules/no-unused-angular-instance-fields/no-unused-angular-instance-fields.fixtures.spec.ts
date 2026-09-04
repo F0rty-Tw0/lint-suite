@@ -98,7 +98,9 @@ test('project fixture index builds', () => {
                   }
                 ).parserServices?.program;
 
-                return {};
+                const noListeners = {};
+
+                return noListeners;
               }
             }
           }

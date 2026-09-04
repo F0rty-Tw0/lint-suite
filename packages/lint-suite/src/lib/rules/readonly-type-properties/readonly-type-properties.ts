@@ -65,7 +65,7 @@ export default createRule<Options, MessageIds>({
   create(context) {
     const { sourceCode } = context;
 
-    return {
+    const listeners: TSESLint.RuleListener = {
       TSPropertySignature(node): void {
         if (node.readonly || !node.typeAnnotation) return;
 
@@ -85,5 +85,7 @@ export default createRule<Options, MessageIds>({
         });
       }
     };
+
+    return listeners;
   }
 });
