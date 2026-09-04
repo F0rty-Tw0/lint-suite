@@ -7,7 +7,7 @@ Thank you for your interest in contributing to Lint Suite! This document provide
 ### Prerequisites
 
 - Node.js (v22 or higher)
-- pnpm (v10 or higher)
+- pnpm v11 or higher
 
 ### Setup
 
@@ -15,6 +15,17 @@ Thank you for your interest in contributing to Lint Suite! This document provide
 2. Clone your fork: `git clone https://github.com/your-username/lint-suite.git`
 3. Navigate to the project directory: `cd lint-suite`
 4. Install dependencies: `pnpm install`
+
+### Dependency Management
+
+Published dependency versions are grouped by exported configuration in `pnpm-workspace.yaml`; root development dependencies are isolated in the `dev` catalog. Update an existing version there, then run `pnpm install` to refresh the lockfile.
+
+The workspace uses strict catalog mode. Add new dependencies to the matching catalog and target manifest together with `--save-catalog-name`:
+
+```bash
+pnpm add --save-dev --save-catalog-name=dev <package>
+pnpm --filter lint-suite add --save-catalog-name=<catalog> <package>
+```
 
 ## Development Workflow
 
