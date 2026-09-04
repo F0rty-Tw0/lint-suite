@@ -1,66 +1,20 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
-import type { JSONSchema, TSESLint } from '@typescript-eslint/utils';
+import type { TSESLint } from '@typescript-eslint/utils';
 
-type Accessibility = 'private' | 'protected' | 'public';
-type FixAccessibility = Accessibility | 'none';
-type Options = [{ readonly defaultAccessibility?: FixAccessibility }];
-type MessageIds = 'missingAccessibility' | 'setAccessibility';
-type Member =
-  | TSESTree.AccessorProperty
-  | TSESTree.MethodDefinition
-  | TSESTree.PropertyDefinition
-  | TSESTree.TSAbstractAccessorProperty
-  | TSESTree.TSAbstractMethodDefinition
-  | TSESTree.TSAbstractPropertyDefinition
-  | TSESTree.TSParameterProperty;
-type Fix = (fixer: TSESLint.RuleFixer) => TSESLint.RuleFix | null;
-type AutoFix = { readonly fix?: Fix };
-
-const accessibilities: readonly Accessibility[] = [
-  'public',
-  'private',
-  'protected'
-];
-
-const docs: TSESLint.RuleMetaDataDocs = {
-  description: 'Require explicit accessibility modifiers on class members'
-};
-
-const messages: Record<MessageIds, string> = {
-  missingAccessibility:
-    "Class member '{{ name }}' is missing an explicit accessibility modifier (public/private/protected).",
-  setAccessibility: "Add the '{{ accessibility }}' modifier."
-};
-
-const defaultAccessibilitySchema: JSONSchema.JSONSchema4 = {
-  type: 'string',
-  enum: ['public', 'private', 'protected', 'none'],
-  description:
-    "The accessibility modifier inserted by the auto-fix; constructors always get public. 'none' reports without an auto-fix and offers all three levels as suggestions."
-};
-
-const properties: Record<string, JSONSchema.JSONSchema4> = {
-  defaultAccessibility: defaultAccessibilitySchema
-};
-
-const optionsSchema: JSONSchema.JSONSchema4 = {
-  type: 'object',
-  properties,
-  additionalProperties: false
-};
-
-const schema: JSONSchema.JSONSchema4[] = [optionsSchema];
-
-const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
-  type: 'suggestion',
-  docs,
-  fixable: 'code',
-  hasSuggestions: true,
-  schema,
-  messages
-};
-
-const defaultOptions: Options = [{ defaultAccessibility: 'public' }];
+import {
+  accessibilities,
+  defaultOptions,
+  meta
+} from './common/explicit-accessibility.const.ts';
+import type {
+  Accessibility,
+  AutoFix,
+  Fix,
+  FixAccessibility,
+  Member,
+  MessageIds,
+  Options
+} from './common/explicit-accessibility.type.ts';
 
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/F0rty-Tw0/lint-suite#explicit-accessibility'
@@ -85,10 +39,7 @@ const reportTarget = (node: Member): TSESTree.Node => {
 
   const { parameter } = node;
 
-  if (
-    parameter.type === TSESTree.AST_NODE_TYPES.AssignmentPattern &&
-    parameter.left.type === TSESTree.AST_NODE_TYPES.Identifier
-  ) {
+  if (parameter.type === TSESTree.AST_NODE_TYPES.AssignmentPattern) {
     return parameter.left;
   }
 
@@ -148,6 +99,40 @@ const autoFixOf = (
   return autoFix;
 };
 
+const suggestionOf = (
+  node: Member,
+  accessibility: Accessibility,
+  sourceCode: TSESLint.SourceCode
+): TSESLint.SuggestionReportDescriptor<MessageIds> => {
+  const data = { accessibility };
+  const fix = insertModifier(node, accessibility, sourceCode);
+  const suggestion: TSESLint.SuggestionReportDescriptor<MessageIds> = {
+    messageId: 'setAccessibility',
+    data,
+    fix
+  };
+
+  return suggestion;
+};
+
+const suggestionsOf = (
+  node: Member,
+  fixAccessibility: FixAccessibility,
+  sourceCode: TSESLint.SourceCode
+): TSESLint.SuggestionReportDescriptor<MessageIds>[] => {
+  const isOtherAccessibility = (accessibility: Accessibility): boolean => {
+    return accessibility !== fixAccessibility;
+  };
+
+  const suggestionFor = (
+    accessibility: Accessibility
+  ): TSESLint.SuggestionReportDescriptor<MessageIds> => {
+    return suggestionOf(node, accessibility, sourceCode);
+  };
+
+  return accessibilities.filter(isOtherAccessibility).map(suggestionFor);
+};
+
 export default createRule<Options, MessageIds>({
   name: 'explicit-accessibility',
   meta,
@@ -166,31 +151,10 @@ export default createRule<Options, MessageIds>({
       const fixAccessibility: FixAccessibility = usesPublic
         ? 'public'
         : defaultAccessibility;
-
-      const suggestionFor = (
-        accessibility: Accessibility
-      ): TSESLint.SuggestionReportDescriptor<MessageIds> => {
-        const data = { accessibility };
-        const fix = insertModifier(node, accessibility, sourceCode);
-        const suggestion: TSESLint.SuggestionReportDescriptor<MessageIds> = {
-          messageId: 'setAccessibility',
-          data,
-          fix
-        };
-
-        return suggestion;
-      };
-
-      const isOtherAccessibility = (accessibility: Accessibility): boolean => {
-        return accessibility !== fixAccessibility;
-      };
-
       const autoFix = autoFixOf(node, fixAccessibility, sourceCode);
       const name = memberName(target, sourceCode);
       const data = { name };
-      const suggest = accessibilities
-        .filter(isOtherAccessibility)
-        .map(suggestionFor);
+      const suggest = suggestionsOf(node, fixAccessibility, sourceCode);
       const report: TSESLint.ReportDescriptor<MessageIds> = {
         node: target,
         messageId: 'missingAccessibility',

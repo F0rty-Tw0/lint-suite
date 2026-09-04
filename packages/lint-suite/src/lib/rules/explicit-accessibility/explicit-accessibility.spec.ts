@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
-import { describe, test } from 'vitest';
 
 import { RuleTester } from 'eslint';
 import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
+import { describe, test } from 'vitest';
 
 import {
   accessibilityError,
   inClass,
   member,
   suggestion
-} from './utils/explicit-accessibility-cases.spec.util.js';
-import { typescript } from '../../typescript.js';
+} from './utils/explicit-accessibility-cases.spec.util.ts';
+import { typescript } from '../../typescript.ts';
 
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
   ?.rules?.['explicit-accessibility'];
