@@ -117,7 +117,9 @@ export const fieldCandidate = (
   node: TSESTree.ClassElement,
   options: FieldCandidateOptions
 ): MemberCandidate | null => {
-  if (!isInstanceField(node)) return null;
+  const isField = isInstanceField(node);
+
+  if (!isField) return null;
 
   const { localPrivateOnly, sourceCode } = options;
   const isExcluded = isExcludedField(node, localPrivateOnly, sourceCode);
@@ -147,7 +149,9 @@ export const methodCandidate = (
   localPrivateOnly: boolean,
   implementedMethods: Set<string>
 ): MemberCandidate | null => {
-  if (!isInstanceMethod(node)) return null;
+  const isMethod = isInstanceMethod(node);
+
+  if (!isMethod) return null;
 
   const isExcluded = isExcludedMethod(
     node,

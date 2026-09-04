@@ -122,9 +122,12 @@ export const metadataReads = (
   options: MetadataReadsOptions
 ): Set<string> | null => {
   const { filename, metadata } = options;
-  const hasUnreadableKey = metadata.properties.some(
-    (property) => key(property) === null
-  );
+  const isUnreadableKey = (
+    property: TSESTree.ObjectLiteralElement
+  ): boolean => {
+    return key(property) === null;
+  };
+  const hasUnreadableKey = metadata.properties.some(isUnreadableKey);
 
   if (hasUnreadableKey) return null;
 
@@ -136,9 +139,8 @@ export const metadataReads = (
 
   if (!options.component) return reads;
 
-  const hasRemainingReads = options.remainingNames.every((name) =>
-    reads.has(name)
-  );
+  const isRead = (name: string): boolean => reads.has(name);
+  const hasRemainingReads = options.remainingNames.every(isRead);
 
   if (hasRemainingReads) return reads;
 

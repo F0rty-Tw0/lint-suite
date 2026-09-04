@@ -41,9 +41,7 @@ export const templateReads = (
   }
 };
 
-export const externalTemplateReads = (
-  filename: string
-): Set<string> | null => {
+export const externalTemplateReads = (filename: string): Set<string> | null => {
   try {
     const stats = statSync(filename, { bigint: true });
     const version = `${stats.mtimeNs}:${stats.size}`;

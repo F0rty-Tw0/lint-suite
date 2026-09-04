@@ -100,13 +100,21 @@ export const isManagedField = (
   if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) return false;
 
   const name = angularName(node.value.callee, imports);
-  const isManagedApi = typeof name === 'string' && managedApis.has(name);
+  const isString = typeof name === 'string';
 
-  return (
-    isManagedApi ||
-    (allowEffectFields &&
-      name === 'effect' &&
-      isImportBinding(node.value.callee, sourceCode) &&
-      hasAutomaticEffectCleanup(node.value))
-  );
+  if (!isString) return false;
+
+  const isManagedApi = managedApis.has(name);
+
+  if (isManagedApi) return true;
+
+  if (!allowEffectFields) return false;
+
+  if (name !== 'effect') return false;
+
+  const isImported = isImportBinding(node.value.callee, sourceCode);
+
+  if (!isImported) return false;
+
+  return hasAutomaticEffectCleanup(node.value);
 };

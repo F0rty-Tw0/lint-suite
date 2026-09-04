@@ -1,8 +1,6 @@
 import { TSESTree } from '@typescript-eslint/utils';
 
-export const text = (
-  node: TSESTree.Node | null | undefined
-): string | null => {
+export const text = (node: TSESTree.Node | null | undefined): string | null => {
   if (
     node?.type === TSESTree.AST_NODE_TYPES.Literal &&
     typeof node.value === 'string'
@@ -19,9 +17,7 @@ export const text = (
   return node.quasis[0].value.cooked;
 };
 
-export const key = (
-  property: TSESTree.ObjectLiteralElement
-): string | null => {
+export const key = (property: TSESTree.ObjectLiteralElement): string | null => {
   if (property.type !== TSESTree.AST_NODE_TYPES.Property || property.computed) {
     return null;
   }

@@ -138,7 +138,8 @@ export const angularClassImports = (
     const isNamespaceImport = imported === null;
     const isComponent = imported === 'Component';
     const isDirective = imported === 'Directive';
-    const isAngularClassImport = isNamespaceImport || isComponent || isDirective;
+    const isAngularClassImport =
+      isNamespaceImport || isComponent || isDirective;
 
     if (isAngularClassImport) return imports;
   }
