@@ -44,24 +44,32 @@ const member = (
   options?: { defaultAccessibility: Accessibility | 'none' },
   fixAccessibility: Accessibility | 'none' = options?.defaultAccessibility ??
     'public'
-) => ({
-  code: render(''),
-  ...(options ? { options: [options] } : {}),
-  output: fixAccessibility === 'none' ? null : render(`${fixAccessibility} `),
-  errors: [
-    {
-      messageId: 'missingAccessibility',
-      data: { name },
-      suggestions: accessibilities
-        .filter((accessibility) => accessibility !== fixAccessibility)
-        .map((accessibility) => ({
-          messageId: 'setAccessibility',
-          data: { accessibility },
-          output: render(`${accessibility} `)
-        }))
-    }
-  ]
-});
+) => {
+  const testCase = {
+    code: render(''),
+    ...(options ? { options: [options] } : {}),
+    output: fixAccessibility === 'none' ? null : render(`${fixAccessibility} `),
+    errors: [
+      {
+        messageId: 'missingAccessibility',
+        data: { name },
+        suggestions: accessibilities
+          .filter((accessibility) => accessibility !== fixAccessibility)
+          .map((accessibility) => {
+            const suggestion = {
+              messageId: 'setAccessibility',
+              data: { accessibility },
+              output: render(`${accessibility} `)
+            };
+
+            return suggestion;
+          })
+      }
+    ]
+  };
+
+  return testCase;
+};
 
 ruleTester.run('local/explicit-accessibility', rule, {
   valid: [

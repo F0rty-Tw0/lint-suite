@@ -127,15 +127,20 @@ export default createRule<Options, MessageIds>({
           : { fix: insertModifier(node, fixAccessibility, sourceCode) }),
         suggest: accessibilities
           .filter((accessibility) => accessibility !== fixAccessibility)
-          .map((accessibility) => ({
-            messageId: 'setAccessibility',
-            data: { accessibility },
-            fix: insertModifier(node, accessibility, sourceCode)
-          }))
+          .map((accessibility) => {
+            const suggestion: TSESLint.SuggestionReportDescriptor<MessageIds> =
+              {
+                messageId: 'setAccessibility',
+                data: { accessibility },
+                fix: insertModifier(node, accessibility, sourceCode)
+              };
+
+            return suggestion;
+          })
       });
     };
 
-    return {
+    const listeners: TSESLint.RuleListener = {
       AccessorProperty: check,
       MethodDefinition: check,
       PropertyDefinition: check,
@@ -144,5 +149,7 @@ export default createRule<Options, MessageIds>({
       TSAbstractPropertyDefinition: check,
       TSParameterProperty: check
     };
+
+    return listeners;
   }
 });

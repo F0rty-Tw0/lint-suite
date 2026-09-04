@@ -1,4 +1,5 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
+import type { TSESLint } from '@typescript-eslint/utils';
 
 type Options = [];
 type MessageIds = 'inlineObjectType';
@@ -39,7 +40,7 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    return {
+    const listeners: TSESLint.RuleListener = {
       TSTypeLiteral(node): void {
         if (
           node.parent.type !== TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration &&
@@ -49,5 +50,7 @@ export default createRule<Options, MessageIds>({
         }
       }
     };
+
+    return listeners;
   }
 });
