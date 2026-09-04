@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-09-04
+
 ### Changed
 
 - **Angular**: `lint-suite-angular/no-unused-instance-fields` project analysis now keeps an incremental
@@ -316,8 +318,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.1...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.2...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[1.6.2]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.4.0...v1.5.0
