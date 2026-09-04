@@ -1,13 +1,13 @@
 import { configs } from '@nx/eslint-plugin';
+import { defineConfig } from 'eslint/config';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import importPluginX from 'eslint-plugin-import-x';
-import { defineConfig } from 'eslint/config';
 import type { CompatibleConfigArray } from 'typescript-eslint';
 
-import explicitAccessibilityRule from './rules/explicit-accessibility/explicit-accessibility.js';
-import noInlineObjectTypesRule from './rules/no-inline-object-types/no-inline-object-types.js';
-import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.js';
-import { definePlugin } from './rules/define-plugin.util.js';
+import { definePlugin } from './rules/define-plugin.util.ts';
+import explicitAccessibilityRule from './rules/explicit-accessibility/explicit-accessibility.ts';
+import noInlineObjectTypesRule from './rules/no-inline-object-types/no-inline-object-types.ts';
+import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.ts';
 
 const nxTypescript: CompatibleConfigArray = configs['flat/typescript'];
 
@@ -123,9 +123,13 @@ export const typescript = defineConfig([
       '@typescript-eslint/naming-convention': [
         'error',
         {
-          selector: 'objectLiteralProperty',
+          selector: ['objectLiteralProperty', 'objectLiteralMethod'],
           modifiers: ['requiresQuotes'],
           format: null
+        },
+        {
+          selector: 'objectLiteralMethod',
+          format: ['camelCase', 'PascalCase']
         },
         {
           selector: 'objectLiteralProperty',
@@ -208,6 +212,11 @@ export const typescript = defineConfig([
           alphabetize: { order: 'asc', caseInsensitive: true }
         }
       ],
+      // TypeScript already checks these four; import-x would re-parse every import with a parser resolved by name, which fails under pnpm.
+      'import-x/namespace': 'off',
+      'import-x/default': 'off',
+      'import-x/no-named-as-default': 'off',
+      'import-x/no-named-as-default-member': 'off',
       'import-x/no-unresolved': 'error',
       'import-x/no-duplicates': 'error',
       'import-x/prefer-default-export': 'off',

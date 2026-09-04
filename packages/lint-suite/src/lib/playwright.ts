@@ -1,5 +1,5 @@
-import playwrightEslint from 'eslint-plugin-playwright';
 import { defineConfig } from 'eslint/config';
+import playwrightEslint from 'eslint-plugin-playwright';
 
 export const playwright = defineConfig([
   {

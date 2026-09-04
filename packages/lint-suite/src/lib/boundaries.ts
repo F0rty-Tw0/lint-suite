@@ -1,5 +1,5 @@
-import boundariesPlugin from 'eslint-plugin-boundaries';
 import { defineConfig } from 'eslint/config';
+import boundariesPlugin from 'eslint-plugin-boundaries';
 
 export const boundaries = defineConfig([
   {

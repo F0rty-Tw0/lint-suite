@@ -1,5 +1,5 @@
-import storybookEslint from 'eslint-plugin-storybook';
 import { defineConfig } from 'eslint/config';
+import storybookEslint from 'eslint-plugin-storybook';
 
 export const storybook = defineConfig([
   {
