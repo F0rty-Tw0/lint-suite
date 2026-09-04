@@ -54,18 +54,22 @@ export const lintConfig = ({
   analysis,
   directory,
   options
-}: LintConfigOptions): Linter.Config => ({
-  ...LINTER_CONFIG_STUB,
-  languageOptions: {
-    ...LINTER_CONFIG_STUB.languageOptions,
-    ...(directory === undefined
-      ? {}
-      : {
-          parserOptions: { projectService: true, tsconfigRootDir: directory }
-        })
-  },
-  plugins: {
-    'lint-suite-angular': { rules: { 'no-unused-instance-fields': rule } }
-  },
-  rules: { [ruleName]: ['error', { analysis, ...options }] }
-});
+}: LintConfigOptions): Linter.Config => {
+  const linterConfig: Linter.Config = {
+    ...LINTER_CONFIG_STUB,
+    languageOptions: {
+      ...LINTER_CONFIG_STUB.languageOptions,
+      ...(directory === undefined
+        ? {}
+        : {
+            parserOptions: { projectService: true, tsconfigRootDir: directory }
+          })
+    },
+    plugins: {
+      'lint-suite-angular': { rules: { 'no-unused-instance-fields': rule } }
+    },
+    rules: { [ruleName]: ['error', { analysis, ...options }] }
+  };
+
+  return linterConfig;
+};

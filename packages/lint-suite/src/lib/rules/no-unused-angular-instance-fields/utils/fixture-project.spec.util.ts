@@ -19,7 +19,12 @@ export const fixtureDirectory = (name: string): string =>
 export const fixtureCase = (directory: string, file: string): FixtureCase => {
   const filename = join(directory, file);
 
-  return { code: readFileSync(filename, 'utf8'), filename };
+  const testCase: FixtureCase = {
+    code: readFileSync(filename, 'utf8'),
+    filename
+  };
+
+  return testCase;
 };
 
 export const copyFixtureProject = (
@@ -30,11 +35,13 @@ export const copyFixtureProject = (
 
   cpSync(fixtureDirectory(name), directory, { recursive: true });
 
-  return {
+  const fixtureProject: FixtureProject = {
     directory,
     file: (file: string): string => join(directory, file),
     dispose: (): void => {
       rmSync(directory, { force: true, recursive: true });
     }
   };
+
+  return fixtureProject;
 };

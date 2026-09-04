@@ -170,7 +170,7 @@ export const createIncrementalProject = (): IncrementalProject => {
   });
   const linter = new Linter({ cwd: projectDirectory });
 
-  return {
+  const incrementalProject: IncrementalProject = {
     projectDirectory,
     linter,
     file,
@@ -184,4 +184,6 @@ export const createIncrementalProject = (): IncrementalProject => {
     },
     dispose: project.dispose
   };
+
+  return incrementalProject;
 };
