@@ -12,10 +12,6 @@ import type {
   TypeChecker
 } from 'typescript';
 
-import type {
-  CandidateNames,
-  ReadSink
-} from '../common/project-usage.type.ts';
 import { collectAngularInterfaceMethods } from './typescript-angular-interface-methods.ts';
 import { collectDestructuringReads } from './typescript-destructuring-reads.ts';
 import {
@@ -24,6 +20,7 @@ import {
   literalPropertyNames
 } from './typescript-symbol-reads.ts';
 import { isWriteOnly } from './typescript-write-targets.ts';
+import type { CandidateNames, ReadSink } from '../common/project-usage.type.ts';
 
 const addPropertyAccessRead = (
   node: PropertyAccessExpression,

@@ -1,43 +1,36 @@
 import {
   SyntaxKind,
-  isArrayBindingPattern,
   isArrayLiteralExpression,
   isBinaryExpression,
   isBindingElement,
-  isIdentifier,
-  isObjectBindingPattern,
   isObjectLiteralExpression,
-  isOmittedExpression,
-  isPropertyAssignment,
-  isSpreadAssignment,
-  isSpreadElement,
   isVariableDeclaration
 } from 'typescript';
-import type {
-  ArrayLiteralExpression,
-  BindingElement,
-  BindingPattern,
-  Node,
-  ObjectLiteralExpression,
-  Type,
-  TypeChecker
-} from 'typescript';
+import type { Node, Type, TypeChecker } from 'typescript';
 
+import { assignmentPatternElements } from './typescript-assignment-pattern-elements.ts';
+import {
+  bindingPatternElements,
+  isBindingPattern
+} from './typescript-binding-pattern-elements.ts';
 import {
   addNamedProperties,
   addSymbolDeclarations,
-  allPropertySymbols,
-  propertyName
+  allPropertySymbols
 } from './typescript-symbol-reads.ts';
-import type { CandidateNames, ReadSink } from '../common/project-usage.type.ts';
+import type {
+  CandidateNames,
+  DestructuringPattern,
+  PatternElementRead,
+  ReadSink
+} from '../common/project-usage.type.ts';
 
 type LazyType = () => Type;
 
-const isBindingPattern = (node: Node): node is BindingPattern => {
-  const isArrayPattern = isArrayBindingPattern(node);
-  const isObjectPattern = isObjectBindingPattern(node);
-
-  return isArrayPattern || isObjectPattern;
+type PatternReadContext = {
+  readonly checker: TypeChecker;
+  readonly sink: ReadSink;
+  readonly candidateNames: CandidateNames;
 };
 
 const lazyType = (compute: () => Type): LazyType => {
@@ -46,237 +39,112 @@ const lazyType = (compute: () => Type): LazyType => {
   return () => (type ??= compute());
 };
 
-const skippable = (
-  names: string[] | null,
-  nested: boolean,
+const isSkippable = (
+  read: PatternElementRead,
   candidateNames: CandidateNames
 ): boolean => {
-  if (nested) return false;
+  if (read.nested !== null) return false;
 
-  if (names === null) return false;
+  if (read.names === null) return false;
 
-  const hasCandidateName = names.some((name) => candidateNames.has(name));
+  const hasCandidateName = read.names.some((name) => candidateNames.has(name));
 
   return !hasCandidateName;
 };
 
-const bindingNames = (
-  checker: TypeChecker,
-  element: BindingElement
-): string[] | null => {
-  if (element.propertyName) return propertyName(checker, element.propertyName);
+const patternElements = (
+  pattern: DestructuringPattern,
+  checker: TypeChecker
+): PatternElementRead[] => {
+  const isBinding = isBindingPattern(pattern);
 
-  const isIdentifierName = isIdentifier(element.name);
+  if (isBinding) return bindingPatternElements(pattern, checker);
 
-  if (!isIdentifierName) return null;
-
-  return [element.name.text];
+  return assignmentPatternElements(pattern, checker);
 };
 
-const collectBindingPattern = (
-  pattern: BindingPattern,
-  type: LazyType,
-  checker: TypeChecker,
-  sink: ReadSink,
-  candidateNames: CandidateNames
+const addRestReads = (
+  type: Type,
+  consumed: Set<string>,
+  context: PatternReadContext
 ): void => {
-  const isArrayPattern = isArrayBindingPattern(pattern);
+  context.sink.addType(type);
 
-  if (isArrayPattern) {
-    for (const [index, element] of pattern.elements.entries()) {
-      const isOmitted = isOmittedExpression(element);
+  for (const symbol of allPropertySymbols(context.checker, type)) {
+    const isConsumed = consumed.has(symbol.name);
 
-      if (isOmitted) continue;
+    if (isConsumed) continue;
 
-      const indexNames = [String(index)];
-      const names = element.dotDotDotToken ? null : indexNames;
-      const nested = isBindingPattern(element.name);
-      const isSkippable = skippable(names, nested, candidateNames);
-
-      if (isSkippable) continue;
-
-      const symbols = addNamedProperties(checker, type(), names, sink);
-
-      if (nested) {
-        for (const symbol of symbols) {
-          collectBindingPattern(
-            element.name,
-            lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
-            checker,
-            sink,
-            candidateNames
-          );
-        }
-      }
-    }
-
-    return;
+    addSymbolDeclarations(context.checker, symbol, context.sink);
   }
+};
 
+const collectPatternReads = (
+  pattern: DestructuringPattern,
+  type: LazyType,
+  context: PatternReadContext
+): void => {
+  const { checker, sink, candidateNames } = context;
   const consumed = new Set<string>();
+  const reads = patternElements(pattern, checker);
 
-  for (const element of pattern.elements) {
-    if (element.dotDotDotToken) {
-      sink.addType(type());
-
-      for (const symbol of allPropertySymbols(checker, type())) {
-        const isConsumed = consumed.has(symbol.name);
-
-        if (!isConsumed) {
-          addSymbolDeclarations(checker, symbol, sink);
-        }
-      }
+  for (const read of reads) {
+    if (read.rest) {
+      addRestReads(type(), consumed, context);
       continue;
     }
 
-    const names = bindingNames(checker, element);
-
-    for (const name of names ?? []) {
+    for (const name of read.names ?? []) {
       consumed.add(name);
     }
 
-    const nested = isBindingPattern(element.name);
-    const isSkippable = skippable(names, nested, candidateNames);
+    const skip = isSkippable(read, candidateNames);
 
-    if (isSkippable) continue;
+    if (skip) continue;
 
-    const symbols = addNamedProperties(checker, type(), names, sink);
+    const symbols = addNamedProperties(checker, type(), read.names, sink);
+    const nested = read.nested;
 
-    if (nested) {
-      for (const symbol of symbols) {
-        collectBindingPattern(
-          element.name,
-          lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
-          checker,
-          sink,
-          candidateNames
-        );
-      }
+    if (nested === null) continue;
+
+    for (const symbol of symbols) {
+      const nestedType = lazyType(() => {
+        return checker.getTypeOfSymbolAtLocation(symbol, read.location);
+      });
+
+      collectPatternReads(nested, nestedType, context);
     }
   }
 };
 
-const collectAssignmentPattern = (
-  pattern: ArrayLiteralExpression | ObjectLiteralExpression,
-  type: LazyType,
-  checker: TypeChecker,
-  sink: ReadSink,
-  candidateNames: CandidateNames
-): void => {
-  const isArrayPattern = isArrayLiteralExpression(pattern);
+const collectBindingReads = (node: Node, context: PatternReadContext): void => {
+  const isBinding = isBindingPattern(node);
 
-  if (isArrayPattern) {
-    for (const [index, element] of pattern.elements.entries()) {
-      const isOmitted = isOmittedExpression(element);
+  if (!isBinding) return;
 
-      if (isOmitted) continue;
+  const isBindingElementParent = isBindingElement(node.parent);
+  const isNestedBindingName =
+    isBindingElementParent && node.parent.name === node;
 
-      const indexNames = [String(index)];
-      const names = isSpreadElement(element) ? null : indexNames;
-      const nested =
-        isArrayLiteralExpression(element) || isObjectLiteralExpression(element);
-      const isSkippable = skippable(names, nested, candidateNames);
+  if (isNestedBindingName) return;
 
-      if (isSkippable) continue;
+  const declaration = node.parent;
+  const isDeclaration = isVariableDeclaration(declaration);
+  const isInitializedDeclaration =
+    isDeclaration && declaration.initializer !== undefined;
+  const source = isInitializedDeclaration
+    ? declaration.initializer
+    : declaration;
+  const sourceTypeOf = (): Type => context.checker.getTypeAtLocation(source);
+  const sourceType = lazyType(sourceTypeOf);
 
-      const symbols = addNamedProperties(checker, type(), names, sink);
-
-      if (nested) {
-        for (const symbol of symbols) {
-          collectAssignmentPattern(
-            element,
-            lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, element)),
-            checker,
-            sink,
-            candidateNames
-          );
-        }
-      }
-    }
-
-    return;
-  }
-
-  const consumed = new Set<string>();
-
-  for (const property of pattern.properties) {
-    const isSpread = isSpreadAssignment(property);
-
-    if (isSpread) {
-      sink.addType(type());
-
-      for (const symbol of allPropertySymbols(checker, type())) {
-        const isConsumed = consumed.has(symbol.name);
-
-        if (!isConsumed) {
-          addSymbolDeclarations(checker, symbol, sink);
-        }
-      }
-      continue;
-    }
-
-    const names = propertyName(checker, property.name);
-
-    for (const name of names ?? []) {
-      consumed.add(name);
-    }
-
-    const nested =
-      isPropertyAssignment(property) &&
-      (isArrayLiteralExpression(property.initializer) ||
-        isObjectLiteralExpression(property.initializer));
-    const isSkippable = skippable(names, nested, candidateNames);
-
-    if (isSkippable) continue;
-
-    const symbols = addNamedProperties(checker, type(), names, sink);
-
-    if (nested) {
-      for (const symbol of symbols) {
-        collectAssignmentPattern(
-          property.initializer,
-          lazyType(() => checker.getTypeOfSymbolAtLocation(symbol, property)),
-          checker,
-          sink,
-          candidateNames
-        );
-      }
-    }
-  }
+  collectPatternReads(node, sourceType, context);
 };
 
-export const collectDestructuringReads = (
+const collectAssignmentReads = (
   node: Node,
-  checker: TypeChecker,
-  sink: ReadSink,
-  candidateNames: CandidateNames
+  context: PatternReadContext
 ): void => {
-  const isPattern = isBindingPattern(node);
-
-  if (isPattern) {
-    const isBindingElementParent = isBindingElement(node.parent);
-    const isNestedBindingName =
-      isBindingElementParent && node.parent.name === node;
-
-    if (isNestedBindingName) return;
-
-    const declaration = node.parent;
-    const source =
-      isVariableDeclaration(declaration) && declaration.initializer
-        ? declaration.initializer
-        : declaration;
-
-    collectBindingPattern(
-      node,
-      lazyType(() => checker.getTypeAtLocation(source)),
-      checker,
-      sink,
-      candidateNames
-    );
-
-    return;
-  }
-
   const isBinary = isBinaryExpression(node);
 
   if (!isBinary) return;
@@ -291,11 +159,20 @@ export const collectDestructuringReads = (
 
   if (!isDestructuringAssignment) return;
 
-  collectAssignmentPattern(
-    node.left,
-    lazyType(() => checker.getTypeAtLocation(node.right)),
-    checker,
-    sink,
-    candidateNames
-  );
+  const rightTypeOf = (): Type => context.checker.getTypeAtLocation(node.right);
+  const sourceType = lazyType(rightTypeOf);
+
+  collectPatternReads(node.left, sourceType, context);
+};
+
+export const collectDestructuringReads = (
+  node: Node,
+  checker: TypeChecker,
+  sink: ReadSink,
+  candidateNames: CandidateNames
+): void => {
+  const context: PatternReadContext = { checker, sink, candidateNames };
+
+  collectBindingReads(node, context);
+  collectAssignmentReads(node, context);
 };

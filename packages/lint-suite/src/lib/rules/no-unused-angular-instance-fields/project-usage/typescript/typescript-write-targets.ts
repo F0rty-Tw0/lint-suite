@@ -55,19 +55,22 @@ const isPatternContainer = (parent: Node, child: Node): boolean => {
 };
 
 const isWriteTarget = (parent: Node, current: Node): boolean => {
+  const isBinary = isBinaryExpression(parent);
   const isBinaryTarget =
-    isBinaryExpression(parent) &&
+    isBinary &&
     parent.left === current &&
     parent.operatorToken.kind === SyntaxKind.EqualsToken;
 
   if (isBinaryTarget) return true;
 
-  const isDeleteTarget =
-    isDeleteExpression(parent) && parent.expression === current;
+  const isDelete = isDeleteExpression(parent);
+  const isDeleteTarget = isDelete && parent.expression === current;
 
   if (isDeleteTarget) return true;
 
-  const isIteration = isForInStatement(parent) || isForOfStatement(parent);
+  const isForIn = isForInStatement(parent);
+  const isForOf = isForOfStatement(parent);
+  const isIteration = isForIn || isForOf;
 
   return isIteration && parent.initializer === current;
 };

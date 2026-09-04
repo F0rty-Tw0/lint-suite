@@ -7,22 +7,19 @@ import {
   isSpreadElement
 } from 'typescript';
 import type {
-  ArrayLiteralExpression,
   Expression,
   ObjectLiteralElementLike,
   TypeChecker
 } from 'typescript';
 
+import { propertyName } from './typescript-symbol-reads.ts';
 import type {
   AssignmentPattern,
   DestructuringPattern,
   PatternElementRead
 } from '../common/project-usage.type.ts';
-import { propertyName } from './typescript-symbol-reads.ts';
 
-const nestedPattern = (
-  expression: Expression
-): DestructuringPattern | null => {
+const nestedPattern = (expression: Expression): DestructuringPattern | null => {
   const isArrayLiteral = isArrayLiteralExpression(expression);
   const isObjectLiteral = isObjectLiteralExpression(expression);
   const isNested = isArrayLiteral || isObjectLiteral;
@@ -52,10 +49,12 @@ const arrayElementRead = (
 
   const isRestElement = isSpreadElement(element);
   const indexNames = [String(index)];
+  const names = isRestElement ? null : indexNames;
+  const nested = nestedPattern(element);
   const read: PatternElementRead = {
     location: element,
-    names: isRestElement ? null : indexNames,
-    nested: nestedPattern(element),
+    names,
+    nested,
     rest: false
   };
 

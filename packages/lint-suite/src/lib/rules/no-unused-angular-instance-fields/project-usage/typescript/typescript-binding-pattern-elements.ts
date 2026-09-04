@@ -12,11 +12,11 @@ import type {
   TypeChecker
 } from 'typescript';
 
+import { propertyName } from './typescript-symbol-reads.ts';
 import type {
   DestructuringPattern,
   PatternElementRead
 } from '../common/project-usage.type.ts';
-import { propertyName } from './typescript-symbol-reads.ts';
 
 export const isBindingPattern = (node: Node): node is BindingPattern => {
   const isArrayPattern = isArrayBindingPattern(node);
@@ -58,10 +58,12 @@ const arrayElementRead = (
 
   const isRestElement = Boolean(element.dotDotDotToken);
   const indexNames = [String(index)];
+  const names = isRestElement ? null : indexNames;
+  const nested = nestedPattern(element);
   const read: PatternElementRead = {
     location: element,
-    names: isRestElement ? null : indexNames,
-    nested: nestedPattern(element),
+    names,
+    nested,
     rest: false
   };
 

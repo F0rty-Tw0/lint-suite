@@ -7,15 +7,15 @@ import type {
   TypeChecker
 } from 'typescript';
 
-import type { ReadSink } from '../common/project-usage.type.ts';
 import { addSymbolDeclarations } from './typescript-symbol-reads.ts';
+import type { ReadSink } from '../common/project-usage.type.ts';
 
 const isAngularMethodSignature = (declaration: Declaration): boolean => {
   const isMethod = isMethodSignature(declaration);
 
   if (!isMethod) return false;
 
-  const fileName = declaration.getSourceFile().fileName.replaceAll('\', '/');
+  const fileName = declaration.getSourceFile().fileName.replaceAll('\\', '/');
 
   return fileName.includes('/node_modules/@angular/');
 };

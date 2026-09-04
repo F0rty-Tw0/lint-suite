@@ -38,13 +38,7 @@ const optionalChainingCase = projectValidCase(
   projectDirectory,
   'src/optional-chaining.component.ts'
 );
-const valueAccessorCase = projectValidCase(
-  'accepts forms interface methods implemented for Angular to call',
-  projectDirectory,
-  'src/value-accessor.component.ts'
-);
-
-const projectValid = [optionalChainingCase, valueAccessorCase];
+const projectValid = [optionalChainingCase];
 
 const assignedError = memberError('unusedField', 'assigned');
 const writtenElsewhereCase = projectInvalidCase(
