@@ -21,9 +21,7 @@ assert.ok(sourceFile, 'type-properties fixture must be part of the program');
 const declarations = new Map<string, VariableDeclaration>();
 
 sourceFile.forEachChild((node) => {
-  if (!isVariableStatement(node)) {
-    return;
-  }
+  if (!isVariableStatement(node)) return;
 
   for (const declaration of node.declarationList.declarations) {
     if (isIdentifier(declaration.name)) {

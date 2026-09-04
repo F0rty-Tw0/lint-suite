@@ -18,9 +18,7 @@ const memberName = (node: Node): string | null =>
     : null;
 
 const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
-  if (index.usage !== undefined) {
-    return index.usage;
-  }
+  if (index.usage !== undefined) return index.usage;
 
   const declarations = new Set<Node>();
   const fallbackNames = new Set<string>();
@@ -37,13 +35,9 @@ const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
 
   index.usage = {
     has: (node) => {
-      if (declarations.has(node)) {
-        return true;
-      }
+      if (declarations.has(node)) return true;
 
-      if (fallbackNames.size === 0) {
-        return false;
-      }
+      if (fallbackNames.size === 0) return false;
 
       const name = memberName(node);
 
@@ -90,9 +84,7 @@ export const projectUsageIsCurrent = (program: Program): boolean => {
 export const projectUsage = (program: Program): ProjectUsageIndex | null => {
   const configFilePath = program.getCompilerOptions()['configFilePath'];
 
-  if (typeof configFilePath !== 'string') {
-    return null;
-  }
+  if (typeof configFilePath !== 'string') return null;
 
   let index = indexes.get(configFilePath);
 

@@ -90,9 +90,7 @@ const reconcileClasses = (
     }
 
     for (const dependency of fileClasses.dependencies) {
-      if (all.get(dependency.fileName) !== dependency) {
-        return false;
-      }
+      if (all.get(dependency.fileName) !== dependency) return false;
     }
 
     return true;
@@ -106,9 +104,7 @@ const reconcileClasses = (
   }
 
   for (const [fileName, sourceFile] of current) {
-    if (index.classes.has(fileName)) {
-      continue;
-    }
+    if (index.classes.has(fileName)) continue;
 
     const candidateNames = collectCandidateNames(sourceFile);
 
@@ -172,9 +168,7 @@ export const reconcile = (index: ProjectIndex, program: Program): void => {
       }
 
       for (const dependency of entry.dependencies) {
-        if (all.get(dependency.fileName) !== dependency) {
-          return true;
-        }
+        if (all.get(dependency.fileName) !== dependency) return true;
       }
 
       return false;
@@ -209,9 +203,7 @@ export const reconcile = (index: ProjectIndex, program: Program): void => {
 
   dropStaleTemplateEntries(index, false);
 
-  if (index.entries.size === entries) {
-    return;
-  }
+  if (index.entries.size === entries) return;
 
   index.usage = undefined;
 

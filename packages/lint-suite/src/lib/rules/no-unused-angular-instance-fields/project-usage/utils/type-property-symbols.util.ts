@@ -8,13 +8,9 @@ export const symbolsForName = (
 ): Symbol[] => {
   const symbol = checker.getPropertyOfType(checker.getApparentType(type), name);
 
-  if (symbol) {
-    return [symbol];
-  }
+  if (symbol) return [symbol];
 
-  if (!type.isUnionOrIntersection()) {
-    return [];
-  }
+  if (!type.isUnionOrIntersection()) return [];
 
   const symbols = new Set<Symbol>();
 
@@ -27,22 +23,15 @@ export const symbolsForName = (
   return [...symbols];
 };
 
-export const stringIndexTypes = (
-  checker: TypeChecker,
-  type: Type
-): Type[] => {
+export const stringIndexTypes = (checker: TypeChecker, type: Type): Type[] => {
   const indexedType = checker.getIndexTypeOfType(
     checker.getApparentType(type),
     IndexKind.String
   );
 
-  if (indexedType) {
-    return [indexedType];
-  }
+  if (indexedType) return [indexedType];
 
-  if (!type.isUnionOrIntersection()) {
-    return [];
-  }
+  if (!type.isUnionOrIntersection()) return [];
 
   const indexedTypes = new Set<Type>();
 
