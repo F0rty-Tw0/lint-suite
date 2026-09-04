@@ -88,8 +88,9 @@ export const angularDecoratorKind = (
 
   const symbol = resolveAlias(unresolved, discovery);
   const name = symbol.getName();
+  const isKind = isDecoratorKind(name);
 
-  if (!isDecoratorKind(name)) return null;
+  if (!isKind) return null;
 
   const unresolvedDeclarations = unresolved.declarations ?? [];
   const symbolDeclarations = symbol.declarations ?? [];

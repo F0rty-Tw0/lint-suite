@@ -64,18 +64,19 @@ export const addResolvedPath = ({
   sink
 }: ResolvedPathOptions): boolean => {
   let types = [checker.getTypeAtLocation(declaration)];
+  const indexTypesOf = (type: Type): Type[] => stringIndexTypes(checker, type);
+  const returnTypesOf = (type: Type): Type[] => callReturnTypes(checker, type);
 
   for (const [index, segment] of names.entries()) {
     addTypes(sink, types);
 
-    const symbols = new Set(
-      types.flatMap((type) => symbolsForName(checker, type, segment.name))
-    );
+    const symbolsOf = (type: Type): Symbol[] => {
+      return symbolsForName(checker, type, segment.name);
+    };
+    const symbols = new Set(types.flatMap(symbolsOf));
 
     if (symbols.size === 0) {
-      const indexedTypes = types.flatMap((type) =>
-        stringIndexTypes(checker, type)
-      );
+      const indexedTypes = types.flatMap(indexTypesOf);
 
       if (indexedTypes.length > 0) {
         types = indexedTypes;
@@ -92,9 +93,7 @@ export const addResolvedPath = ({
     types = memberTypes(symbols, declaration, checker, sink);
 
     if (segment.called) {
-      const returnTypes = types.flatMap((type) =>
-        callReturnTypes(checker, type)
-      );
+      const returnTypes = types.flatMap(returnTypesOf);
 
       if (returnTypes.length === 0) return isAnyOrUnknown(types);
 

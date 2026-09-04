@@ -5,12 +5,14 @@ import type { ClassElement, ClassLikeDeclaration } from 'typescript';
 
 import { addTemplateReads } from './angular-template-read-resolution.ts';
 import type {
+  TemplateFileVersion,
+  TemplateReads
+} from '../common/project-index.type.ts';
+import type {
   AngularClass,
   CandidateNames,
   CollectTemplateReadsOptions,
-  ReadSink,
-  TemplateFileVersion,
-  TemplateReads
+  ReadSink
 } from '../common/project-usage.type.ts';
 
 type TemplateSource = {

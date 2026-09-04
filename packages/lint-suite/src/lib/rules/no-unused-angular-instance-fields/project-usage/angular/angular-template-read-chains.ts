@@ -48,8 +48,9 @@ const isRootRead = (read: PropertyRead | SafePropertyRead): boolean => {
 
 const chainStep = (read: PropertyRead | SafePropertyRead): ChainStep | null => {
   const receiver = read.receiver;
+  const isReadReceiver = isPropertyReadLike(receiver);
 
-  if (isPropertyReadLike(receiver)) {
+  if (isReadReceiver) {
     const readStep: ChainStep = { called: false, next: receiver };
 
     return readStep;
@@ -60,8 +61,9 @@ const chainStep = (read: PropertyRead | SafePropertyRead): ChainStep | null => {
   if (!isCallReceiver) return null;
 
   const target = receiver.receiver;
+  const isReadLikeTarget = isPropertyReadLike(target);
 
-  if (!isPropertyReadLike(target)) return null;
+  if (!isReadLikeTarget) return null;
 
   const calledStep: ChainStep = { called: true, next: target };
 
