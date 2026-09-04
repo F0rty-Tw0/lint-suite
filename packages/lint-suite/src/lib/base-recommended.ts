@@ -30,5 +30,5 @@ export const baseRecommended = defineConfig([
       '**/*.mts'
     ],
     extends: [stylistic.configs.recommended]
-  },
+  }
 ]);
