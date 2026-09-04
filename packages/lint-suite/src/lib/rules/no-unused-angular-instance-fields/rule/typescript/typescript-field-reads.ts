@@ -42,9 +42,11 @@ const unwrapTypeScriptExpression = (
   return current;
 };
 
-export const isThisExpression = (node: TSESTree.Expression | null): boolean =>
-  unwrapTypeScriptExpression(node)?.type ===
-  TSESTree.AST_NODE_TYPES.ThisExpression;
+export const isThisExpression = (node: TSESTree.Expression | null): boolean => {
+  const unwrapped = unwrapTypeScriptExpression(node);
+
+  return unwrapped?.type === TSESTree.AST_NODE_TYPES.ThisExpression;
+};
 
 const isPatternTarget = (
   parent: TSESTree.Node | undefined,
@@ -72,18 +74,26 @@ const isPatternTarget = (
 const isSimpleAssignmentTarget = (
   parent: TSESTree.Node | undefined,
   current: TSESTree.Node
-): boolean =>
-  parent?.type === TSESTree.AST_NODE_TYPES.AssignmentExpression &&
-  parent.left === current &&
-  parent.operator === '=';
+): boolean => {
+  if (parent?.type !== TSESTree.AST_NODE_TYPES.AssignmentExpression) {
+    return false;
+  }
+
+  return parent.left === current && parent.operator === '=';
+};
 
 const isLoopTarget = (
   parent: TSESTree.Node | undefined,
   current: TSESTree.Node
-): boolean =>
-  (parent?.type === TSESTree.AST_NODE_TYPES.ForInStatement ||
-    parent?.type === TSESTree.AST_NODE_TYPES.ForOfStatement) &&
-  parent.left === current;
+): boolean => {
+  const isForIn = parent?.type === TSESTree.AST_NODE_TYPES.ForInStatement;
+  const isForOf = parent?.type === TSESTree.AST_NODE_TYPES.ForOfStatement;
+  const isLoop = isForIn || isForOf;
+
+  if (!isLoop) return false;
+
+  return parent.left === current;
+};
 
 const isDirectWrite = (node: TSESTree.MemberExpression): boolean => {
   let current: TSESTree.Node = node;
@@ -133,8 +143,13 @@ const isDestructuringOrLoopTarget = (
   );
 };
 
-export const isWriteOnly = (node: TSESTree.MemberExpression): boolean =>
-  isDirectWrite(node) || isDestructuringOrLoopTarget(node);
+export const isWriteOnly = (node: TSESTree.MemberExpression): boolean => {
+  const isWrite = isDirectWrite(node);
+
+  if (isWrite) return true;
+
+  return isDestructuringOrLoopTarget(node);
+};
 
 const destructuringParts = (
   node: DestructuringNode
@@ -171,10 +186,13 @@ const propertyName = (
     return property.key.name;
   }
 
-  return property.key.type === TSESTree.AST_NODE_TYPES.Literal &&
-    typeof property.key.value === 'string'
-    ? property.key.value
-    : null;
+  if (property.key.type !== TSESTree.AST_NODE_TYPES.Literal) return null;
+
+  const { value } = property.key;
+
+  if (typeof value !== 'string') return null;
+
+  return value;
 };
 
 export const destructuredThisReads = (

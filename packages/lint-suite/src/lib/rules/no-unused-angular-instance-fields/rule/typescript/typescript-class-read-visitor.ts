@@ -35,11 +35,17 @@ const enterClass = (
   thisStack.push(true);
 };
 
-const componentThis = (node: FunctionNode, thisStack: boolean[]): boolean =>
-  node.type === TSESTree.AST_NODE_TYPES.ArrowFunctionExpression
-    ? (thisStack.at(-1) ?? false)
-    : node.parent.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
-      !node.parent.static;
+const componentThis = (node: FunctionNode, thisStack: boolean[]): boolean => {
+  if (node.type === TSESTree.AST_NODE_TYPES.ArrowFunctionExpression) {
+    return thisStack.at(-1) ?? false;
+  }
+
+  const { parent } = node;
+
+  if (parent.type !== TSESTree.AST_NODE_TYPES.MethodDefinition) return false;
+
+  return !parent.static;
+};
 
 const trackMemberRead = (
   node: TSESTree.MemberExpression,
