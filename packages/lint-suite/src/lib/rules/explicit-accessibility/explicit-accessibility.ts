@@ -68,9 +68,7 @@ const insertModifier = (
     ? sourceCode.getTokenAfter(lastDecorator)
     : sourceCode.getFirstToken(node);
 
-  if (!token) {
-    return () => null;
-  }
+  if (!token) return () => null;
 
   const adjacentToDecorator = lastDecorator?.range[1] === token.range[0];
   const text = `${adjacentToDecorator ? ' ' : ''}${accessibility} `;
@@ -112,9 +110,7 @@ export default createRule<Options, MessageIds>({
     const { sourceCode } = context;
 
     const check = (node: Member): void => {
-      if (node.accessibility || isPrivateMember(node)) {
-        return;
-      }
+      if (node.accessibility || isPrivateMember(node)) return;
 
       const target = reportTarget(node);
       const fixAccessibility: FixAccessibility =

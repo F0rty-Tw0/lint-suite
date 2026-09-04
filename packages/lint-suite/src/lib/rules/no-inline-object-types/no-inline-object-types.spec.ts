@@ -9,10 +9,7 @@ import { typescript } from '../../typescript.js';
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
   ?.rules?.['no-inline-object-types'];
 
-assert.ok(
-  rule,
-  'typescript preset must register local/no-inline-object-types'
-);
+assert.ok(rule, 'typescript preset must register local/no-inline-object-types');
 
 RuleTester.describe = describe;
 RuleTester.it = test;
