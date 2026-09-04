@@ -4,6 +4,24 @@ import type { TSESLint } from '@typescript-eslint/utils';
 type Options = [];
 type MessageIds = 'missingReadonly';
 
+const docs: TSESLint.RuleMetaDataDocs = {
+  description:
+    'Require readonly on primitive-typed type and interface properties'
+};
+
+const messages: Record<MessageIds, string> = {
+  missingReadonly:
+    "Type property '{{ name }}' should be readonly. Disable this rule on the line if mutation is required."
+};
+
+const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
+  type: 'suggestion',
+  docs,
+  fixable: 'code',
+  schema: [],
+  messages
+};
+
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/F0rty-Tw0/lint-suite#readonly-type-properties'
 );
@@ -11,10 +29,13 @@ const createRule = ESLintUtils.RuleCreator(
 const propertyName = (
   node: TSESTree.TSPropertySignature,
   sourceCode: TSESLint.SourceCode
-): string =>
-  node.key.type === TSESTree.AST_NODE_TYPES.Identifier
-    ? node.key.name
-    : sourceCode.getText(node.key);
+): string => {
+  if (node.key.type === TSESTree.AST_NODE_TYPES.Identifier) {
+    return node.key.name;
+  }
+
+  return sourceCode.getText(node.key);
+};
 
 const PRIMITIVE_KEYWORDS = new Set([
   TSESTree.AST_NODE_TYPES.TSStringKeyword,
@@ -48,21 +69,22 @@ const isPrimitive = (type: TSESTree.TypeNode): boolean => {
   return false;
 };
 
+const readonlyFix = (
+  node: TSESTree.TSPropertySignature,
+  sourceCode: TSESLint.SourceCode
+): TSESLint.ReportFixFunction => {
+  return (fixer) => {
+    const firstToken = sourceCode.getFirstToken(node);
+
+    if (!firstToken) return null;
+
+    return fixer.insertTextBefore(firstToken, 'readonly ');
+  };
+};
+
 export default createRule<Options, MessageIds>({
   name: 'readonly-type-properties',
-  meta: {
-    type: 'suggestion',
-    docs: {
-      description:
-        'Require readonly on primitive-typed type and interface properties'
-    },
-    fixable: 'code',
-    schema: [],
-    messages: {
-      missingReadonly:
-        "Type property '{{ name }}' should be readonly. Disable this rule on the line if mutation is required."
-    }
-  },
+  meta,
   defaultOptions: [],
   create(context) {
     const { sourceCode } = context;
@@ -75,18 +97,17 @@ export default createRule<Options, MessageIds>({
 
         if (!isPrimitiveType) return;
 
-        context.report({
+        const name = propertyName(node, sourceCode);
+        const data = { name };
+        const fix = readonlyFix(node, sourceCode);
+        const report: TSESLint.ReportDescriptor<MessageIds> = {
           node: node.key,
           messageId: 'missingReadonly',
-          data: { name: propertyName(node, sourceCode) },
-          fix(fixer) {
-            const firstToken = sourceCode.getFirstToken(node);
+          data,
+          fix
+        };
 
-            return firstToken
-              ? fixer.insertTextBefore(firstToken, 'readonly ')
-              : null;
-          }
-        });
+        context.report(report);
       }
     };
 
