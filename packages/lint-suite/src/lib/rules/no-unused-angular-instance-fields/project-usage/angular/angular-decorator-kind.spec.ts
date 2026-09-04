@@ -1,24 +1,25 @@
-import {
-  fixtureCase,
-  fixtureDirectory
-} from '../../utils/fixture-project.spec.util.js';
+import { fixtureDirectory } from '../../utils/fixture-project.spec.util.js';
 import {
   projectRuleTester,
   rule,
   ruleName
 } from '../../utils/rule-under-test.spec.util.js';
+import {
+  memberError,
+  projectInvalidCase
+} from '../utils/project-analysis-case.spec.util.js';
 
 const discoveryDirectory = fixtureDirectory('project-discovery');
 const discoveryTester = projectRuleTester(discoveryDirectory);
 
-discoveryTester.run(ruleName, rule, {
-  valid: [],
-  invalid: [
-    {
-      name: 'reports only the member unread by a template behind aliased and namespaced decorators',
-      ...fixtureCase(discoveryDirectory, 'aliased-decorator.directive.ts'),
-      options: [{ analysis: 'project' }],
-      errors: [{ messageId: 'unusedField', data: { name: 'unreadAlias' } }]
-    }
-  ]
-});
+const unreadAliasError = memberError('unusedField', 'unreadAlias');
+const aliasedDecoratorCase = projectInvalidCase(
+  'reports only the member unread by a template behind aliased and namespaced decorators',
+  discoveryDirectory,
+  'aliased-decorator.directive.ts',
+  [unreadAliasError]
+);
+
+const invalid = [aliasedDecoratorCase];
+
+discoveryTester.run(ruleName, rule, { valid: [], invalid });

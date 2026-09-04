@@ -79,7 +79,11 @@ export const templateOf = (
   if (inline) {
     const source = stringValue(inline, discovery);
 
-    return source === null ? undefined : { kind: 'inline', source };
+    if (source === null) return undefined;
+
+    const inlineTemplate: AngularTemplate = { kind: 'inline', source };
+
+    return inlineTemplate;
   }
 
   const url = metadataProperty(metadata, 'templateUrl');
@@ -87,9 +91,15 @@ export const templateOf = (
   if (url) {
     const text = stringValue(url, discovery);
 
-    return text === null
-      ? undefined
-      : { kind: 'external', fileName: resolve(dirname(fileName), text) };
+    if (text === null) return undefined;
+
+    const externalFileName = resolve(dirname(fileName), text);
+    const externalTemplate: AngularTemplate = {
+      fileName: externalFileName,
+      kind: 'external'
+    };
+
+    return externalTemplate;
   }
 
   return null;
@@ -98,8 +108,10 @@ export const templateOf = (
 export const exportAsOf = (
   metadata: ObjectLiteralExpression,
   discovery: Discovery
-): string[] =>
-  (stringValue(metadataProperty(metadata, 'exportAs'), discovery) ?? '')
-    .split(',')
-    .map((name) => name.trim())
-    .filter(Boolean);
+): string[] => {
+  const exportAsProperty = metadataProperty(metadata, 'exportAs');
+  const exportAs = stringValue(exportAsProperty, discovery) ?? '';
+  const names = exportAs.split(',').map((name) => name.trim());
+
+  return names.filter(Boolean);
+};

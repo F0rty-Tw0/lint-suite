@@ -29,8 +29,12 @@ const booleanValue = (node: Expression | undefined): boolean | undefined => {
 const classesOf = (
   symbol: Symbol,
   discovery: Discovery
-): ClassLikeDeclaration[] =>
-  (resolveAlias(symbol, discovery).declarations ?? []).filter(isClassLike);
+): ClassLikeDeclaration[] => {
+  const resolved = resolveAlias(symbol, discovery);
+  const declarations = resolved.declarations ?? [];
+
+  return declarations.filter(isClassLike);
+};
 
 /**
  * Resolves a standalone component's `imports` to program classes. Library
@@ -64,7 +68,10 @@ export const scopeOf = (
     const symbol = discovery.checker.getSymbolAtLocation(
       isIdentifier(element) ? element : element.name
     );
-    const classes = symbol ? classesOf(symbol, discovery) : [];
+
+    if (!symbol) return null;
+
+    const classes = classesOf(symbol, discovery);
 
     if (classes.length === 0) return null;
 

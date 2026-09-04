@@ -1,5 +1,5 @@
 import { SignatureKind, TypeFlags } from 'typescript';
-import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
+import type { ClassLikeDeclaration, Type, TypeChecker } from 'typescript';
 
 import type { ReadSegment, ReadSink } from '../common/project-usage.type.js';
 import {
@@ -7,10 +7,15 @@ import {
   symbolsForName
 } from '../utils/type-property-symbols.util.js';
 
-const isAnyOrUnknown = (types: { flags: TypeFlags }[]): boolean =>
-  types.some(
-    (type) => (type.flags & (TypeFlags.Any | TypeFlags.Unknown)) !== 0
-  );
+const hasAnyOrUnknownFlag = (type: { flags: TypeFlags }): boolean => {
+  const anyOrUnknown = TypeFlags.Any | TypeFlags.Unknown;
+
+  return (type.flags & anyOrUnknown) !== 0;
+};
+
+const isAnyOrUnknown = (types: { flags: TypeFlags }[]): boolean => {
+  return types.some(hasAnyOrUnknownFlag);
+};
 
 export const addResolvedPath = (
   declaration: ClassLikeDeclaration,
@@ -19,6 +24,13 @@ export const addResolvedPath = (
   sink: ReadSink,
   allowMissingRoot: boolean
 ): boolean => {
+  const indexTypes = (type: Type): Type[] => stringIndexTypes(checker, type);
+  const callReturnTypes = (type: Type): Type[] => {
+    const signatures = checker.getSignaturesOfType(type, SignatureKind.Call);
+
+    return signatures.map((signature) => signature.getReturnType());
+  };
+
   let types = [checker.getTypeAtLocation(declaration)];
 
   for (const [index, segment] of names.entries()) {
@@ -31,9 +43,7 @@ export const addResolvedPath = (
     );
 
     if (symbols.size === 0) {
-      const indexedTypes = types.flatMap((type) =>
-        stringIndexTypes(checker, type)
-      );
+      const indexedTypes = types.flatMap(indexTypes);
 
       if (indexedTypes.length > 0) {
         types = indexedTypes;
@@ -47,22 +57,20 @@ export const addResolvedPath = (
       return index === 0 && allowMissingRoot;
     }
 
+    const symbolTypes: Type[] = [];
+
     for (const symbol of symbols) {
       for (const memberDeclaration of symbol.declarations ?? []) {
         sink.addDeclaration(memberDeclaration);
       }
+
+      symbolTypes.push(checker.getTypeOfSymbolAtLocation(symbol, declaration));
     }
 
-    types = [...symbols].map((symbol) =>
-      checker.getTypeOfSymbolAtLocation(symbol, declaration)
-    );
+    types = symbolTypes;
 
     if (segment.called) {
-      const returnTypes = types.flatMap((type) =>
-        checker
-          .getSignaturesOfType(type, SignatureKind.Call)
-          .map((signature) => signature.getReturnType())
-      );
+      const returnTypes = types.flatMap(callReturnTypes);
 
       if (returnTypes.length === 0) return isAnyOrUnknown(types);
 

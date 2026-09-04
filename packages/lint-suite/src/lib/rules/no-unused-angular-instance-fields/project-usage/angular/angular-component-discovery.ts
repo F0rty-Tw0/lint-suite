@@ -76,22 +76,33 @@ const angularClass = (
       return invalidDiscovery;
     }
 
-    const template = component
-      ? templateOf(metadata, declaration.getSourceFile().fileName, discovery)
-      : null;
-
-    const discoveredClass: AngularClass | null = {
+    const described = {
       ...base,
       exportAs: exportAsOf(metadata, discovery),
       hostDirectives:
         metadataProperty(metadata, 'hostDirectives') !== undefined,
-      scope: component ? scopeOf(metadata, discovery) : null,
-      selector: stringValue(metadataProperty(metadata, 'selector'), discovery),
+      selector: stringValue(metadataProperty(metadata, 'selector'), discovery)
+    };
+
+    if (!component) {
+      const directiveDiscovery: AngularClass | null = {
+        ...described,
+        valid: true
+      };
+
+      return directiveDiscovery;
+    }
+
+    const fileName = declaration.getSourceFile().fileName;
+    const template = templateOf(metadata, fileName, discovery);
+    const componentDiscovery: AngularClass | null = {
+      ...described,
+      scope: scopeOf(metadata, discovery),
       template: template ?? null,
       valid: template !== undefined
     };
 
-    return discoveredClass;
+    return componentDiscovery;
   }
 
   return null;

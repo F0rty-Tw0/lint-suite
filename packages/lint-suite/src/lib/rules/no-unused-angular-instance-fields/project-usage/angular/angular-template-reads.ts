@@ -2,7 +2,11 @@ import { readFileSync, statSync } from 'node:fs';
 
 import { CssSelector, SelectorMatcher } from '@angular/compiler';
 import { isIdentifier, isStringLiteralLike } from 'typescript';
-import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
+import type {
+  ClassElement,
+  ClassLikeDeclaration,
+  TypeChecker
+} from 'typescript';
 
 import type {
   AngularClass,
@@ -13,13 +17,25 @@ import type {
 } from '../common/project-usage.type.js';
 import { addTemplateReads } from './angular-template-read-resolution.js';
 
-const memberNames = (declaration: ClassLikeDeclaration): string[] =>
-  declaration.members.flatMap((member) =>
-    member.name &&
-    (isIdentifier(member.name) || isStringLiteralLike(member.name))
-      ? [member.name.text]
-      : []
-  );
+const memberNameOf = (member: ClassElement): string[] => {
+  const name = member.name;
+
+  if (!name) return [];
+
+  const isIdentifierName = isIdentifier(name);
+  const isStringName = isStringLiteralLike(name);
+  const isTextName = isIdentifierName || isStringName;
+
+  if (!isTextName) return [];
+
+  const names = [name.text];
+
+  return names;
+};
+
+const memberNames = (declaration: ClassLikeDeclaration): string[] => {
+  return declaration.members.flatMap(memberNameOf);
+};
 
 /**
  * What a template we cannot read might reference: the component's own
@@ -29,10 +45,14 @@ const memberNames = (declaration: ClassLikeDeclaration): string[] =>
 const unknownTemplateNames = (
   { declaration, scope }: AngularClass,
   allNames: ReadonlySet<string>
-): Iterable<string> =>
-  scope === null
-    ? allNames
-    : [...memberNames(declaration), ...scope.flatMap(memberNames)];
+): Iterable<string> => {
+  if (scope === null) return allNames;
+
+  const scopeNames = scope.flatMap(memberNames);
+  const names = [...memberNames(declaration), ...scopeNames];
+
+  return names;
+};
 
 const templateFileVersion = (fileName: string): TemplateFileVersion => {
   const { mtimeNs, size } = statSync(fileName, { bigint: true });
@@ -58,21 +78,39 @@ export const templateFileIsCurrent = (
  * A description of every directive's selector and exportAs; when it changes
  * between programs, cached template reference resolutions are stale.
  */
-export const directiveShape = (classes: Iterable<AngularClass>): string =>
-  [...classes]
-    .map(
-      ({ component, declaration, exportAs, hostDirectives, name, selector }) =>
-        [
-          declaration.getSourceFile().fileName,
-          name,
-          String(component),
-          String(hostDirectives),
-          selector ?? '',
-          exportAs.join(',')
-        ].join('\0')
-    )
-    .sort()
-    .join('\n');
+const classShape = ({
+  component,
+  declaration,
+  exportAs,
+  hostDirectives,
+  name,
+  selector
+}: AngularClass): string => {
+  const fields = [
+    declaration.getSourceFile().fileName,
+    name,
+    String(component),
+    String(hostDirectives),
+    selector ?? '',
+    exportAs.join(',')
+  ];
+
+  return fields.join('\0');
+};
+
+export const directiveShape = (classes: Iterable<AngularClass>): string => {
+  const shapes = [...classes].map(classShape);
+
+  return shapes.sort().join('\n');
+};
+
+const parseSelector = (selector: string): CssSelector[] | null => {
+  try {
+    return CssSelector.parse(selector);
+  } catch {
+    return null;
+  }
+};
 
 export const buildDirectiveIndex = (
   classes: Iterable<AngularClass>
@@ -94,12 +132,10 @@ export const buildDirectiveIndex = (
     }
 
     if (component && selector !== null) {
-      try {
-        componentMatcher.addSelectables(CssSelector.parse(selector), [
-          declaration
-        ]);
-      } catch {
-        // An unparsable selector never matches an element.
+      const selectors = parseSelector(selector);
+
+      if (selectors) {
+        componentMatcher.addSelectables(selectors, [declaration]);
       }
     }
   }

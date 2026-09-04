@@ -16,12 +16,22 @@ import type {
 
 import type { DecoratorKind, Discovery } from '../common/project-usage.type.js';
 
-const decoratorKinds: ReadonlySet<string> = new Set<DecoratorKind>([
+const decoratorKinds: DecoratorKind[] = [
   'Component',
   'Directive',
   'NgModule',
   'Pipe'
-]);
+];
+
+const isDecoratorKind = (name: string): name is DecoratorKind => {
+  return decoratorKinds.some((kind) => kind === name);
+};
+
+const isAngularCoreFile = (declaration: Declaration): boolean => {
+  const fileName = declaration.getSourceFile().fileName.replaceAll('\\', '/');
+
+  return fileName.includes('/node_modules/@angular/core/');
+};
 
 const importedFromAngularCore = (declaration: Declaration): boolean => {
   let current: Node = declaration;
@@ -74,20 +84,18 @@ export const angularDecoratorKind = (
 
   const symbol = resolveAlias(unresolved, discovery);
   const name = symbol.getName();
-  const isDecoratorName = decoratorKinds.has(name);
 
-  if (!isDecoratorName) return null;
+  if (!isDecoratorKind(name)) return null;
 
-  const fromAngularCore =
-    (unresolved.declarations ?? []).some(importedFromAngularCore) ||
-    (symbol.declarations ?? []).some((declaration) =>
-      declaration
-        .getSourceFile()
-        .fileName.replaceAll('\\', '/')
-        .includes('/node_modules/@angular/core/')
-    );
+  const unresolvedDeclarations = unresolved.declarations ?? [];
+  const symbolDeclarations = symbol.declarations ?? [];
+  const isCoreImport = unresolvedDeclarations.some(importedFromAngularCore);
+  const isCoreDeclaration = symbolDeclarations.some(isAngularCoreFile);
+  const fromAngularCore = isCoreImport || isCoreDeclaration;
 
-  return fromAngularCore ? (name as DecoratorKind) : null;
+  if (!fromAngularCore) return null;
+
+  return name;
 };
 
 export const classDecoratorKind = (

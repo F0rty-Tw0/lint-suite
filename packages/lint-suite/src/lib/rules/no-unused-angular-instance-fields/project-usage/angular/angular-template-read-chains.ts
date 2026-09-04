@@ -52,11 +52,16 @@ const readChain = (node: PropertyRead | SafePropertyRead): ReadChain | null => {
       continue;
     }
 
-    return (current.receiver instanceof ImplicitReceiver ||
-      current.receiver instanceof ThisReceiver) &&
-      current instanceof PropertyRead
-      ? { names, root: current }
-      : null;
+    const isImplicitReceiver = current.receiver instanceof ImplicitReceiver;
+    const isThisReceiver = current.receiver instanceof ThisReceiver;
+    const isComponentReceiver = isImplicitReceiver || isThisReceiver;
+
+    if (!isComponentReceiver) return null;
+    if (!(current instanceof PropertyRead)) return null;
+
+    const chain: ReadChain = { names, root: current };
+
+    return chain;
   }
 };
 

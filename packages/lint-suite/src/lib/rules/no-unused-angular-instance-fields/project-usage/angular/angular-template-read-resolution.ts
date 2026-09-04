@@ -6,12 +6,13 @@ import {
   TmplAstElement,
   TmplAstReference
 } from '@angular/compiler';
-import type { DirectiveMeta } from '@angular/compiler';
+import type { DirectiveMeta, TemplateEntity } from '@angular/compiler';
 import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
 
 import type {
   AngularClass,
   DirectiveIndex,
+  ReadChain,
   ReadSegment,
   ReadSink,
   ReferenceOwner
@@ -25,13 +26,23 @@ type TemplateReadResult = {
 };
 
 /** Every identifier-like token in a text: a superset of what it can read. */
-const identifierNames = (text: string): Set<string> =>
-  new Set(text.match(/[A-Za-z_$][\w$]*/gu) ?? []);
+const identifierNames = (text: string): Set<string> => {
+  const matches = text.match(/[A-Za-z_$][\w$]*/gu) ?? [];
 
-const chainText = (names: ReadSegment[]): string =>
-  names
-    .map((segment) => `${segment.name}${segment.called ? '()' : ''}`)
-    .join('.');
+  return new Set(matches);
+};
+
+const segmentText = (segment: ReadSegment): string => {
+  const call = segment.called ? '()' : '';
+
+  return `${segment.name}${call}`;
+};
+
+const chainText = (names: ReadSegment[]): string => {
+  const texts = names.map(segmentText);
+
+  return texts.join('.');
+};
 
 const templateBinder = new R3TargetBinder<DirectiveMeta>(null);
 
@@ -70,7 +81,11 @@ const referenceTargets = (
       (declaration) => directives.byDeclaration.get(declaration)?.hostDirectives
     );
 
-  return scoped ? targets.filter((target) => scope.includes(target)) : targets;
+  if (!scoped) return targets;
+
+  const scopedTargets = targets.filter((target) => scope.includes(target));
+
+  return scopedTargets;
 };
 
 export const addTemplateReads = (
@@ -105,11 +120,16 @@ export const addTemplateReads = (
     reads.visit(node);
   }
 
+  const chainEntity = (chain: ReadChain): TemplateEntity | null => {
+    const isThisRead = chain.root.receiver instanceof ThisReceiver;
+
+    if (isThisRead) return null;
+
+    return boundTarget.getExpressionTarget(chain.root);
+  };
+
   for (const chain of reads.reads) {
-    const entity =
-      chain.root.receiver instanceof ThisReceiver
-        ? null
-        : boundTarget.getExpressionTarget(chain.root);
+    const entity = chainEntity(chain);
 
     if (entity === null) {
       const isResolved = addResolvedPath(
@@ -141,13 +161,12 @@ export const addTemplateReads = (
       scope
     );
     const names = chain.names.slice(1);
-    const resolved = targets.map((target) =>
-      addResolvedPath(target, names, checker, sink, false)
-    );
+    const isTargetResolved = (target: ClassLikeDeclaration): boolean => {
+      return addResolvedPath(target, names, checker, sink, false);
+    };
+    const resolved = targets.map(isTargetResolved);
     const hasResolvedTarget = resolved.includes(true);
 
-    // ponytail: with several candidates the mismatching ones are expected
-    // to fail; when none resolves, fall back to matching by name.
     if (resolved.length > 0 && !hasResolvedTarget) {
       sink.addFallbackNames(
         names.map((segment) => segment.name),

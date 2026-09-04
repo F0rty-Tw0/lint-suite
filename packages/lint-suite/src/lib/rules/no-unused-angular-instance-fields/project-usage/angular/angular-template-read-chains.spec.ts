@@ -1,24 +1,25 @@
-import {
-  fixtureCase,
-  fixtureDirectory
-} from '../../utils/fixture-project.spec.util.js';
+import { fixtureDirectory } from '../../utils/fixture-project.spec.util.js';
 import {
   projectRuleTester,
   rule,
   ruleName
 } from '../../utils/rule-under-test.spec.util.js';
+import {
+  memberError,
+  projectInvalidCase
+} from '../utils/project-analysis-case.spec.util.js';
 
 const discoveryDirectory = fixtureDirectory('project-discovery');
 const discoveryTester = projectRuleTester(discoveryDirectory);
 
-discoveryTester.run(ruleName, rule, {
-  valid: [],
-  invalid: [
-    {
-      name: 'collects directive members from called and safely navigated chain segments',
-      ...fixtureCase(discoveryDirectory, 'chain.directive.ts'),
-      options: [{ analysis: 'project' }],
-      errors: [{ messageId: 'unusedField', data: { name: 'unreadState' } }]
-    }
-  ]
-});
+const unreadStateError = memberError('unusedField', 'unreadState');
+const chainSegmentsCase = projectInvalidCase(
+  'collects directive members from called and safely navigated chain segments',
+  discoveryDirectory,
+  'chain.directive.ts',
+  [unreadStateError]
+);
+
+const invalid = [chainSegmentsCase];
+
+discoveryTester.run(ruleName, rule, { valid: [], invalid });
