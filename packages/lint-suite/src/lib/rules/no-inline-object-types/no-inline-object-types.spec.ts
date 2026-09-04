@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, test } from 'vitest';
 
 import { RuleTester } from 'eslint';
 import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
+import { describe, test } from 'vitest';
 
-import { typescript } from '../../typescript.js';
+import { typescript } from '../../typescript.ts';
 
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
   ?.rules?.['no-inline-object-types'];

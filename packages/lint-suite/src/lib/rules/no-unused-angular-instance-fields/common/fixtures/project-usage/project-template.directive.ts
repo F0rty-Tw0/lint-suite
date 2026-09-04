@@ -7,6 +7,7 @@ export class ProjectTemplateDirective {
 
 @Component({
   imports: [ProjectTemplateDirective],
-  template: '<div projectUsage #usage="projectUsage">{{ usage.readFromTemplate }}</div>'
+  template:
+    '<div projectUsage #usage="projectUsage">{{ usage.readFromTemplate }}</div>'
 })
 export class ProjectTemplateConsumerComponent {}
