@@ -3,6 +3,7 @@ packages:
 
 # pnpm 11: replaces the removed `onlyBuiltDependencies` setting.
 allowBuilds:
+  '@swc/core': true
   esbuild: true
   nx: true
   unrs-resolver: true
