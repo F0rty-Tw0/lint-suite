@@ -110,7 +110,9 @@ export default createRule<Options, MessageIds>({
     const { sourceCode } = context;
 
     const check = (node: Member): void => {
-      if (node.accessibility || isPrivateMember(node)) return;
+      const isPrivate = isPrivateMember(node);
+
+      if (node.accessibility || isPrivate) return;
 
       const target = reportTarget(node);
       const fixAccessibility: FixAccessibility =
@@ -118,13 +120,16 @@ export default createRule<Options, MessageIds>({
           ? 'public'
           : defaultAccessibility;
 
+      const autoFix =
+        fixAccessibility === 'none'
+          ? {}
+          : { fix: insertModifier(node, fixAccessibility, sourceCode) };
+
       context.report({
         node: target,
         messageId: 'missingAccessibility',
         data: { name: memberName(target, sourceCode) },
-        ...(fixAccessibility === 'none'
-          ? {}
-          : { fix: insertModifier(node, fixAccessibility, sourceCode) }),
+        ...autoFix,
         suggest: accessibilities
           .filter((accessibility) => accessibility !== fixAccessibility)
           .map((accessibility) => {

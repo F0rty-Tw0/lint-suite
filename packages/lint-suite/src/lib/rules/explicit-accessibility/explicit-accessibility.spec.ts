@@ -45,9 +45,10 @@ const member = (
   fixAccessibility: Accessibility | 'none' = options?.defaultAccessibility ??
     'public'
 ) => {
+  const ruleOptions = options ? { options: [options] } : {};
   const testCase = {
     code: render(''),
-    ...(options ? { options: [options] } : {}),
+    ...ruleOptions,
     output: fixAccessibility === 'none' ? null : render(`${fixAccessibility} `),
     errors: [
       {

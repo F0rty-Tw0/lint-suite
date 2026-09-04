@@ -42,12 +42,16 @@ export default createRule<Options, MessageIds>({
   create(context) {
     const listeners: TSESLint.RuleListener = {
       TSTypeLiteral(node): void {
-        if (
-          node.parent.type !== TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration &&
-          enclosingTypeAlias(node)
-        ) {
-          context.report({ node, messageId: 'inlineObjectType' });
-        }
+        const isAliasBody =
+          node.parent.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration;
+
+        if (isAliasBody) return;
+
+        const enclosingAlias = enclosingTypeAlias(node);
+
+        if (!enclosingAlias) return;
+
+        context.report({ node, messageId: 'inlineObjectType' });
       }
     };
 
