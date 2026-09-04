@@ -1,21 +1,24 @@
 import assert from 'node:assert/strict';
+
 import { afterAll, beforeAll, describe, test } from 'vitest';
 
+import {
+  createIncrementalProject,
+  templateSettled
+} from './utils/incremental-project.spec.util.ts';
 import {
   broken,
   consumer,
   consumerBody,
-  createIncrementalProject,
   gallery,
   otherPanel,
   panel,
   panelHost,
   panelHostImporting,
   paths,
-  templateSettled,
   widget,
   widgetMembers
-} from './utils/incremental-project.spec.util.js';
+} from './utils/incremental-source.spec.util.ts';
 
 let project: ReturnType<typeof createIncrementalProject>;
 

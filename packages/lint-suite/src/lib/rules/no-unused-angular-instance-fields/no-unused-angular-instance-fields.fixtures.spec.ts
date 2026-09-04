@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+
+import { TSESLint } from '@typescript-eslint/utils';
+import { Linter } from 'eslint';
+import type { Program } from 'typescript';
+import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
-import { Linter } from 'eslint';
-import { TSESLint } from '@typescript-eslint/utils';
-import tseslint from 'typescript-eslint';
-import type { Program } from 'typescript';
-
-import { projectUsage } from './project-usage/project-usage.js';
-import { fixtureDirectory } from './utils/fixture-project.spec.util.js';
-import { reportedMembers } from './utils/lint-messages.spec.util.js';
-import { lintConfig } from './utils/rule-under-test.spec.util.js';
+import { projectUsage } from './project-usage/project-usage.ts';
+import { fixtureDirectory } from './utils/fixture-project.spec.util.ts';
+import { reportedMembers } from './utils/lint-messages.spec.util.ts';
+import { lintConfig } from './utils/rule-under-test.spec.util.ts';
 
 const localDirectory = fixtureDirectory('local');
 const projectDirectory = fixtureDirectory('project');
@@ -30,7 +30,8 @@ const fixtureOptions = (code: string): Record<string, boolean> => {
   const optionsMatch = optionsPattern.exec(code);
   const optionsText = optionsMatch?.[1] ?? '';
   const names = optionsText.split(',').map((option) => option.trim());
-  const entries = names.filter(Boolean).map((option) => [option, true]);
+  const enabled = (option: string): readonly [string, boolean] => [option, true];
+  const entries = names.filter(Boolean).map(enabled);
 
   return Object.fromEntries(entries);
 };

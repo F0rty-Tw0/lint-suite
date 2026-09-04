@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { describe, test } from 'vitest';
 
 import { RuleTester } from 'eslint';
 import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
+import { describe, test } from 'vitest';
 
-import { missingReadonly } from './utils/readonly-type-properties-cases.spec.util.js';
-import { typescript } from '../../typescript.js';
+import { missingReadonly } from './utils/readonly-type-properties-cases.spec.util.ts';
+import { typescript } from '../../typescript.ts';
 
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
   ?.rules?.['readonly-type-properties'];
