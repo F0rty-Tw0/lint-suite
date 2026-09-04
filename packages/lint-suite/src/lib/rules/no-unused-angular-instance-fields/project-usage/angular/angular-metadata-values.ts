@@ -24,13 +24,9 @@ export const stringValue = (
   node: Expression | undefined,
   discovery: Discovery
 ): string | null => {
-  if (!node) {
-    return null;
-  }
+  if (!node) return null;
 
-  if (isStringLiteralLike(node)) {
-    return node.text;
-  }
+  if (isStringLiteralLike(node)) return node.text;
 
   if (isIdentifier(node) || isPropertyAccessExpression(node)) {
     const symbol = discovery.checker.getSymbolAtLocation(

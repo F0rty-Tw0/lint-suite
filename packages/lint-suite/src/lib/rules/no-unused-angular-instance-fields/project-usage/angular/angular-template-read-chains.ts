@@ -98,9 +98,7 @@ export class ReadCollector extends CombinedRecursiveAstVisitor {
   }
 
   override visitBinary(node: Binary, context: unknown): unknown {
-    if (node.operation !== '=') {
-      return super.visitBinary(node, context);
-    }
+    if (node.operation !== '=') return super.visitBinary(node, context);
 
     if (
       node.left instanceof PropertyRead ||
@@ -116,11 +114,13 @@ export class ReadCollector extends CombinedRecursiveAstVisitor {
     }
 
     this.visit(node.right);
+
     return undefined;
   }
 
   override visitPropertyRead(node: PropertyRead, context: unknown): unknown {
     this.record(node);
+
     return super.visitPropertyRead(node, context);
   }
 
@@ -129,6 +129,7 @@ export class ReadCollector extends CombinedRecursiveAstVisitor {
     context: unknown
   ): unknown {
     this.record(node);
+
     return super.visitSafePropertyRead(node, context);
   }
 }

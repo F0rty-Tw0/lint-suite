@@ -129,9 +129,7 @@ export const collectAngularTemplateReads = (
       continue;
     }
 
-    if (!template) {
-      continue;
-    }
+    if (!template) continue;
 
     let source: string;
     let templateFileName = fileName;

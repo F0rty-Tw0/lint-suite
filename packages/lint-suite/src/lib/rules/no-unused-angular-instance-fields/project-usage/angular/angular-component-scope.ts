@@ -17,17 +17,11 @@ import { classDecoratorKind, resolveAlias } from './angular-decorator-kind.js';
 import { metadataProperty } from './angular-metadata-values.js';
 
 const booleanValue = (node: Expression | undefined): boolean | undefined => {
-  if (!node) {
-    return undefined;
-  }
+  if (!node) return undefined;
 
-  if (node.kind === SyntaxKind.TrueKeyword) {
-    return true;
-  }
+  if (node.kind === SyntaxKind.TrueKeyword) return true;
 
-  if (node.kind === SyntaxKind.FalseKeyword) {
-    return false;
-  }
+  if (node.kind === SyntaxKind.FalseKeyword) return false;
 
   return undefined;
 };
@@ -54,13 +48,9 @@ export const scopeOf = (
     return null;
   }
 
-  if (!imports) {
-    return [];
-  }
+  if (!imports) return [];
 
-  if (!isArrayLiteralExpression(imports)) {
-    return null;
-  }
+  if (!isArrayLiteralExpression(imports)) return null;
 
   const scope: ClassLikeDeclaration[] = [];
 
@@ -74,24 +64,16 @@ export const scopeOf = (
     );
     const classes = symbol ? classesOf(symbol, discovery) : [];
 
-    if (classes.length === 0) {
-      return null;
-    }
+    if (classes.length === 0) return null;
 
     for (const declaration of classes) {
-      if (declaration.getSourceFile().isDeclarationFile) {
-        continue;
-      }
+      if (declaration.getSourceFile().isDeclarationFile) continue;
 
       const kind = classDecoratorKind(declaration, discovery);
 
-      if (kind === 'Pipe') {
-        continue;
-      }
+      if (kind === 'Pipe') continue;
 
-      if (kind !== 'Component' && kind !== 'Directive') {
-        return null;
-      }
+      if (kind !== 'Component' && kind !== 'Directive') return null;
 
       scope.push(declaration);
     }

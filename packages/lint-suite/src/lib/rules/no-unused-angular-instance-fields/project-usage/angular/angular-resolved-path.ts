@@ -40,9 +40,7 @@ export const addResolvedPath = (
         continue;
       }
 
-      if (isAnyOrUnknown(types)) {
-        return true;
-      }
+      if (isAnyOrUnknown(types)) return true;
 
       return index === 0 && allowMissingRoot;
     }
@@ -64,9 +62,7 @@ export const addResolvedPath = (
           .map((signature) => signature.getReturnType())
       );
 
-      if (returnTypes.length === 0) {
-        return isAnyOrUnknown(types);
-      }
+      if (returnTypes.length === 0) return isAnyOrUnknown(types);
 
       types = returnTypes;
     }

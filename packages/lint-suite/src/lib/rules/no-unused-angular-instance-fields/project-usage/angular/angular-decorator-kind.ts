@@ -52,15 +52,11 @@ export const resolveAlias = (symbol: Symbol, discovery: Discovery): Symbol => {
       discovery.dependencies.add(declaration.getSourceFile());
     }
 
-    if ((current.flags & SymbolFlags.Alias) === 0) {
-      return current;
-    }
+    if ((current.flags & SymbolFlags.Alias) === 0) return current;
 
     const next = discovery.checker.getImmediateAliasedSymbol(current);
 
-    if (!next || next === current) {
-      return current;
-    }
+    if (!next || next === current) return current;
 
     current = next;
   }
@@ -74,16 +70,12 @@ export const angularDecoratorKind = (
 ): DecoratorKind | null => {
   const unresolved = discovery.checker.getSymbolAtLocation(expression);
 
-  if (!unresolved) {
-    return null;
-  }
+  if (!unresolved) return null;
 
   const symbol = resolveAlias(unresolved, discovery);
   const name = symbol.getName();
 
-  if (!decoratorKinds.has(name)) {
-    return null;
-  }
+  if (!decoratorKinds.has(name)) return null;
 
   const fromAngularCore =
     (unresolved.declarations ?? []).some(importedFromAngularCore) ||
@@ -101,23 +93,17 @@ export const classDecoratorKind = (
   declaration: ClassLikeDeclaration,
   discovery: Discovery
 ): DecoratorKind | null => {
-  if (!canHaveDecorators(declaration)) {
-    return null;
-  }
+  if (!canHaveDecorators(declaration)) return null;
 
   for (const decorator of getDecorators(declaration) ?? []) {
-    if (!isCallExpression(decorator.expression)) {
-      continue;
-    }
+    if (!isCallExpression(decorator.expression)) continue;
 
     const kind = angularDecoratorKind(
       decorator.expression.expression,
       discovery
     );
 
-    if (kind !== null) {
-      return kind;
-    }
+    if (kind !== null) return kind;
   }
 
   return null;

@@ -116,9 +116,7 @@ export const addTemplateReads = (
       continue;
     }
 
-    if (!(entity instanceof TmplAstReference)) {
-      continue;
-    }
+    if (!(entity instanceof TmplAstReference)) continue;
 
     usedDirectiveIndex = true;
 

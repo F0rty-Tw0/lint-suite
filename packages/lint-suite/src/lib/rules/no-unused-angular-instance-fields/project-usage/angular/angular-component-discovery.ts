@@ -31,25 +31,19 @@ const angularClass = (
   declaration: ClassLikeDeclaration,
   discovery: Discovery
 ): AngularClass | null => {
-  if (!canHaveDecorators(declaration)) {
-    return null;
-  }
+  if (!canHaveDecorators(declaration)) return null;
 
   const name = declaration.name?.text ?? '';
 
   for (const decorator of getDecorators(declaration) ?? []) {
-    if (!isCallExpression(decorator.expression)) {
-      continue;
-    }
+    if (!isCallExpression(decorator.expression)) continue;
 
     const kind = angularDecoratorKind(
       decorator.expression.expression,
       discovery
     );
 
-    if (kind !== 'Component' && kind !== 'Directive') {
-      continue;
-    }
+    if (kind !== 'Component' && kind !== 'Directive') continue;
 
     const component = kind === 'Component';
     const metadata = decorator.expression.arguments[0];
@@ -64,9 +58,7 @@ const angularClass = (
       template: null
     };
 
-    if (metadata === undefined && !component) {
-      return { ...base, valid: true };
-    }
+    if (metadata === undefined && !component) return { ...base, valid: true };
 
     if (metadata === undefined || !isObjectLiteralExpression(metadata)) {
       return { ...base, valid: false };
