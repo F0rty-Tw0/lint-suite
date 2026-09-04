@@ -18,7 +18,7 @@ export const basePractices = defineConfig([
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
-      curly: ['error', 'multi'],
+      curly: ['error', 'multi-line'],
       'prefer-const': ['error', { destructuring: 'all' }],
       'no-var': 'error',
       'object-shorthand': 'error',
