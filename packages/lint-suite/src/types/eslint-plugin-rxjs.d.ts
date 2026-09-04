@@ -1,14 +1,18 @@
 declare module '@smarttools/eslint-plugin-rxjs' {
-  import type { Linter, Rule } from 'eslint';
+  import type { ESLint, Linter, Rule } from 'eslint';
 
-  interface ESLintPlugin extends ESLint.Plugin {
+  type RxjsConfigs = {
+    recommended: Linter.Config;
+    all?: Linter.Config;
+    [key: string]: Linter.Config;
+  };
+
+  type RxjsPluginShape = {
     rules: Record<string, Rule.RuleModule>;
-    configs: {
-      recommended: Linter.Config;
-      all?: Linter.Config;
-      [key: string]: Linter.Config;
-    };
-  }
+    configs: RxjsConfigs;
+  };
+
+  type ESLintPlugin = RxjsPluginShape & ESLint.Plugin;
 
   const plugin: ESLintPlugin;
   export = plugin;
