@@ -1,19 +1,54 @@
 import type { Node, SourceFile, Type, TypeChecker } from 'typescript';
 
-import { collectAngularTemplateReads } from './angular/angular-template-reads.js';
+import { collectAngularTemplateReads } from './angular/angular-template-reads.ts';
 import type {
   FileEntry,
   ProjectIndex,
   ReadSink,
   TemplateReads
-} from './common/project-usage.type.js';
-import { collectTypeScriptReads } from './typescript/typescript-reads.js';
-import { addTypeDependencies } from './typescript/typescript-type-dependencies.js';
+} from './common/project-usage.type.ts';
+import { collectTypeScriptReads } from './typescript/typescript-reads.ts';
+import { addTypeDependencies } from './typescript/typescript-type-dependencies.ts';
 
 const failureText = (error: unknown): string => {
   if (error instanceof Error) return error.message;
 
   return String(error);
+};
+
+const collectFileReads = (
+  index: ProjectIndex,
+  sourceFile: SourceFile,
+  checker: TypeChecker,
+  sink: ReadSink
+): TemplateReads => {
+  try {
+    collectTypeScriptReads(sourceFile, checker, sink, index.candidateNames);
+
+    const classes = index.classes.get(sourceFile.fileName)?.classes ?? [];
+
+    return collectAngularTemplateReads({
+      allNames: index.candidateNames,
+      checker,
+      classes,
+      directives: index.directives,
+      sink
+    });
+  } catch (error) {
+    const errorMessage = failureText(error);
+
+    sink.addFallbackNames(
+      index.candidateNames,
+      `${sourceFile.fileName}: indexing failed (${errorMessage})`
+    );
+
+    const noTemplateReads: TemplateReads = {
+      templateVersions: [],
+      usedDirectiveIndex: false
+    };
+
+    return noTemplateReads;
+  }
 };
 
 export const computeEntry = (
@@ -39,29 +74,7 @@ export const computeEntry = (
       addTypeDependencies(checker, type, dependencies, seenTypes);
     }
   };
-  let reads: TemplateReads = {
-    templateVersions: [],
-    usedDirectiveIndex: false
-  };
-
-  try {
-    collectTypeScriptReads(sourceFile, checker, sink, index.candidateNames);
-
-    reads = collectAngularTemplateReads(
-      index.classes.get(sourceFile.fileName)?.classes ?? [],
-      checker,
-      sink,
-      index.directives,
-      index.candidateNames
-    );
-  } catch (error) {
-    const errorMessage = failureText(error);
-
-    sink.addFallbackNames(
-      index.candidateNames,
-      `${sourceFile.fileName}: indexing failed (${errorMessage})`
-    );
-  }
+  const reads = collectFileReads(index, sourceFile, checker, sink);
 
   dependencies.delete(sourceFile);
 

@@ -1,12 +1,12 @@
 import { isClassElement, isIdentifier, isStringLiteralLike } from 'typescript';
 import type { Node, Program } from 'typescript';
 
-import { buildDirectiveIndex } from './angular/angular-template-reads.js';
+import { buildDirectiveIndex } from './angular/angular-directive-index.ts';
 import type {
   ProjectIndex,
   ProjectUsageIndex
-} from './common/project-usage.type.js';
-import { reconcile } from './project-index-reconciliation.js';
+} from './common/project-usage.type.ts';
+import { reconcile } from './project-index-reconciliation.ts';
 
 const indexes = new Map<string, ProjectIndex>();
 
@@ -14,6 +14,7 @@ const memberName = (node: Node): string | null => {
   const isMember = isClassElement(node);
 
   if (!isMember) return null;
+
   if (!node.name) return null;
 
   const isIdentifierName = isIdentifier(node.name);
@@ -42,7 +43,7 @@ const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
   }
 
   index.usage = {
-    has: (node) => {
+    has: (node): boolean => {
       const hasDeclaration = declarations.has(node);
 
       if (hasDeclaration) return true;

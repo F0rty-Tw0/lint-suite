@@ -1,20 +1,20 @@
 import type { Program, SourceFile, TypeChecker } from 'typescript';
 
-import { angularClasses } from './angular/angular-component-discovery.js';
+import { angularClasses } from './angular/angular-component-discovery.ts';
 import {
   buildDirectiveIndex,
-  directiveShape,
-  templateFileIsCurrent
-} from './angular/angular-template-reads.js';
+  directiveShape
+} from './angular/angular-directive-index.ts';
+import { templateFileIsCurrent } from './angular/angular-template-reads.ts';
 import type {
   FileClasses,
   FileEntry,
   ProjectIndex,
   TemplateFileVersion
-} from './common/project-usage.type.js';
-import { computeEntry } from './project-file-entry.js';
-import { collectCandidateNames } from './typescript/typescript-reads.js';
-import { isSpecFile } from './utils/spec-file.util.js';
+} from './common/project-usage.type.ts';
+import { computeEntry } from './project-file-entry.ts';
+import { collectCandidateNames } from './typescript/typescript-reads.ts';
+import { isSpecFile } from './utils/spec-file.util.ts';
 
 const typeScriptFilePattern = /\.(?:[cm]?ts|tsx)$/u;
 

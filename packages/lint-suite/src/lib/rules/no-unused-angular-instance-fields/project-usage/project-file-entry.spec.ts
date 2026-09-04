@@ -1,13 +1,13 @@
-import { fixtureDirectory } from '../utils/fixture-project.spec.util.js';
+import { fixtureDirectory } from '../utils/fixture-project.spec.util.ts';
 import {
   projectRuleTester,
   rule,
   ruleName
-} from '../utils/rule-under-test.spec.util.js';
+} from '../utils/rule-under-test.spec.util.ts';
 import {
   memberError,
   projectInvalidCase
-} from './utils/project-analysis-case.spec.util.js';
+} from './utils/project-analysis-case.spec.util.ts';
 
 const projectDirectory = fixtureDirectory('project-usage');
 const projectTester = projectRuleTester(projectDirectory);

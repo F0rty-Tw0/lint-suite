@@ -1,24 +1,24 @@
 import assert from 'node:assert/strict';
 import { readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
-import { afterAll, test } from 'vitest';
 
 import { Linter } from 'eslint';
+import { afterAll, test } from 'vitest';
 
 import {
   copyFixtureProject,
   fixtureCase,
   fixtureDirectory
-} from '../utils/fixture-project.spec.util.js';
+} from '../utils/fixture-project.spec.util.ts';
 import {
   lintConfig,
   projectRuleTester,
   rule,
   ruleName
-} from '../utils/rule-under-test.spec.util.js';
+} from '../utils/rule-under-test.spec.util.ts';
 import {
   memberError,
   projectInvalidCase
-} from './utils/project-analysis-case.spec.util.js';
+} from './utils/project-analysis-case.spec.util.ts';
 
 type ReportedMessage = Pick<
   Linter.LintMessage,
