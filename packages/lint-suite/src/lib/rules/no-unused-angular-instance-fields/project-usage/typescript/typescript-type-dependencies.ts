@@ -14,9 +14,7 @@ export const addTypeDependencies = (
   dependencies: Set<SourceFile>,
   seen: Set<Type>
 ): void => {
-  if (seen.has(type)) {
-    return;
-  }
+  if (seen.has(type)) return;
 
   seen.add(type);
 
@@ -44,9 +42,7 @@ export const addTypeDependencies = (
     return;
   }
 
-  if ((type.flags & TypeFlags.Object) === 0) {
-    return;
-  }
+  if ((type.flags & TypeFlags.Object) === 0) return;
 
   const objectType = type as ObjectType;
   const target =

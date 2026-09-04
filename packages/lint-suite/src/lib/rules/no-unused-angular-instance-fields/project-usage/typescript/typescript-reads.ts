@@ -92,9 +92,7 @@ const addPropertyAccessRead = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  if (!candidateNames.has(node.name.text) || isWriteOnly(node)) {
-    return;
-  }
+  if (!candidateNames.has(node.name.text) || isWriteOnly(node)) return;
 
   sink.addType(checker.getTypeAtLocation(node.expression));
 
@@ -111,17 +109,13 @@ const addElementAccessRead = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  if (isWriteOnly(node) || !node.argumentExpression) {
-    return;
-  }
+  if (isWriteOnly(node) || !node.argumentExpression) return;
 
   const names = literalPropertyNames(
     checker.getTypeAtLocation(node.argumentExpression)
   );
 
-  if (names && !names.some((name) => candidateNames.has(name))) {
-    return;
-  }
+  if (names && !names.some((name) => candidateNames.has(name))) return;
 
   addNamedProperties(
     checker,
@@ -150,9 +144,7 @@ const collectAngularInterfaceMethods = (
     (clause) => clause.token === SyntaxKind.ImplementsKeyword
   );
 
-  if (implementsClauses.length === 0) {
-    return;
-  }
+  if (implementsClauses.length === 0) return;
 
   const classType = checker.getTypeAtLocation(node);
 
@@ -163,9 +155,7 @@ const collectAngularInterfaceMethods = (
       sink.addType(type);
 
       for (const interfaceMethod of type.getProperties()) {
-        if (!isAngularInterfaceMethod(interfaceMethod)) {
-          continue;
-        }
+        if (!isAngularInterfaceMethod(interfaceMethod)) continue;
 
         const implementation = classType.getProperty(interfaceMethod.name);
 

@@ -69,18 +69,14 @@ export const literalPropertyNames = (type: Type): string[] | null => {
     return [String(type.value)];
   }
 
-  if (!type.isUnion()) {
-    return null;
-  }
+  if (!type.isUnion()) return null;
 
   const names: string[] = [];
 
   for (const member of type.types) {
     const memberNames = literalPropertyNames(member);
 
-    if (!memberNames) {
-      return null;
-    }
+    if (!memberNames) return null;
 
     names.push(...memberNames);
   }

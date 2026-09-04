@@ -57,16 +57,12 @@ const collectBindingPattern = (
 ): void => {
   if (isArrayBindingPattern(pattern)) {
     for (const [index, element] of pattern.elements.entries()) {
-      if (isOmittedExpression(element)) {
-        continue;
-      }
+      if (isOmittedExpression(element)) continue;
 
       const names = element.dotDotDotToken ? null : [String(index)];
       const nested = isBindingPattern(element.name);
 
-      if (skippable(names, nested, candidateNames)) {
-        continue;
-      }
+      if (skippable(names, nested, candidateNames)) continue;
 
       const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -112,9 +108,7 @@ const collectBindingPattern = (
 
     const nested = isBindingPattern(element.name);
 
-    if (skippable(names, nested, candidateNames)) {
-      continue;
-    }
+    if (skippable(names, nested, candidateNames)) continue;
 
     const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -141,17 +135,13 @@ const collectAssignmentPattern = (
 ): void => {
   if (isArrayLiteralExpression(pattern)) {
     for (const [index, element] of pattern.elements.entries()) {
-      if (isOmittedExpression(element)) {
-        continue;
-      }
+      if (isOmittedExpression(element)) continue;
 
       const names = isSpreadElement(element) ? null : [String(index)];
       const nested =
         isArrayLiteralExpression(element) || isObjectLiteralExpression(element);
 
-      if (skippable(names, nested, candidateNames)) {
-        continue;
-      }
+      if (skippable(names, nested, candidateNames)) continue;
 
       const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -196,9 +186,7 @@ const collectAssignmentPattern = (
       (isArrayLiteralExpression(property.initializer) ||
         isObjectLiteralExpression(property.initializer));
 
-    if (skippable(names, nested, candidateNames)) {
-      continue;
-    }
+    if (skippable(names, nested, candidateNames)) continue;
 
     const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -240,6 +228,7 @@ export const collectDestructuringReads = (
       sink,
       candidateNames
     );
+
     return;
   }
 
