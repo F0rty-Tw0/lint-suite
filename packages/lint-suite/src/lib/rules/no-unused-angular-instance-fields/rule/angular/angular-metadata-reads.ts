@@ -44,9 +44,7 @@ const templateReads = (
   try {
     const result = parseTemplate(template, filename);
 
-    if (result.errors?.length) {
-      return null;
-    }
+    if (result.errors?.length) return null;
 
     return collectAngularExpressionReads(
       result.nodes,
@@ -64,13 +62,12 @@ const externalTemplateReads = (filename: string): Set<string> | null => {
     const version = `${stats.mtimeNs}:${stats.size}`;
     const cached = externalTemplates.get(filename);
 
-    if (cached?.version === version) {
-      return cached.reads;
-    }
+    if (cached?.version === version) return cached.reads;
 
     const reads = templateReads(readFileSync(filename, 'utf8'), filename);
 
     externalTemplates.set(filename, { reads, version });
+
     return reads;
   } catch {
     return null;
@@ -90,9 +87,7 @@ const expressionReads = (
       ? parser.parseAction(expression, span, 0)
       : parser.parseBinding(expression, span, 0);
 
-    if (result.errors.length > 0) {
-      return null;
-    }
+    if (result.errors.length > 0) return null;
 
     return collectAngularExpressionReads([result], undefined, action);
   } catch {
@@ -101,9 +96,7 @@ const expressionReads = (
 };
 
 const addReads = (target: Set<string>, source: Set<string> | null): boolean => {
-  if (!source) {
-    return false;
-  }
+  if (!source) return false;
 
   for (const name of source) {
     target.add(name);
@@ -146,9 +139,7 @@ const hostPropertyReads = (
   const name = key(property);
   const expression = text(property.value);
 
-  if (name === null || expression === null) {
-    return false;
-  }
+  if (name === null || expression === null) return false;
 
   if (name.startsWith('[')) {
     return addReads(reads, expressionReads(expression, filename, false));
@@ -166,9 +157,7 @@ const hostReads = (
   reads: Set<string>,
   filename: string
 ): boolean => {
-  if (!host) {
-    return true;
-  }
+  if (!host) return true;
 
   if (
     host.type !== TSESTree.AST_NODE_TYPES.ObjectExpression ||
@@ -194,9 +183,7 @@ const inlineTemplateReads = (
   reads: Set<string>,
   filename: string
 ): boolean => {
-  if (!template) {
-    return true;
-  }
+  if (!template) return true;
 
   const source = text(template);
 
@@ -208,9 +195,7 @@ const externalTemplatePropertyReads = (
   reads: Set<string>,
   filename: string
 ): boolean => {
-  if (!templateUrl) {
-    return true;
-  }
+  if (!templateUrl) return true;
 
   const url = text(templateUrl);
 
@@ -253,9 +238,7 @@ export const metadataReads = (
 
   const reads = new Set<string>();
 
-  if (!hostReads(metadataValue(metadata, 'host'), reads, filename)) {
-    return null;
-  }
+  if (!hostReads(metadataValue(metadata, 'host'), reads, filename)) return null;
 
   if (
     (component && remainingNames.every((name) => reads.has(name))) ||

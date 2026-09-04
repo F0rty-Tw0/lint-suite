@@ -20,13 +20,9 @@ const managedApis: Readonly<Record<string, true>> = {
 const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
   const options = node.arguments[1];
 
-  if (options === undefined) {
-    return true;
-  }
+  if (options === undefined) return true;
 
-  if (options.type !== TSESTree.AST_NODE_TYPES.ObjectExpression) {
-    return false;
-  }
+  if (options.type !== TSESTree.AST_NODE_TYPES.ObjectExpression) return false;
 
   return options.properties.every((property) => {
     if (
@@ -87,9 +83,7 @@ export const isManagedField = (
   allowEffectFields: boolean,
   sourceCode: TSESLint.SourceCode
 ): boolean => {
-  if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) {
-    return false;
-  }
+  if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) return false;
 
   const name = angularName(node.value.callee, imports);
 

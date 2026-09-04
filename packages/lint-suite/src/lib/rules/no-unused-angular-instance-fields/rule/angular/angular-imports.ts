@@ -11,9 +11,7 @@ import type {
 const calleeRoot = (
   node: TSESTree.Expression
 ): TSESTree.Identifier | undefined => {
-  if (node.type === TSESTree.AST_NODE_TYPES.Identifier) {
-    return node;
-  }
+  if (node.type === TSESTree.AST_NODE_TYPES.Identifier) return node;
 
   if (
     node.type !== TSESTree.AST_NODE_TYPES.MemberExpression ||
@@ -57,9 +55,7 @@ export const isImportBinding = (
 ): boolean => {
   const root = calleeRoot(node);
 
-  if (!root) {
-    return false;
-  }
+  if (!root) return false;
 
   for (
     let scope: TSESLint.Scope.Scope | null = sourceCode.getScope(root);
@@ -68,9 +64,7 @@ export const isImportBinding = (
   ) {
     const variable = scope.set.get(root.name);
 
-    if (variable) {
-      return variable.defs[0]?.type === 'ImportBinding';
-    }
+    if (variable) return variable.defs[0]?.type === 'ImportBinding';
   }
 
   return false;

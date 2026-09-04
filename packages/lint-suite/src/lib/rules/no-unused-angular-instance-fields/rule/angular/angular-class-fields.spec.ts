@@ -50,6 +50,7 @@ test('resolves inline template reads before project member lookup', () => {
     false,
     (): boolean => {
       projectLookupCalls += 1;
+
       return false;
     }
   );

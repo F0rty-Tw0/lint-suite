@@ -31,9 +31,7 @@ export const reportUnusedMembers = (
   for (const entry of classes) {
     const ngClass = angularClassMetadata(entry.node, imports);
 
-    if (!ngClass || dynamicClasses.has(entry)) {
-      continue;
-    }
+    if (!ngClass || dynamicClasses.has(entry)) continue;
 
     // ponytail: local analysis cannot see subclasses, so directive and
     // abstract-class members are only candidates when private.
@@ -57,17 +55,13 @@ export const reportUnusedMembers = (
       }
     }
 
-    if (members.length === 0) {
-      continue;
-    }
+    if (members.length === 0) continue;
 
     const unreadMembers = members.filter(
       (candidate) => !entry.reads.has(candidate.name)
     );
 
-    if (unreadMembers.length === 0) {
-      continue;
-    }
+    if (unreadMembers.length === 0) continue;
 
     // ponytail: project analysis indexes the component's own template with
     // type information, so a template that cannot be read locally (for
@@ -80,9 +74,7 @@ export const reportUnusedMembers = (
       !projectAnalysis
     );
 
-    if (!reads) {
-      continue;
-    }
+    if (!reads) continue;
 
     for (const candidate of unreadMembers) {
       if (
