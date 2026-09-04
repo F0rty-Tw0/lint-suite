@@ -1,9 +1,9 @@
 import {
+  SyntaxKind,
   isArrayLiteralExpression,
   isClassLike,
   isIdentifier,
-  isPropertyAccessExpression,
-  SyntaxKind
+  isPropertyAccessExpression
 } from 'typescript';
 import type {
   ClassLikeDeclaration,
@@ -12,9 +12,9 @@ import type {
   Symbol
 } from 'typescript';
 
-import type { Discovery } from '../common/project-usage.type.js';
-import { classDecoratorKind, resolveAlias } from './angular-decorator-kind.js';
-import { metadataProperty } from './angular-metadata-values.js';
+import { classDecoratorKind, resolveAlias } from './angular-decorator-kind.ts';
+import { metadataProperty } from './angular-metadata-values.ts';
+import type { Discovery } from '../common/project-usage.type.ts';
 
 const booleanValue = (node: Expression | undefined): boolean | undefined => {
   if (!node) return undefined;
@@ -34,6 +34,48 @@ const classesOf = (
   const declarations = resolved.declarations ?? [];
 
   return declarations.filter(isClassLike);
+};
+
+const scopedClasses = (
+  classes: ClassLikeDeclaration[],
+  discovery: Discovery
+): ClassLikeDeclaration[] | null => {
+  const scoped: ClassLikeDeclaration[] = [];
+
+  for (const declaration of classes) {
+    if (declaration.getSourceFile().isDeclarationFile) continue;
+
+    const kind = classDecoratorKind(declaration, discovery);
+
+    if (kind === 'Pipe') continue;
+
+    if (kind !== 'Component' && kind !== 'Directive') return null;
+
+    scoped.push(declaration);
+  }
+
+  return scoped;
+};
+
+const importedClasses = (
+  element: Expression,
+  discovery: Discovery
+): ClassLikeDeclaration[] | null => {
+  const isIdentifierElement = isIdentifier(element);
+  const isPropertyAccessElement = isPropertyAccessExpression(element);
+
+  if (!isIdentifierElement && !isPropertyAccessElement) return null;
+
+  const target = isIdentifierElement ? element : element.name;
+  const symbol = discovery.checker.getSymbolAtLocation(target);
+
+  if (!symbol) return null;
+
+  const classes = classesOf(symbol, discovery);
+
+  if (classes.length === 0) return null;
+
+  return scopedClasses(classes, discovery);
 };
 
 /**
@@ -60,32 +102,11 @@ export const scopeOf = (
   const scope: ClassLikeDeclaration[] = [];
 
   for (const element of imports.elements) {
-    const isIdentifierElement = isIdentifier(element);
-    const isPropertyAccessElement = isPropertyAccessExpression(element);
+    const classes = importedClasses(element, discovery);
 
-    if (!isIdentifierElement && !isPropertyAccessElement) return null;
+    if (classes === null) return null;
 
-    const symbol = discovery.checker.getSymbolAtLocation(
-      isIdentifier(element) ? element : element.name
-    );
-
-    if (!symbol) return null;
-
-    const classes = classesOf(symbol, discovery);
-
-    if (classes.length === 0) return null;
-
-    for (const declaration of classes) {
-      if (declaration.getSourceFile().isDeclarationFile) continue;
-
-      const kind = classDecoratorKind(declaration, discovery);
-
-      if (kind === 'Pipe') continue;
-
-      if (kind !== 'Component' && kind !== 'Directive') return null;
-
-      scope.push(declaration);
-    }
+    scope.push(...classes);
   }
 
   return scope;

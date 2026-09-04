@@ -1,33 +1,20 @@
-import { fixtureDirectory } from '../../utils/fixture-project.spec.util.js';
+import { fixtureDirectory } from '../../utils/fixture-project.spec.util.ts';
 import {
   projectRuleTester,
   rule,
   ruleName
-} from '../../utils/rule-under-test.spec.util.js';
-import {
-  memberError,
-  projectInvalidCase
-} from '../utils/project-analysis-case.spec.util.js';
+} from '../../utils/rule-under-test.spec.util.ts';
+import { projectValidCase } from '../utils/project-analysis-case.spec.util.ts';
 
-const discoveryDirectory = fixtureDirectory('project-discovery');
-const discoveryTester = projectRuleTester(discoveryDirectory);
+const projectUsageDirectory = fixtureDirectory('project-usage');
+const projectUsageTester = projectRuleTester(projectUsageDirectory);
 
-const unreadLabelError = memberError('unusedField', 'unreadLabel');
-const elementReferenceCase = projectInvalidCase(
-  'resolves an element reference with no exportAs through the selector matcher',
-  discoveryDirectory,
-  'element-reference.component.ts',
-  [unreadLabelError]
+const templateReadCase = projectValidCase(
+  'accepts a directive field read by an Angular template in project mode',
+  projectUsageDirectory,
+  'project-template.directive.ts'
 );
 
-const unreadStateError = memberError('unusedField', 'unreadState');
-const exportAsReferenceCase = projectInvalidCase(
-  'resolves an exportAs template reference to its directive',
-  discoveryDirectory,
-  'chain.directive.ts',
-  [unreadStateError]
-);
+const valid = [templateReadCase];
 
-const invalid = [elementReferenceCase, exportAsReferenceCase];
-
-discoveryTester.run(ruleName, rule, { valid: [], invalid });
+projectUsageTester.run(ruleName, rule, { valid, invalid: [] });

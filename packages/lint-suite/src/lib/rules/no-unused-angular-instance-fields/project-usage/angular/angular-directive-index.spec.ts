@@ -12,14 +12,14 @@ import {
 const discoveryDirectory = fixtureDirectory('project-discovery');
 const discoveryTester = projectRuleTester(discoveryDirectory);
 
-const unreadConstantError = memberError('unusedField', 'unreadConstant');
-const externalTemplateCase = projectInvalidCase(
-  'reads a directive member from the external template file of another component',
+const unreadLabelError = memberError('unusedField', 'unreadLabel');
+const elementReferenceCase = projectInvalidCase(
+  'resolves an element reference with no exportAs through the selector matcher',
   discoveryDirectory,
-  'constant-metadata.directive.ts',
-  [unreadConstantError]
+  'element-reference.component.ts',
+  [unreadLabelError]
 );
 
-const invalid = [externalTemplateCase];
+const invalid = [elementReferenceCase];
 
 discoveryTester.run(ruleName, rule, { valid: [], invalid });

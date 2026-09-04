@@ -1,5 +1,13 @@
-import {
+import type {
+  AST,
   Binary,
+  TmplAstComponent,
+  TmplAstDirective,
+  TmplAstElement,
+  TmplAstReference,
+  TmplAstTemplate
+} from '@angular/compiler';
+import {
   Call,
   CombinedRecursiveAstVisitor,
   ImplicitReceiver,
@@ -7,67 +15,83 @@ import {
   PropertyRead,
   SafeKeyedRead,
   SafePropertyRead,
-  ThisReceiver,
-  TmplAstComponent,
-  TmplAstDirective,
-  TmplAstElement,
-  TmplAstReference,
-  TmplAstTemplate
+  ThisReceiver
 } from '@angular/compiler';
 
+import { isReadTarget } from '../../utils/angular-read-target.util.ts';
 import type {
   ReadChain,
   ReadSegment,
   ReferenceOwner
-} from '../common/project-usage.type.js';
-import { isReadTarget } from '../../utils/angular-read-target.util.js';
+} from '../common/project-usage.type.ts';
+
+type ChainStep = {
+  readonly called: boolean;
+  readonly next: PropertyRead | SafePropertyRead;
+};
+
+const isPropertyReadLike = (
+  node: AST
+): node is PropertyRead | SafePropertyRead => {
+  const isPlainRead = node instanceof PropertyRead;
+  const isSafeRead = node instanceof SafePropertyRead;
+
+  return isPlainRead || isSafeRead;
+};
+
+const isRootRead = (read: PropertyRead | SafePropertyRead): boolean => {
+  const isImplicitReceiver = read.receiver instanceof ImplicitReceiver;
+  const isThisReceiver = read.receiver instanceof ThisReceiver;
+
+  return isImplicitReceiver || isThisReceiver;
+};
+
+const chainStep = (read: PropertyRead | SafePropertyRead): ChainStep | null => {
+  const receiver = read.receiver;
+
+  if (isPropertyReadLike(receiver)) {
+    const readStep: ChainStep = { called: false, next: receiver };
+
+    return readStep;
+  }
+
+  const isCallReceiver = receiver instanceof Call;
+
+  if (!isCallReceiver) return null;
+
+  const target = receiver.receiver;
+
+  if (!isPropertyReadLike(target)) return null;
+
+  const calledStep: ChainStep = { called: true, next: target };
+
+  return calledStep;
+};
 
 const readChain = (node: PropertyRead | SafePropertyRead): ReadChain | null => {
-  const names: ReadSegment[] = [];
-  let current: PropertyRead | SafePropertyRead = node;
-  let called = false;
+  const leaf: ReadSegment = { called: false, name: node.name };
+  const names: ReadSegment[] = [leaf];
+  let current = node;
 
-  while (true) {
-    names.unshift({ called, name: current.name });
+  while (!isRootRead(current)) {
+    const step = chainStep(current);
 
-    if (
-      current.receiver instanceof PropertyRead ||
-      current.receiver instanceof SafePropertyRead
-    ) {
-      current = current.receiver;
-      called = false;
-      continue;
-    }
+    if (step === null) return null;
 
-    if (current.receiver instanceof Call) {
-      if (
-        !(current.receiver.receiver instanceof PropertyRead) &&
-        !(current.receiver.receiver instanceof SafePropertyRead)
-      ) {
-        return null;
-      }
-
-      current = current.receiver.receiver;
-      called = true;
-      continue;
-    }
-
-    const isImplicitReceiver = current.receiver instanceof ImplicitReceiver;
-    const isThisReceiver = current.receiver instanceof ThisReceiver;
-    const isComponentReceiver = isImplicitReceiver || isThisReceiver;
-
-    if (!isComponentReceiver) return null;
-    if (!(current instanceof PropertyRead)) return null;
-
-    const chain: ReadChain = { names, root: current };
-
-    return chain;
+    current = step.next;
+    names.unshift({ called: step.called, name: current.name });
   }
+
+  if (!(current instanceof PropertyRead)) return null;
+
+  const chain: ReadChain = { names, root: current };
+
+  return chain;
 };
 
 export class ReadCollector extends CombinedRecursiveAstVisitor {
-  readonly reads: ReadChain[] = [];
-  readonly referenceOwners = new Map<TmplAstReference, ReferenceOwner>();
+  public readonly reads: ReadChain[] = [];
+  public readonly referenceOwners = new Map<TmplAstReference, ReferenceOwner>();
 
   private record(node: PropertyRead | SafePropertyRead): void {
     const chain = readChain(node);
@@ -83,27 +107,27 @@ export class ReadCollector extends CombinedRecursiveAstVisitor {
     }
   }
 
-  override visitElement(element: TmplAstElement): void {
+  public override visitElement(element: TmplAstElement): void {
     this.recordReferences(element);
     super.visitElement(element);
   }
 
-  override visitTemplate(template: TmplAstTemplate): void {
+  public override visitTemplate(template: TmplAstTemplate): void {
     this.recordReferences(template);
     super.visitTemplate(template);
   }
 
-  override visitComponent(component: TmplAstComponent): void {
+  public override visitComponent(component: TmplAstComponent): void {
     this.recordReferences(component);
     super.visitComponent(component);
   }
 
-  override visitDirective(directive: TmplAstDirective): void {
+  public override visitDirective(directive: TmplAstDirective): void {
     this.recordReferences(directive);
     super.visitDirective(directive);
   }
 
-  override visitBinary(node: Binary, context: unknown): unknown {
+  public override visitBinary(node: Binary, context: unknown): unknown {
     if (node.operation !== '=') return super.visitBinary(node, context);
 
     if (isReadTarget(node.left)) {
@@ -119,13 +143,16 @@ export class ReadCollector extends CombinedRecursiveAstVisitor {
     return undefined;
   }
 
-  override visitPropertyRead(node: PropertyRead, context: unknown): unknown {
+  public override visitPropertyRead(
+    node: PropertyRead,
+    context: unknown
+  ): unknown {
     this.record(node);
 
     return super.visitPropertyRead(node, context);
   }
 
-  override visitSafePropertyRead(
+  public override visitSafePropertyRead(
     node: SafePropertyRead,
     context: unknown
   ): unknown {

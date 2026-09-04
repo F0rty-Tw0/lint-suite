@@ -1,24 +1,26 @@
 import {
-  createCssSelectorFromNode,
-  parseTemplate,
   R3TargetBinder,
   ThisReceiver,
-  TmplAstElement,
-  TmplAstReference
+  TmplAstReference,
+  parseTemplate
 } from '@angular/compiler';
-import type { DirectiveMeta, TemplateEntity } from '@angular/compiler';
-import type { ClassLikeDeclaration, TypeChecker } from 'typescript';
-
 import type {
-  AngularClass,
-  DirectiveIndex,
+  BoundTarget,
+  DirectiveMeta,
+  TemplateEntity
+} from '@angular/compiler';
+
+import { addResolvedPath } from './angular-resolved-path.ts';
+import { ReadCollector } from './angular-template-read-chains.ts';
+import { addReferenceRead } from './angular-template-references.ts';
+import type {
   ReadChain,
   ReadSegment,
-  ReadSink,
-  ReferenceOwner
-} from '../common/project-usage.type.js';
-import { addResolvedPath } from './angular-resolved-path.js';
-import { ReadCollector } from './angular-template-read-chains.js';
+  ResolvedPathOptions,
+  TemplateReadContext,
+  TemplateReadsOptions
+} from '../common/project-usage.type.ts';
+import { chainText } from '../utils/read-chain-text.util.ts';
 
 type TemplateReadResult = {
   /** True when a `#reference` was resolved through the directive index. */
@@ -32,147 +34,121 @@ const identifierNames = (text: string): Set<string> => {
   return new Set(matches);
 };
 
-const segmentText = (segment: ReadSegment): string => {
-  const call = segment.called ? '()' : '';
-
-  return `${segment.name}${call}`;
-};
-
-const chainText = (names: ReadSegment[]): string => {
-  const texts = names.map(segmentText);
-
-  return texts.join('.');
-};
-
 const templateBinder = new R3TargetBinder<DirectiveMeta>(null);
 
-/**
- * Classes a `#reference` can resolve to. Candidates come from the whole
- * Program and are narrowed to the component's standalone `imports` when
- * that scope is known; a scope member with `hostDirectives` may expose
- * exportAs names that are not modelled, so it keeps the wider set. Extra
- * candidates only add reads.
- */
-const referenceTargets = (
-  reference: TmplAstReference,
-  owner: ReferenceOwner | undefined,
-  directives: DirectiveIndex,
-  scope: ClassLikeDeclaration[] | null
-): ClassLikeDeclaration[] => {
-  const exportAs = reference.value.trim();
-  let targets: ClassLikeDeclaration[] = [];
+const unparsedTemplateReads = (
+  context: TemplateReadContext,
+  source: string,
+  error: string | undefined
+): TemplateReadResult => {
+  const names = identifierNames(source);
+  const message = error ?? 'unknown error';
+  const reason = `${context.fileName}: template of ${context.className} does not parse (${message})`;
 
-  if (exportAs !== '') {
-    const exportedTargets = directives.byExportAs.get(exportAs) ?? [];
+  context.sink.addFallbackNames(names, reason);
 
-    targets = [...exportedTargets];
-  } else if (owner instanceof TmplAstElement) {
-    directives.componentMatcher.match(
-      createCssSelectorFromNode(owner),
-      (_selector, declarations) => {
-        targets.push(...declarations);
-      }
-    );
-  }
+  const unparsedReads: TemplateReadResult = { usedDirectiveIndex: false };
 
-  const scoped =
-    scope !== null &&
-    !scope.some(
-      (declaration) => directives.byDeclaration.get(declaration)?.hostDirectives
-    );
-
-  if (!scoped) return targets;
-
-  const scopedTargets = targets.filter((target) => scope.includes(target));
-
-  return scopedTargets;
+  return unparsedReads;
 };
 
-export const addTemplateReads = (
-  { declaration, scope }: AngularClass,
-  source: string,
-  fileName: string,
-  checker: TypeChecker,
-  sink: ReadSink,
-  directives: DirectiveIndex
-): TemplateReadResult => {
-  const parsed = parseTemplate(source, fileName);
+const addComponentRead = (
+  context: TemplateReadContext,
+  names: ReadSegment[]
+): void => {
+  const { checker, className, declaration, fileName, sink } = context;
+  const options: ResolvedPathOptions = {
+    allowMissingRoot: true,
+    checker,
+    declaration,
+    names,
+    sink
+  };
+  const isResolved = addResolvedPath(options);
+
+  if (isResolved) return;
+
+  const fallbackNames = names.map((segment) => segment.name);
+  const reason = `${fileName}: cannot resolve '${chainText(names)}' on ${className}`;
+
+  sink.addFallbackNames(fallbackNames, reason);
+};
+
+const chainEntity = (
+  boundTarget: BoundTarget<DirectiveMeta>,
+  chain: ReadChain
+): TemplateEntity | null => {
+  const isThisRead = chain.root.receiver instanceof ThisReceiver;
+
+  if (isThisRead) return null;
+
+  return boundTarget.getExpressionTarget(chain.root);
+};
+
+const addChainRead = (
+  context: TemplateReadContext,
+  reads: ReadCollector,
+  boundTarget: BoundTarget<DirectiveMeta>,
+  chain: ReadChain
+): boolean => {
+  const entity = chainEntity(boundTarget, chain);
+
+  if (entity === null) {
+    addComponentRead(context, chain.names);
+
+    return false;
+  }
+
+  if (!(entity instanceof TmplAstReference)) return false;
+
+  const owner = reads.referenceOwners.get(entity);
+  const names = chain.names.slice(1);
+
+  addReferenceRead(context, entity, owner, names);
+
+  return true;
+};
+
+export const addTemplateReads = ({
+  angularClass,
+  checker,
+  directives,
+  fileName,
+  sink,
+  source
+}: TemplateReadsOptions): TemplateReadResult => {
+  const { declaration, scope } = angularClass;
   const className = declaration.name?.text ?? '(anonymous)';
+  const context: TemplateReadContext = {
+    checker,
+    className,
+    declaration,
+    directives,
+    fileName,
+    scope,
+    sink
+  };
+  const parsed = parseTemplate(source, fileName);
 
   if (parsed.errors?.length) {
-    sink.addFallbackNames(
-      identifierNames(source),
-      `${fileName}: template of ${className} does not parse (${parsed.errors[0]?.msg ?? 'unknown error'})`
-    );
+    const error = parsed.errors[0]?.msg;
 
-    const unparsedTemplateReads: TemplateReadResult = {
-      usedDirectiveIndex: false
-    };
-
-    return unparsedTemplateReads;
+    return unparsedTemplateReads(context, source, error);
   }
 
   const boundTarget = templateBinder.bind({ template: parsed.nodes });
   const reads = new ReadCollector();
-  let usedDirectiveIndex = false;
 
   for (const node of parsed.nodes) {
     reads.visit(node);
   }
 
-  const chainEntity = (chain: ReadChain): TemplateEntity | null => {
-    const isThisRead = chain.root.receiver instanceof ThisReceiver;
-
-    if (isThisRead) return null;
-
-    return boundTarget.getExpressionTarget(chain.root);
-  };
+  let usedDirectiveIndex = false;
 
   for (const chain of reads.reads) {
-    const entity = chainEntity(chain);
+    const usedIndex = addChainRead(context, reads, boundTarget, chain);
 
-    if (entity === null) {
-      const isResolved = addResolvedPath(
-        declaration,
-        chain.names,
-        checker,
-        sink,
-        true
-      );
-
-      if (!isResolved) {
-        sink.addFallbackNames(
-          chain.names.map((segment) => segment.name),
-          `${fileName}: cannot resolve '${chainText(chain.names)}' on ${className}`
-        );
-      }
-
-      continue;
-    }
-
-    if (!(entity instanceof TmplAstReference)) continue;
-
-    usedDirectiveIndex = true;
-
-    const targets = referenceTargets(
-      entity,
-      reads.referenceOwners.get(entity),
-      directives,
-      scope
-    );
-    const names = chain.names.slice(1);
-    const isTargetResolved = (target: ClassLikeDeclaration): boolean => {
-      return addResolvedPath(target, names, checker, sink, false);
-    };
-    const resolved = targets.map(isTargetResolved);
-    const hasResolvedTarget = resolved.includes(true);
-
-    if (resolved.length > 0 && !hasResolvedTarget) {
-      sink.addFallbackNames(
-        names.map((segment) => segment.name),
-        `${fileName}: cannot resolve '#${entity.name}.${chainText(names)}' in ${className}`
-      );
-    }
+    usedDirectiveIndex ||= usedIndex;
   }
 
   const templateReads: TemplateReadResult = { usedDirectiveIndex };

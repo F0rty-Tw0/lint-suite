@@ -9,11 +9,11 @@ import {
 } from 'typescript';
 import type { Expression, ObjectLiteralExpression } from 'typescript';
 
+import { resolveAlias } from './angular-decorator-kind.ts';
 import type {
   AngularTemplate,
   Discovery
-} from '../common/project-usage.type.js';
-import { resolveAlias } from './angular-decorator-kind.js';
+} from '../common/project-usage.type.ts';
 
 /**
  * The string an expression evaluates to: a literal, or a constant whose

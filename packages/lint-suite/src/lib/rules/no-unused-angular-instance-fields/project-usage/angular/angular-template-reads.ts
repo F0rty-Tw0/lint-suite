@@ -1,21 +1,22 @@
 import { readFileSync, statSync } from 'node:fs';
 
-import { CssSelector, SelectorMatcher } from '@angular/compiler';
 import { isIdentifier, isStringLiteralLike } from 'typescript';
-import type {
-  ClassElement,
-  ClassLikeDeclaration,
-  TypeChecker
-} from 'typescript';
+import type { ClassElement, ClassLikeDeclaration } from 'typescript';
 
+import { addTemplateReads } from './angular-template-read-resolution.ts';
 import type {
   AngularClass,
-  DirectiveIndex,
+  CandidateNames,
+  CollectTemplateReadsOptions,
   ReadSink,
   TemplateFileVersion,
   TemplateReads
-} from '../common/project-usage.type.js';
-import { addTemplateReads } from './angular-template-read-resolution.js';
+} from '../common/project-usage.type.ts';
+
+type TemplateSource = {
+  readonly fileName: string;
+  readonly source: string;
+};
 
 const memberNameOf = (member: ClassElement): string[] => {
   const name = member.name;
@@ -44,7 +45,7 @@ const memberNames = (declaration: ClassLikeDeclaration): string[] => {
  */
 const unknownTemplateNames = (
   { declaration, scope }: AngularClass,
-  allNames: ReadonlySet<string>
+  allNames: CandidateNames
 ): Iterable<string> => {
   if (scope === null) return allNames;
 
@@ -74,135 +75,84 @@ export const templateFileIsCurrent = (
   }
 };
 
-/**
- * A description of every directive's selector and exportAs; when it changes
- * between programs, cached template reference resolutions are stale.
- */
-const classShape = ({
-  component,
-  declaration,
-  exportAs,
-  hostDirectives,
-  name,
-  selector
-}: AngularClass): string => {
-  const fields = [
-    declaration.getSourceFile().fileName,
-    name,
-    String(component),
-    String(hostDirectives),
-    selector ?? '',
-    exportAs.join(',')
-  ];
+const templateSourceOf = (
+  angularClass: AngularClass,
+  allNames: CandidateNames,
+  sink: ReadSink,
+  versions: TemplateFileVersion[]
+): TemplateSource | null => {
+  const { declaration, template, valid } = angularClass;
+  const fileName = declaration.getSourceFile().fileName;
+  const className = declaration.name?.text ?? '(anonymous)';
 
-  return fields.join('\0');
-};
+  if (!valid) {
+    const names = unknownTemplateNames(angularClass, allNames);
+    const reason = `${fileName}: metadata of ${className} is not static (template, templateUrl)`;
 
-export const directiveShape = (classes: Iterable<AngularClass>): string => {
-  const shapes = [...classes].map(classShape);
+    sink.addFallbackNames(names, reason);
 
-  return shapes.sort().join('\n');
-};
+    return null;
+  }
 
-const parseSelector = (selector: string): CssSelector[] | null => {
+  if (!template) return null;
+
+  if (template.kind === 'inline') {
+    const inlineSource: TemplateSource = { fileName, source: template.source };
+
+    return inlineSource;
+  }
+
+  const templateFileName = template.fileName;
+
   try {
-    return CssSelector.parse(selector);
+    versions.push(templateFileVersion(templateFileName));
+
+    const source = readFileSync(templateFileName, 'utf8');
+    const externalSource: TemplateSource = {
+      fileName: templateFileName,
+      source
+    };
+
+    return externalSource;
   } catch {
+    const names = unknownTemplateNames(angularClass, allNames);
+    const reason = `${fileName}: templateUrl of ${className} cannot be read (${templateFileName})`;
+
+    sink.addFallbackNames(names, reason);
+
     return null;
   }
 };
 
-export const buildDirectiveIndex = (
-  classes: Iterable<AngularClass>
-): DirectiveIndex => {
-  const byDeclaration = new Map<ClassLikeDeclaration, AngularClass>();
-  const byExportAs = new Map<string, ClassLikeDeclaration[]>();
-  const componentMatcher = new SelectorMatcher<ClassLikeDeclaration[]>();
-
-  for (const angularClass of classes) {
-    const { component, declaration, exportAs, selector } = angularClass;
-
-    byDeclaration.set(declaration, angularClass);
-
-    for (const name of exportAs) {
-      const declarations = byExportAs.get(name) ?? [];
-
-      declarations.push(declaration);
-      byExportAs.set(name, declarations);
-    }
-
-    if (component && selector !== null) {
-      const selectors = parseSelector(selector);
-
-      if (selectors) {
-        componentMatcher.addSelectables(selectors, [declaration]);
-      }
-    }
-  }
-
-  const directiveIndex: DirectiveIndex = {
-    byDeclaration,
-    byExportAs,
-    componentMatcher
-  };
-
-  return directiveIndex;
-};
-
 /** Reads made by the templates of the components declared in one file. */
-export const collectAngularTemplateReads = (
-  classes: AngularClass[],
-  checker: TypeChecker,
-  sink: ReadSink,
-  directives: DirectiveIndex,
-  allNames: ReadonlySet<string>
-): TemplateReads => {
+export const collectAngularTemplateReads = ({
+  allNames,
+  checker,
+  classes,
+  directives,
+  sink
+}: CollectTemplateReadsOptions): TemplateReads => {
   const templateVersions: TemplateFileVersion[] = [];
   let usedDirectiveIndex = false;
 
   for (const angularClass of classes) {
-    const { declaration, template, valid } = angularClass;
-    const fileName = declaration.getSourceFile().fileName;
-    const className = declaration.name?.text ?? '(anonymous)';
-
-    if (!valid) {
-      sink.addFallbackNames(
-        unknownTemplateNames(angularClass, allNames),
-        `${fileName}: metadata of ${className} is not static (template, templateUrl)`
-      );
-      continue;
-    }
-
-    if (!template) continue;
-
-    let source: string;
-    let templateFileName = fileName;
-
-    if (template.kind === 'inline') {
-      source = template.source;
-    } else {
-      templateFileName = template.fileName;
-
-      try {
-        templateVersions.push(templateFileVersion(templateFileName));
-        source = readFileSync(templateFileName, 'utf8');
-      } catch {
-        sink.addFallbackNames(
-          unknownTemplateNames(angularClass, allNames),
-          `${fileName}: templateUrl of ${className} cannot be read (${templateFileName})`
-        );
-        continue;
-      }
-    }
-
-    const result = addTemplateReads(
+    const template = templateSourceOf(
       angularClass,
-      source,
-      templateFileName,
-      checker,
+      allNames,
       sink,
-      directives
+      templateVersions
     );
+
+    if (template === null) continue;
+
+    const result = addTemplateReads({
+      angularClass,
+      checker,
+      directives,
+      fileName: template.fileName,
+      sink,
+      source: template.source
+    });
 
     usedDirectiveIndex ||= result.usedDirectiveIndex;
   }

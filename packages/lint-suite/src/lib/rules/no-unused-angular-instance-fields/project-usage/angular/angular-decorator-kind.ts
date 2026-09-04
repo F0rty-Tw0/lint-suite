@@ -1,10 +1,10 @@
 import {
+  SymbolFlags,
   canHaveDecorators,
   getDecorators,
   isCallExpression,
   isImportDeclaration,
-  isStringLiteralLike,
-  SymbolFlags
+  isStringLiteralLike
 } from 'typescript';
 import type {
   ClassLikeDeclaration,
@@ -14,7 +14,7 @@ import type {
   Symbol
 } from 'typescript';
 
-import type { DecoratorKind, Discovery } from '../common/project-usage.type.js';
+import type { DecoratorKind, Discovery } from '../common/project-usage.type.ts';
 
 const decoratorKinds: DecoratorKind[] = [
   'Component',
@@ -33,18 +33,22 @@ const isAngularCoreFile = (declaration: Declaration): boolean => {
   return fileName.includes('/node_modules/@angular/core/');
 };
 
+const parentOf = (node: Node): Node | undefined => {
+  return node.parent;
+};
+
 const importedFromAngularCore = (declaration: Declaration): boolean => {
-  let current: Node = declaration;
+  let current = parentOf(declaration);
 
-  while (current.parent) {
-    current = current.parent;
-
+  while (current) {
     if (isImportDeclaration(current)) {
       return (
         isStringLiteralLike(current.moduleSpecifier) &&
         current.moduleSpecifier.text === '@angular/core'
       );
     }
+
+    current = parentOf(current);
   }
 
   return false;
