@@ -20,6 +20,7 @@ import type {
   ReadSegment,
   ReferenceOwner
 } from '../common/project-usage.type.js';
+import { isReadTarget } from '../../utils/angular-read-target.util.js';
 
 const readChain = (node: PropertyRead | SafePropertyRead): ReadChain | null => {
   const names: ReadSegment[] = [];
@@ -100,12 +101,7 @@ export class ReadCollector extends CombinedRecursiveAstVisitor {
   override visitBinary(node: Binary, context: unknown): unknown {
     if (node.operation !== '=') return super.visitBinary(node, context);
 
-    if (
-      node.left instanceof PropertyRead ||
-      node.left instanceof SafePropertyRead ||
-      node.left instanceof KeyedRead ||
-      node.left instanceof SafeKeyedRead
-    ) {
+    if (isReadTarget(node.left)) {
       this.visit(node.left.receiver);
     }
 

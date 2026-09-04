@@ -48,15 +48,14 @@ export const metadataProperty = (
   name: string
 ): Expression | undefined => {
   for (const property of metadata.properties) {
-    if (
+    const isPropertyNamed =
       isPropertyAssignment(property) &&
       (isIdentifier(property.name) ||
         isStringLiteralLike(property.name) ||
         isNumericLiteral(property.name)) &&
-      property.name.text === name
-    ) {
-      return property.initializer;
-    }
+      property.name.text === name;
+
+    if (isPropertyNamed) return property.initializer;
   }
 
   return undefined;

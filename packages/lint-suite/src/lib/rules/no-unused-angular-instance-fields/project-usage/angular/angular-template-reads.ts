@@ -37,7 +37,9 @@ const unknownTemplateNames = (
 const templateFileVersion = (fileName: string): TemplateFileVersion => {
   const { mtimeNs, size } = statSync(fileName, { bigint: true });
 
-  return { fileName, mtimeNs, size };
+  const version: TemplateFileVersion = { fileName, mtimeNs, size };
+
+  return version;
 };
 
 export const templateFileIsCurrent = (
@@ -102,7 +104,13 @@ export const buildDirectiveIndex = (
     }
   }
 
-  return { byDeclaration, byExportAs, componentMatcher };
+  const directiveIndex: DirectiveIndex = {
+    byDeclaration,
+    byExportAs,
+    componentMatcher
+  };
+
+  return directiveIndex;
 };
 
 /** Reads made by the templates of the components declared in one file. */
@@ -163,5 +171,10 @@ export const collectAngularTemplateReads = (
     usedDirectiveIndex ||= result.usedDirectiveIndex;
   }
 
-  return { templateVersions, usedDirectiveIndex };
+  const templateReads: TemplateReads = {
+    templateVersions,
+    usedDirectiveIndex
+  };
+
+  return templateReads;
 };

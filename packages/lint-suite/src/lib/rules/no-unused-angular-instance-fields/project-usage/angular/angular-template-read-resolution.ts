@@ -88,7 +88,11 @@ export const addTemplateReads = (
       `${fileName}: template of ${className} does not parse (${parsed.errors[0]?.msg ?? 'unknown error'})`
     );
 
-    return { usedDirectiveIndex: false };
+    const unparsedTemplateReads: TemplateReadResult = {
+      usedDirectiveIndex: false
+    };
+
+    return unparsedTemplateReads;
   }
 
   const boundTarget = templateBinder.bind({ template: parsed.nodes });
@@ -141,5 +145,7 @@ export const addTemplateReads = (
     }
   }
 
-  return { usedDirectiveIndex };
+  const templateReads: TemplateReadResult = { usedDirectiveIndex };
+
+  return templateReads;
 };

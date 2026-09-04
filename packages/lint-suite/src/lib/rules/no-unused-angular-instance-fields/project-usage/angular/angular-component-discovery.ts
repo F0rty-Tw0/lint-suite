@@ -58,17 +58,23 @@ const angularClass = (
       template: null
     };
 
-    if (metadata === undefined && !component) return { ...base, valid: true };
+    if (metadata === undefined && !component) {
+      const validDiscovery: AngularClass | null = { ...base, valid: true };
+
+      return validDiscovery;
+    }
 
     if (metadata === undefined || !isObjectLiteralExpression(metadata)) {
-      return { ...base, valid: false };
+      const invalidDiscovery: AngularClass | null = { ...base, valid: false };
+
+      return invalidDiscovery;
     }
 
     const template = component
       ? templateOf(metadata, declaration.getSourceFile().fileName, discovery)
       : null;
 
-    return {
+    const discoveredClass: AngularClass | null = {
       ...base,
       exportAs: exportAsOf(metadata, discovery),
       hostDirectives:
@@ -78,6 +84,8 @@ const angularClass = (
       template: template ?? null,
       valid: template !== undefined
     };
+
+    return discoveredClass;
   }
 
   return null;
@@ -106,5 +114,10 @@ export const angularClasses = (
   visit(sourceFile);
   discovery.dependencies.delete(sourceFile);
 
-  return { classes, dependencies: discovery.dependencies };
+  const discovered: DiscoveredClasses = {
+    classes,
+    dependencies: discovery.dependencies
+  };
+
+  return discovered;
 };
