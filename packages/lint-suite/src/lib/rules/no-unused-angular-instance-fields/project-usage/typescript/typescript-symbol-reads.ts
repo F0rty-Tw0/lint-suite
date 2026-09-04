@@ -88,15 +88,14 @@ export const propertyName = (
   checker: TypeChecker,
   node: PropertyName
 ): string[] | null => {
-  if (
+  const isLiteralName =
     isIdentifier(node) ||
     isPrivateIdentifier(node) ||
     isStringLiteralLike(node) ||
     isNumericLiteral(node) ||
-    isBigIntLiteral(node)
-  ) {
-    return [node.text];
-  }
+    isBigIntLiteral(node);
+
+  if (isLiteralName) return [node.text];
 
   return literalPropertyNames(checker.getTypeAtLocation(node.expression));
 };

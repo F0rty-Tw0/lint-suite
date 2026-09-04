@@ -57,5 +57,13 @@ export const computeEntry = (
 
   dependencies.delete(sourceFile);
 
-  return { ...reads, declarations, dependencies, fallbackNames, sourceFile };
+  const fileEntry: FileEntry = {
+    ...reads,
+    declarations,
+    dependencies,
+    fallbackNames,
+    sourceFile
+  };
+
+  return fileEntry;
 };

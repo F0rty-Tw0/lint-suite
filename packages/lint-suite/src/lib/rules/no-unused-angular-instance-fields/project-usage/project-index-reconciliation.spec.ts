@@ -59,11 +59,11 @@ test('invalidates project template usage after external template changes', () =>
         .verify(cacheComponent.code, cacheProjectConfig, {
           filename: cacheComponent.filename
         })
-        .map(({ message, messageId, ruleId }) => ({
-          message,
-          messageId,
-          ruleId
-        })),
+        .map(({ message, messageId, ruleId }) => {
+          const reportedMessage = { message, messageId, ruleId };
+
+          return reportedMessage;
+        }),
       [
         {
           message:

@@ -48,17 +48,21 @@ const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
   return index.usage;
 };
 
-const createIndex = (): ProjectIndex => ({
-  candidateNames: new Set(),
-  classes: new Map(),
-  directives: buildDirectiveIndex([]),
-  directiveShape: '',
-  entries: new Map(),
-  program: null,
-  templateCheckDuration: 0,
-  templateCheckedAt: 0,
-  usage: undefined
-});
+const createIndex = (): ProjectIndex => {
+  const emptyIndex: ProjectIndex = {
+    candidateNames: new Set(),
+    classes: new Map(),
+    directives: buildDirectiveIndex([]),
+    directiveShape: '',
+    entries: new Map(),
+    program: null,
+    templateCheckDuration: 0,
+    templateCheckedAt: 0,
+    usage: undefined
+  };
+
+  return emptyIndex;
+};
 
 /**
  * True when the index already reflects this exact Program, so callers can
