@@ -1,12 +1,12 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.js';
+import { component } from '../../utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.js';
-import { unusedFieldError } from '../../utils/unused-member-error.spec.util.js';
+} from '../../utils/rule-under-test.spec.util.ts';
+import { unusedFieldError } from '../../utils/unused-member-error.spec.util.ts';
 
 const ignoresNonAngularClasses: RuleTester.ValidTestCase = {
   name: 'ignores fields outside Angular components and directives',
@@ -15,12 +15,11 @@ const ignoresNonAngularClasses: RuleTester.ValidTestCase = {
 
 const acceptsAliasedComponentTemplateRead: RuleTester.ValidTestCase = {
   name: 'accepts a field read by the template of an aliased Component import',
-  code: component(
-    `protected fromTemplate = 'used';`,
-    `template: '{{ fromTemplate }}'`,
-    'Component as NgComponent',
-    'NgComponent'
-  )
+  code: component(`protected fromTemplate = 'used';`, {
+    metadata: `template: '{{ fromTemplate }}'`,
+    imports: 'Component as NgComponent',
+    decorator: 'NgComponent'
+  })
 };
 
 const reportsNamespaceImportedComponentField: RuleTester.InvalidTestCase = {
@@ -32,12 +31,11 @@ const reportsNamespaceImportedComponentField: RuleTester.InvalidTestCase = {
 
 const reportsAliasedComponentField: RuleTester.InvalidTestCase = {
   name: 'reports an unused field in a component with an aliased Component import',
-  code: component(
-    `private unused = '';`,
-    `template: ''`,
-    'Component as NgComponent',
-    'NgComponent'
-  ),
+  code: component(`private unused = '';`, {
+    metadata: `template: ''`,
+    imports: 'Component as NgComponent',
+    decorator: 'NgComponent'
+  }),
   errors: [unusedFieldError('unused')]
 };
 

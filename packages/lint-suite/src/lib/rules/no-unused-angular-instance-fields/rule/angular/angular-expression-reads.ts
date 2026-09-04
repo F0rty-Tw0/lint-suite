@@ -2,25 +2,33 @@ import {
   CombinedRecursiveAstVisitor,
   ImplicitReceiver,
   KeyedRead,
-  PropertyRead,
   SafeKeyedRead,
-  SafePropertyRead,
   ThisReceiver
 } from '@angular/compiler';
-import type { Binary, BoundTarget, DirectiveMeta } from '@angular/compiler';
+import type {
+  Binary,
+  BoundTarget,
+  DirectiveMeta,
+  PropertyRead,
+  SafePropertyRead
+} from '@angular/compiler';
 
-import { isReadTarget } from '../../utils/angular-read-target.util.js';
+import { isReadTarget } from '../../utils/angular-read-target.util.ts';
 
 type VisitableNode = Parameters<CombinedRecursiveAstVisitor['visit']>[0];
 
 class ReadCollector extends CombinedRecursiveAstVisitor {
-  readonly reads = new Set<string>();
+  public readonly reads = new Set<string>();
+  private readonly boundTarget: BoundTarget<DirectiveMeta> | undefined;
+  private readonly action: boolean;
 
-  constructor(
-    private readonly boundTarget: BoundTarget<DirectiveMeta> | undefined,
-    private readonly action: boolean
+  public constructor(
+    boundTarget: BoundTarget<DirectiveMeta> | undefined,
+    action: boolean
   ) {
     super();
+    this.boundTarget = boundTarget;
+    this.action = action;
   }
 
   private record(node: PropertyRead | SafePropertyRead): void {
@@ -43,7 +51,7 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
     this.reads.add(node.name);
   }
 
-  override visitBinary(node: Binary, context: unknown): unknown {
+  public override visitBinary(node: Binary, context: unknown): unknown {
     if (node.operation !== '=') return super.visitBinary(node, context);
 
     if (isReadTarget(node.left)) {
@@ -59,13 +67,16 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
     return undefined;
   }
 
-  override visitPropertyRead(node: PropertyRead, context: unknown): unknown {
+  public override visitPropertyRead(
+    node: PropertyRead,
+    context: unknown
+  ): unknown {
     this.record(node);
 
     return super.visitPropertyRead(node, context);
   }
 
-  override visitSafePropertyRead(
+  public override visitSafePropertyRead(
     node: SafePropertyRead,
     context: unknown
   ): unknown {

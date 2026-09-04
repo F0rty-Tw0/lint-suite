@@ -1,100 +1,134 @@
 import type { TSESLint } from '@typescript-eslint/utils';
 
-import { angularClassMetadata } from './angular-imports.js';
+import { angularClassMetadata } from './angular-imports.ts';
 import {
   fieldCandidate,
   implementedFormsMethods,
   methodCandidate
-} from './angular-member-candidates.js';
-import { metadataReads } from './angular-metadata-reads.js';
+} from './angular-member-candidates.ts';
+import { metadataReads } from './angular-metadata-reads.ts';
 import type {
-  AngularImports,
+  AngularClassMetadata,
+  AngularClassNode,
   ClassEntry,
-  DynamicClasses,
+  FieldCandidateOptions,
   MemberCandidate,
   MessageIds,
-  ProjectMemberUsed,
-  RuleContext
-} from '../common/no-unused-angular-instance-fields.type.js';
+  MetadataReadsOptions,
+  ReportContext,
+  ReportUnusedMembersOptions
+} from '../common/no-unused-angular-instance-fields.type.ts';
 
-type ReportContext = Pick<RuleContext, 'filename' | 'report' | 'sourceCode'>;
+type ClassReportOptions = {
+  readonly localTemplates: boolean;
+  readonly options: ReportUnusedMembersOptions;
+  readonly projectAnalysis: boolean;
+};
+
+const memberCandidates = (
+  node: AngularClassNode,
+  options: FieldCandidateOptions
+): MemberCandidate[] => {
+  const implementedMethods = implementedFormsMethods(node);
+  const members: MemberCandidate[] = [];
+
+  for (const element of node.body.body) {
+    const candidate =
+      fieldCandidate(element, options) ??
+      methodCandidate(element, options.localPrivateOnly, implementedMethods);
+
+    if (candidate) {
+      members.push(candidate);
+    }
+  }
+
+  return members;
+};
+
+const reportMember = (
+  context: ReportContext,
+  candidate: MemberCandidate
+): void => {
+  const data = { name: candidate.name };
+  const report: TSESLint.ReportDescriptor<MessageIds> = {
+    data,
+    messageId: candidate.messageId,
+    node: candidate.node.key
+  };
+
+  context.report(report);
+};
+
+const reportUnreadMembers = (
+  members: MemberCandidate[],
+  reads: Set<string>,
+  options: ReportUnusedMembersOptions
+): void => {
+  for (const candidate of members) {
+    const isTemplateRead = reads.has(candidate.name);
+
+    if (isTemplateRead) continue;
+
+    const isProjectUsed = options.projectMemberUsed?.(candidate.node) === true;
+
+    if (isProjectUsed) continue;
+
+    reportMember(options.context, candidate);
+  }
+};
+
+const reportClassMembers = (
+  entry: ClassEntry,
+  ngClass: AngularClassMetadata,
+  report: ClassReportOptions
+): void => {
+  const { options, projectAnalysis } = report;
+  const isLocalOnlyClass = !ngClass.component || entry.node.abstract === true;
+  const candidateOptions: FieldCandidateOptions = {
+    allowEffectFields: options.allowEffectFields,
+    imports: options.imports,
+    localPrivateOnly: !projectAnalysis && isLocalOnlyClass,
+    sourceCode: options.context.sourceCode
+  };
+  const members = memberCandidates(entry.node, candidateOptions);
+  const unreadMembers = members.filter(
+    (candidate) => !entry.reads.has(candidate.name)
+  );
+
+  if (unreadMembers.length === 0) return;
+
+  const remainingNames = unreadMembers.map((candidate) => candidate.name);
+  const readsOptions: MetadataReadsOptions = {
+    component: ngClass.component && report.localTemplates,
+    filename: options.context.filename,
+    metadata: ngClass.metadata,
+    remainingNames,
+    requireTemplate: !projectAnalysis
+  };
+  const reads = metadataReads(readsOptions);
+
+  if (!reads) return;
+
+  reportUnreadMembers(unreadMembers, reads, options);
+};
 
 export const reportUnusedMembers = (
-  context: ReportContext,
-  imports: AngularImports,
-  classes: ClassEntry[],
-  dynamicClasses: DynamicClasses,
-  allowEffectFields: boolean,
-  projectMemberUsed: ProjectMemberUsed | undefined,
-  projectIndexed: () => boolean = () => false
+  options: ReportUnusedMembersOptions
 ): void => {
-  const projectAnalysis = projectMemberUsed !== undefined;
-  const localTemplates = !projectAnalysis || !projectIndexed();
+  const projectAnalysis = options.projectMemberUsed !== undefined;
+  const localTemplates = !projectAnalysis || !options.projectIndexed();
+  const report: ClassReportOptions = {
+    localTemplates,
+    options,
+    projectAnalysis
+  };
 
-  for (const entry of classes) {
-    const ngClass = angularClassMetadata(entry.node, imports);
-    const isDynamicClass = dynamicClasses.has(entry);
+  for (const entry of options.classes) {
+    const ngClass = angularClassMetadata(entry.node, options.imports);
+    const isDynamicClass = options.dynamicClasses.has(entry);
 
     if (!ngClass || isDynamicClass) continue;
 
-    const localPrivateOnly =
-      !projectAnalysis && (!ngClass.component || entry.node.abstract === true);
-    const implementedMethods = implementedFormsMethods(entry.node);
-    const members: MemberCandidate[] = [];
-
-    for (const node of entry.node.body.body) {
-      const candidate =
-        fieldCandidate(
-          node,
-          imports,
-          localPrivateOnly,
-          allowEffectFields,
-          context.sourceCode
-        ) ?? methodCandidate(node, localPrivateOnly, implementedMethods);
-
-      if (candidate) {
-        members.push(candidate);
-      }
-    }
-
-    if (members.length === 0) continue;
-
-    const unreadMembers = members.filter(
-      (candidate) => !entry.reads.has(candidate.name)
-    );
-
-    if (unreadMembers.length === 0) continue;
-
-    const readsOwnTemplate = ngClass.component && localTemplates;
-    const remainingNames = unreadMembers.map((candidate) => candidate.name);
-    const requireTemplate = !projectAnalysis;
-    const reads = metadataReads(
-      ngClass.metadata,
-      readsOwnTemplate,
-      context.filename,
-      remainingNames,
-      requireTemplate
-    );
-
-    if (!reads) continue;
-
-    for (const candidate of unreadMembers) {
-      const isTemplateRead = reads.has(candidate.name);
-
-      if (isTemplateRead) continue;
-
-      const isProjectUsed = projectMemberUsed?.(candidate.node) === true;
-
-      if (isProjectUsed) continue;
-
-      const data = { name: candidate.name };
-      const report: TSESLint.ReportDescriptor<MessageIds> = {
-        data,
-        messageId: candidate.messageId,
-        node: candidate.node.key
-      };
-
-      context.report(report);
-    }
+    reportClassMembers(entry, ngClass, report);
   }
 };

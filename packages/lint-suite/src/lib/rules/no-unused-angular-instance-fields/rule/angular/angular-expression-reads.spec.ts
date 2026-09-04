@@ -1,54 +1,49 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.js';
+import { component } from '../../utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.js';
-import { unusedFieldError } from '../../utils/unused-member-error.spec.util.js';
+} from '../../utils/rule-under-test.spec.util.ts';
+import { unusedFieldError } from '../../utils/unused-member-error.spec.util.ts';
 
 const acceptsHostActionEventReceiverRead: RuleTester.ValidTestCase = {
   name: 'accepts this.$event in a host action as a component field read',
-  code: component(
-    `private $event = undefined;`,
-    `template: '', host: { '(click)': 'this.$event' }`
-  )
+  code: component(`private $event = undefined;`, {
+    metadata: `template: '', host: { '(click)': 'this.$event' }`
+  })
 };
 
 const acceptsHostActionNestedWriteReceiver: RuleTester.ValidTestCase = {
   name: 'accepts a host action whose nested write reads the component receiver',
-  code: component(
-    `protected state = { value: false };`,
-    `template: '', host: { '(click)': 'state.value = true' }`
-  )
+  code: component(`protected state = { value: false };`, {
+    metadata: `template: '', host: { '(click)': 'state.value = true' }`
+  })
 };
 
 const reportsHostActionWriteOnlyField: RuleTester.InvalidTestCase = {
   name: 'does not count a host action write as a component field read',
-  code: component(
-    `private value = false;`,
-    `template: '', host: { '(click)': 'value = true' }`
-  ),
+  code: component(`private value = false;`, {
+    metadata: `template: '', host: { '(click)': 'value = true' }`
+  }),
   errors: [unusedFieldError('value')]
 };
 
 const reportsFieldShadowedByTemplateLocal: RuleTester.InvalidTestCase = {
   name: 'does not count an Angular template local as a component field read',
-  code: component(
-    `private item = ''; protected items = input<string[]>([]);`,
-    "template: '@for (item of items; track item) { {{ item }} }'",
-    'Component, input'
-  ),
+  code: component(`private item = ''; protected items = input<string[]>([]);`, {
+    metadata: "template: '@for (item of items; track item) { {{ item }} }'",
+    imports: 'Component, input'
+  }),
   errors: [unusedFieldError('item')]
 };
 
 const reportsFieldShadowedByHostActionEvent: RuleTester.InvalidTestCase = {
   name: 'does not count an Angular host action event local as a component field read',
-  code: component(
-    `private $event = undefined;`,
-    `template: '', host: { '(click)': '$event.stopPropagation()' }`
-  ),
+  code: component(`private $event = undefined;`, {
+    metadata: `template: '', host: { '(click)': '$event.stopPropagation()' }`
+  }),
   errors: [unusedFieldError('$event')]
 };
 

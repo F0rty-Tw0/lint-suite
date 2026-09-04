@@ -1,110 +1,14 @@
-import { readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-import {
-  Lexer,
-  ParseLocation,
-  ParseSourceFile,
-  ParseSourceSpan,
-  Parser,
-  R3TargetBinder,
-  parseTemplate
-} from '@angular/compiler';
-import type { ASTWithSource, DirectiveMeta } from '@angular/compiler';
 import { TSESTree } from '@typescript-eslint/utils';
-import { collectAngularExpressionReads } from './angular-expression-reads.js';
 
-type ExternalTemplateCache = {
-  readonly reads: Set<string> | null;
-  readonly version: string;
-};
-
-const externalTemplates = new Map<string, ExternalTemplateCache>();
-const parser = new Parser(new Lexer());
-const templateBinder = new R3TargetBinder<DirectiveMeta>(null);
-
-const text = (node: TSESTree.Node | null | undefined): string | null => {
-  if (
-    node?.type === TSESTree.AST_NODE_TYPES.Literal &&
-    typeof node.value === 'string'
-  ) {
-    return node.value;
-  }
-
-  if (node?.type !== TSESTree.AST_NODE_TYPES.TemplateLiteral) return null;
-
-  const hasExpressions = node.expressions.length > 0;
-
-  if (hasExpressions) return null;
-
-  return node.quasis[0].value.cooked;
-};
-
-const templateReads = (
-  template: string,
-  filename: string
-): Set<string> | null => {
-  try {
-    const result = parseTemplate(template, filename);
-
-    if (result.errors?.length) return null;
-
-    return collectAngularExpressionReads(
-      result.nodes,
-      templateBinder.bind({ template: result.nodes }),
-      false
-    );
-  } catch {
-    return null;
-  }
-};
-
-const externalTemplateReads = (filename: string): Set<string> | null => {
-  try {
-    const stats = statSync(filename, { bigint: true });
-    const version = `${stats.mtimeNs}:${stats.size}`;
-    const cached = externalTemplates.get(filename);
-
-    if (cached?.version === version) return cached.reads;
-
-    const reads = templateReads(readFileSync(filename, 'utf8'), filename);
-
-    externalTemplates.set(filename, { reads, version });
-
-    return reads;
-  } catch {
-    return null;
-  }
-};
-
-const parseExpression = (
-  expression: string,
-  span: ParseSourceSpan,
-  action: boolean
-): ASTWithSource => {
-  if (action) return parser.parseAction(expression, span, 0);
-
-  return parser.parseBinding(expression, span, 0);
-};
-
-const expressionReads = (
-  expression: string,
-  filename: string,
-  action: boolean
-): Set<string> | null => {
-  try {
-    const file = new ParseSourceFile(expression, filename);
-    const start = new ParseLocation(file, 0, 0, 0);
-    const span = new ParseSourceSpan(start, start.moveBy(expression.length));
-    const result = parseExpression(expression, span, action);
-
-    if (result.errors.length > 0) return null;
-
-    return collectAngularExpressionReads([result], undefined, action);
-  } catch {
-    return null;
-  }
-};
+import { key, metadataValue, text } from './angular-metadata-literals.ts';
+import {
+  expressionReads,
+  externalTemplateReads,
+  templateReads
+} from './angular-template-parsing.ts';
+import type { MetadataReadsOptions } from '../common/no-unused-angular-instance-fields.type.ts';
 
 const addReads = (target: Set<string>, source: Set<string> | null): boolean => {
   if (!source) return false;
@@ -114,33 +18,6 @@ const addReads = (target: Set<string>, source: Set<string> | null): boolean => {
   }
 
   return true;
-};
-
-const key = (property: TSESTree.ObjectLiteralElement): string | null => {
-  if (property.type !== TSESTree.AST_NODE_TYPES.Property || property.computed) {
-    return null;
-  }
-
-  if (property.key.type === TSESTree.AST_NODE_TYPES.Identifier) {
-    return property.key.name;
-  }
-
-  return text(property.key);
-};
-
-const metadataValue = (
-  metadata: TSESTree.ObjectExpression,
-  name: string
-): TSESTree.Property['value'] | undefined => {
-  for (const property of metadata.properties) {
-    if (property.type !== TSESTree.AST_NODE_TYPES.Property) continue;
-
-    const propertyKey = key(property);
-
-    if (propertyKey === name) return property.value;
-  }
-
-  return undefined;
 };
 
 const hostPropertyReads = (
@@ -242,12 +119,9 @@ const componentTemplateReads = (
  * instead, for callers that resolve template reads elsewhere.
  */
 export const metadataReads = (
-  metadata: TSESTree.ObjectExpression,
-  component: boolean,
-  filename: string,
-  remainingNames: string[],
-  requireTemplate = true
+  options: MetadataReadsOptions
 ): Set<string> | null => {
+  const { filename, metadata } = options;
   const hasUnreadableKey = metadata.properties.some(
     (property) => key(property) === null
   );
@@ -260,9 +134,11 @@ export const metadataReads = (
 
   if (!hasHostReads) return null;
 
-  if (!component) return reads;
+  if (!options.component) return reads;
 
-  const hasRemainingReads = remainingNames.every((name) => reads.has(name));
+  const hasRemainingReads = options.remainingNames.every((name) =>
+    reads.has(name)
+  );
 
   if (hasRemainingReads) return reads;
 
@@ -270,7 +146,7 @@ export const metadataReads = (
 
   if (hasTemplateReads) return reads;
 
-  if (!requireTemplate) return reads;
+  if (!options.requireTemplate) return reads;
 
   return null;
 };

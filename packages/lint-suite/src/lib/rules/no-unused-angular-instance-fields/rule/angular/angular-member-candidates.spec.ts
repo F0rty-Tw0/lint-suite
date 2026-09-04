@@ -1,24 +1,23 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.js';
+import { component } from '../../utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.js';
+} from '../../utils/rule-under-test.spec.util.ts';
 import {
   unusedFieldError,
   unusedMethodError
-} from '../../utils/unused-member-error.spec.util.js';
+} from '../../utils/unused-member-error.spec.util.ts';
 
 const ignoresExportedDirectiveMethods: RuleTester.ValidTestCase = {
   name: 'conservatively ignores externally exposed directive methods',
-  code: component(
-    `public externallyReadable(): void {}`,
-    `selector: '[example]', exportAs: 'example'`,
-    'Directive',
-    'Directive'
-  )
+  code: component(`public externallyReadable(): void {}`, {
+    metadata: `selector: '[example]', exportAs: 'example'`,
+    imports: 'Directive',
+    decorator: 'Directive'
+  })
 };
 
 const exemptsNonConcreteMethodKinds: RuleTester.ValidTestCase = {
@@ -61,10 +60,12 @@ const ignoresAbstractNonPrivateMembers: RuleTester.ValidTestCase = {
   name: 'conservatively ignores non-private members of abstract components',
   code: component(
     `protected forSubclass = 'used elsewhere'; helper(): void {}`,
-    "template: ''",
-    'Component',
-    'Component',
-    'abstract class BaseComponent'
+    {
+      metadata: "template: ''",
+      imports: 'Component',
+      decorator: 'Component',
+      classDeclaration: 'abstract class BaseComponent'
+    }
   )
 };
 
@@ -75,10 +76,12 @@ const exemptsImplementedFormsMethods: RuleTester.ValidTestCase = {
          registerOnChange(fn: unknown): void {}
          registerOnTouched(fn: unknown): void {}
          setDisabledState(disabled: boolean): void {}`,
-    "template: ''",
-    'Component',
-    'Component',
-    'class TestComponent implements ControlValueAccessor'
+    {
+      metadata: "template: ''",
+      imports: 'Component',
+      decorator: 'Component',
+      classDeclaration: 'class TestComponent implements ControlValueAccessor'
+    }
   )
 };
 
@@ -97,24 +100,22 @@ const reportsPrivateDirectiveField: RuleTester.InvalidTestCase = {
 
 const reportsPrivateDirectiveMethod: RuleTester.InvalidTestCase = {
   name: 'reports a private unused directive method',
-  code: component(
-    `private internalOnly(): void {}`,
-    `selector: '[example]'`,
-    'Directive',
-    'Directive'
-  ),
+  code: component(`private internalOnly(): void {}`, {
+    metadata: `selector: '[example]'`,
+    imports: 'Directive',
+    decorator: 'Directive'
+  }),
   errors: [unusedMethodError('internalOnly')]
 };
 
 const reportsAbstractPrivateMembers: RuleTester.InvalidTestCase = {
   name: 'reports private unused members of abstract components',
-  code: component(
-    `private internal = 'unused'; private helper(): void {}`,
-    "template: ''",
-    'Component',
-    'Component',
-    'abstract class BaseComponent'
-  ),
+  code: component(`private internal = 'unused'; private helper(): void {}`, {
+    metadata: "template: ''",
+    imports: 'Component',
+    decorator: 'Component',
+    classDeclaration: 'abstract class BaseComponent'
+  }),
   errors: [unusedFieldError('internal'), unusedMethodError('helper')]
 };
 

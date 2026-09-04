@@ -4,25 +4,25 @@ import type { TSESLint } from '@typescript-eslint/utils';
 import {
   isAngularComponentRefField,
   isManagedField
-} from './angular-managed-fields.js';
+} from './angular-managed-fields.ts';
 import type {
   AngularClassNode,
-  AngularImports,
+  FieldCandidateOptions,
   InstanceField,
   InstanceMethod,
   MemberCandidate
-} from '../common/no-unused-angular-instance-fields.type.js';
+} from '../common/no-unused-angular-instance-fields.type.ts';
 
-const lifecycleHooks: Readonly<Record<string, true>> = {
-  ngOnChanges: true,
-  ngOnInit: true,
-  ngDoCheck: true,
-  ngAfterContentInit: true,
-  ngAfterContentChecked: true,
-  ngAfterViewInit: true,
-  ngAfterViewChecked: true,
-  ngOnDestroy: true
-};
+const lifecycleHooks: ReadonlySet<string> = new Set([
+  'ngOnChanges',
+  'ngOnInit',
+  'ngDoCheck',
+  'ngAfterContentInit',
+  'ngAfterContentChecked',
+  'ngAfterViewInit',
+  'ngAfterViewChecked',
+  'ngOnDestroy'
+]);
 
 const formsInterfaceMethods: Readonly<Record<string, string[]>> = {
   AsyncValidator: ['validate', 'registerOnValidatorChange'],
@@ -82,7 +82,7 @@ const isExcludedMethod = (
   if (isModified || isDecorated || !isPlainMethod) return true;
 
   const hasNoBody = node.value.body === null;
-  const isLifecycleHook = lifecycleHooks[node.key.name] === true;
+  const isLifecycleHook = lifecycleHooks.has(node.key.name);
 
   if (hasNoBody || isLifecycleHook) return true;
 
@@ -115,21 +115,19 @@ export const implementedFormsMethods = (
 
 export const fieldCandidate = (
   node: TSESTree.ClassElement,
-  imports: AngularImports,
-  localPrivateOnly: boolean,
-  allowEffectFields: boolean,
-  sourceCode: TSESLint.SourceCode
+  options: FieldCandidateOptions
 ): MemberCandidate | null => {
   if (!isInstanceField(node)) return null;
 
+  const { localPrivateOnly, sourceCode } = options;
   const isExcluded = isExcludedField(node, localPrivateOnly, sourceCode);
 
   if (isExcluded) return null;
 
   const isManaged = isManagedField(
     node,
-    imports,
-    allowEffectFields,
+    options.imports,
+    options.allowEffectFields,
     sourceCode
   );
 

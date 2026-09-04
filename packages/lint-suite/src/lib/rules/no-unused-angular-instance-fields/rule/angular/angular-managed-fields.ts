@@ -1,24 +1,24 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 
-import { angularName, isImportBinding } from './angular-imports.js';
+import { angularName, isImportBinding } from './angular-imports.ts';
 import type {
   AngularImports,
   InstanceField
-} from '../common/no-unused-angular-instance-fields.type.js';
+} from '../common/no-unused-angular-instance-fields.type.ts';
 
-const managedApis: Readonly<Record<string, true>> = {
-  input: true,
-  model: true,
-  output: true,
-  viewChild: true,
-  viewChildren: true,
-  contentChild: true,
-  contentChildren: true
-};
+const managedApis: ReadonlySet<string> = new Set([
+  'input',
+  'model',
+  'output',
+  'viewChild',
+  'viewChildren',
+  'contentChild',
+  'contentChildren'
+]);
 
 const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
-  const options = node.arguments[1];
+  const options = node.arguments.at(1);
 
   if (options === undefined) return true;
 
@@ -46,6 +46,30 @@ const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
   });
 };
 
+const angularCoreImportedName = (
+  definition: TSESLint.Scope.Definition | undefined
+): string | null => {
+  if (definition?.type !== 'ImportBinding') return null;
+
+  if (definition.node.type !== TSESTree.AST_NODE_TYPES.ImportSpecifier) {
+    return null;
+  }
+
+  if (definition.parent.type !== TSESTree.AST_NODE_TYPES.ImportDeclaration) {
+    return null;
+  }
+
+  if (definition.parent.source.value !== '@angular/core') return null;
+
+  const { imported } = definition.node;
+
+  if (imported.type === TSESTree.AST_NODE_TYPES.Identifier) {
+    return imported.name;
+  }
+
+  return imported.value;
+};
+
 export const isAngularComponentRefField = (
   node: InstanceField,
   sourceCode: TSESLint.SourceCode
@@ -62,19 +86,9 @@ export const isAngularComponentRefField = (
   const reference = sourceCode
     .getScope(type.typeName)
     .references.find(({ identifier }) => identifier === type.typeName);
-  const variable = reference?.resolved;
-  const definition = variable?.defs[0];
+  const definition = reference?.resolved?.defs[0];
 
-  return (
-    definition?.type === 'ImportBinding' &&
-    definition.node.type === TSESTree.AST_NODE_TYPES.ImportSpecifier &&
-    definition.parent?.type === TSESTree.AST_NODE_TYPES.ImportDeclaration &&
-    definition.parent.source.value === '@angular/core' &&
-    ((definition.node.imported.type === TSESTree.AST_NODE_TYPES.Identifier &&
-      definition.node.imported.name === 'ComponentRef') ||
-      (definition.node.imported.type === TSESTree.AST_NODE_TYPES.Literal &&
-        definition.node.imported.value === 'ComponentRef'))
-  );
+  return angularCoreImportedName(definition) === 'ComponentRef';
 };
 
 export const isManagedField = (
@@ -86,9 +100,10 @@ export const isManagedField = (
   if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) return false;
 
   const name = angularName(node.value.callee, imports);
+  const isManagedApi = typeof name === 'string' && managedApis.has(name);
 
   return (
-    (typeof name === 'string' && managedApis[name] === true) ||
+    isManagedApi ||
     (allowEffectFields &&
       name === 'effect' &&
       isImportBinding(node.value.callee, sourceCode) &&

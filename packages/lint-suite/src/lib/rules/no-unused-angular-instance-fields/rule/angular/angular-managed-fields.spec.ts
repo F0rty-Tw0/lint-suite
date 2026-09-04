@@ -1,13 +1,13 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.js';
+import { component } from '../../utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.js';
-import { unusedFieldError } from '../../utils/unused-member-error.spec.util.js';
-import type { RuleOptions } from '../common/no-unused-angular-instance-fields.type.js';
+} from '../../utils/rule-under-test.spec.util.ts';
+import { unusedFieldError } from '../../utils/unused-member-error.spec.util.ts';
+import type { RuleOptions } from '../common/no-unused-angular-instance-fields.type.ts';
 
 const effectFieldsAllowed: RuleOptions = { allowEffectFields: true };
 const allowEffectFieldsOptions = [effectFieldsAllowed];
@@ -19,18 +19,20 @@ const exemptsSignalAndDecoratorFields: RuleTester.ValidTestCase = {
   code: component(
     `@Input() public decoratedInput = ''; @ViewChild('content') private content: unknown;
         public signalInput = inputSignal(''); public signalOutput = output<void>(); public signalModel = model(false);`,
-    "template: ''",
-    'Component, Input, ViewChild, input as inputSignal, model, output'
+    {
+      metadata: "template: ''",
+      imports:
+        'Component, Input, ViewChild, input as inputSignal, model, output'
+    }
   )
 };
 
 const acceptsUnreadEffectFieldWhenAllowed: RuleTester.ValidTestCase = {
   name: 'accepts an unread Angular effect field when allowEffectFields is true',
-  code: component(
-    `private readonly cleanup = effect(() => undefined);`,
-    `template: ''`,
-    'Component, effect'
-  ),
+  code: component(`private readonly cleanup = effect(() => undefined);`, {
+    metadata: `template: ''`,
+    imports: 'Component, effect'
+  }),
   options: allowEffectFieldsOptions
 };
 
@@ -38,8 +40,7 @@ const allowsAutoCleanedEffectWithoutOptions: RuleTester.ValidTestCase = {
   name: 'allows auto-cleaned Angular effect fields with no call options when enabled',
   code: component(
     `private readonly titleEffect = createEffect(() => undefined);`,
-    `template: ''`,
-    'Component, effect as createEffect'
+    { metadata: `template: ''`, imports: 'Component, effect as createEffect' }
   ),
   options: allowEffectFieldsOptions
 };
@@ -48,8 +49,7 @@ const allowsAutoCleanedEffectWithInlineOptions: RuleTester.ValidTestCase = {
   name: 'allows auto-cleaned Angular effect fields with known inline options when enabled',
   code: component(
     `private readonly titleEffect = effect(() => undefined, { injector: undefined });`,
-    `template: ''`,
-    'Component, effect'
+    { metadata: `template: ''`, imports: 'Component, effect' }
   ),
   options: allowEffectFieldsOptions
 };
@@ -70,8 +70,11 @@ const treatsSignalQueriesAsManaged: RuleTester.ValidTestCase = {
         private readonly views = viewChildren<unknown>('view');
         private readonly content = contentChild<unknown>('content');
         private readonly contents = contentChildren<unknown>('content');`,
-    `template: ''`,
-    'Component, viewChild, viewChildren, contentChild, contentChildren'
+    {
+      metadata: `template: ''`,
+      imports:
+        'Component, viewChild, viewChildren, contentChild, contentChildren'
+    }
   )
 };
 
@@ -100,21 +103,19 @@ const exemptsComponentRefTypedFieldUnderShadowingValue: RuleTester.ValidTestCase
 
 const reportsEffectFieldWithoutOption: RuleTester.InvalidTestCase = {
   name: 'reports auto-cleaned Angular effect fields when allowEffectFields is omitted',
-  code: component(
-    `private readonly titleEffect = effect(() => undefined);`,
-    `template: ''`,
-    'Component, effect'
-  ),
+  code: component(`private readonly titleEffect = effect(() => undefined);`, {
+    metadata: `template: ''`,
+    imports: 'Component, effect'
+  }),
   errors: [unusedFieldError('titleEffect')]
 };
 
 const reportsEffectFieldWhenDenied: RuleTester.InvalidTestCase = {
   name: 'reports an unread Angular effect field when allowEffectFields is false',
-  code: component(
-    `private readonly cleanup = effect(() => undefined);`,
-    `template: ''`,
-    'Component, effect'
-  ),
+  code: component(`private readonly cleanup = effect(() => undefined);`, {
+    metadata: `template: ''`,
+    imports: 'Component, effect'
+  }),
   options: denyEffectFieldsOptions,
   errors: [unusedFieldError('cleanup')]
 };
@@ -146,8 +147,7 @@ const reportsManualCleanupEffectField: RuleTester.InvalidTestCase = {
   name: 'reports manual-cleanup Angular effect fields when enabled',
   code: component(
     `private readonly titleEffect = effect(() => undefined, { manualCleanup: true });`,
-    `template: ''`,
-    'Component, effect'
+    { metadata: `template: ''`, imports: 'Component, effect' }
   ),
   options: allowEffectFieldsOptions,
   errors: [unusedFieldError('titleEffect')]
@@ -190,8 +190,7 @@ const reportsEffectFieldWithStringKeyedOption: RuleTester.InvalidTestCase = {
   name: 'reports effect fields with a string-keyed manual cleanup option',
   code: component(
     `private readonly titleEffect = effect(() => undefined, { 'manualCleanup': true });`,
-    `template: ''`,
-    'Component, effect'
+    { metadata: `template: ''`, imports: 'Component, effect' }
   ),
   options: allowEffectFieldsOptions,
   errors: [unusedFieldError('titleEffect')]

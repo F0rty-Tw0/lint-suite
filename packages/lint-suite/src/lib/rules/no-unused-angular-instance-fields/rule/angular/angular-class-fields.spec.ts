@@ -1,19 +1,20 @@
 import assert from 'node:assert/strict';
+
+import { TSESTree } from '@typescript-eslint/utils';
+import type { RuleTester } from 'eslint';
 import { test } from 'vitest';
 
-import type { RuleTester } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
-
-import { reportUnusedMembers } from './angular-class-fields.js';
-import { addAngularImport } from './angular-imports.js';
-import { component } from '../../utils/component-source.spec.util.js';
-import { parseSource } from '../../utils/parsed-source.spec.util.js';
+import { reportUnusedMembers } from './angular-class-fields.ts';
+import { addAngularImport } from './angular-imports.ts';
+import { component } from '../../utils/component-source.spec.util.ts';
+import { parseSource } from '../../utils/parsed-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.js';
-import { unusedFieldError } from '../../utils/unused-member-error.spec.util.js';
+} from '../../utils/rule-under-test.spec.util.ts';
+import { unusedFieldError } from '../../utils/unused-member-error.spec.util.ts';
+import type { ReportUnusedMembersOptions } from '../common/no-unused-angular-instance-fields.type.ts';
 
 const isImportDeclaration = (
   node: TSESTree.ProgramStatement
@@ -28,10 +29,9 @@ const isClassDeclaration = (
 };
 
 test('resolves inline template reads before project member lookup', () => {
-  const code = component(
-    `private readonly fromTemplate = 'used';`,
-    `template: '{{ fromTemplate }}'`
-  );
+  const code = component(`private readonly fromTemplate = 'used';`, {
+    metadata: `template: '{{ fromTemplate }}'`
+  });
   const { ast, sourceCode } = parseSource(code);
   const angularImport = ast.body.find(isImportDeclaration);
   const componentClass = ast.body.find(isClassDeclaration);
@@ -55,15 +55,20 @@ test('resolves inline template reads before project member lookup', () => {
   };
   const context = { filename: 'component.ts', report, sourceCode };
 
-  addAngularImport(angularImport, imports);
-  reportUnusedMembers(
+  const classes = [entry];
+  const projectIndexed = (): boolean => false;
+  const reportOptions: ReportUnusedMembersOptions = {
+    allowEffectFields: false,
+    classes,
     context,
-    imports,
-    [entry],
     dynamicClasses,
-    false,
+    imports,
+    projectIndexed,
     projectMemberUsed
-  );
+  };
+
+  addAngularImport(angularImport, imports);
+  reportUnusedMembers(reportOptions);
 
   assert.equal(reports, 0);
   assert.equal(projectLookupCalls, 0);

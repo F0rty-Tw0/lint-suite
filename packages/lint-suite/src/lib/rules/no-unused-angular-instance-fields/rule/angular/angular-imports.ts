@@ -6,7 +6,7 @@ import type {
   AngularClassNode,
   AngularImport,
   AngularImports
-} from '../common/no-unused-angular-instance-fields.type.js';
+} from '../common/no-unused-angular-instance-fields.type.ts';
 
 const calleeRoot = (
   node: TSESTree.Expression
@@ -103,7 +103,7 @@ export const angularClassMetadata = (
     }
 
     const kind = angularName(decorator.expression.callee, imports);
-    const metadata = decorator.expression.arguments[0];
+    const metadata = decorator.expression.arguments.at(0);
 
     const isComponentOrDirective = kind === 'Component' || kind === 'Directive';
 
@@ -118,6 +118,29 @@ export const angularClassMetadata = (
 
       return classMetadata;
     }
+  }
+
+  return null;
+};
+
+export const angularClassImports = (
+  ast: TSESTree.Program
+): AngularImports | null => {
+  const imports: AngularImports = new Map();
+
+  for (const node of ast.body) {
+    if (node.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
+      addAngularImport(node, imports);
+    }
+  }
+
+  for (const imported of imports.values()) {
+    const isNamespaceImport = imported === null;
+    const isComponent = imported === 'Component';
+    const isDirective = imported === 'Directive';
+    const isAngularClassImport = isNamespaceImport || isComponent || isDirective;
+
+    if (isAngularClassImport) return imports;
   }
 
   return null;
