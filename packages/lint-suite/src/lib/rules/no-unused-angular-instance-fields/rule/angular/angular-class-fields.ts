@@ -30,8 +30,9 @@ export const reportUnusedMembers = (
 
   for (const entry of classes) {
     const ngClass = angularClassMetadata(entry.node, imports);
+    const isDynamicClass = dynamicClasses.has(entry);
 
-    if (!ngClass || dynamicClasses.has(entry)) continue;
+    if (!ngClass || isDynamicClass) continue;
 
     // ponytail: local analysis cannot see subclasses, so directive and
     // abstract-class members are only candidates when private.
@@ -77,12 +78,13 @@ export const reportUnusedMembers = (
     if (!reads) continue;
 
     for (const candidate of unreadMembers) {
-      if (
-        reads.has(candidate.name) ||
-        projectMemberUsed?.(candidate.node) === true
-      ) {
-        continue;
-      }
+      const isTemplateRead = reads.has(candidate.name);
+
+      if (isTemplateRead) continue;
+
+      const isProjectUsed = projectMemberUsed?.(candidate.node) === true;
+
+      if (isProjectUsed) continue;
 
       context.report({
         data: { name: candidate.name },

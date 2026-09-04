@@ -39,11 +39,10 @@ export const angularName = (
     return null;
   }
 
-  if (
-    node.object.type === TSESTree.AST_NODE_TYPES.Identifier &&
-    imports.get(node.object.name) === null
-  ) {
-    return node.property.name;
+  if (node.object.type === TSESTree.AST_NODE_TYPES.Identifier) {
+    const namespaceAlias = imports.get(node.object.name);
+
+    if (namespaceAlias === null) return node.property.name;
   }
 
   return angularName(node.object, imports);
@@ -107,8 +106,10 @@ export const angularClassMetadata = (
     const kind = angularName(decorator.expression.callee, imports);
     const metadata = decorator.expression.arguments[0];
 
+    const isComponentOrDirective = kind === 'Component' || kind === 'Directive';
+
     if (
-      (kind === 'Component' || kind === 'Directive') &&
+      isComponentOrDirective &&
       metadata?.type === TSESTree.AST_NODE_TYPES.ObjectExpression
     ) {
       const classMetadata: AngularClassMetadata | null = {

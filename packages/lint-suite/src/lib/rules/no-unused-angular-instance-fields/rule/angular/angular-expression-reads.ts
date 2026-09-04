@@ -30,14 +30,17 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
       return;
     }
 
-    const isImplicitFieldRead =
-      node.receiver instanceof ImplicitReceiver &&
-      (!this.action || node.name !== '$event') &&
-      !this.boundTarget?.getExpressionTarget(node);
+    if (!(node.receiver instanceof ImplicitReceiver)) return;
 
-    if (isImplicitFieldRead) {
-      this.reads.add(node.name);
-    }
+    const isBindableName = !this.action || node.name !== '$event';
+
+    if (!isBindableName) return;
+
+    const expressionTarget = this.boundTarget?.getExpressionTarget(node);
+
+    if (expressionTarget) return;
+
+    this.reads.add(node.name);
   }
 
   override visitBinary(node: Binary, context: unknown): unknown {

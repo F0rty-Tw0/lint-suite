@@ -120,12 +120,11 @@ const metadataValue = (
   name: string
 ): TSESTree.Property['value'] | undefined => {
   for (const property of metadata.properties) {
-    if (
-      property.type === TSESTree.AST_NODE_TYPES.Property &&
-      key(property) === name
-    ) {
-      return property.value;
-    }
+    if (property.type !== TSESTree.AST_NODE_TYPES.Property) continue;
+
+    const propertyKey = key(property);
+
+    if (propertyKey === name) return property.value;
   }
 
   return undefined;
@@ -141,11 +140,15 @@ const hostPropertyReads = (
 
   if (name === null || expression === null) return false;
 
-  if (name.startsWith('[')) {
+  const isPropertyBinding = name.startsWith('[');
+
+  if (isPropertyBinding) {
     return addReads(reads, expressionReads(expression, filename, false));
   }
 
-  if (name.startsWith('(')) {
+  const isEventBinding = name.startsWith('(');
+
+  if (isEventBinding) {
     return addReads(reads, expressionReads(expression, filename, true));
   }
 
@@ -159,20 +162,20 @@ const hostReads = (
 ): boolean => {
   if (!host) return true;
 
-  if (
-    host.type !== TSESTree.AST_NODE_TYPES.ObjectExpression ||
-    host.properties.some((property) => key(property) === null)
-  ) {
-    return false;
-  }
+  if (host.type !== TSESTree.AST_NODE_TYPES.ObjectExpression) return false;
+
+  const hasUnreadableKey = host.properties.some(
+    (property) => key(property) === null
+  );
+
+  if (hasUnreadableKey) return false;
 
   for (const property of host.properties) {
-    if (
-      property.type !== TSESTree.AST_NODE_TYPES.Property ||
-      !hostPropertyReads(property, reads, filename)
-    ) {
-      return false;
-    }
+    if (property.type !== TSESTree.AST_NODE_TYPES.Property) return false;
+
+    const hasPropertyReads = hostPropertyReads(property, reads, filename);
+
+    if (!hasPropertyReads) return false;
   }
 
   return true;
@@ -232,21 +235,29 @@ export const metadataReads = (
   remainingNames: string[],
   requireTemplate = true
 ): Set<string> | null => {
-  if (metadata.properties.some((property) => key(property) === null)) {
-    return null;
-  }
+  const hasUnreadableKey = metadata.properties.some(
+    (property) => key(property) === null
+  );
+
+  if (hasUnreadableKey) return null;
 
   const reads = new Set<string>();
+  const hostValue = metadataValue(metadata, 'host');
+  const hasHostReads = hostReads(hostValue, reads, filename);
 
-  if (!hostReads(metadataValue(metadata, 'host'), reads, filename)) return null;
+  if (!hasHostReads) return null;
 
-  const hasUsableReads =
-    (component && remainingNames.every((name) => reads.has(name))) ||
-    !component ||
-    componentTemplateReads(metadata, reads, filename) ||
-    !requireTemplate;
+  if (!component) return reads;
 
-  if (hasUsableReads) return reads;
+  const hasRemainingReads = remainingNames.every((name) => reads.has(name));
+
+  if (hasRemainingReads) return reads;
+
+  const hasTemplateReads = componentTemplateReads(metadata, reads, filename);
+
+  if (hasTemplateReads) return reads;
+
+  if (!requireTemplate) return reads;
 
   return null;
 };

@@ -97,21 +97,28 @@ export const fieldCandidate = (
   allowEffectFields: boolean,
   sourceCode: TSESLint.SourceCode
 ): MemberCandidate | null => {
-  if (
-    isInstanceField(node) &&
-    !isExcludedField(node, localPrivateOnly, sourceCode) &&
-    !isManagedField(node, imports, allowEffectFields, sourceCode)
-  ) {
-    const unusedFieldCandidate: MemberCandidate | null = {
-      messageId: 'unusedField',
-      name: node.key.name,
-      node
-    };
+  if (!isInstanceField(node)) return null;
 
-    return unusedFieldCandidate;
-  }
+  const isExcluded = isExcludedField(node, localPrivateOnly, sourceCode);
 
-  return null;
+  if (isExcluded) return null;
+
+  const isManaged = isManagedField(
+    node,
+    imports,
+    allowEffectFields,
+    sourceCode
+  );
+
+  if (isManaged) return null;
+
+  const unusedFieldCandidate: MemberCandidate | null = {
+    messageId: 'unusedField',
+    name: node.key.name,
+    node
+  };
+
+  return unusedFieldCandidate;
 };
 
 export const methodCandidate = (
@@ -119,18 +126,21 @@ export const methodCandidate = (
   localPrivateOnly: boolean,
   implementedMethods: Set<string>
 ): MemberCandidate | null => {
-  if (
-    isInstanceMethod(node) &&
-    !isExcludedMethod(node, localPrivateOnly, implementedMethods)
-  ) {
-    const unusedMethodCandidate: MemberCandidate | null = {
-      messageId: 'unusedMethod',
-      name: node.key.name,
-      node
-    };
+  if (!isInstanceMethod(node)) return null;
 
-    return unusedMethodCandidate;
-  }
+  const isExcluded = isExcludedMethod(
+    node,
+    localPrivateOnly,
+    implementedMethods
+  );
 
-  return null;
+  if (isExcluded) return null;
+
+  const unusedMethodCandidate: MemberCandidate | null = {
+    messageId: 'unusedMethod',
+    name: node.key.name,
+    node
+  };
+
+  return unusedMethodCandidate;
 };
