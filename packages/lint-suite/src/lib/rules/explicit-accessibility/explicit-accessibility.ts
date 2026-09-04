@@ -1,5 +1,5 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
-import type { TSESLint } from '@typescript-eslint/utils';
+import type { JSONSchema, TSESLint } from '@typescript-eslint/utils';
 
 type Accessibility = 'private' | 'protected' | 'public';
 type FixAccessibility = Accessibility | 'none';
@@ -14,6 +14,7 @@ type Member =
   | TSESTree.TSAbstractPropertyDefinition
   | TSESTree.TSParameterProperty;
 type Fix = (fixer: TSESLint.RuleFixer) => TSESLint.RuleFix | null;
+type AutoFix = { readonly fix?: Fix };
 
 const accessibilities: readonly Accessibility[] = [
   'public',
@@ -21,17 +22,61 @@ const accessibilities: readonly Accessibility[] = [
   'protected'
 ];
 
+const docs: TSESLint.RuleMetaDataDocs = {
+  description: 'Require explicit accessibility modifiers on class members'
+};
+
+const messages: Record<MessageIds, string> = {
+  missingAccessibility:
+    "Class member '{{ name }}' is missing an explicit accessibility modifier (public/private/protected).",
+  setAccessibility: "Add the '{{ accessibility }}' modifier."
+};
+
+const defaultAccessibilitySchema: JSONSchema.JSONSchema4 = {
+  type: 'string',
+  enum: ['public', 'private', 'protected', 'none'],
+  description:
+    "The accessibility modifier inserted by the auto-fix; constructors always get public. 'none' reports without an auto-fix and offers all three levels as suggestions."
+};
+
+const properties: Record<string, JSONSchema.JSONSchema4> = {
+  defaultAccessibility: defaultAccessibilitySchema
+};
+
+const optionsSchema: JSONSchema.JSONSchema4 = {
+  type: 'object',
+  properties,
+  additionalProperties: false
+};
+
+const schema: JSONSchema.JSONSchema4[] = [optionsSchema];
+
+const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
+  type: 'suggestion',
+  docs,
+  fixable: 'code',
+  hasSuggestions: true,
+  schema,
+  messages
+};
+
+const defaultOptions: Options = [{ defaultAccessibility: 'public' }];
+
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/F0rty-Tw0/lint-suite#explicit-accessibility'
 );
 
-const isPrivateMember = (node: Member): boolean =>
-  node.type !== TSESTree.AST_NODE_TYPES.TSParameterProperty &&
-  node.key.type === TSESTree.AST_NODE_TYPES.PrivateIdentifier;
+const isPrivateMember = (node: Member): boolean => {
+  if (node.type === TSESTree.AST_NODE_TYPES.TSParameterProperty) return false;
 
-const isConstructor = (node: Member): boolean =>
-  node.type === TSESTree.AST_NODE_TYPES.MethodDefinition &&
-  node.kind === 'constructor';
+  return node.key.type === TSESTree.AST_NODE_TYPES.PrivateIdentifier;
+};
+
+const isConstructor = (node: Member): boolean => {
+  if (node.type !== TSESTree.AST_NODE_TYPES.MethodDefinition) return false;
+
+  return node.kind === 'constructor';
+};
 
 const reportTarget = (node: Member): TSESTree.Node => {
   if (node.type !== TSESTree.AST_NODE_TYPES.TSParameterProperty) {
@@ -53,59 +98,60 @@ const reportTarget = (node: Member): TSESTree.Node => {
 const memberName = (
   target: TSESTree.Node,
   sourceCode: TSESLint.SourceCode
-): string =>
-  target.type === TSESTree.AST_NODE_TYPES.Identifier
-    ? target.name
-    : sourceCode.getText(target);
+): string => {
+  if (target.type === TSESTree.AST_NODE_TYPES.Identifier) return target.name;
+
+  return sourceCode.getText(target);
+};
+
+const modifierToken = (
+  node: Member,
+  sourceCode: TSESLint.SourceCode
+): TSESTree.Token | null => {
+  const lastDecorator = node.decorators.at(-1);
+
+  if (!lastDecorator) return sourceCode.getFirstToken(node);
+
+  return sourceCode.getTokenAfter(lastDecorator);
+};
 
 const insertModifier = (
   node: Member,
   accessibility: Accessibility,
   sourceCode: TSESLint.SourceCode
 ): Fix => {
-  const lastDecorator = node.decorators.at(-1);
-  const token = lastDecorator
-    ? sourceCode.getTokenAfter(lastDecorator)
-    : sourceCode.getFirstToken(node);
+  const token = modifierToken(node, sourceCode);
 
   if (!token) return () => null;
 
+  const lastDecorator = node.decorators.at(-1);
   const adjacentToDecorator = lastDecorator?.range[1] === token.range[0];
   const text = `${adjacentToDecorator ? ' ' : ''}${accessibility} `;
 
   return (fixer) => fixer.insertTextBefore(token, text);
 };
 
+const autoFixOf = (
+  node: Member,
+  accessibility: FixAccessibility,
+  sourceCode: TSESLint.SourceCode
+): AutoFix => {
+  if (accessibility === 'none') {
+    const noAutoFix: AutoFix = {};
+
+    return noAutoFix;
+  }
+
+  const fix = insertModifier(node, accessibility, sourceCode);
+  const autoFix: AutoFix = { fix };
+
+  return autoFix;
+};
+
 export default createRule<Options, MessageIds>({
   name: 'explicit-accessibility',
-  meta: {
-    type: 'suggestion',
-    docs: {
-      description: 'Require explicit accessibility modifiers on class members'
-    },
-    fixable: 'code',
-    hasSuggestions: true,
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          defaultAccessibility: {
-            type: 'string',
-            enum: ['public', 'private', 'protected', 'none'],
-            description:
-              "The accessibility modifier inserted by the auto-fix; constructors always get public. 'none' reports without an auto-fix and offers all three levels as suggestions."
-          }
-        },
-        additionalProperties: false
-      }
-    ],
-    messages: {
-      missingAccessibility:
-        "Class member '{{ name }}' is missing an explicit accessibility modifier (public/private/protected).",
-      setAccessibility: "Add the '{{ accessibility }}' modifier."
-    }
-  },
-  defaultOptions: [{ defaultAccessibility: 'public' }],
+  meta,
+  defaultOptions,
   create(context, [{ defaultAccessibility = 'public' }]) {
     const { sourceCode } = context;
 
@@ -115,34 +161,45 @@ export default createRule<Options, MessageIds>({
       if (node.accessibility || isPrivate) return;
 
       const target = reportTarget(node);
-      const fixAccessibility: FixAccessibility =
-        isConstructor(node) && defaultAccessibility !== 'none'
-          ? 'public'
-          : defaultAccessibility;
+      const isConstructorMember = isConstructor(node);
+      const usesPublic = isConstructorMember && defaultAccessibility !== 'none';
+      const fixAccessibility: FixAccessibility = usesPublic
+        ? 'public'
+        : defaultAccessibility;
 
-      const autoFix =
-        fixAccessibility === 'none'
-          ? {}
-          : { fix: insertModifier(node, fixAccessibility, sourceCode) };
+      const suggestionFor = (
+        accessibility: Accessibility
+      ): TSESLint.SuggestionReportDescriptor<MessageIds> => {
+        const data = { accessibility };
+        const fix = insertModifier(node, accessibility, sourceCode);
+        const suggestion: TSESLint.SuggestionReportDescriptor<MessageIds> = {
+          messageId: 'setAccessibility',
+          data,
+          fix
+        };
 
-      context.report({
+        return suggestion;
+      };
+
+      const isOtherAccessibility = (accessibility: Accessibility): boolean => {
+        return accessibility !== fixAccessibility;
+      };
+
+      const autoFix = autoFixOf(node, fixAccessibility, sourceCode);
+      const name = memberName(target, sourceCode);
+      const data = { name };
+      const suggest = accessibilities
+        .filter(isOtherAccessibility)
+        .map(suggestionFor);
+      const report: TSESLint.ReportDescriptor<MessageIds> = {
         node: target,
         messageId: 'missingAccessibility',
-        data: { name: memberName(target, sourceCode) },
+        data,
         ...autoFix,
-        suggest: accessibilities
-          .filter((accessibility) => accessibility !== fixAccessibility)
-          .map((accessibility) => {
-            const suggestion: TSESLint.SuggestionReportDescriptor<MessageIds> =
-              {
-                messageId: 'setAccessibility',
-                data: { accessibility },
-                fix: insertModifier(node, accessibility, sourceCode)
-              };
+        suggest
+      };
 
-            return suggestion;
-          })
-      });
+      context.report(report);
     };
 
     const listeners: TSESLint.RuleListener = {
