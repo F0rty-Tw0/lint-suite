@@ -9,6 +9,8 @@ import {
 } from '@angular/compiler';
 import type { Binary, BoundTarget, DirectiveMeta } from '@angular/compiler';
 
+import { isReadTarget } from '../../utils/angular-read-target.util.js';
+
 type VisitableNode = Parameters<CombinedRecursiveAstVisitor['visit']>[0];
 
 class ReadCollector extends CombinedRecursiveAstVisitor {
@@ -28,11 +30,12 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
       return;
     }
 
-    if (
+    const isImplicitFieldRead =
       node.receiver instanceof ImplicitReceiver &&
       (!this.action || node.name !== '$event') &&
-      !this.boundTarget?.getExpressionTarget(node)
-    ) {
+      !this.boundTarget?.getExpressionTarget(node);
+
+    if (isImplicitFieldRead) {
       this.reads.add(node.name);
     }
   }
@@ -40,12 +43,7 @@ class ReadCollector extends CombinedRecursiveAstVisitor {
   override visitBinary(node: Binary, context: unknown): unknown {
     if (node.operation !== '=') return super.visitBinary(node, context);
 
-    if (
-      node.left instanceof PropertyRead ||
-      node.left instanceof SafePropertyRead ||
-      node.left instanceof KeyedRead ||
-      node.left instanceof SafeKeyedRead
-    ) {
+    if (isReadTarget(node.left)) {
       this.visit(node.left.receiver);
     }
 

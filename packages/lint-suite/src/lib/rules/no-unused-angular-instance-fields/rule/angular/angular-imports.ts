@@ -111,10 +111,12 @@ export const angularClassMetadata = (
       (kind === 'Component' || kind === 'Directive') &&
       metadata?.type === TSESTree.AST_NODE_TYPES.ObjectExpression
     ) {
-      return {
+      const classMetadata: AngularClassMetadata | null = {
         component: kind === 'Component',
         metadata
       };
+
+      return classMetadata;
     }
   }
 

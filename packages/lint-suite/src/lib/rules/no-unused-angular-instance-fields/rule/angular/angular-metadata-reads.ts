@@ -240,14 +240,13 @@ export const metadataReads = (
 
   if (!hostReads(metadataValue(metadata, 'host'), reads, filename)) return null;
 
-  if (
+  const hasUsableReads =
     (component && remainingNames.every((name) => reads.has(name))) ||
     !component ||
     componentTemplateReads(metadata, reads, filename) ||
-    !requireTemplate
-  ) {
-    return reads;
-  }
+    !requireTemplate;
+
+  if (hasUsableReads) return reads;
 
   return null;
 };

@@ -102,7 +102,13 @@ export const fieldCandidate = (
     !isExcludedField(node, localPrivateOnly, sourceCode) &&
     !isManagedField(node, imports, allowEffectFields, sourceCode)
   ) {
-    return { messageId: 'unusedField', name: node.key.name, node };
+    const unusedFieldCandidate: MemberCandidate | null = {
+      messageId: 'unusedField',
+      name: node.key.name,
+      node
+    };
+
+    return unusedFieldCandidate;
   }
 
   return null;
@@ -117,7 +123,13 @@ export const methodCandidate = (
     isInstanceMethod(node) &&
     !isExcludedMethod(node, localPrivateOnly, implementedMethods)
   ) {
-    return { messageId: 'unusedMethod', name: node.key.name, node };
+    const unusedMethodCandidate: MemberCandidate | null = {
+      messageId: 'unusedMethod',
+      name: node.key.name,
+      node
+    };
+
+    return unusedMethodCandidate;
   }
 
   return null;
