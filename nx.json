@@ -44,6 +44,11 @@
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
+    },
+    "lint": {
+      "options": {
+        "args": "--max-warnings=0"
+      }
     }
   },
   "analytics": false
