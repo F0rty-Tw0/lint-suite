@@ -4,6 +4,23 @@ import type { TSESLint } from '@typescript-eslint/utils';
 type Options = [];
 type MessageIds = 'inlineObjectType';
 
+const docs: TSESLint.RuleMetaDataDocs = {
+  description:
+    'Require nested object types inside a type alias to be extracted to a named type alias'
+};
+
+const messages: Record<MessageIds, string> = {
+  inlineObjectType:
+    'Inline object type must be extracted to a named type alias.'
+};
+
+const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
+  type: 'suggestion',
+  docs,
+  schema: [],
+  messages
+};
+
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/F0rty-Tw0/lint-suite#no-inline-object-types'
 );
@@ -26,18 +43,7 @@ const enclosingTypeAlias = (
 
 export default createRule<Options, MessageIds>({
   name: 'no-inline-object-types',
-  meta: {
-    type: 'suggestion',
-    docs: {
-      description:
-        'Require nested object types inside a type alias to be extracted to a named type alias'
-    },
-    schema: [],
-    messages: {
-      inlineObjectType:
-        'Inline object type must be extracted to a named type alias.'
-    }
-  },
+  meta,
   defaultOptions: [],
   create(context) {
     const listeners: TSESLint.RuleListener = {
@@ -51,7 +57,12 @@ export default createRule<Options, MessageIds>({
 
         if (!enclosingAlias) return;
 
-        context.report({ node, messageId: 'inlineObjectType' });
+        const report: TSESLint.ReportDescriptor<MessageIds> = {
+          node,
+          messageId: 'inlineObjectType'
+        };
+
+        context.report(report);
       }
     };
 
