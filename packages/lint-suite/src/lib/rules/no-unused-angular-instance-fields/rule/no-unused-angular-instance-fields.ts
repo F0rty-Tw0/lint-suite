@@ -1,28 +1,29 @@
-import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import type {
   JSONSchema,
   ParserServicesWithTypeInformation,
-  TSESLint
+  TSESLint,
+  TSESTree
 } from '@typescript-eslint/utils';
 
-import { reportUnusedMembers } from './angular/angular-class-fields.js';
-import { addAngularImport } from './angular/angular-imports.js';
+import { reportUnusedMembers } from './angular/angular-class-fields.ts';
+import { angularClassImports } from './angular/angular-imports.ts';
 import type {
-  AngularImports,
   ClassEntry,
   DynamicClasses,
   MessageIds,
   ProjectMemberUsed,
+  ReportUnusedMembersOptions,
   RuleContext,
   RuleOptions
-} from './common/no-unused-angular-instance-fields.type.js';
+} from './common/no-unused-angular-instance-fields.type.ts';
+import { classReadVisitor } from './typescript/typescript-class-read-visitor.ts';
+import type { ProjectUsageIndex } from '../project-usage/common/project-usage.type.ts';
 import {
   projectUsage,
   projectUsageIsCurrent
-} from '../project-usage/project-usage.js';
-import type { ProjectUsageIndex } from '../project-usage/common/project-usage.type.js';
-import { isSpecFile } from '../project-usage/utils/spec-file.util.js';
-import { classReadVisitor } from './typescript/typescript-class-read-visitor.js';
+} from '../project-usage/project-usage.ts';
+import { isSpecFile } from '../project-usage/utils/spec-file.util.ts';
 
 type Options = [RuleOptions];
 type Analysis = NonNullable<RuleOptions['analysis']>;
@@ -94,6 +95,24 @@ const projectParserServices = (
   }
 };
 
+const projectMemberUsedFor = (
+  parserServices: ParserServicesWithTypeInformation | undefined
+): ProjectMemberUsed | undefined => {
+  if (parserServices === undefined) return undefined;
+
+  let usage: ProjectUsageIndex | null | undefined;
+
+  const memberUsed = (node: TSESTree.ClassElement): boolean => {
+    if (usage === undefined) {
+      usage = projectUsage(parserServices.program);
+    }
+
+    return usage?.has(parserServices.esTreeNodeToTSNodeMap.get(node)) ?? true;
+  };
+
+  return memberUsed;
+};
+
 export default createRule<Options, MessageIds>({
   name: 'no-unused-instance-fields',
   meta,
@@ -101,81 +120,40 @@ export default createRule<Options, MessageIds>({
   create(context, [options]): TSESLint.RuleListener {
     const analysis = options.analysis ?? 'local';
     const isSpec = isSpecFile(context.filename);
+    const noListeners: TSESLint.RuleListener = {};
 
-    if (analysis === 'project' && isSpec) {
-      const noListeners: TSESLint.RuleListener = {};
-
-      return noListeners;
-    }
+    if (analysis === 'project' && isSpec) return noListeners;
 
     const parserServices = projectParserServices(context, analysis);
+    const imports = angularClassImports(context.sourceCode.ast);
 
-    const imports: AngularImports = new Map();
-    for (const node of context.sourceCode.ast.body) {
-      if (node.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
-        addAngularImport(node, imports);
-      }
-    }
-
-    let hasAngularClassImport = false;
-    for (const imported of imports.values()) {
-      if (
-        imported === null ||
-        imported === 'Component' ||
-        imported === 'Directive'
-      ) {
-        hasAngularClassImport = true;
-        break;
-      }
-    }
-
-    if (!hasAngularClassImport) {
-      const noListeners: TSESLint.RuleListener = {};
-
-      return noListeners;
-    }
-
-    let projectMemberUsed: ProjectMemberUsed | undefined;
-
-    if (parserServices) {
-      let usage: ProjectUsageIndex | null | undefined;
-
-      projectMemberUsed = (node: TSESTree.ClassElement): boolean => {
-        if (usage === undefined) {
-          usage = projectUsage(parserServices.program);
-        }
-
-        return (
-          usage?.has(parserServices.esTreeNodeToTSNodeMap.get(node)) ?? true
-        );
-      };
-    }
+    if (!imports) return noListeners;
 
     const classes: ClassEntry[] = [];
     const stack: ClassEntry[] = [];
     const dynamicClasses: DynamicClasses = new Set();
 
-    const allowEffectFields = options.allowEffectFields ?? false;
-
-    const isProjectUsageCurrent = (): boolean => {
+    const projectIndexed = (): boolean => {
       if (parserServices === undefined) return false;
 
       return projectUsageIsCurrent(parserServices.program);
+    };
+
+    const reportOptions: ReportUnusedMembersOptions = {
+      allowEffectFields: options.allowEffectFields ?? false,
+      classes,
+      context,
+      dynamicClasses,
+      imports,
+      projectIndexed,
+      projectMemberUsed: projectMemberUsedFor(parserServices)
     };
 
     const readListeners = classReadVisitor(classes, stack, dynamicClasses);
     const listeners: TSESLint.RuleListener = {
       ...readListeners,
       'Program:exit'(): void {
-        reportUnusedMembers(
-          context,
-          imports,
-          classes,
-          dynamicClasses,
-          allowEffectFields,
-          projectMemberUsed,
-          isProjectUsageCurrent
-        );
+        reportUnusedMembers(reportOptions);
       }
     };
 
