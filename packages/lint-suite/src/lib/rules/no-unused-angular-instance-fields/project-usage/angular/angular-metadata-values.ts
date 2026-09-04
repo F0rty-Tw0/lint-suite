@@ -26,9 +26,14 @@ export const stringValue = (
 ): string | null => {
   if (!node) return null;
 
-  if (isStringLiteralLike(node)) return node.text;
+  const isStringLiteral = isStringLiteralLike(node);
 
-  if (isIdentifier(node) || isPropertyAccessExpression(node)) {
+  if (isStringLiteral) return node.text;
+
+  const isIdentifierNode = isIdentifier(node);
+  const isPropertyAccessNode = isPropertyAccessExpression(node);
+
+  if (isIdentifierNode || isPropertyAccessNode) {
     const symbol = discovery.checker.getSymbolAtLocation(
       isIdentifier(node) ? node : node.name
     );
@@ -48,12 +53,15 @@ export const metadataProperty = (
   name: string
 ): Expression | undefined => {
   for (const property of metadata.properties) {
-    const isPropertyNamed =
-      isPropertyAssignment(property) &&
-      (isIdentifier(property.name) ||
-        isStringLiteralLike(property.name) ||
-        isNumericLiteral(property.name)) &&
-      property.name.text === name;
+    const isAssignment = isPropertyAssignment(property);
+
+    if (!isAssignment) continue;
+
+    const isIdentifierName = isIdentifier(property.name);
+    const isStringName = isStringLiteralLike(property.name);
+    const isNumericName = isNumericLiteral(property.name);
+    const isLiteralName = isIdentifierName || isStringName || isNumericName;
+    const isPropertyNamed = isLiteralName && property.name.text === name;
 
     if (isPropertyNamed) return property.initializer;
   }

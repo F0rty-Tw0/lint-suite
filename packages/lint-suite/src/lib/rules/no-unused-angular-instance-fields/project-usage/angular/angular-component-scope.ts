@@ -43,21 +43,23 @@ export const scopeOf = (
 ): ClassLikeDeclaration[] | null => {
   const standalone = booleanValue(metadataProperty(metadata, 'standalone'));
   const imports = metadataProperty(metadata, 'imports');
+  const isModuleDeclared = standalone === undefined && !imports;
 
-  if (standalone === false || (standalone === undefined && !imports)) {
-    return null;
-  }
+  if (standalone === false || isModuleDeclared) return null;
 
   if (!imports) return [];
 
-  if (!isArrayLiteralExpression(imports)) return null;
+  const isImportsArray = isArrayLiteralExpression(imports);
+
+  if (!isImportsArray) return null;
 
   const scope: ClassLikeDeclaration[] = [];
 
   for (const element of imports.elements) {
-    if (!isIdentifier(element) && !isPropertyAccessExpression(element)) {
-      return null;
-    }
+    const isIdentifierElement = isIdentifier(element);
+    const isPropertyAccessElement = isPropertyAccessExpression(element);
+
+    if (!isIdentifierElement && !isPropertyAccessElement) return null;
 
     const symbol = discovery.checker.getSymbolAtLocation(
       isIdentifier(element) ? element : element.name

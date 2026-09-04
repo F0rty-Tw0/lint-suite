@@ -74,8 +74,9 @@ export const angularDecoratorKind = (
 
   const symbol = resolveAlias(unresolved, discovery);
   const name = symbol.getName();
+  const isDecoratorName = decoratorKinds.has(name);
 
-  if (!decoratorKinds.has(name)) return null;
+  if (!isDecoratorName) return null;
 
   const fromAngularCore =
     (unresolved.declarations ?? []).some(importedFromAngularCore) ||
@@ -93,10 +94,14 @@ export const classDecoratorKind = (
   declaration: ClassLikeDeclaration,
   discovery: Discovery
 ): DecoratorKind | null => {
-  if (!canHaveDecorators(declaration)) return null;
+  const hasDecorators = canHaveDecorators(declaration);
+
+  if (!hasDecorators) return null;
 
   for (const decorator of getDecorators(declaration) ?? []) {
-    if (!isCallExpression(decorator.expression)) continue;
+    const isDecoratorCall = isCallExpression(decorator.expression);
+
+    if (!isDecoratorCall) continue;
 
     const kind = angularDecoratorKind(
       decorator.expression.expression,

@@ -31,12 +31,16 @@ const angularClass = (
   declaration: ClassLikeDeclaration,
   discovery: Discovery
 ): AngularClass | null => {
-  if (!canHaveDecorators(declaration)) return null;
+  const hasDecorators = canHaveDecorators(declaration);
+
+  if (!hasDecorators) return null;
 
   const name = declaration.name?.text ?? '';
 
   for (const decorator of getDecorators(declaration) ?? []) {
-    if (!isCallExpression(decorator.expression)) continue;
+    const isDecoratorCall = isCallExpression(decorator.expression);
+
+    if (!isDecoratorCall) continue;
 
     const kind = angularDecoratorKind(
       decorator.expression.expression,
@@ -58,13 +62,15 @@ const angularClass = (
       template: null
     };
 
-    if (metadata === undefined && !component) {
-      const validDiscovery: AngularClass | null = { ...base, valid: true };
+    if (metadata === undefined) {
+      const bareDiscovery: AngularClass | null = { ...base, valid: !component };
 
-      return validDiscovery;
+      return bareDiscovery;
     }
 
-    if (metadata === undefined || !isObjectLiteralExpression(metadata)) {
+    const isMetadataObject = isObjectLiteralExpression(metadata);
+
+    if (!isMetadataObject) {
       const invalidDiscovery: AngularClass | null = { ...base, valid: false };
 
       return invalidDiscovery;
@@ -100,7 +106,9 @@ export const angularClasses = (
   const discovery: Discovery = { checker, dependencies: new Set() };
 
   const visit = (node: Node): void => {
-    if (isClassLike(node)) {
+    const isClass = isClassLike(node);
+
+    if (isClass) {
       const found = angularClass(node, discovery);
 
       if (found) {

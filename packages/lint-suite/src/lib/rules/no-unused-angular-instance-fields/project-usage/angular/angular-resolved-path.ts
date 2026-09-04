@@ -40,7 +40,9 @@ export const addResolvedPath = (
         continue;
       }
 
-      if (isAnyOrUnknown(types)) return true;
+      const isAnyOrUnknownType = isAnyOrUnknown(types);
+
+      if (isAnyOrUnknownType) return true;
 
       return index === 0 && allowMissingRoot;
     }

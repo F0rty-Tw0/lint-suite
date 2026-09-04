@@ -52,7 +52,9 @@ const referenceTargets = (
   let targets: ClassLikeDeclaration[] = [];
 
   if (exportAs !== '') {
-    targets = [...(directives.byExportAs.get(exportAs) ?? [])];
+    const exportedTargets = directives.byExportAs.get(exportAs) ?? [];
+
+    targets = [...exportedTargets];
   } else if (owner instanceof TmplAstElement) {
     directives.componentMatcher.match(
       createCssSelectorFromNode(owner),
@@ -110,7 +112,15 @@ export const addTemplateReads = (
         : boundTarget.getExpressionTarget(chain.root);
 
     if (entity === null) {
-      if (!addResolvedPath(declaration, chain.names, checker, sink, true)) {
+      const isResolved = addResolvedPath(
+        declaration,
+        chain.names,
+        checker,
+        sink,
+        true
+      );
+
+      if (!isResolved) {
         sink.addFallbackNames(
           chain.names.map((segment) => segment.name),
           `${fileName}: cannot resolve '${chainText(chain.names)}' on ${className}`
@@ -134,10 +144,11 @@ export const addTemplateReads = (
     const resolved = targets.map((target) =>
       addResolvedPath(target, names, checker, sink, false)
     );
+    const hasResolvedTarget = resolved.includes(true);
 
     // ponytail: with several candidates the mismatching ones are expected
     // to fail; when none resolves, fall back to matching by name.
-    if (resolved.length > 0 && !resolved.includes(true)) {
+    if (resolved.length > 0 && !hasResolvedTarget) {
       sink.addFallbackNames(
         names.map((segment) => segment.name),
         `${fileName}: cannot resolve '#${entity.name}.${chainText(names)}' in ${className}`
