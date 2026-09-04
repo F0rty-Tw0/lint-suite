@@ -20,6 +20,33 @@ const isInterfaceType = (type: ObjectType): type is InterfaceType => {
   return (type.objectFlags & ObjectFlags.ClassOrInterface) !== 0;
 };
 
+const addDeclarationFiles = (
+  type: Type,
+  dependencies: Set<SourceFile>
+): void => {
+  for (const symbol of [type.getSymbol(), type.aliasSymbol]) {
+    const declarations = symbol?.declarations ?? [];
+
+    for (const declaration of declarations) {
+      dependencies.add(declaration.getSourceFile());
+    }
+  }
+};
+
+const baseTypesOf = (checker: TypeChecker, type: Type): Type[] => {
+  const isObject = isObjectType(type);
+
+  if (!isObject) return [];
+
+  const isReference = isTypeReference(type);
+  const target = isReference ? type.target : type;
+  const isClassOrInterface = isInterfaceType(target);
+
+  if (!isClassOrInterface) return [];
+
+  return checker.getBaseTypes(target);
+};
+
 export const addTypeDependencies = (
   checker: TypeChecker,
   type: Type,
@@ -42,13 +69,11 @@ export const addTypeDependencies = (
     return;
   }
 
-  for (const symbol of [type.getSymbol(), type.aliasSymbol]) {
-    for (const declaration of symbol?.declarations ?? []) {
-      dependencies.add(declaration.getSourceFile());
-    }
-  }
+  addDeclarationFiles(type, dependencies);
 
-  if ((type.flags & TypeFlags.TypeParameter) !== 0) {
+  const isTypeParameter = (type.flags & TypeFlags.TypeParameter) !== 0;
+
+  if (isTypeParameter) {
     const constraint = checker.getBaseConstraintOfType(type);
 
     if (constraint) {
@@ -58,17 +83,7 @@ export const addTypeDependencies = (
     return;
   }
 
-  const isObject = isObjectType(type);
-
-  if (!isObject) return;
-
-  const isReference = isTypeReference(type);
-  const target = isReference ? type.target : type;
-  const isClassOrInterface = isInterfaceType(target);
-
-  if (!isClassOrInterface) return;
-
-  for (const base of checker.getBaseTypes(target)) {
+  for (const base of baseTypesOf(checker, type)) {
     addTypeDependencies(checker, base, dependencies, seen);
   }
 };

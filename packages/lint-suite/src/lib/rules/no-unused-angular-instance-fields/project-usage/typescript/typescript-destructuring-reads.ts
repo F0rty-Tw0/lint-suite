@@ -1,4 +1,5 @@
 import {
+  SyntaxKind,
   isArrayBindingPattern,
   isArrayLiteralExpression,
   isBinaryExpression,
@@ -10,8 +11,7 @@ import {
   isPropertyAssignment,
   isSpreadAssignment,
   isSpreadElement,
-  isVariableDeclaration,
-  SyntaxKind
+  isVariableDeclaration
 } from 'typescript';
 import type {
   ArrayLiteralExpression,
@@ -23,13 +23,13 @@ import type {
   TypeChecker
 } from 'typescript';
 
-import type { CandidateNames, ReadSink } from '../common/project-usage.type.js';
 import {
   addNamedProperties,
   addSymbolDeclarations,
   allPropertySymbols,
   propertyName
-} from './typescript-symbol-reads.js';
+} from './typescript-symbol-reads.ts';
+import type { CandidateNames, ReadSink } from '../common/project-usage.type.ts';
 
 type LazyType = () => Type;
 
@@ -52,6 +52,7 @@ const skippable = (
   candidateNames: CandidateNames
 ): boolean => {
   if (nested) return false;
+
   if (names === null) return false;
 
   const hasCandidateName = names.some((name) => candidateNames.has(name));

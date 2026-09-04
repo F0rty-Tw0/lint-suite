@@ -6,10 +6,14 @@ import type {
   TmplAstElement,
   TmplAstTemplate
 } from '@angular/compiler';
+
 import type {
+  ArrayLiteralExpression,
+  BindingPattern,
   ClassLikeDeclaration,
   Declaration,
   Node,
+  ObjectLiteralExpression,
   Program,
   SourceFile,
   Type,
@@ -36,13 +40,37 @@ export type ReadSink = {
 
 export type CandidateNames = ReadonlySet<string>;
 
+export type AssignmentPattern = ArrayLiteralExpression | ObjectLiteralExpression;
+
+export type DestructuringPattern = AssignmentPattern | BindingPattern;
+
+/**
+ * One element of a destructuring pattern, reduced to what read collection
+ * needs: the property names it reads (null reads every property), the
+ * pattern nested inside it, and the node its type is resolved at.
+ */
+export type PatternElementRead = {
+  readonly location: Node;
+  readonly names: string[] | null;
+  readonly nested: DestructuringPattern | null;
+  readonly rest: boolean;
+};
+
 export type ProjectUsageIndex = {
   readonly has: (node: Node) => boolean;
 };
 
-export type AngularTemplate =
-  | { readonly kind: 'external'; readonly fileName: string }
-  | { readonly kind: 'inline'; readonly source: string };
+type ExternalAngularTemplate = {
+  readonly fileName: string;
+  readonly kind: 'external';
+};
+
+type InlineAngularTemplate = {
+  readonly kind: 'inline';
+  readonly source: string;
+};
+
+export type AngularTemplate = ExternalAngularTemplate | InlineAngularTemplate;
 
 export type AngularClass = {
   readonly component: boolean;
@@ -135,10 +163,48 @@ export type ProjectIndex = {
   readonly candidateNames: Set<string>;
   readonly classes: Map<string, FileClasses>;
   directives: DirectiveIndex;
+  // eslint-disable-next-line local/readonly-type-properties -- rewritten in place during reconciliation
   directiveShape: string;
   readonly entries: Map<string, FileEntry>;
   program: Program | null;
+  // eslint-disable-next-line local/readonly-type-properties -- rewritten in place during reconciliation
   templateCheckDuration: number;
+  // eslint-disable-next-line local/readonly-type-properties -- rewritten in place during reconciliation
   templateCheckedAt: number;
   usage: ProjectUsageIndex | undefined;
+};
+
+export type ResolvedPathOptions = {
+  readonly allowMissingRoot: boolean;
+  readonly checker: TypeChecker;
+  readonly declaration: ClassLikeDeclaration;
+  readonly names: ReadSegment[];
+  readonly sink: ReadSink;
+};
+
+export type TemplateReadContext = {
+  readonly checker: TypeChecker;
+  readonly className: string;
+  readonly declaration: ClassLikeDeclaration;
+  readonly directives: DirectiveIndex;
+  readonly fileName: string;
+  readonly scope: ClassLikeDeclaration[] | null;
+  readonly sink: ReadSink;
+};
+
+export type TemplateReadsOptions = {
+  readonly angularClass: AngularClass;
+  readonly checker: TypeChecker;
+  readonly directives: DirectiveIndex;
+  readonly fileName: string;
+  readonly sink: ReadSink;
+  readonly source: string;
+};
+
+export type CollectTemplateReadsOptions = {
+  readonly allNames: CandidateNames;
+  readonly checker: TypeChecker;
+  readonly classes: AngularClass[];
+  readonly directives: DirectiveIndex;
+  readonly sink: ReadSink;
 };

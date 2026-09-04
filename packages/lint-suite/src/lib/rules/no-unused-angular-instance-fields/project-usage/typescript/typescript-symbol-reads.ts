@@ -1,15 +1,15 @@
 import {
+  SymbolFlags,
   isBigIntLiteral,
   isIdentifier,
   isNumericLiteral,
   isPrivateIdentifier,
-  isStringLiteralLike,
-  SymbolFlags
+  isStringLiteralLike
 } from 'typescript';
 import type { PropertyName, Symbol, Type, TypeChecker } from 'typescript';
 
-import type { ReadSink } from '../common/project-usage.type.js';
-import { symbolsForName } from '../utils/type-property-symbols.util.js';
+import type { ReadSink } from '../common/project-usage.type.ts';
+import { symbolsForName } from '../utils/type-property-symbols.util.ts';
 
 const aliasTarget = (checker: TypeChecker, symbol: Symbol): Symbol => {
   const isAlias = (symbol.flags & SymbolFlags.Alias) !== 0;
