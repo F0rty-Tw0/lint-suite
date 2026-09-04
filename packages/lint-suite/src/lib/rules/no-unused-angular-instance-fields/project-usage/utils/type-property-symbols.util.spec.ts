@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { test } from 'vitest';
 
 import { createProgram, isIdentifier, isVariableStatement } from 'typescript';
-import type { Type, VariableDeclaration } from 'typescript';
+import type { Symbol, Type, VariableDeclaration } from 'typescript';
 
 import { fixtureDirectory } from '../../utils/fixture-project.spec.util.js';
 import {
@@ -34,6 +34,8 @@ sourceFile.forEachChild((node) => {
   }
 });
 
+const symbolName = (symbol: Symbol): string => symbol.getName();
+
 const typeOf = (name: string): Type => {
   const declaration = declarations.get(name);
 
@@ -44,27 +46,21 @@ const typeOf = (name: string): Type => {
 
 test('finds a property declared directly on an object type', () => {
   assert.deepEqual(
-    symbolsForName(checker, typeOf('left'), 'onlyLeft').map((symbol) =>
-      symbol.getName()
-    ),
+    symbolsForName(checker, typeOf('left'), 'onlyLeft').map(symbolName),
     ['onlyLeft']
   );
 });
 
 test('finds a property shared by every union member', () => {
   assert.deepEqual(
-    symbolsForName(checker, typeOf('either'), 'shared').map((symbol) =>
-      symbol.getName()
-    ),
+    symbolsForName(checker, typeOf('either'), 'shared').map(symbolName),
     ['shared']
   );
 });
 
 test('finds a property present on only one union member', () => {
   assert.deepEqual(
-    symbolsForName(checker, typeOf('either'), 'onlyRight').map((symbol) =>
-      symbol.getName()
-    ),
+    symbolsForName(checker, typeOf('either'), 'onlyRight').map(symbolName),
     ['onlyRight']
   );
 });

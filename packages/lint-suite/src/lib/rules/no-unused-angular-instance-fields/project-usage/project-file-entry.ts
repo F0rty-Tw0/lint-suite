@@ -10,6 +10,12 @@ import type {
 import { collectTypeScriptReads } from './typescript/typescript-reads.js';
 import { addTypeDependencies } from './typescript/typescript-type-dependencies.js';
 
+const failureText = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+
+  return String(error);
+};
+
 export const computeEntry = (
   index: ProjectIndex,
   sourceFile: SourceFile,
@@ -49,9 +55,11 @@ export const computeEntry = (
       index.candidateNames
     );
   } catch (error) {
+    const errorMessage = failureText(error);
+
     sink.addFallbackNames(
       index.candidateNames,
-      `${sourceFile.fileName}: indexing failed (${error instanceof Error ? error.message : String(error)})`
+      `${sourceFile.fileName}: indexing failed (${errorMessage})`
     );
   }
 

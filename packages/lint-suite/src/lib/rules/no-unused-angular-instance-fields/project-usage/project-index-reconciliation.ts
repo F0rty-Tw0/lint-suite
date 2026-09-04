@@ -16,16 +16,27 @@ import { computeEntry } from './project-file-entry.js';
 import { collectCandidateNames } from './typescript/typescript-reads.js';
 import { isSpecFile } from './utils/spec-file.util.js';
 
-const indexableSourceFiles = (program: Program): SourceFile[] =>
-  program
-    .getSourceFiles()
-    .filter(
-      (sourceFile) =>
-        !sourceFile.isDeclarationFile &&
-        !program.isSourceFileFromExternalLibrary(sourceFile) &&
-        !isSpecFile(sourceFile.fileName) &&
-        /\.(?:[cm]?ts|tsx)$/u.test(sourceFile.fileName)
-    );
+const typeScriptFilePattern = /\.(?:[cm]?ts|tsx)$/u;
+
+const indexableSourceFiles = (program: Program): SourceFile[] => {
+  const isIndexable = (sourceFile: SourceFile): boolean => {
+    if (sourceFile.isDeclarationFile) return false;
+
+    const isExternal = program.isSourceFileFromExternalLibrary(sourceFile);
+
+    if (isExternal) return false;
+
+    const isSpec = isSpecFile(sourceFile.fileName);
+
+    if (isSpec) return false;
+
+    return typeScriptFilePattern.test(sourceFile.fileName);
+  };
+
+  const sourceFiles = program.getSourceFiles();
+
+  return sourceFiles.filter(isIndexable);
+};
 
 const dropEntries = (
   index: ProjectIndex,
@@ -40,10 +51,6 @@ const dropEntries = (
   }
 };
 
-// ponytail: while the Program is unchanged (a full lint), re-stat external
-// templates at most every 100x the cost of the last check so the
-// O(files x templates) stat churn stays around 1% of lint time. A new
-// Program (an editor save) always checks.
 const dropStaleTemplateEntries = (
   index: ProjectIndex,
   force: boolean
@@ -131,8 +138,6 @@ const reconcileClasses = (
       dependencies,
       sourceFile
     });
-    // Re-discovered metadata may point at another template; the file's
-    // own reads must be collected again.
     index.entries.delete(fileName);
     changed = true;
   }
@@ -186,14 +191,13 @@ export const reconcile = (index: ProjectIndex, program: Program): void => {
 
     const newNames = reconcileClasses(index, current, all, checker);
 
-    // A member name seen for the first time may have been skipped as a
-    // non-candidate read in files that still look current.
     if (newNames.size > 0 && index.entries.size > 0) {
       const names = [...newNames];
+      const hasNewName = (entry: FileEntry): boolean => {
+        return names.some((name) => entry.sourceFile.text.includes(name));
+      };
 
-      dropEntries(index, (entry) =>
-        names.some((name) => entry.sourceFile.text.includes(name))
-      );
+      dropEntries(index, hasNewName);
     }
 
     index.program = program;

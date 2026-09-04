@@ -10,12 +10,20 @@ import { reconcile } from './project-index-reconciliation.js';
 
 const indexes = new Map<string, ProjectIndex>();
 
-const memberName = (node: Node): string | null =>
-  isClassElement(node) &&
-  node.name &&
-  (isIdentifier(node.name) || isStringLiteralLike(node.name))
-    ? node.name.text
-    : null;
+const memberName = (node: Node): string | null => {
+  const isMember = isClassElement(node);
+
+  if (!isMember) return null;
+  if (!node.name) return null;
+
+  const isIdentifierName = isIdentifier(node.name);
+  const isStringName = isStringLiteralLike(node.name);
+  const isNamedMember = isIdentifierName || isStringName;
+
+  if (!isNamedMember) return null;
+
+  return node.name.text;
+};
 
 const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
   if (index.usage !== undefined) return index.usage;

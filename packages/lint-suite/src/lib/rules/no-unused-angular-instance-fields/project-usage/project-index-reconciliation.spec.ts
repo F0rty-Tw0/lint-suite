@@ -15,6 +15,15 @@ import {
   rule,
   ruleName
 } from '../utils/rule-under-test.spec.util.js';
+import {
+  memberError,
+  projectInvalidCase
+} from './utils/project-analysis-case.spec.util.js';
+
+type ReportedMessage = Pick<
+  Linter.LintMessage,
+  'message' | 'messageId' | 'ruleId'
+>;
 
 const project = copyFixtureProject('cache-project');
 
@@ -31,9 +40,27 @@ const cacheProjectConfig = lintConfig({
   analysis: 'project',
   directory: project.directory
 });
+const cacheVerifyOptions = { filename: cacheComponent.filename };
 
 const brokenProjectDirectory = fixtureDirectory('broken-project');
 const brokenProjectTester = projectRuleTester(brokenProjectDirectory);
+
+const reportedMessageOf = ({
+  message,
+  messageId,
+  ruleId
+}: Linter.LintMessage): ReportedMessage => {
+  const reported: ReportedMessage = { message, messageId, ruleId };
+
+  return reported;
+};
+
+const templateChangeMessage: ReportedMessage = {
+  message: "Angular instance field 'readFromTemplateCache' is never read.",
+  messageId: 'unusedField',
+  ruleId: ruleName
+};
+const templateChangeMessages = [templateChangeMessage];
 
 test('invalidates project template usage after external template changes', () => {
   const linter = new Linter({ cwd: project.directory });
@@ -44,57 +71,39 @@ test('invalidates project template usage after external template changes', () =>
   );
 
   try {
-    assert.deepEqual(
-      linter.verify(cacheComponent.code, cacheProjectConfig, {
-        filename: cacheComponent.filename
-      }),
-      []
+    const cachedMessages = linter.verify(
+      cacheComponent.code,
+      cacheProjectConfig,
+      cacheVerifyOptions
     );
+
+    assert.deepEqual(cachedMessages, []);
 
     writeFileSync(cacheTemplateFilename, '<p></p>');
     utimesSync(cacheTemplateFilename, changedTime, changedTime);
 
-    assert.deepEqual(
-      linter
-        .verify(cacheComponent.code, cacheProjectConfig, {
-          filename: cacheComponent.filename
-        })
-        .map(({ message, messageId, ruleId }) => {
-          const reportedMessage = { message, messageId, ruleId };
-
-          return reportedMessage;
-        }),
-      [
-        {
-          message:
-            "Angular instance field 'readFromTemplateCache' is never read.",
-          messageId: 'unusedField',
-          ruleId: ruleName
-        }
-      ]
+    const changedMessages = linter.verify(
+      cacheComponent.code,
+      cacheProjectConfig,
+      cacheVerifyOptions
     );
+    const reportedMessages = changedMessages.map(reportedMessageOf);
+
+    assert.deepEqual(reportedMessages, templateChangeMessages);
   } finally {
     writeFileSync(cacheTemplateFilename, originalTemplate);
     utimesSync(cacheTemplateFilename, originalStats.atime, originalStats.mtime);
   }
 });
 
-brokenProjectTester.run(ruleName, rule, {
-  valid: [],
-  invalid: [
-    {
-      name: 'falls back to name matching when a template cannot be parsed',
-      ...fixtureCase(
-        brokenProjectDirectory,
-        'project-index-failure.component.ts'
-      ),
-      options: [{ analysis: 'project' }],
-      errors: [
-        {
-          messageId: 'unusedField',
-          data: { name: 'unreadAfterIndexFailure' }
-        }
-      ]
-    }
-  ]
-});
+const indexFailureError = memberError('unusedField', 'unreadAfterIndexFailure');
+const indexFailureCase = projectInvalidCase(
+  'falls back to name matching when a template cannot be parsed',
+  brokenProjectDirectory,
+  'project-index-failure.component.ts',
+  [indexFailureError]
+);
+
+const invalid = [indexFailureCase];
+
+brokenProjectTester.run(ruleName, rule, { valid: [], invalid });
