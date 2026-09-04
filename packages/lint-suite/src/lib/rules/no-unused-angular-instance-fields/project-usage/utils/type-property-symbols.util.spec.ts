@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { test } from 'vitest';
 
 import { createProgram, isIdentifier, isVariableStatement } from 'typescript';
-import type { Symbol, Type, VariableDeclaration } from 'typescript';
+import type { Node, Symbol, Type, VariableDeclaration } from 'typescript';
+import { test } from 'vitest';
 
-import { fixtureDirectory } from '../../utils/fixture-project.spec.util.js';
 import {
   stringIndexTypes,
   symbolsForName
-} from './type-property-symbols.util.js';
+} from './type-property-symbols.util.ts';
+import { fixtureDirectory } from '../../utils/fixture-project.spec.util.ts';
 
 const sampleFilename = join(fixtureDirectory('type-properties'), 'sample.ts');
 const program = createProgram([sampleFilename], { noLib: true });
@@ -20,19 +20,25 @@ assert.ok(sourceFile, 'type-properties fixture must be part of the program');
 
 const declarations = new Map<string, VariableDeclaration>();
 
-sourceFile.forEachChild((node) => {
+const addDeclaration = (declaration: VariableDeclaration): void => {
+  const isNamedDeclaration = isIdentifier(declaration.name);
+
+  if (!isNamedDeclaration) return;
+
+  declarations.set(declaration.name.text, declaration);
+};
+
+const addVariableDeclarations = (node: Node): void => {
   const isVariableDeclarationList = isVariableStatement(node);
 
   if (!isVariableDeclarationList) return;
 
   for (const declaration of node.declarationList.declarations) {
-    const isNamedDeclaration = isIdentifier(declaration.name);
-
-    if (isNamedDeclaration) {
-      declarations.set(declaration.name.text, declaration);
-    }
+    addDeclaration(declaration);
   }
-});
+};
+
+sourceFile.forEachChild(addVariableDeclarations);
 
 const symbolName = (symbol: Symbol): string => symbol.getName();
 

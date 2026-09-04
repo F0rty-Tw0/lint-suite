@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+
 import { test } from 'vitest';
 
-import { isSpecFile } from './spec-file.util.js';
+import { isSpecFile } from './spec-file.util.ts';
 
 const specFileNames: string[] = [
   'component.spec.ts',

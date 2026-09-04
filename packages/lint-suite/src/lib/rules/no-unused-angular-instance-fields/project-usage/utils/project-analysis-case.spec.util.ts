@@ -1,6 +1,6 @@
 import type { RuleTester } from 'eslint';
 
-import { fixtureCase } from '../../utils/fixture-project.spec.util.js';
+import { fixtureCase } from '../../utils/fixture-project.spec.util.ts';
 
 const projectAnalysis = { analysis: 'project' };
 const projectOptions = [projectAnalysis];
