@@ -1,6 +1,3 @@
-import assert from 'node:assert/strict';
-import { test } from 'vitest';
-
 import {
   AbsoluteSourceSpan,
   ImplicitReceiver,
@@ -12,7 +9,11 @@ import {
   SafePropertyRead
 } from '@angular/compiler';
 
-import { isReadTarget } from './angular-read-target.util.js';
+import assert from 'node:assert/strict';
+
+import { test } from 'vitest';
+
+import { isReadTarget } from './angular-read-target.util.ts';
 
 const span = new ParseSpan(0, 0);
 const sourceSpan = new AbsoluteSourceSpan(0, 0);

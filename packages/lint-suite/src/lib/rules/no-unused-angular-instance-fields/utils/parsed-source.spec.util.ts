@@ -12,8 +12,11 @@ const isProgram = (value: unknown): value is TSESLint.SourceCode.Program => {
   const isObject = typeof value === 'object' && value !== null;
 
   if (!isObject) return false;
+
   if (!('type' in value)) return false;
+
   if (!('tokens' in value)) return false;
+
   if (!('comments' in value)) return false;
 
   return value.type === TSESTree.AST_NODE_TYPES.Program;

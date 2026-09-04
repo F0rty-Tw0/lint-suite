@@ -4,9 +4,21 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Linter } from 'eslint';
 
-import { copyFixtureProject } from './fixture-project.spec.util.js';
-import { reportedMembers } from './lint-messages.spec.util.js';
-import { lintConfig } from './rule-under-test.spec.util.js';
+import { copyFixtureProject } from './fixture-project.spec.util.ts';
+import {
+  broken,
+  consumer,
+  consumerBody,
+  gallery,
+  otherPanel,
+  panel,
+  panelHost,
+  paths,
+  widget,
+  widgetMembers
+} from './incremental-source.spec.util.ts';
+import { reportedMembers } from './lint-messages.spec.util.ts';
+import { lintConfig } from './rule-under-test.spec.util.ts';
 
 type IncrementalProject = {
   readonly projectDirectory: string;
@@ -17,116 +29,6 @@ type IncrementalProject = {
   readonly dispose: () => void;
 };
 
-export const widget = (members: string): string => {
-  return `import { Component } from '@angular/core';
-
-@Component({ selector: 'app-widget', templateUrl: './widget.component.html' })
-export class WidgetComponent {
-${members}
-}
-`;
-};
-
-export const widgetMembers = `  readonly title = 'title';
-  readonly exposed = 'exposed';
-  readonly hidden = 'hidden';`;
-
-export const consumer = (body: string): string => {
-  return `import { Component, viewChild } from '@angular/core';
-
-import { WidgetComponent } from './widget.component';
-
-@Component({ selector: 'app-consumer', template: '<app-widget />' })
-export class ConsumerComponent {
-  readonly widget = viewChild.required(WidgetComponent);
-
-  read(): string {
-${body}
-  }
-}
-`;
-};
-
-export const consumerBody = `    return this.widget().exposed;`;
-
-export const panel = (exportAs: string): string => {
-  return `import { Directive } from '@angular/core';
-
-@Directive({ selector: '[appPanel]'${exportAs} })
-export class PanelDirective {
-  readonly state = 'open';
-}
-`;
-};
-
-export const panelHost = `import { Component } from '@angular/core';
-
-import { PanelDirective } from './panel.directive';
-
-@Component({
-  selector: 'app-panel-host',
-  imports: [PanelDirective],
-  template: '<div appPanel #panel="appPanel">{{ panel.state }}</div>'
-})
-export class PanelHostComponent {}
-`;
-
-export const otherPanel = `import { Directive } from '@angular/core';
-
-@Directive({ selector: '[appOtherPanel]', exportAs: 'appPanel' })
-export class OtherPanelDirective {
-  readonly state = 'other';
-}
-`;
-
-export const panelHostImporting = (directive: string): string => {
-  return `import { Component } from '@angular/core';
-
-import { OtherPanelDirective } from './other-panel.directive';
-import { PanelDirective } from './panel.directive';
-
-@Component({
-  selector: 'app-panel-host',
-  imports: [${directive}],
-  template: '<div appPanel appOtherPanel #panel="appPanel">{{ panel.state }}</div>'
-})
-export class PanelHostComponent {
-  protected readonly imported = [OtherPanelDirective, PanelDirective];
-}
-`;
-};
-
-export const paths = (template: string): string => {
-  return `export const GALLERY_TEMPLATE_URL = './${template}';\n`;
-};
-
-export const gallery = `import { Component } from '@angular/core';
-
-import { GALLERY_TEMPLATE_URL } from './paths';
-
-const CAPTION_TEMPLATE = '<p>{{ caption }}</p>';
-
-@Component({ selector: 'app-gallery', templateUrl: GALLERY_TEMPLATE_URL })
-export class GalleryComponent {
-  readonly shown = 'shown';
-  readonly hidden = 'hidden';
-}
-
-@Component({ selector: 'app-caption', template: CAPTION_TEMPLATE })
-export class CaptionComponent {
-  readonly caption = 'caption';
-  readonly unused = 'unused';
-}
-`;
-
-export const broken = (template: string): string => {
-  return `import { Component } from '@angular/core';
-
-@Component({ selector: 'app-broken', template: '${template}' })
-export class BrokenComponent {}
-`;
-};
-
 const angularCore = join(
   import.meta.dirname,
   '../../../../../../../node_modules/@angular/core'
@@ -134,22 +36,7 @@ const angularCore = join(
 
 export const templateSettled = async (): Promise<void> => sleep(300);
 
-export const createIncrementalProject = (): IncrementalProject => {
-  const project = copyFixtureProject('incremental', 'lint-suite-incremental-');
-  const projectDirectory = project.directory;
-
-  mkdirSync(join(projectDirectory, 'node_modules', '@angular'), {
-    recursive: true
-  });
-  symlinkSync(
-    angularCore,
-    join(projectDirectory, 'node_modules', '@angular', 'core'),
-    'junction'
-  );
-  mkdirSync(join(projectDirectory, 'src'));
-
-  const file = (name: string): string => join(projectDirectory, 'src', name);
-
+const seedProject = (file: (name: string) => string): void => {
   writeFileSync(file('widget.component.ts'), widget(widgetMembers));
   writeFileSync(file('widget.component.html'), '<h1>{{ title }}</h1>');
   writeFileSync(file('consumer.component.ts'), consumer(consumerBody));
@@ -164,6 +51,29 @@ export const createIncrementalProject = (): IncrementalProject => {
     file('gallery-alt.component.html'),
     '<h1>{{ shown }} {{ hidden }}</h1>'
   );
+};
+
+const linkAngularCore = (projectDirectory: string): void => {
+  mkdirSync(join(projectDirectory, 'node_modules', '@angular'), {
+    recursive: true
+  });
+  symlinkSync(
+    angularCore,
+    join(projectDirectory, 'node_modules', '@angular', 'core'),
+    'junction'
+  );
+};
+
+export const createIncrementalProject = (): IncrementalProject => {
+  const project = copyFixtureProject('incremental', 'lint-suite-incremental-');
+  const projectDirectory = project.directory;
+
+  linkAngularCore(projectDirectory);
+  mkdirSync(join(projectDirectory, 'src'));
+
+  const file = (name: string): string => join(projectDirectory, 'src', name);
+
+  seedProject(file);
 
   const config = lintConfig({
     analysis: 'project',

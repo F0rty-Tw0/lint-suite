@@ -1,6 +1,6 @@
 import type { RuleTester } from 'eslint';
 
-import type { MessageIds } from '../rule/common/no-unused-angular-instance-fields.type.js';
+import type { MessageIds } from '../rule/common/no-unused-angular-instance-fields.type.ts';
 
 const memberError = (
   messageId: MessageIds,

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, test, vi } from 'vitest';
 
 import { RuleTester } from 'eslint';
 import type { ESLint, Linter } from 'eslint';
+import { describe, test, vi } from 'vitest';
 
-import { angular } from '../../../angular.js';
-import { LINTER_CONFIG_STUB } from '../common/stubs/linter-config.stub.js';
+import { angular } from '../../../angular.ts';
+import { LINTER_CONFIG_STUB } from '../common/stubs/linter-config.stub.ts';
 
 type LintConfigOptions = {
   readonly analysis: 'local' | 'project';
