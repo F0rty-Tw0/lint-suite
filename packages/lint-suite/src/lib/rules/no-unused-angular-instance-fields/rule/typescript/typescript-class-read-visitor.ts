@@ -48,8 +48,9 @@ const trackMemberRead = (
   dynamicClasses: DynamicClasses
 ): void => {
   const current = stack.at(-1);
+  const isComponentThis = thisStack.at(-1);
 
-  if (!current || !thisStack.at(-1)) return;
+  if (!current || !isComponentThis) return;
 
   const receiverIsThis = isThisExpression(node.object);
 
@@ -57,13 +58,13 @@ const trackMemberRead = (
     dynamicClasses.add(current);
   }
 
-  const isPlainThisRead =
-    receiverIsThis && !node.computed && !isWriteOnly(node);
+  if (!receiverIsThis || node.computed) return;
 
-  if (
-    isPlainThisRead &&
-    node.property.type === TSESTree.AST_NODE_TYPES.Identifier
-  ) {
+  const isWriteOnlyTarget = isWriteOnly(node);
+
+  if (isWriteOnlyTarget) return;
+
+  if (node.property.type === TSESTree.AST_NODE_TYPES.Identifier) {
     current.reads.add(node.property.name);
   }
 };
@@ -75,8 +76,9 @@ const trackDestructuringRead = (
   dynamicClasses: DynamicClasses
 ): void => {
   const current = stack.at(-1);
+  const isComponentThis = thisStack.at(-1);
 
-  if (!current || !thisStack.at(-1)) return;
+  if (!current || !isComponentThis) return;
 
   const reads = destructuredThisReads(node);
 

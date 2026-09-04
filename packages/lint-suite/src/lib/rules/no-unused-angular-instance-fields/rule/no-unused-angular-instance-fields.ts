@@ -79,8 +79,9 @@ export default createRule<Options, MessageIds>({
   defaultOptions: [defaultOptions],
   create(context, [options]): TSESLint.RuleListener {
     const analysis = options.analysis ?? 'local';
+    const isSpec = isSpecFile(context.filename);
 
-    if (analysis === 'project' && isSpecFile(context.filename)) {
+    if (analysis === 'project' && isSpec) {
       const noListeners: TSESLint.RuleListener = {};
 
       return noListeners;

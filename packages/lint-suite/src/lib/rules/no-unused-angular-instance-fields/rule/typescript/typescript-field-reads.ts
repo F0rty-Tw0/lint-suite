@@ -182,13 +182,15 @@ export const destructuredThisReads = (
 ): string[] | null | undefined => {
   const parts = destructuringParts(node);
 
-  if (
-    !parts ||
-    parts.pattern.type !== TSESTree.AST_NODE_TYPES.ObjectPattern ||
-    !isThisExpression(parts.source)
-  ) {
+  if (!parts) return undefined;
+
+  if (parts.pattern.type !== TSESTree.AST_NODE_TYPES.ObjectPattern) {
     return undefined;
   }
+
+  const isThisSource = isThisExpression(parts.source);
+
+  if (!isThisSource) return undefined;
 
   const reads: string[] = [];
 
