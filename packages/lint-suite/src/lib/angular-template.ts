@@ -4,10 +4,7 @@ import { defineConfig } from 'eslint/config';
 export const angularTemplate = defineConfig([
   {
     files: ['**/*.html'],
-    extends: [
-      ...configs.templateAccessibility,
-      ...configs.templateRecommended
-    ],
+    extends: [...configs.templateAccessibility, ...configs.templateRecommended],
     rules: {
       '@angular-eslint/template/prefer-template-literal': 'error',
       '@angular-eslint/template/no-any': 'error',

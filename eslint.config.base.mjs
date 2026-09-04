@@ -12,6 +12,11 @@ export default [
   {
     files: ['**/*.ts', '**/*.js'],
     rules: {
+      curly: ['error', 'multi-line'],
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: '*', next: 'return' }
+      ],
       '@nx/enforce-module-boundaries': [
         'error',
         {
