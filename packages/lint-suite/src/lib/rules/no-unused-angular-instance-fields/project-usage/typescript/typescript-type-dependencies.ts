@@ -14,11 +14,15 @@ export const addTypeDependencies = (
   dependencies: Set<SourceFile>,
   seen: Set<Type>
 ): void => {
-  if (seen.has(type)) return;
+  const isSeen = seen.has(type);
+
+  if (isSeen) return;
 
   seen.add(type);
 
-  if (type.isUnionOrIntersection()) {
+  const isUnionOrIntersection = type.isUnionOrIntersection();
+
+  if (isUnionOrIntersection) {
     for (const member of type.types) {
       addTypeDependencies(checker, member, dependencies, seen);
     }

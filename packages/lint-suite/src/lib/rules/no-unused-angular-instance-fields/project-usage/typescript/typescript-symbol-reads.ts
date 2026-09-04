@@ -33,8 +33,9 @@ export const allPropertySymbols = (
   const symbols = new Set(
     checker.getPropertiesOfType(checker.getApparentType(type))
   );
+  const isUnionOrIntersection = type.isUnionOrIntersection();
 
-  if (type.isUnionOrIntersection()) {
+  if (isUnionOrIntersection) {
     for (const member of type.types) {
       for (const symbol of allPropertySymbols(checker, member)) {
         symbols.add(symbol);
@@ -65,11 +66,15 @@ export const addNamedProperties = (
 };
 
 export const literalPropertyNames = (type: Type): string[] | null => {
-  if (type.isStringLiteral() || type.isNumberLiteral()) {
-    return [String(type.value)];
-  }
+  const isStringLiteral = type.isStringLiteral();
+  const isNumberLiteral = type.isNumberLiteral();
+  const isLiteralType = isStringLiteral || isNumberLiteral;
 
-  if (!type.isUnion()) return null;
+  if (isLiteralType) return [String(type.value)];
+
+  const isUnion = type.isUnion();
+
+  if (!isUnion) return null;
 
   const names: string[] = [];
 
@@ -88,12 +93,17 @@ export const propertyName = (
   checker: TypeChecker,
   node: PropertyName
 ): string[] | null => {
+  const isIdentifierName = isIdentifier(node);
+  const isPrivateName = isPrivateIdentifier(node);
+  const isStringName = isStringLiteralLike(node);
+  const isNumericName = isNumericLiteral(node);
+  const isBigIntName = isBigIntLiteral(node);
   const isLiteralName =
-    isIdentifier(node) ||
-    isPrivateIdentifier(node) ||
-    isStringLiteralLike(node) ||
-    isNumericLiteral(node) ||
-    isBigIntLiteral(node);
+    isIdentifierName ||
+    isPrivateName ||
+    isStringName ||
+    isNumericName ||
+    isBigIntName;
 
   if (isLiteralName) return [node.text];
 

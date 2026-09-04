@@ -92,7 +92,13 @@ const addPropertyAccessRead = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  if (!candidateNames.has(node.name.text) || isWriteOnly(node)) return;
+  const isCandidateName = candidateNames.has(node.name.text);
+
+  if (!isCandidateName) return;
+
+  const isWriteTarget = isWriteOnly(node);
+
+  if (isWriteTarget) return;
 
   sink.addType(checker.getTypeAtLocation(node.expression));
 
@@ -109,13 +115,19 @@ const addElementAccessRead = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  if (isWriteOnly(node) || !node.argumentExpression) return;
+  const isWriteTarget = isWriteOnly(node);
+
+  if (isWriteTarget || !node.argumentExpression) return;
 
   const names = literalPropertyNames(
     checker.getTypeAtLocation(node.argumentExpression)
   );
 
-  if (names && !names.some((name) => candidateNames.has(name))) return;
+  if (names) {
+    const hasCandidateName = names.some((name) => candidateNames.has(name));
+
+    if (!hasCandidateName) return;
+  }
 
   addNamedProperties(
     checker,
@@ -155,7 +167,9 @@ const collectAngularInterfaceMethods = (
       sink.addType(type);
 
       for (const interfaceMethod of type.getProperties()) {
-        if (!isAngularInterfaceMethod(interfaceMethod)) continue;
+        const isInterfaceMethod = isAngularInterfaceMethod(interfaceMethod);
+
+        if (!isInterfaceMethod) continue;
 
         const implementation = classType.getProperty(interfaceMethod.name);
 
@@ -172,17 +186,25 @@ export const collectCandidateNames = (sourceFile: SourceFile): Set<string> => {
   const names = new Set<string>();
 
   const visit = (node: Node): void => {
-    if (
-      isClassLike(node) &&
-      canHaveDecorators(node) &&
-      (getDecorators(node)?.length ?? 0) > 0
-    ) {
-      for (const member of node.members) {
-        if (
-          member.name &&
-          (isIdentifier(member.name) || isStringLiteralLike(member.name))
-        ) {
-          names.add(member.name.text);
+    const isClass = isClassLike(node);
+
+    if (isClass) {
+      const isDecoratable = canHaveDecorators(node);
+      const decorators = isDecoratable ? getDecorators(node) : undefined;
+      const decoratorCount = decorators?.length ?? 0;
+      const isDecoratedClass = decoratorCount > 0;
+
+      if (isDecoratedClass) {
+        for (const member of node.members) {
+          if (!member.name) continue;
+
+          const isIdentifierName = isIdentifier(member.name);
+          const isStringName = isStringLiteralLike(member.name);
+          const isNamedMember = isIdentifierName || isStringName;
+
+          if (isNamedMember) {
+            names.add(member.name.text);
+          }
         }
       }
     }
@@ -202,11 +224,15 @@ export const collectTypeScriptReads = (
   candidateNames: CandidateNames
 ): void => {
   const visit = (node: Node): void => {
-    if (isPropertyAccessExpression(node)) {
+    const isPropertyAccess = isPropertyAccessExpression(node);
+    const isElementAccess = isElementAccessExpression(node);
+    const isClass = isClassLike(node);
+
+    if (isPropertyAccess) {
       addPropertyAccessRead(node, checker, sink, candidateNames);
-    } else if (isElementAccessExpression(node)) {
+    } else if (isElementAccess) {
       addElementAccessRead(node, checker, sink, candidateNames);
-    } else if (isClassLike(node)) {
+    } else if (isClass) {
       collectAngularInterfaceMethods(node, checker, sink);
     }
 

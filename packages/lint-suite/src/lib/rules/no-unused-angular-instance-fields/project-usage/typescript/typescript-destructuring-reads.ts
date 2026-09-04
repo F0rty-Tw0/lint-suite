@@ -55,14 +55,19 @@ const collectBindingPattern = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  if (isArrayBindingPattern(pattern)) {
+  const isArrayPattern = isArrayBindingPattern(pattern);
+
+  if (isArrayPattern) {
     for (const [index, element] of pattern.elements.entries()) {
-      if (isOmittedExpression(element)) continue;
+      const isOmitted = isOmittedExpression(element);
+
+      if (isOmitted) continue;
 
       const names = element.dotDotDotToken ? null : [String(index)];
       const nested = isBindingPattern(element.name);
+      const isSkippable = skippable(names, nested, candidateNames);
 
-      if (skippable(names, nested, candidateNames)) continue;
+      if (isSkippable) continue;
 
       const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -89,7 +94,9 @@ const collectBindingPattern = (
       sink.addType(type());
 
       for (const symbol of allPropertySymbols(checker, type())) {
-        if (!consumed.has(symbol.name)) {
+        const isConsumed = consumed.has(symbol.name);
+
+        if (!isConsumed) {
           addSymbolDeclarations(checker, symbol, sink);
         }
       }
@@ -107,8 +114,9 @@ const collectBindingPattern = (
     }
 
     const nested = isBindingPattern(element.name);
+    const isSkippable = skippable(names, nested, candidateNames);
 
-    if (skippable(names, nested, candidateNames)) continue;
+    if (isSkippable) continue;
 
     const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -133,15 +141,20 @@ const collectAssignmentPattern = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  if (isArrayLiteralExpression(pattern)) {
+  const isArrayPattern = isArrayLiteralExpression(pattern);
+
+  if (isArrayPattern) {
     for (const [index, element] of pattern.elements.entries()) {
-      if (isOmittedExpression(element)) continue;
+      const isOmitted = isOmittedExpression(element);
+
+      if (isOmitted) continue;
 
       const names = isSpreadElement(element) ? null : [String(index)];
       const nested =
         isArrayLiteralExpression(element) || isObjectLiteralExpression(element);
+      const isSkippable = skippable(names, nested, candidateNames);
 
-      if (skippable(names, nested, candidateNames)) continue;
+      if (isSkippable) continue;
 
       const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -164,11 +177,15 @@ const collectAssignmentPattern = (
   const consumed = new Set<string>();
 
   for (const property of pattern.properties) {
-    if (isSpreadAssignment(property)) {
+    const isSpread = isSpreadAssignment(property);
+
+    if (isSpread) {
       sink.addType(type());
 
       for (const symbol of allPropertySymbols(checker, type())) {
-        if (!consumed.has(symbol.name)) {
+        const isConsumed = consumed.has(symbol.name);
+
+        if (!isConsumed) {
           addSymbolDeclarations(checker, symbol, sink);
         }
       }
@@ -185,8 +202,9 @@ const collectAssignmentPattern = (
       isPropertyAssignment(property) &&
       (isArrayLiteralExpression(property.initializer) ||
         isObjectLiteralExpression(property.initializer));
+    const isSkippable = skippable(names, nested, candidateNames);
 
-    if (skippable(names, nested, candidateNames)) continue;
+    if (isSkippable) continue;
 
     const symbols = addNamedProperties(checker, type(), names, sink);
 
@@ -210,11 +228,15 @@ export const collectDestructuringReads = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
-  const isDestructuringBindingPattern =
-    isBindingPattern(node) &&
-    !(isBindingElement(node.parent) && node.parent.name === node);
+  const isPattern = isBindingPattern(node);
 
-  if (isDestructuringBindingPattern) {
+  if (isPattern) {
+    const isBindingElementParent = isBindingElement(node.parent);
+    const isNestedBindingName =
+      isBindingElementParent && node.parent.name === node;
+
+    if (isNestedBindingName) return;
+
     const declaration = node.parent;
     const source =
       isVariableDeclaration(declaration) && declaration.initializer
@@ -232,19 +254,25 @@ export const collectDestructuringReads = (
     return;
   }
 
-  const isDestructuringAssignment =
-    isBinaryExpression(node) &&
-    node.operatorToken.kind === SyntaxKind.EqualsToken &&
-    (isArrayLiteralExpression(node.left) ||
-      isObjectLiteralExpression(node.left));
+  const isBinary = isBinaryExpression(node);
 
-  if (isDestructuringAssignment) {
-    collectAssignmentPattern(
-      node.left,
-      lazyType(() => checker.getTypeAtLocation(node.right)),
-      checker,
-      sink,
-      candidateNames
-    );
-  }
+  if (!isBinary) return;
+
+  const isEqualsAssignment = node.operatorToken.kind === SyntaxKind.EqualsToken;
+
+  if (!isEqualsAssignment) return;
+
+  const isArrayTarget = isArrayLiteralExpression(node.left);
+  const isObjectTarget = isObjectLiteralExpression(node.left);
+  const isDestructuringAssignment = isArrayTarget || isObjectTarget;
+
+  if (!isDestructuringAssignment) return;
+
+  collectAssignmentPattern(
+    node.left,
+    lazyType(() => checker.getTypeAtLocation(node.right)),
+    checker,
+    sink,
+    candidateNames
+  );
 };
