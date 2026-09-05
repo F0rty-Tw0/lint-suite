@@ -55,6 +55,9 @@ assert.equal(targets.length, 2);
 
 const [objectTarget, arrayTarget] = targets;
 
+assert.ok(objectTarget);
+assert.ok(arrayTarget);
+
 test('reads the property names of an object assignment target', () => {
   const reads = assignmentPatternElements(objectTarget, checker);
   const names = reads.map((read) => read.names);

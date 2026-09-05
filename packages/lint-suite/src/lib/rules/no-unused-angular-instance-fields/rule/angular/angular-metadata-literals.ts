@@ -14,7 +14,11 @@ export const text = (node: TSESTree.Node | null | undefined): string | null => {
 
   if (hasExpressions) return null;
 
-  return node.quasis[0].value.cooked;
+  const [quasi] = node.quasis;
+
+  if (quasi === undefined) return null;
+
+  return quasi.value.cooked;
 };
 
 export const key = (property: TSESTree.ObjectLiteralElement): string | null => {

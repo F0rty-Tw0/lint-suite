@@ -41,6 +41,10 @@ assert.equal(patterns.length, 3);
 
 const [objectPattern, arrayPattern, nestedPattern] = patterns;
 
+assert.ok(objectPattern);
+assert.ok(arrayPattern);
+assert.ok(nestedPattern);
+
 test('reads named, renamed, and rest elements of an object pattern', () => {
   const reads = bindingPatternElements(objectPattern, checker);
   const names = reads.map((read) => read.names);
@@ -61,6 +65,8 @@ test('reads indexed elements of an array pattern and skips holes', () => {
 
 test('exposes the nested pattern of an element', () => {
   const [read] = bindingPatternElements(nestedPattern, checker);
+
+  assert.ok(read);
 
   assert.deepEqual(read.names, ['x']);
   assert.notEqual(read.nested, null);

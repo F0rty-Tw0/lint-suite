@@ -5,7 +5,10 @@ import type { ESLint, Linter } from 'eslint';
 import { describe, test, vi } from 'vitest';
 
 import { angular } from '../../../angular.ts';
-import { LINTER_CONFIG_STUB } from '../common/stubs/linter-config.stub.ts';
+import {
+  LINTER_CONFIG_STUB,
+  LINTER_LANGUAGE_OPTIONS_STUB
+} from '../common/stubs/linter-config.stub.ts';
 
 type LintConfigOptions = {
   readonly analysis: 'local' | 'project';
@@ -35,7 +38,7 @@ export const rule: NonNullable<ESLint.Plugin['rules']>[string] = registeredRule;
 export const ruleName = 'lint-suite-angular/no-unused-instance-fields';
 
 export const ruleTester = new RuleTester({
-  languageOptions: LINTER_CONFIG_STUB.languageOptions
+  languageOptions: LINTER_LANGUAGE_OPTIONS_STUB
 });
 
 const projectLanguageOptions = (

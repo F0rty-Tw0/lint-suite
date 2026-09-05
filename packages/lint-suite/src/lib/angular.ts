@@ -9,6 +9,10 @@ export const lintSuiteAngularPlugin = definePlugin('lint-suite-angular', {
   'no-unused-instance-fields': noUnusedInstanceFieldsRule
 });
 
+const inlineTemplates = processInlineTemplates && {
+  processor: processInlineTemplates
+};
+
 export const angular = defineConfig([
   {
     files: ['**/*.ts'],
@@ -26,7 +30,7 @@ export const angular = defineConfig([
         projectService: true
       }
     },
-    processor: processInlineTemplates,
+    ...inlineTemplates,
     rules: {
       'lint-suite-angular/no-unused-instance-fields': [
         'error',

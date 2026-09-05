@@ -85,7 +85,7 @@ const collapsedLine = (
   bodyText: string,
   sourceCode: TSESLint.SourceCode
 ): string => {
-  const line = sourceCode.lines[node.loc.start.line - 1];
+  const line = sourceCode.lines[node.loc.start.line - 1] ?? '';
   const prefix = line.slice(0, node.loc.start.column);
 
   return `${prefix}${head} ${bodyText}`;
@@ -124,6 +124,9 @@ export default createRule<Options, MessageIds>({
         if (collapsed.length > maxLineLength) return;
 
         const [keywordToken] = sourceCode.getTokens(statement);
+
+        if (keywordToken === undefined) return;
+
         const keyword = keywordToken.value;
         const data = { keyword, max: maxLineLength };
         const fix: TSESLint.ReportFixFunction = (fixer) =>

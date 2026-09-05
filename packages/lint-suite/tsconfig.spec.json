@@ -2,10 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc/spec",
-    "types": [
-      "vitest",
-      "node"
-    ],
+    "types": ["vitest", "node"],
     "rewriteRelativeImportExtensions": false,
     "allowImportingTsExtensions": true
   },
@@ -17,9 +14,7 @@
     "src/**/*.spec.ts",
     "src/**/*.spec.util.ts"
   ],
-  "exclude": [
-    "src/**/fixtures/**"
-  ],
+  "exclude": ["src/**/fixtures/**"],
   "references": [
     {
       "path": "./tsconfig.lib.json"
