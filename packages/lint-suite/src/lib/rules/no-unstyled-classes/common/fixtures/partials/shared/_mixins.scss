@@ -1,0 +1,13 @@
+@mixin item {
+  &:hover {
+  }
+
+  & .from-mixin-child {
+  }
+
+  &__item {
+  }
+}
+
+.from-mixin-file {
+}
