@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Features
+
+- **TypeScript**: new autofixable rule `local/one-line-guard` (enabled in the `typescript` preset with
+  `maxLineLength` = the preset print width, 135): a lone `return`/`throw`/`continue`/`break` guard drops its
+  braces when the whole `if` fits on one line.
+
 ## [1.6.2] - 2026-09-04
 
 ### Changed

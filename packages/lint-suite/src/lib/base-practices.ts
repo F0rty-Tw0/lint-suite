@@ -1,5 +1,7 @@
 import { defineConfig } from 'eslint/config';
 
+import { MAX_LINE_LENGTH } from './line-length.const.ts';
+
 export const basePractices = defineConfig([
   {
     files: [
@@ -46,7 +48,7 @@ export const basePractices = defineConfig([
       'max-len': [
         'error',
         {
-          code: 135,
+          code: MAX_LINE_LENGTH,
           ignoreComments: true
         }
       ],

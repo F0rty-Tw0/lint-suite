@@ -34,6 +34,13 @@ const config = defineConfig(
   workspaceConfig,
   globalIgnores(['**/fixtures/**'], 'lint-suite/fixtures'),
   {
+    name: 'lint-suite/prettier-width',
+    files: ['**/*.ts'],
+    rules: {
+      'local/one-line-guard': ['error', { maxLineLength: 80 }]
+    }
+  },
+  {
     name: 'lint-suite/dependency-checks',
     files: ['**/*.json'],
     rules: {

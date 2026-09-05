@@ -1,10 +1,12 @@
 import type { Config } from 'prettier';
 
+import { MAX_LINE_LENGTH } from './lib/line-length.const.ts';
+
 export const prettier: Config = {
   singleQuote: true,
   semi: true,
   tabWidth: 2,
-  printWidth: 135,
+  printWidth: MAX_LINE_LENGTH,
   trailingComma: 'none',
   bracketSpacing: true,
   bracketSameLine: true,

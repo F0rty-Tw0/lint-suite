@@ -1,5 +1,6 @@
 import { defineConfig } from 'eslint/config';
 
+import { MAX_LINE_LENGTH } from './line-length.const.ts';
 import { localPlugin } from './typescript-local-plugin.ts';
 
 export const typescriptSafety = defineConfig([
@@ -10,6 +11,7 @@ export const typescriptSafety = defineConfig([
       'local/explicit-accessibility': 'error',
       'local/readonly-type-properties': 'error',
       'local/no-inline-object-types': 'error',
+      'local/one-line-guard': ['error', { maxLineLength: MAX_LINE_LENGTH }],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-empty-function': 'error',
       '@typescript-eslint/no-unused-vars': 'error',

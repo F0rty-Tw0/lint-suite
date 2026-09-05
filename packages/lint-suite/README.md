@@ -256,6 +256,38 @@ type LineItem = { readonly name: string; readonly item: Item };
 - Declare the shape as `type Item = {...}` and reference it instead of
   inlining the object type.
 
+### One-line guard
+
+The `typescript` preset enables `local/one-line-guard` (with
+`maxLineLength` set to the preset print width, 135), which reports an
+`if` statement whose braced body is a lone `return`, `throw`, `continue`,
+or `break` when the whole statement would fit on one line. It is
+auto-fixable: the fix drops the braces and joins the guard onto the `if`
+line.
+
+```ts
+// Before
+if (!user) {
+  return null;
+}
+
+// After
+if (!user) return null;
+```
+
+- Only a block body containing exactly one `return`, `throw`, `continue`,
+  or `break` statement is considered a guard; any other body is left
+  alone.
+- The rule bails out (no report, no fix) when the `if` has an `else`,
+  the block holds a comment, the condition spans multiple lines, the
+  guard statement spans multiple lines, or the collapsed line would
+  exceed `maxLineLength`.
+- Pass a different width with the rule's options:
+  `'local/one-line-guard': ['error', { maxLineLength: 80 }]`.
+- Complements `curly: multi-line`: that rule tolerates a brace-less
+  single-line guard once it exists, while `local/one-line-guard` is what
+  collapses a braced guard down to one line in the first place.
+
 ## Stylelint and Prettier presets
 
 These are standalone configs exported as subpaths — they are not part of the `recommended` ESLint array.
