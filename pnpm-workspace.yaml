@@ -27,6 +27,10 @@ catalogs:
     '@smarttools/eslint-plugin-rxjs': '1.0.22'
   storybook:
     eslint-plugin-storybook: '10.6.0'
+  styles:
+    postcss: '8.5.27'
+    postcss-scss: '4.0.9'
+    postcss-selector-parser: '7.1.6'
   stylelint:
     stylelint: '17.14.1'
     stylelint-config-recess-order: '7.8.0'

@@ -4,6 +4,25 @@
 
 ### Features
 
+- **Angular templates**: new rule `lint-suite-angular-template/no-unstyled-classes` (enabled in the
+  `angularTemplate` preset): reports a class used in a template that no stylesheet of that component selects.
+  It reads `class="a b"` tokens, `[class.name]` bindings, and the literal class names inside `[class]="..."`
+  expressions and `class="a {{ b }}"` interpolations; `[ngClass]` is not analysed. Stylesheets come from
+  `styleUrl`/`styleUrls`/`styles` in the `@Component` metadata, or a sibling `.scss`/`.css` file, and are
+  parsed with `postcss-scss`, so `&` nesting, `@media` blocks, selector lists, and `@use`/`@import`/`@forward`
+  partials all resolve. Options: `ignoreClassPatterns` (default `['^(js|qa|mat|cdk|mdc)-']`) and `globalStyles`
+  (default `[]`). Custom elements are skipped, and a template with no parseable stylesheet reports nothing.
+- **Stylelint**: new rule `lint-suite/no-unused-classes` (enabled in the `stylelint` preset): reports a class
+  selector in a component stylesheet that no template of that component uses. Templates come from the
+  `@Component` metadata beside the stylesheet (`styleUrl`/`styleUrls` match, then `templateUrl` or the inline
+  `template` literal), or a sibling `.html` file, and a stylesheet shared by several components is judged
+  against all of their templates. Selectors are parsed with `postcss-scss`, so `&` nesting, `@media` blocks,
+  and selector lists resolve and each name is reported on the rule that declares it; `:host(...)` /
+  `:host-context(...)` arguments and everything after `::ng-deep` are skipped, interpolated selectors are
+  never reported, and `@extend .base` counts `base` as used. Unlike the ESLint dual it also reads `[ngClass]`
+  and does not skip custom elements. Option: `ignoreClassPatterns` (default `['^(js|qa|mat|cdk|mdc)-']`).
+  A stylesheet with no template, or one whose template holds a class source the rule cannot read
+  (`[class]="expr()"`, `{{ expr }}` as a whole token), reports nothing.
 - **TypeScript**: new autofixable rule `local/one-line-guard` (enabled in the `typescript` preset with
   `maxLineLength` = the preset print width, 135): a lone `return`/`throw`/`continue`/`break` guard drops its
   braces when the whole `if` fits on one line.
@@ -12,6 +31,9 @@
 
 ### Changed
 
+- **Internal**: the class-usage helpers shared by `no-unstyled-classes` and `no-unused-classes` (component
+  metadata reading, template class collection, class-expression literals, selector class resolution, resolved
+  rule walking) moved to `src/lib/rules/common/`. No public API change.
 - **Angular**: `lint-suite-angular/no-unused-instance-fields` project analysis now keeps an incremental
   per-tsconfig index instead of rebuilding the whole project index whenever the TypeScript Program changes.
   In editors every save produces a new Program; only the saved file and the files whose reads depended on it

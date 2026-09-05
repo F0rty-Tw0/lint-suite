@@ -12,7 +12,7 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 - **Testing**: Vitest and Playwright configurations with best-practice rules
 - **Prettier**: Automatic disabling of formatting rules that conflict with Prettier (`eslint-config-prettier`)
 - **Prettier config**: Standalone formatting preset (subpath `lint-suite/prettier`) with the suite's house defaults and Angular/HTML overrides
-- **Stylelint**: Standalone SCSS/CSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement
+- **Stylelint**: Standalone SCSS/CSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement and `lint-suite/no-unused-classes`
 - **Architecture**: Module boundary enforcement with `eslint-plugin-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
 
@@ -89,7 +89,7 @@ export default [
 | `javascript`                                                                                                  | JavaScript-specific rules via `@nx/eslint-plugin`                                                                      |
 | `typescript`                                                                                                  | TypeScript strict typing, imports, and naming conventions                                                              |
 | `angular`                                                                                                     | Angular component best practices with Signal support                                                                   |
-| `angularTemplate`                                                                                             | HTML template rules with accessibility and performance                                                                 |
+| `angularTemplate`                                                                                             | HTML template rules with accessibility, performance, and `lint-suite-angular-template/no-unstyled-classes`             |
 | `rxjs`                                                                                                        | Observable patterns, operator safety, and subscriptions                                                                |
 | `vitest`                                                                                                      | Vitest testing rules and matcher improvements                                                                          |
 | `playwright`                                                                                                  | Playwright e2e locator and matcher best practices                                                                      |
@@ -176,6 +176,120 @@ templates can read a component or directive member:
   determined statically (NgModule declarations, `hostDirectives`, spreads),
   every matching component or directive in the Program is a candidate. Extra
   candidates can only add reads. Metadata strings may be constants.
+
+### No unstyled classes
+
+The `angularTemplate` config enables
+`lint-suite-angular-template/no-unstyled-classes`, which reports a class name
+used in an Angular HTML template that no stylesheet of that component selects.
+It reads three sources in the template: the static `class="a b"` attribute
+(each token reported at its own column), `[class.name]` bindings, and the
+literal class names inside `[class]="..."` expressions and `class="a {{ b }}"`
+interpolations. String literals, object-literal keys, array elements, and both
+branches of a ternary contribute names; identifiers, calls, pipes, and `+`
+concatenations contribute nothing, so a class the rule cannot see is never
+reported. `[ngClass]` is deliberately not analysed.
+
+Stylesheets come from the component beside the template: `styleUrl`,
+`styleUrls`, and inline `styles` read as string or template literals from the
+`@Component` metadata, falling back to a sibling `.scss` or `.css` file when
+the metadata declares none. Each stylesheet is parsed with `postcss-scss`, so
+`&__element`, `&--modifier`, `&.other`, `& > .child`, `.wrapper &`, and rules
+nested inside `@media` all resolve against their parent selector, and a
+selector list such as `.a, .b { &__x {} }` yields both `.a__x` and `.b__x`.
+`@use`, `@import`, and `@forward` are followed to their partials
+(`_name.scss`, `name/index.scss`, `name/_index.scss`). A selector built with
+interpolation (`.icon-#{$size}`) becomes a pattern, so `icon-lg` counts as
+styled and bare `icon` does not.
+
+```js
+{
+  files: ['**/*.html'],
+  rules: {
+    'lint-suite-angular-template/no-unstyled-classes': [
+      'error',
+      {
+        ignoreClassPatterns: ['^(js|qa|mat|cdk|mdc)-', '^u-'],
+        globalStyles: ['src/styles.scss']
+      }
+    ]
+  }
+}
+```
+
+- `ignoreClassPatterns` defaults to `['^(js|qa|mat|cdk|mdc)-']`. Each entry is
+  compiled with `new RegExp(pattern, 'u')`, and a class matching any of them is
+  never reported. A configured list replaces the default one instead of
+  extending it.
+- `globalStyles` defaults to `[]`. Paths are resolved against the ESLint
+  working directory and merged into the known classes of every template. A path
+  that does not exist is ignored.
+- Elements whose tag name contains a dash are skipped: the classes on a child
+  component, `ng-container`, or `ng-template` may be styled by that component's
+  own `:host(.x)`, which this rule cannot see.
+- A template with no stylesheet reports nothing. The same holds when the only
+  stylesheet found fails to parse: with nothing to compare against, the rule has
+  no opinion.
+
+### No unused classes
+
+The `stylelint` preset enables `lint-suite/no-unused-classes`, the dual of the
+rule above: it reports a class selector in a component stylesheet that no
+template of that component uses.
+
+Templates are found from the stylesheet. Every `.ts` file beside it is read for
+`@Component` metadata whose `styleUrl` or `styleUrls` resolves to the linted
+file; each matching component contributes its `templateUrl` file or its inline
+`template` literal, and their classes are merged, so a stylesheet shared by two
+components is judged against both templates. When no component declares the
+stylesheet, a sibling template of the same name (`card.component.scss` →
+`card.component.html`) is used instead. A partial (`_tokens.scss`) or a global
+`styles.scss` that no component declares has no template, and the rule stays
+silent.
+
+Selectors resolve through the same parser as the ESLint rule, so `&__element`,
+`&--modifier`, `&.other`, `& > .child`, `.wrapper &`, `@media` blocks, and
+selector lists all report the resolved name on the rule that declares it: in
+`.panel { .inner {} }` only `inner` is checked on the inner rule, never `panel`
+twice. Arguments of `:host(.dark)` and `:host-context(.rtl)` are skipped, and
+everything after `::ng-deep`, `/deep/`, or `>>>` is skipped too, because those
+classes live in other templates. A selector built with interpolation
+(`.icon-#{$size}`) is never reported, and `@extend .base` counts `base` as
+used.
+
+The template side reads the same sources as `no-unstyled-classes` plus
+`[ngClass]`, and it does not skip custom elements: a class on
+`<app-child class="foo">` is written by this template, so `.foo` counts as
+used. When any template of the stylesheet holds a class source the rule cannot
+read — `[class]="classes()"`, `[ngClass]="map"`, a whole token that is
+`{{ expr }}`, an unparseable template — the rule reports nothing for that
+stylesheet rather than guessing.
+
+```js
+// stylelint.config.mjs
+import { stylelint } from 'lint-suite/stylelint';
+
+export default {
+  ...stylelint,
+  overrides: [
+    ...stylelint.overrides,
+    {
+      files: ['**/*.scss', '**/*.css'],
+      rules: {
+        'lint-suite/no-unused-classes': [
+          true,
+          { ignoreClassPatterns: ['^(js|qa|mat|cdk|mdc)-', '^u-'] }
+        ]
+      }
+    }
+  ]
+};
+```
+
+- `ignoreClassPatterns` defaults to `['^(js|qa|mat|cdk|mdc)-']`. Each entry is
+  compiled with `new RegExp(pattern, 'u')`, and a class matching any of them is
+  never reported. A configured list replaces the default one instead of
+  extending it.
 
 ### Explicit accessibility
 
@@ -376,6 +490,7 @@ The Prettier preset is published with `prettier` as a peer dependency. The Style
 - Extends `stylelint-config-standard`, `stylelint-config-standard-scss`, and `stylelint-config-recess-order`
 - `selector-class-pattern`: BEM-aware class names with ITCSS-style namespace prefixes (`o-`, `c-`, `u-`, `is-`, `has-`, `js-`, `qa-`, etc.)
 - `plugin/selector-bem-pattern`: enforces BEM selectors, treats `*.component.scss`/`*.component.css` as implicit components, ignores `--mdc`/`--sys` custom properties
+- `lint-suite/no-unused-classes`: reports a class selector no template of the component uses (see [No unused classes](#no-unused-classes))
 - `no-descending-specificity`: disabled
 
 ### prettier (format config)

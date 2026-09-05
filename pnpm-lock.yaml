@@ -151,6 +151,16 @@ catalogs:
     stylelint-selector-bem-pattern:
       specifier: 5.0.0
       version: 5.0.0
+  styles:
+    postcss:
+      specifier: 8.5.27
+      version: 8.5.27
+    postcss-scss:
+      specifier: 4.0.9
+      version: 4.0.9
+    postcss-selector-parser:
+      specifier: 7.1.6
+      version: 7.1.6
   typescript:
     '@typescript-eslint/utils':
       specifier: 8.69.0
@@ -299,6 +309,15 @@ importers:
       globals:
         specifier: catalog:angular
         version: 17.12.0
+      postcss:
+        specifier: catalog:styles
+        version: 8.5.27
+      postcss-scss:
+        specifier: catalog:styles
+        version: 4.0.9(postcss@8.5.27)
+      postcss-selector-parser:
+        specifier: catalog:styles
+        version: 7.1.6
       prettier:
         specifier: catalog:prettier
         version: 3.9.6
