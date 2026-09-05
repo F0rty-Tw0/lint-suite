@@ -1,11 +1,23 @@
 import { configs } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 
+import { definePlugin } from './rules/define-plugin.util.ts';
+import noUnstyledClassesRule from './rules/no-unstyled-classes/no-unstyled-classes.ts';
+
+export const lintSuiteAngularTemplatePlugin = definePlugin(
+  'lint-suite-angular-template',
+  { 'no-unstyled-classes': noUnstyledClassesRule }
+);
+
 export const angularTemplate = defineConfig([
   {
     files: ['**/*.html'],
     extends: [...configs.templateAccessibility, ...configs.templateRecommended],
+    plugins: {
+      'lint-suite-angular-template': lintSuiteAngularTemplatePlugin
+    },
     rules: {
+      'lint-suite-angular-template/no-unstyled-classes': 'error',
       '@angular-eslint/template/prefer-template-literal': 'error',
       '@angular-eslint/template/no-any': 'error',
       '@angular-eslint/template/no-duplicate-attributes': 'error',

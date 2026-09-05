@@ -2,6 +2,8 @@ import type { Config } from 'stylelint';
 import stylelintScss from 'stylelint-scss';
 import bemPattern from 'stylelint-selector-bem-pattern';
 
+import noUnusedClasses from './lib/rules/no-unused-classes/no-unused-classes.ts';
+
 export const stylelint: Config = {
   // Stylelint resolves config for cwd when picking a formatter; without a
   // top-level `rules` an overrides-only config fails with "No rules found".
@@ -14,7 +16,7 @@ export const stylelint: Config = {
         'stylelint-config-standard-scss',
         'stylelint-config-recess-order'
       ],
-      plugins: [...stylelintScss, bemPattern],
+      plugins: [...stylelintScss, bemPattern, noUnusedClasses],
       rules: {
         'selector-class-pattern':
           '^(?:(?:o|c|u|t|s|is|has|_|js|qa)-)?[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:__[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)?(?:--[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)?(?:\\[.+\\])?$',
@@ -23,7 +25,8 @@ export const stylelint: Config = {
           implicitComponents: ['**/*.component.scss', '**/*.component.css'],
           ignoreCustomProperties: ['^--mdc', '^--sys']
         },
-        'no-descending-specificity': null
+        'no-descending-specificity': null,
+        'lint-suite/no-unused-classes': true
       }
     }
   ]
