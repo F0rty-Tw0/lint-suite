@@ -10,7 +10,7 @@ const DEFAULT_INTERNAL_PATTERNS: string[] = [];
 
 const docs: TSESLint.RuleMetaDataDocs = {
   description:
-    'Require types to live in common/*.type.ts files, *.const.ts files to export only consts, and type-only imports to come from *.type.ts files or a common barrel'
+    'Require types to live in common/*.type.ts files, *.const.ts files to export only consts, and type-only imports to come from *.type.ts or *.schema.ts files or a common barrel'
 };
 
 const messages: Record<MessageIds, string> = {
@@ -21,7 +21,7 @@ const messages: Record<MessageIds, string> = {
   nonConstInConstFile:
     'A *.const.ts file may only export const variable declarations.',
   typeImportNotFromTypeFile:
-    "Type-only import from '{{ source }}' must come from a *.type.ts file or a common barrel."
+    "Type-only import from '{{ source }}' must come from a *.type.ts or *.schema.ts file, or a common barrel."
 };
 
 const stringItems: JSONSchema.JSONSchema4 = { type: 'string' };

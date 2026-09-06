@@ -16,10 +16,10 @@ type FileShape = {
 const TYPE_FILE_SUFFIX = '.type.ts';
 const CONST_FILE_SUFFIX = '.const.ts';
 const COMMON_SEGMENT = '/common/';
-const EXEMPT_FILE = /\.(spec|stub|d)\.ts$/;
+const EXEMPT_FILE = /\.(spec|stub|schema|d)\.ts$/;
 const STATE_TYPE_FILE = /(^|[./])state\.type\.ts$/;
 const FIXTURES_SEGMENT = '/fixtures/';
-const TYPE_FILE_SEGMENT = /\.type(\.ts)?$/;
+const TYPE_SOURCE_SEGMENT = /\.(type|schema)(\.ts)?$/;
 const COMMON_BARREL = /(^|\/)common(\/index(\.ts)?)?$/;
 
 const createRule = ESLintUtils.RuleCreator(
@@ -49,7 +49,7 @@ const isTypeOnlySource = (source: string): boolean => {
 
   if (isCommonBarrel) return true;
 
-  return TYPE_FILE_SEGMENT.test(lastSegment(source));
+  return TYPE_SOURCE_SEGMENT.test(lastSegment(source));
 };
 
 const isInternalSource = (source: string, patterns: RegExp[]): boolean => {

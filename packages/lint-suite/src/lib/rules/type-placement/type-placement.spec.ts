@@ -85,6 +85,16 @@ const valid: RuleTester.ValidTestCase[] = [
     code: `export type UserState = { readonly id: string };`
   },
   {
+    name: 'ignores a schema file exporting an inferred type beside its schema',
+    filename: '/p/feature/common/history.schema.ts',
+    code: `export const historyIdSchema = z.string(); export type HistoryId = z.infer<typeof historyIdSchema>;`
+  },
+  {
+    name: 'ignores a schema file outside common exporting a const and a type',
+    filename: '/p/feature/history.schema.ts',
+    code: `export const historySchema = z.object({}); export type History = z.infer<typeof historySchema>;`
+  },
+  {
     name: 'ignores a file under a fixtures folder',
     filename: '/p/feature/fixtures/order.ts',
     code: `export interface Order {}`
@@ -118,6 +128,11 @@ const valid: RuleTester.ValidTestCase[] = [
     name: 'ignores a non type-only relative import',
     filename: '/p/feature/order.ts',
     code: `import { Order } from './order.ts';`
+  },
+  {
+    name: 'accepts a type-only import from a schema file',
+    filename: '/p/feature/order.ts',
+    code: `import type { HistoryId } from './common/history.schema.ts';`
   },
   {
     name: 'accepts a type-only import from a sibling common barrel',

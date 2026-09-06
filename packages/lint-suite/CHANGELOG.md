@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixes
+
+- **`local/type-placement`**: `*.schema.ts` files are exempt (an inferred type lives beside its schema), and
+  an `import type` from a `*.schema.ts` file passes.
+
 ## [2.0.0] - 2026-09-06
 
 ### Breaking
