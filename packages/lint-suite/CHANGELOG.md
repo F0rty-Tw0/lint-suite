@@ -6,6 +6,8 @@
 
 - **`local/type-placement`**: `*.schema.ts` files are exempt (an inferred type lives beside its schema), and
   an `import type` from a `*.schema.ts` file passes.
+- **TypeScript**: `@typescript-eslint/no-inferrable-types` is off for `**/*.stub.ts`; `local/test-file-shape`
+  requires `STUB: Type` there, which the two rules otherwise fight over for literal stubs.
 
 ## [2.0.0] - 2026-09-06
 

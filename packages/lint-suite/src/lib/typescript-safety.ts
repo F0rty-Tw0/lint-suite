@@ -154,5 +154,13 @@ export const typescriptSafety = defineConfig([
       // Class actions carry their payload as constructor parameter properties.
       '@typescript-eslint/parameter-properties': 'off'
     }
+  },
+  {
+    files: ['**/*.stub.ts'],
+    rules: {
+      // local/test-file-shape requires STUB: Type; a literal stub would trip
+      // no-inferrable-types.
+      '@typescript-eslint/no-inferrable-types': 'off'
+    }
   }
 ]);
