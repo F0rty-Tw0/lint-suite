@@ -1,4 +1,5 @@
 import { readFileSync, statSync } from 'node:fs';
+import { dirname, normalize } from 'node:path';
 
 import { isIdentifier, isStringLiteralLike } from 'typescript';
 import type { ClassElement, ClassLikeDeclaration } from 'typescript';
@@ -57,10 +58,16 @@ const unknownTemplateNames = (
   return names;
 };
 
+const IDENTIFIER = /[A-Za-z_$][\w$]*/gu;
+
+const addTemplateMentions = (source: string, sink: ReadSink): void => {
+  for (const [name] of source.matchAll(IDENTIFIER)) sink.addMention(name);
+};
+
 const templateFileVersion = (fileName: string): TemplateFileVersion => {
   const { mtimeNs, size } = statSync(fileName, { bigint: true });
-
-  const version: TemplateFileVersion = { fileName, mtimeNs, size };
+  const directory = dirname(normalize(fileName));
+  const version: TemplateFileVersion = { directory, fileName, mtimeNs, size };
 
   return version;
 };
@@ -146,6 +153,8 @@ export const collectAngularTemplateReads = ({
     );
 
     if (template === null) continue;
+
+    addTemplateMentions(template.source, sink);
 
     const result = addTemplateReads({
       angularClass,

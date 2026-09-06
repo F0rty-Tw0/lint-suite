@@ -27,49 +27,35 @@ const memberName = (node: Node): string | null => {
 };
 
 const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
-  if (index.usage !== undefined) return index.usage;
+  const { declarationCounts, fallbackNameCounts } = index;
+  const has = (node: Node): boolean => {
+    const hasDeclaration = declarationCounts.has(node);
 
-  const declarations = new Set<Node>();
-  const fallbackNames = new Set<string>();
+    if (hasDeclaration) return true;
 
-  for (const entry of index.entries.values()) {
-    for (const declaration of entry.declarations) {
-      declarations.add(declaration);
-    }
+    if (fallbackNameCounts.size === 0) return false;
 
-    for (const name of entry.fallbackNames) {
-      fallbackNames.add(name);
-    }
-  }
+    const name = memberName(node);
 
-  index.usage = {
-    has: (node): boolean => {
-      const hasDeclaration = declarations.has(node);
-
-      if (hasDeclaration) return true;
-
-      if (fallbackNames.size === 0) return false;
-
-      const name = memberName(node);
-
-      return name !== null && fallbackNames.has(name);
-    }
+    return name !== null && fallbackNameCounts.has(name);
   };
+  const usage: ProjectUsageIndex = { has };
 
-  return index.usage;
+  return usage;
 };
 
 const createIndex = (): ProjectIndex => {
   const emptyIndex: ProjectIndex = {
     candidateNames: new Set(),
     classes: new Map(),
+    declarationCounts: new Map(),
     directives: buildDirectiveIndex([]),
     directiveShape: '',
     entries: new Map(),
+    fallbackNameCounts: new Map(),
     program: null,
     templateCheckDuration: 0,
-    templateCheckedAt: 0,
-    usage: undefined
+    templateCheckedAt: 0
   };
 
   return emptyIndex;
@@ -94,9 +80,13 @@ export const projectUsageIsCurrent = (program: Program): boolean => {
  * and Angular templates, or null when the project cannot be indexed
  * reliably. Indexes are kept per tsconfig and updated incrementally: a new
  * Program (an edit in the editor) only re-indexes the files that changed
- * and the files whose resolutions depended on them.
+ * and the files whose resolutions depended on them. `fileName` is the file
+ * being linted; its own templates are always checked for freshness.
  */
-export const projectUsage = (program: Program): ProjectUsageIndex | null => {
+export const projectUsage = (
+  program: Program,
+  fileName: string
+): ProjectUsageIndex | null => {
   const configFilePath = program.getCompilerOptions()['configFilePath'];
 
   if (typeof configFilePath !== 'string') return null;
@@ -109,7 +99,7 @@ export const projectUsage = (program: Program): ProjectUsageIndex | null => {
   }
 
   try {
-    reconcile(index, program);
+    reconcile(index, program, fileName);
 
     return usageOf(index);
   } catch {

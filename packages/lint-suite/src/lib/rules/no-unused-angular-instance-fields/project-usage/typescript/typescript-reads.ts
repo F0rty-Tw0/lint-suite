@@ -21,6 +21,33 @@ import {
 } from './typescript-symbol-reads.ts';
 import { isWriteOnly } from './typescript-write-targets.ts';
 import type { CandidateNames, ReadSink } from '../common/project-usage.type.ts';
+import {
+  isThisExpression,
+  ownMembersNamed,
+  thisClassOf
+} from '../utils/class-members.util.ts';
+
+/** `this.name` declared by the enclosing class needs no checker: true when handled. */
+const addOwnMemberRead = (
+  node: PropertyAccessExpression,
+  sink: ReadSink
+): boolean => {
+  const isThisAccess = isThisExpression(node.expression);
+
+  if (!isThisAccess) return false;
+
+  const owner = thisClassOf(node);
+
+  if (owner === null) return false;
+
+  const members = ownMembersNamed(owner, node.name.text);
+
+  if (members.length === 0) return false;
+
+  for (const member of members) sink.addDeclaration(member);
+
+  return true;
+};
 
 const addPropertyAccessRead = (
   node: PropertyAccessExpression,
@@ -28,6 +55,8 @@ const addPropertyAccessRead = (
   sink: ReadSink,
   candidateNames: CandidateNames
 ): void => {
+  sink.addMention(node.name.text);
+
   const isCandidateName = candidateNames.has(node.name.text);
 
   if (!isCandidateName) return;
@@ -35,6 +64,10 @@ const addPropertyAccessRead = (
   const isWriteTarget = isWriteOnly(node);
 
   if (isWriteTarget) return;
+
+  const isOwnMember = addOwnMemberRead(node, sink);
+
+  if (isOwnMember) return;
 
   sink.addType(checker.getTypeAtLocation(node.expression));
 
@@ -57,6 +90,8 @@ const addElementAccessRead = (
 
   const argumentType = checker.getTypeAtLocation(node.argumentExpression);
   const names = literalPropertyNames(argumentType);
+
+  for (const name of names ?? []) sink.addMention(name);
 
   if (names) {
     const hasCandidateName = names.some((name) => candidateNames.has(name));

@@ -96,6 +96,7 @@ const collectPatternReads = (
 
     for (const name of read.names ?? []) {
       consumed.add(name);
+      sink.addMention(name);
     }
 
     const skip = isSkippable(read, candidateNames);

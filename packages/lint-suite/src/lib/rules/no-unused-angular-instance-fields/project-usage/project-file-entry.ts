@@ -59,6 +59,7 @@ export const computeEntry = (
   const declarations = new Set<Node>();
   const dependencies = new Set<SourceFile>();
   const fallbackNames = new Set<string>();
+  const mentionedNames = new Set<string>();
   const seenTypes = new Set<Type>();
   const sink: ReadSink = {
     addDeclaration: (declaration) => {
@@ -69,6 +70,9 @@ export const computeEntry = (
       for (const name of names) {
         fallbackNames.add(name);
       }
+    },
+    addMention: (name) => {
+      mentionedNames.add(name);
     },
     addType: (type) => {
       addTypeDependencies(checker, type, dependencies, seenTypes);
@@ -83,6 +87,7 @@ export const computeEntry = (
     declarations,
     dependencies,
     fallbackNames,
+    mentionedNames,
     sourceFile
   };
 

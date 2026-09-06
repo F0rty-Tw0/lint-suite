@@ -3,37 +3,38 @@ import type { SourceFile } from 'typescript';
 import { angularClasses } from './angular/angular-component-discovery.ts';
 import {
   buildDirectiveIndex,
-  directiveShape
+  directiveShape,
+  replaceDeclarations
 } from './angular/angular-directive-index.ts';
 import type {
   FileClasses,
   LazyChecker,
-  ProjectIndex,
-  SourceFileMaps
+  ProjectIndex
 } from './common/project-index.type.ts';
-import { dropEntries, isReplaced } from './project-index-staleness.ts';
+import { dropEntries, isReplaced, removeEntry } from './project-index-staleness.ts';
+import type { CurrentSourceFiles } from './project-index-staleness.ts';
 import { collectCandidateNames } from './typescript/typescript-candidate-names.ts';
 
 const dropReplacedClasses = (
   index: ProjectIndex,
-  maps: SourceFileMaps
-): boolean => {
-  let changed = false;
+  current: CurrentSourceFiles
+): FileClasses[] => {
+  const dropped: FileClasses[] = [];
 
   for (const [fileName, fileClasses] of index.classes) {
     const replaced = isReplaced(
       fileClasses.sourceFile,
       fileClasses.dependencies,
-      maps
+      current
     );
 
     if (!replaced) continue;
 
     index.classes.delete(fileName);
-    changed = true;
+    dropped.push(fileClasses);
   }
 
-  return changed;
+  return dropped;
 };
 
 const addCandidateNames = (
@@ -56,41 +57,44 @@ const indexFileClasses = (
   sourceFile: SourceFile,
   checker: LazyChecker,
   newNames: Set<string>
-): void => {
+): FileClasses => {
   const candidateNames = collectCandidateNames(sourceFile);
 
   addCandidateNames(index, candidateNames, newNames);
 
   const { classes, dependencies } = angularClasses(sourceFile, checker());
+  const shape = directiveShape(classes);
   const fileClasses: FileClasses = {
     candidateNames,
     classes,
     dependencies,
+    shape,
     sourceFile
   };
 
   index.classes.set(sourceFile.fileName, fileClasses);
-  index.entries.delete(sourceFile.fileName);
+  removeEntry(index, sourceFile.fileName);
+
+  return fileClasses;
 };
 
 const indexNewClasses = (
   index: ProjectIndex,
-  current: ReadonlyMap<string, SourceFile>,
+  current: readonly SourceFile[],
   checker: LazyChecker,
   newNames: Set<string>
-): boolean => {
-  let changed = false;
+): FileClasses[] => {
+  const added: FileClasses[] = [];
 
-  for (const [fileName, sourceFile] of current) {
-    const isIndexed = index.classes.has(fileName);
+  for (const sourceFile of current) {
+    const isIndexed = index.classes.has(sourceFile.fileName);
 
     if (isIndexed) continue;
 
-    indexFileClasses(index, sourceFile, checker, newNames);
-    changed = true;
+    added.push(indexFileClasses(index, sourceFile, checker, newNames));
   }
 
-  return changed;
+  return added;
 };
 
 const rebuildDirectives = (index: ProjectIndex): void => {
@@ -106,18 +110,43 @@ const rebuildDirectives = (index: ProjectIndex): void => {
   dropEntries(index, (entry) => entry.usedDirectiveIndex);
 };
 
+const shapesOf = (files: FileClasses[]): string => {
+  return files.map((file) => file.shape).sort().join('\n');
+};
+
+/** Same files, same selectors: repoint the index at the new declarations. */
+const repointDirectives = (
+  index: ProjectIndex,
+  dropped: FileClasses[],
+  added: FileClasses[]
+): void => {
+  const previous = dropped.flatMap((file) => file.classes);
+  const next = added.flatMap((file) => file.classes);
+
+  replaceDeclarations(index.directives, previous, next);
+};
+
 /** Re-index changed files' classes; returns member names never seen before. */
 export const reconcileClasses = (
   index: ProjectIndex,
-  maps: SourceFileMaps,
+  indexable: readonly SourceFile[],
+  current: CurrentSourceFiles,
   checker: LazyChecker
 ): Set<string> => {
   const newNames = new Set<string>();
-  const droppedClasses = dropReplacedClasses(index, maps);
-  const addedClasses = indexNewClasses(index, maps.current, checker, newNames);
-  const changed = droppedClasses || addedClasses;
+  const dropped = dropReplacedClasses(index, current);
+  const added = indexNewClasses(index, indexable, checker, newNames);
+  const isUntouched = dropped.length === 0 && added.length === 0;
 
-  if (changed) {
+  if (isUntouched) return newNames;
+
+  const droppedShape = shapesOf(dropped);
+  const addedShape = shapesOf(added);
+  const isSameShape = droppedShape === addedShape;
+
+  if (isSameShape) {
+    repointDirectives(index, dropped, added);
+  } else {
     rebuildDirectives(index);
   }
 

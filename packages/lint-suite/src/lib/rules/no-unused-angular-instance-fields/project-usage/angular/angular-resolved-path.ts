@@ -7,9 +7,11 @@ import type {
 } from 'typescript';
 
 import type {
+  ReadSegment,
   ReadSink,
   ResolvedPathOptions
 } from '../common/project-usage.type.ts';
+import { ownMembersNamed } from '../utils/class-members.util.ts';
 import {
   stringIndexTypes,
   symbolsForName
@@ -56,6 +58,26 @@ const memberTypes = (
   return types;
 };
 
+/** A lone `name` the class declares itself needs no checker: true when handled. */
+const addOwnMemberPath = (
+  declaration: ClassLikeDeclaration,
+  names: ReadSegment[],
+  sink: ReadSink
+): boolean => {
+  const [only] = names;
+  const isSingle = names.length === 1 && only !== undefined;
+
+  if (!isSingle) return false;
+
+  const members = ownMembersNamed(declaration, only.name);
+
+  if (members.length === 0) return false;
+
+  for (const member of members) sink.addDeclaration(member);
+
+  return true;
+};
+
 export const addResolvedPath = ({
   allowMissingRoot,
   checker,
@@ -63,6 +85,10 @@ export const addResolvedPath = ({
   names,
   sink
 }: ResolvedPathOptions): boolean => {
+  const isOwnMember = addOwnMemberPath(declaration, names, sink);
+
+  if (isOwnMember) return true;
+
   let types = [checker.getTypeAtLocation(declaration)];
   const indexTypesOf = (type: Type): Type[] => stringIndexTypes(checker, type);
   const returnTypesOf = (type: Type): Type[] => callReturnTypes(checker, type);

@@ -4,7 +4,6 @@ import { templateFileIsCurrent } from './angular/angular-template-reads.ts';
 import type {
   FileEntry,
   ProjectIndex,
-  SourceFileMaps,
   TemplateFileVersion
 } from './common/project-index.type.ts';
 import { isSpecFile } from './utils/spec-file.util.ts';
@@ -31,21 +30,37 @@ export const indexableSourceFiles = (program: Program): SourceFile[] => {
   return sourceFiles.filter((sourceFile) => isIndexable(program, sourceFile));
 };
 
-export const sourceFileMaps = (program: Program): SourceFileMaps => {
-  const all = new Map<string, SourceFile>();
-  const current = new Map<string, SourceFile>();
+const adjustCounts = <K>(
+  counts: Map<K, number>,
+  keys: Iterable<K>,
+  delta: number
+): void => {
+  for (const key of keys) {
+    const count = (counts.get(key) ?? 0) + delta;
 
-  for (const sourceFile of program.getSourceFiles()) {
-    all.set(sourceFile.fileName, sourceFile);
+    if (count > 0) {
+      counts.set(key, count);
+    } else {
+      counts.delete(key);
+    }
   }
+};
 
-  for (const sourceFile of indexableSourceFiles(program)) {
-    current.set(sourceFile.fileName, sourceFile);
-  }
+export const removeEntry = (index: ProjectIndex, fileName: string): void => {
+  const entry = index.entries.get(fileName);
 
-  const maps: SourceFileMaps = { all, current };
+  if (!entry) return;
 
-  return maps;
+  index.entries.delete(fileName);
+  adjustCounts(index.declarationCounts, entry.declarations, -1);
+  adjustCounts(index.fallbackNameCounts, entry.fallbackNames, -1);
+};
+
+export const addEntry = (index: ProjectIndex, entry: FileEntry): void => {
+  removeEntry(index, entry.sourceFile.fileName);
+  index.entries.set(entry.sourceFile.fileName, entry);
+  adjustCounts(index.declarationCounts, entry.declarations, 1);
+  adjustCounts(index.fallbackNameCounts, entry.fallbackNames, 1);
 };
 
 export const dropEntries = (
@@ -55,25 +70,30 @@ export const dropEntries = (
   for (const [fileName, entry] of index.entries) {
     const isStale = stale(entry);
 
-    if (isStale) {
-      index.entries.delete(fileName);
-    }
+    if (isStale) removeEntry(index, fileName);
   }
+};
+
+export type CurrentSourceFiles = ReadonlySet<SourceFile>;
+
+/** The Program's source file objects, for identity checks without path work. */
+export const currentSourceFiles = (program: Program): CurrentSourceFiles => {
+  return new Set(program.getSourceFiles());
 };
 
 export const isReplaced = (
   sourceFile: SourceFile,
   dependencies: ReadonlySet<SourceFile>,
-  maps: SourceFileMaps
+  current: CurrentSourceFiles
 ): boolean => {
-  const indexedSourceFile = maps.current.get(sourceFile.fileName);
+  const isCurrent = current.has(sourceFile);
 
-  if (indexedSourceFile !== sourceFile) return true;
+  if (!isCurrent) return true;
 
   for (const dependency of dependencies) {
-    const indexedDependency = maps.all.get(dependency.fileName);
+    const isDependencyCurrent = current.has(dependency);
 
-    if (indexedDependency !== dependency) return true;
+    if (!isDependencyCurrent) return true;
   }
 
   return false;
@@ -81,10 +101,10 @@ export const isReplaced = (
 
 export const dropReplacedEntries = (
   index: ProjectIndex,
-  maps: SourceFileMaps
+  current: CurrentSourceFiles
 ): void => {
   const isEntryReplaced = (entry: FileEntry): boolean => {
-    return isReplaced(entry.sourceFile, entry.dependencies, maps);
+    return isReplaced(entry.sourceFile, entry.dependencies, current);
   };
 
   dropEntries(index, isEntryReplaced);
@@ -100,7 +120,7 @@ export const dropEntriesMentioning = (
 
   const nameList = [...names];
   const mentionsName = (entry: FileEntry): boolean => {
-    return nameList.some((name) => entry.sourceFile.text.includes(name));
+    return nameList.some((name) => entry.mentionedNames.has(name));
   };
 
   dropEntries(index, mentionsName);
@@ -125,6 +145,10 @@ const templateVersionChecker = (): ((
   };
 };
 
+export const hasStaleTemplate = (entry: FileEntry): boolean => {
+  return !entry.templateVersions.every(templateFileIsCurrent);
+};
+
 export const dropStaleTemplateEntries = (
   index: ProjectIndex,
   force: boolean
@@ -137,11 +161,11 @@ export const dropStaleTemplateEntries = (
   if (isThrottled) return;
 
   const isCurrent = templateVersionChecker();
-  const hasStaleTemplate = (entry: FileEntry): boolean => {
+  const isStale = (entry: FileEntry): boolean => {
     return !entry.templateVersions.every(isCurrent);
   };
 
-  dropEntries(index, hasStaleTemplate);
+  dropEntries(index, isStale);
 
   index.templateCheckedAt = now;
   index.templateCheckDuration = performance.now() - now;

@@ -1,14 +1,23 @@
+import { dirname, normalize } from 'node:path';
+
 import type { Program, SourceFile, TypeChecker } from 'typescript';
 
-import type { LazyChecker, ProjectIndex } from './common/project-index.type.ts';
+import type {
+  FileEntry,
+  LazyChecker,
+  ProjectIndex,
+  TemplateFileVersion
+} from './common/project-index.type.ts';
 import { computeEntry } from './project-file-entry.ts';
 import { reconcileClasses } from './project-index-classes.ts';
 import {
+  addEntry,
+  currentSourceFiles,
   dropEntriesMentioning,
   dropReplacedEntries,
   dropStaleTemplateEntries,
-  indexableSourceFiles,
-  sourceFileMaps
+  hasStaleTemplate,
+  indexableSourceFiles
 } from './project-index-staleness.ts';
 
 const lazyChecker = (program: Program): LazyChecker => {
@@ -27,9 +36,7 @@ const indexMissingEntries = (
 
     if (isEntryIndexed) continue;
 
-    const entry = computeEntry(index, sourceFile, checker());
-
-    index.entries.set(sourceFile.fileName, entry);
+    addEntry(index, computeEntry(index, sourceFile, checker()));
   }
 };
 
@@ -38,18 +45,18 @@ const reindexProgram = (
   program: Program,
   checker: LazyChecker
 ): void => {
-  const maps = sourceFileMaps(program);
+  const indexable = indexableSourceFiles(program);
+  const current = currentSourceFiles(program);
 
-  dropReplacedEntries(index, maps);
+  dropReplacedEntries(index, current);
 
-  const newNames = reconcileClasses(index, maps, checker);
+  const newNames = reconcileClasses(index, indexable, current, checker);
 
   dropEntriesMentioning(index, newNames);
 
   index.program = program;
-  index.usage = undefined;
-  dropStaleTemplateEntries(index, true);
-  indexMissingEntries(index, maps.current.values(), checker);
+  dropStaleTemplateEntries(index, false);
+  indexMissingEntries(index, indexable, checker);
 };
 
 const refreshTemplateEntries = (
@@ -65,19 +72,74 @@ const refreshTemplateEntries = (
 
   if (isUnchanged) return;
 
-  index.usage = undefined;
   indexMissingEntries(index, indexableSourceFiles(program), checker);
 };
 
-export const reconcile = (index: ProjectIndex, program: Program): void => {
+const isLocalEntry = (
+  entry: FileEntry,
+  sourceFile: SourceFile,
+  directory: string
+): boolean => {
+  const isOwn = entry.sourceFile === sourceFile;
+
+  if (isOwn) return true;
+
+  const isNearby = (version: TemplateFileVersion): boolean => {
+    return version.directory === directory;
+  };
+
+  return entry.templateVersions.some(isNearby);
+};
+
+/**
+ * Templates of the linted file and of every component in its folder are
+ * checked on every lint, so an edit next to the file is seen at once; every
+ * other template is checked on the throttled schedule of
+ * `dropStaleTemplateEntries`.
+ */
+const refreshLocalEntries = (
+  index: ProjectIndex,
+  program: Program,
+  fileName: string,
+  checker: LazyChecker
+): void => {
+  const sourceFile = program.getSourceFile(fileName);
+
+  if (!sourceFile) return;
+
+  const directory = dirname(normalize(sourceFile.fileName));
+  const stale: FileEntry[] = [];
+
+  for (const entry of index.entries.values()) {
+    if (entry.templateVersions.length === 0) continue;
+
+    const isLocal = isLocalEntry(entry, sourceFile, directory);
+
+    if (!isLocal) continue;
+
+    const isStale = hasStaleTemplate(entry);
+
+    if (isStale) stale.push(entry);
+  }
+
+  for (const entry of stale) {
+    addEntry(index, computeEntry(index, entry.sourceFile, checker()));
+  }
+};
+
+export const reconcile = (
+  index: ProjectIndex,
+  program: Program,
+  fileName: string
+): void => {
   const checker = lazyChecker(program);
   const isNewProgram = index.program !== program;
 
   if (isNewProgram) {
     reindexProgram(index, program, checker);
-
-    return;
+  } else {
+    refreshTemplateEntries(index, program, checker);
   }
 
-  refreshTemplateEntries(index, program, checker);
+  refreshLocalEntries(index, program, fileName, checker);
 };
