@@ -132,8 +132,7 @@ const toDescriptor = (
   return descriptor;
 };
 
-/** The literal template and style references of every `@Component` in `text`. */
-export const parseComponentMetadata = (
+const parseComponentMetadata = (
   text: string,
   path: string
 ): ComponentDescriptor[] => {

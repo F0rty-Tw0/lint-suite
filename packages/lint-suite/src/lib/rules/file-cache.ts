@@ -7,24 +7,11 @@ import {
 } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-type CachedFile<T> = {
-  readonly value: T;
-  readonly version: string;
-};
-
-export type FileCache<T> = {
-  readonly name: string;
-  readonly entries: Map<string, CachedFile<T>>;
-  // eslint-disable-next-line local/readonly-type-properties -- flipped once the disk copy was read
-  loaded: boolean;
-  // eslint-disable-next-line local/readonly-type-properties -- flipped when an entry was parsed this run
-  dirty: boolean;
-};
+import type { CachedFile, FileCache } from './common/file-cache.type.ts';
 
 type FileParser<T> = (text: string, path: string) => T;
 
-/** Bump when the shape of any cached value changes. */
-const FORMAT = 1;
+const CACHE_FORMAT_VERSION = 1;
 
 const caches = new Set<FileCache<unknown>>();
 
@@ -46,7 +33,7 @@ const cacheFile = (name: string): string | null => {
 
   if (directory === null) return null;
 
-  return join(directory, `${name}.v${FORMAT}.json`);
+  return join(directory, `${name}.v${CACHE_FORMAT_VERSION}.json`);
 };
 
 const isCachedFile = <T>(value: unknown): value is CachedFile<T> => {
@@ -108,6 +95,7 @@ const write = (cache: FileCache<unknown>): void => {
 };
 
 /** Writes every cache that parsed something this run; runs at process exit. */
+// eslint-disable-next-line local/no-unused-exports -- read by file-cache.spec.ts
 export const flushFileCaches = (): void => {
   for (const cache of caches) {
     if (!cache.dirty) continue;

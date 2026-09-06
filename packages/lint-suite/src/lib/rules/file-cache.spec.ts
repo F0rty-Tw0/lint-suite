@@ -11,8 +11,8 @@ import { join } from 'node:path';
 
 import { afterEach, beforeEach, test } from 'vitest';
 
+import type { FileCache } from './common/file-cache.type.ts';
 import { createFileCache, flushFileCaches, readCached } from './file-cache.ts';
-import type { FileCache } from './file-cache.ts';
 
 let directory = '';
 let file = '';
