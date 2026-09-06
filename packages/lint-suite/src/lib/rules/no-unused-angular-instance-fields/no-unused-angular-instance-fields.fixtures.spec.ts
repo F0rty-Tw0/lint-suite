@@ -134,7 +134,11 @@ test('project fixture index builds', () => {
   probeLinter.verify(readFileSync(filename, 'utf8'), probeConfig, { filename });
 
   assert.ok(program, 'parser services must expose a program');
-  assert.notEqual(projectUsage(program), null, 'project index must build');
+  assert.notEqual(
+    projectUsage(program, filename),
+    null,
+    'project index must build'
+  );
 });
 
 lintFixtures(

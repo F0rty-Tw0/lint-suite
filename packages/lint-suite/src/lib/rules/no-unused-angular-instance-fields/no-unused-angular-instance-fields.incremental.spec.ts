@@ -10,6 +10,7 @@ import {
   broken,
   consumer,
   consumerBody,
+  consumerWithTemplateFile,
   gallery,
   otherPanel,
   panel,
@@ -102,6 +103,21 @@ describe('project analysis in an editor session', () => {
     assert.deepEqual(lint('widget.component.ts', widget(widgetMembers)), [
       'unusedField:hidden'
     ]);
+  });
+
+  test('an edited template of a neighbour is picked up without waiting', () => {
+    touch('consumer.component.html', '<app-widget #w /> {{ w.hidden }}');
+    lint('consumer.component.ts', consumerWithTemplateFile(consumerBody));
+
+    assert.deepEqual(lint('widget.component.ts', widget(widgetMembers)), []);
+
+    touch('consumer.component.html', '<app-widget #w />');
+
+    assert.deepEqual(lint('widget.component.ts', widget(widgetMembers)), [
+      'unusedField:hidden'
+    ]);
+
+    lint('consumer.component.ts', consumer(consumerBody));
   });
 
   test('a directive gaining exportAs makes its reference reads count', () => {

@@ -30,6 +30,15 @@ ${body}
 
 export const consumerBody = `    return this.widget().exposed;`;
 
+export const consumerWithTemplateFile = (body: string): string => {
+  const inline = consumer(body);
+
+  return inline.replace(
+    "template: '<app-widget />'",
+    "templateUrl: './consumer.component.html'"
+  );
+};
+
 export const panel = (exportAs: string): string => {
   return `import { Directive } from '@angular/core';
 

@@ -96,7 +96,8 @@ const projectParserServices = (
 };
 
 const projectMemberUsedFor = (
-  parserServices: ParserServicesWithTypeInformation | undefined
+  parserServices: ParserServicesWithTypeInformation | undefined,
+  fileName: string
 ): ProjectMemberUsed | undefined => {
   if (parserServices === undefined) return undefined;
 
@@ -104,7 +105,7 @@ const projectMemberUsedFor = (
 
   const memberUsed = (node: TSESTree.ClassElement): boolean => {
     if (usage === undefined) {
-      usage = projectUsage(parserServices.program);
+      usage = projectUsage(parserServices.program, fileName);
     }
 
     return usage?.has(parserServices.esTreeNodeToTSNodeMap.get(node)) ?? true;
@@ -146,7 +147,7 @@ export default createRule<Options, MessageIds>({
       dynamicClasses,
       imports,
       projectIndexed,
-      projectMemberUsed: projectMemberUsedFor(parserServices)
+      projectMemberUsed: projectMemberUsedFor(parserServices, context.filename)
     };
 
     const readListeners = classReadVisitor(classes, stack, dynamicClasses);
