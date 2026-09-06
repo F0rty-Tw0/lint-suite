@@ -8,14 +8,16 @@
   `angularTemplate` preset): reports a class used in a template that no stylesheet of that component selects.
   It reads `class="a b"` tokens, `[class.name]` bindings, and the literal class names inside `[class]="..."`
   expressions and `class="a {{ b }}"` interpolations; `[ngClass]` is not analysed. Stylesheets come from
-  `styleUrl`/`styleUrls`/`styles` in the `@Component` metadata, or a sibling `.scss`/`.css` file, and are
-  parsed with `postcss-scss`, so `&` nesting, `@media` blocks, selector lists, and `@use`/`@import`/`@forward`
+  `styleUrl`/`styleUrls`/`styles` in the `@Component` metadata, a sibling `.scss`/`.css` file, or a
+  `<link rel="stylesheet" href="...">` in the template itself (relative hrefs only, so a plain HTML page
+  without a component is judged against the stylesheets it links), and are parsed with `postcss-scss`, so `&` nesting, `@media` blocks, selector lists, and `@use`/`@import`/`@forward`
   partials all resolve. Options: `ignoreClassPatterns` (default `['^(js|qa|mat|cdk|mdc)-']`) and `globalStyles`
   (default `[]`). Custom elements are skipped, and a template with no parseable stylesheet reports nothing.
 - **Stylelint**: new rule `lint-suite/no-unused-classes` (enabled in the `stylelint` preset): reports a class
   selector in a component stylesheet that no template of that component uses. Templates come from the
   `@Component` metadata beside the stylesheet (`styleUrl`/`styleUrls` match, then `templateUrl` or the inline
-  `template` literal), or a sibling `.html` file, and a stylesheet shared by several components is judged
+  `template` literal), a sibling `.html` file, or any `.html` file under the working directory that links the
+  stylesheet with `<link rel="stylesheet" href="...">`, and a stylesheet shared by several components is judged
   against all of their templates. Selectors are parsed with `postcss-scss`, so `&` nesting, `@media` blocks,
   and selector lists resolve and each name is reported on the rule that declares it; `:host(...)` /
   `:host-context(...)` arguments and everything after `::ng-deep` are skipped, interpolated selectors are
@@ -26,6 +28,29 @@
 - **TypeScript**: new autofixable rule `local/one-line-guard` (enabled in the `typescript` preset with
   `maxLineLength` = the preset print width, 135): a lone `return`/`throw`/`continue`/`break` guard drops its
   braces when the whole `if` fits on one line.
+
+### Changed
+
+- **Performance**: `no-unstyled-classes`, `no-unused-classes`, and `no-unused-instance-fields` now share one
+  mtime-keyed file cache for parsed `@Component` metadata, stylesheets, and templates, so a lint run only
+  re-parses a file that changed on disk. `no-unstyled-classes` also keeps the merged class set of a template's
+  stylesheet chain and only rebuilds it when one of those files changes; `no-unused-classes` caches directory
+  listings by directory mtime. Freshness is unchanged: every lint still stats each file it reads.
+- **Performance**: parsed `@Component` metadata, stylesheet class entries, template class usage, and template
+  stylesheet links are also mirrored to disk in `node_modules/.cache/lint-suite/*.json` (keyed by path, mtime, and
+  size), so a fresh ESLint or stylelint process, a CI run, or an editor's first lint skips every parse of a file
+  that did not change since the last run. `LINT_SUITE_CACHE_DIR` moves the directory; `LINT_SUITE_CACHE=0`
+  disables the disk copy (the in-memory cache stays).
+- **Performance** (`no-unused-instance-fields`, project analysis): the project index is now incremental per edit
+  instead of per session. Reads of `this.member` and of a lone template `member` that the class declares itself
+  resolve syntactically (the type checker is only asked for inherited, indexed, or chained reads); a newly seen
+  member name re-indexes only files that read that exact name (was: any file whose text contained it as a
+  substring); the directive index is rebuilt only when a selector actually changes; per-lint bookkeeping no longer
+  rebuilds the usage set or path-normalizes every dependency. Templates are parsed without whitespace and trivia
+  spans. On a synthetic 10k-file project (3,300 components): first-open index build 10.2s → 6.6s, cost added per
+  editor save 106ms → 7ms, and adding a field or a component no longer triggers a full re-index. Freshness: the
+  templates of the linted file and of every component in its folder are checked on every lint; templates in
+  other folders are checked on the existing throttled schedule (100× the duration of the last check).
 
 ## [1.6.2] - 2026-09-04
 

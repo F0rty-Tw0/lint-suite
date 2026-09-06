@@ -106,6 +106,18 @@ export default [
 | changes, do not use ESLint `--cache` for correctness gates; run a full non-cached lint (for example,          |
 | `eslint --no-cache`).                                                                                         |
 
+## Disk cache
+
+`no-unstyled-classes`, `no-unused-classes`, and `no-unused-instance-fields`
+parse component metadata, stylesheets, and templates once per file and keep
+the result in memory for the life of the process, keyed by the file's mtime
+and size. The same entries are mirrored to
+`node_modules/.cache/lint-suite/*.json` under the current working directory
+at process exit, so the next ESLint or stylelint process (a CI run, or an
+editor's first lint) skips every parse of a file that did not change. Set
+`LINT_SUITE_CACHE_DIR` to move the directory, or `LINT_SUITE_CACHE=0` to
+keep everything in memory only.
+
 ## Customization
 
 You can override any rules by adding a `rules` section to your ESLint config:
@@ -152,6 +164,13 @@ templates can read a component or directive member:
 }
 ```
 
+- In an editor session the index is updated incrementally: a save re-indexes
+  only the saved file and the files whose resolutions depended on it. The
+  saved file's own templates, and the templates of every component in its
+  folder, are re-read on every lint; edits to templates in other folders are
+  picked up on a throttled schedule (at most every 100× the duration of the
+  last check), so a cross-folder template edit can take a moment to show up
+  in another file's diagnostics.
 - `analysis` defaults to `'local'`. Project mode excludes spec-file reads. A
   file it cannot index exactly (a template that does not parse, metadata it
   cannot evaluate, a read it cannot type) falls back to name matching for
@@ -193,7 +212,11 @@ reported. `[ngClass]` is deliberately not analysed.
 Stylesheets come from the component beside the template: `styleUrl`,
 `styleUrls`, and inline `styles` read as string or template literals from the
 `@Component` metadata, falling back to a sibling `.scss` or `.css` file when
-the metadata declares none. Each stylesheet is parsed with `postcss-scss`, so
+the metadata declares none. A `<link rel="stylesheet" href="...">` in the
+template itself is read too, resolved against the template's directory, so a
+plain HTML page without a component is judged against the stylesheets it
+links; root-relative (`/x.css`) and absolute (`https://...`) links are
+skipped. Each stylesheet is parsed with `postcss-scss`, so
 `&__element`, `&--modifier`, `&.other`, `& > .child`, `.wrapper &`, and rules
 nested inside `@media` all resolve against their parent selector, and a
 selector list such as `.a, .b { &__x {} }` yields both `.a__x` and `.b__x`.
@@ -243,9 +266,13 @@ file; each matching component contributes its `templateUrl` file or its inline
 `template` literal, and their classes are merged, so a stylesheet shared by two
 components is judged against both templates. When no component declares the
 stylesheet, a sibling template of the same name (`card.component.scss` →
-`card.component.html`) is used instead. A partial (`_tokens.scss`) or a global
-`styles.scss` that no component declares has no template, and the rule stays
-silent.
+`card.component.html`) and every `.html` file in the same directory whose
+`<link rel="stylesheet" href="...">` resolves to it are used instead, plus
+every template anywhere under the working directory whose link resolves to
+it (`node_modules`, `dist`, `coverage`, and dot-folders are skipped), so a
+plain `styles.css` beside an `index.html` and a shared stylesheet linked from
+other folders are both checked. A partial (`_tokens.scss`) or a global
+`styles.scss` that nothing links has no template, and the rule stays silent.
 
 Selectors resolve through the same parser as the ESLint rule, so `&__element`,
 `&--modifier`, `&.other`, `& > .child`, `.wrapper &`, `@media` blocks, and

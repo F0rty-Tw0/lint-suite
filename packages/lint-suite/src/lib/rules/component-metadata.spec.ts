@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { test } from 'vitest';
 
-import { componentMetadata, metadataTexts } from './component-metadata.ts';
+import { componentMetadata } from './component-metadata.ts';
 
 const fixtureFile = (file: string): string => {
   return join(import.meta.dirname, 'common', 'fixtures', 'component-metadata', file);
@@ -14,54 +14,45 @@ const bannerComponent = fixtureFile('banner.component.ts');
 const plainComponent = fixtureFile('plain.component.ts');
 const absentComponent = fixtureFile('absent.component.ts');
 
-test('finds the metadata literal of a decorated component class', () => {
-  const found = componentMetadata(heroComponent);
+test('reads templateUrl, styleUrls, and styles of a decorated component', () => {
+  const [descriptor] = componentMetadata(heroComponent);
 
-  assert.equal(found.length, 1);
+  assert.deepEqual(descriptor, {
+    templateUrl: './hero.component.html',
+    template: null,
+    styleUrls: ['./hero.component.scss', './hero.extra.scss'],
+    styles: ['.inline-one {}']
+  });
+});
+
+test('returns the same descriptors instance for an unchanged file', () => {
+  const first = componentMetadata(heroComponent);
+  const second = componentMetadata(heroComponent);
+
+  assert.equal(first, second);
 });
 
 test('reads no metadata from a file it cannot open', () => {
   assert.deepEqual(componentMetadata(absentComponent), []);
 });
 
-test('reads a string literal property as a single text', () => {
-  const [metadata] = componentMetadata(heroComponent);
+test('reads a template literal style without substitutions', () => {
+  const [descriptor] = componentMetadata(bannerComponent);
 
-  assert.ok(metadata);
-  assert.deepEqual(metadataTexts(metadata, 'templateUrl'), [
-    './hero.component.html'
-  ]);
-});
+  assert.ok(descriptor);
 
-test('reads an array literal property as every listed text', () => {
-  const [metadata] = componentMetadata(heroComponent);
-
-  assert.ok(metadata);
-  assert.deepEqual(metadataTexts(metadata, 'styleUrls'), [
-    './hero.component.scss',
-    './hero.extra.scss'
-  ]);
-});
-
-test('reads inline styles written as an array of literals', () => {
-  const [metadata] = componentMetadata(heroComponent);
-
-  assert.ok(metadata);
-  assert.deepEqual(metadataTexts(metadata, 'styles'), ['.inline-one {}']);
-});
-
-test('reads a template literal without substitutions', () => {
-  const [metadata] = componentMetadata(bannerComponent);
-
-  assert.ok(metadata);
-  const [style] = metadataTexts(metadata, 'styles');
+  const [style] = descriptor.styles;
 
   assert.ok(style?.includes('.only-inline'));
 });
 
-test('reads no text for a property the metadata does not declare', () => {
-  const [metadata] = componentMetadata(plainComponent);
+test('reads null template and no styles when the metadata declares none', () => {
+  const [descriptor] = componentMetadata(plainComponent);
 
-  assert.ok(metadata);
-  assert.deepEqual(metadataTexts(metadata, 'styleUrl'), []);
+  assert.deepEqual(descriptor, {
+    templateUrl: './plain.component.html',
+    template: null,
+    styleUrls: [],
+    styles: []
+  });
 });

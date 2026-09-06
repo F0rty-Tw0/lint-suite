@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-
 import {
   ScriptTarget,
   canHaveDecorators,
@@ -19,6 +17,13 @@ import type {
   Node,
   ObjectLiteralExpression
 } from 'typescript';
+
+import type { ComponentDescriptor } from './common/class-usage.type.ts';
+import { createFileCache, readCached } from './file-cache.ts';
+
+const COMPONENT_MARKER = '@Component';
+
+const cache = createFileCache<ComponentDescriptor[]>('component-metadata');
 
 const componentArgument = (
   decorator: Decorator
@@ -54,37 +59,6 @@ const decoratedMetadata = (node: Node): ObjectLiteralExpression | null => {
   }
 
   return null;
-};
-
-export const parseComponentMetadata = (
-  text: string,
-  path: string
-): ObjectLiteralExpression[] => {
-  const found: ObjectLiteralExpression[] = [];
-
-  const visit = (node: Node): void => {
-    const metadata = decoratedMetadata(node);
-
-    if (metadata !== null) found.push(metadata);
-
-    forEachChild(node, visit);
-  };
-
-  const source = createSourceFile(path, text, ScriptTarget.Latest, true);
-
-  forEachChild(source, visit);
-
-  return found;
-};
-
-export const componentMetadata = (path: string): ObjectLiteralExpression[] => {
-  try {
-    const text = readFileSync(path, 'utf8');
-
-    return parseComponentMetadata(text, path);
-  } catch {
-    return [];
-  }
 };
 
 const literalText = (node: Expression): string | null => {
@@ -128,7 +102,7 @@ const metadataValue = (
   return null;
 };
 
-export const metadataTexts = (
+const metadataTexts = (
   metadata: ObjectLiteralExpression,
   name: string
 ): string[] => {
@@ -137,4 +111,52 @@ export const metadataTexts = (
   if (value === null) return [];
 
   return literalTexts(value);
+};
+
+const toDescriptor = (
+  metadata: ObjectLiteralExpression
+): ComponentDescriptor => {
+  const [templateUrl] = metadataTexts(metadata, 'templateUrl');
+  const [template] = metadataTexts(metadata, 'template');
+  const styleUrl = metadataTexts(metadata, 'styleUrl');
+  const listedStyleUrls = metadataTexts(metadata, 'styleUrls');
+  const styleUrls = [...styleUrl, ...listedStyleUrls];
+  const styles = metadataTexts(metadata, 'styles');
+  const descriptor: ComponentDescriptor = {
+    templateUrl: templateUrl ?? null,
+    template: template ?? null,
+    styleUrls,
+    styles
+  };
+
+  return descriptor;
+};
+
+/** The literal template and style references of every `@Component` in `text`. */
+export const parseComponentMetadata = (
+  text: string,
+  path: string
+): ComponentDescriptor[] => {
+  const found: ComponentDescriptor[] = [];
+  const hasComponent = text.includes(COMPONENT_MARKER);
+
+  if (!hasComponent) return found;
+
+  const visit = (node: Node): void => {
+    const metadata = decoratedMetadata(node);
+
+    if (metadata !== null) found.push(toDescriptor(metadata));
+
+    forEachChild(node, visit);
+  };
+
+  const source = createSourceFile(path, text, ScriptTarget.Latest, true);
+
+  forEachChild(source, visit);
+
+  return found;
+};
+
+export const componentMetadata = (path: string): ComponentDescriptor[] => {
+  return readCached(cache, path, parseComponentMetadata) ?? [];
 };
