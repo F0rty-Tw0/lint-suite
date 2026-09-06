@@ -19,8 +19,6 @@
   `chain-fits-line`, `arrow-body-fits-line`, `no-nested-object-value`,
   `no-spread-expression`, `no-inline-return-object`, `type-placement`, `util-purity`,
   `test-file-shape`, `sibling-spec`, `no-unused-exports`.
-- **Vitest**: `local/test-callback-return-type` is enabled in the `vitest` preset and fixes missing return
-  types on test harness callbacks.
 
 ### Features
 

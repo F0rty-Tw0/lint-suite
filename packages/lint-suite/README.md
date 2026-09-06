@@ -500,17 +500,6 @@ imports, and a module that exports names but is never imported at all.
   `tsconfig.lib.json`) reports as unused; that is the same boundary `tsc`
   draws.
 
-### Test callback return type
-
-The `vitest` preset enables `local/test-callback-return-type`, which
-reports a `describe` / `it` / `test` / `beforeEach` / `afterEach` /
-`beforeAll` / `afterAll` callback (including `it.each(...)(...)` and
-`test.only`) without a return type annotation, and fixes it with `: void`
-or `: Promise<void>` for `async` callbacks.
-`@typescript-eslint/explicit-function-return-type` leaves these callbacks
-alone on purpose (`allowTypedFunctionExpressions`), so this rule closes the
-gap for test code only.
-
 ## Stylelint and Prettier presets
 
 These are standalone configs exported as subpaths — they are not part of the `recommended` ESLint array.

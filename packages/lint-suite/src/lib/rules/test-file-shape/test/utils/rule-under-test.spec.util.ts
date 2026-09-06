@@ -1,17 +1,19 @@
 import assert from 'node:assert/strict';
 
 import { RuleTester } from 'eslint';
-import type { Linter } from 'eslint';
+import type { Linter, Rule } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
 import { typescript } from '../../../../typescript.ts';
 
-export const rule = typescript
+const found = typescript
   .map((config) => config.plugins?.['local'])
   .find(Boolean)?.rules?.['test-file-shape'];
 
-assert.ok(rule, 'typescript preset must register local/test-file-shape');
+assert.ok(found, 'typescript preset must register local/test-file-shape');
+
+export const rule: Rule.RuleModule = found;
 
 RuleTester.describe = describe;
 RuleTester.it = test;

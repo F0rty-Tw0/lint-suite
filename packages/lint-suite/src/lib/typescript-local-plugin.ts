@@ -15,7 +15,6 @@ import oneLineGuardRule from './rules/one-line-guard/one-line-guard.ts';
 import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.ts';
 import siblingSpecRule from './rules/sibling-spec/sibling-spec.ts';
 import ternaryBranchShapeRule from './rules/ternary-branch-shape/ternary-branch-shape.ts';
-import testCallbackReturnTypeRule from './rules/test-callback-return-type/test-callback-return-type.ts';
 import testFileShapeRule from './rules/test-file-shape/test-file-shape.ts';
 import typePlacementRule from './rules/type-placement/type-placement.ts';
 import utilPurityRule from './rules/util-purity/util-purity.ts';
@@ -37,7 +36,6 @@ export const localPlugin = definePlugin('local', {
   'readonly-type-properties': readonlyTypePropertiesRule,
   'sibling-spec': siblingSpecRule,
   'ternary-branch-shape': ternaryBranchShapeRule,
-  'test-callback-return-type': testCallbackReturnTypeRule,
   'test-file-shape': testFileShapeRule,
   'type-placement': typePlacementRule,
   'util-purity': utilPurityRule
