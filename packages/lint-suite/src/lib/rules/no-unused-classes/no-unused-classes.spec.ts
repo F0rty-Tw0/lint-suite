@@ -20,7 +20,9 @@ type FixtureRun = {
 };
 
 const configFor = (options: RuleOptions | undefined): Config => {
-  const settings = options === undefined ? [true] : [true, options];
+  const bareSettings = [true];
+  const configuredSettings = [true, options];
+  const settings = options === undefined ? bareSettings : configuredSettings;
   const rules = { [ruleName]: settings };
   const plugins = [plugin];
   const config: Config = { customSyntax: 'postcss-scss', plugins, rules };

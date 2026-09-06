@@ -18,12 +18,15 @@ const links = createFileCache<string[]>('template-links');
 let linkIndex: LinkIndex | null = null;
 
 /** Relative stylesheet hrefs a template links, cached by the template's mtime. */
+// eslint-disable-next-line local/no-unused-exports -- read by linked-templates.spec.ts
 export const templateLinks = (templatePath: string): string[] => {
   return readCached(links, templatePath, linkedStylesheetHrefs) ?? [];
 };
 
 const isWalkable = (name: string): boolean => {
-  if (name.startsWith('.')) return false;
+  const isDotfile = name.startsWith('.');
+
+  if (isDotfile) return false;
 
   return !SKIPPED_DIRECTORIES.has(name);
 };

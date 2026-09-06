@@ -17,9 +17,10 @@ import type {
   ClassMatcher
 } from '../../common/class-usage.type.ts';
 import { createFileCache, readCached } from '../../file-cache.ts';
+import { classMatcher } from '../../selector-classes.ts';
 import { classExpressionUsage } from '../../utils/class-expression-literals.util.ts';
-import { classMatcher } from '../../utils/selector-classes.util.ts';
 import { templateClasses } from '../../utils/template-classes.util.ts';
+import { toRegExp } from '../../utils/to-regexp.util.ts';
 import type {
   TemplateSource,
   TemplateUsage
@@ -41,8 +42,6 @@ const UNKNOWN_USAGE: TemplateUsage = {
   isDynamic: true,
   size: 0
 };
-
-const toRegExp = (pattern: string): RegExp => new RegExp(pattern, 'u');
 
 const templates = createFileCache<UsageEntry | null>('template-usage');
 
@@ -161,7 +160,8 @@ export const templateUsage = (sources: TemplateSource[]): TemplateUsage => {
     for (const pattern of entry.patterns) patterns.add(pattern);
   }
 
-  const compiled = [...patterns].map(toRegExp);
+  const patternList = [...patterns];
+  const compiled = patternList.map(toRegExp);
   const has = classMatcher(names, compiled);
   const size = names.size;
   const usage: TemplateUsage = { has, isDynamic: false, size };

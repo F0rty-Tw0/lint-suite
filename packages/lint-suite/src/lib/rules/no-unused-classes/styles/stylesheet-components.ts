@@ -130,7 +130,9 @@ const fallbackTemplates = (stylesheetPath: string): TemplateSource[] => {
     return source;
   };
 
-  return [...paths].map(toSource);
+  const pathList = [...paths];
+
+  return pathList.map(toSource);
 };
 
 export const stylesheetTemplates = (
@@ -142,8 +144,9 @@ export const stylesheetTemplates = (
 
   for (const file of directoryFiles(directory, MODULE_EXTENSION)) {
     const componentPath = join(directory, file);
+    const matched = matchedTemplates(componentPath, resolved);
 
-    sources.push(...matchedTemplates(componentPath, resolved));
+    sources.push(...matched);
   }
 
   if (sources.length > 0) return sources;

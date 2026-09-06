@@ -6,8 +6,9 @@ import type { RuleOptions } from './common/no-unused-classes.type.ts';
 import { stylesheetTemplates } from './styles/stylesheet-components.ts';
 import { templateUsage } from './template/template-usage.ts';
 import type { ClassMatcher } from '../common/class-usage.type.ts';
+import { selectorTemplateClasses } from '../selector-classes.ts';
 import { walkResolvedRules } from '../utils/resolved-rules.util.ts';
-import { selectorTemplateClasses } from '../utils/selector-classes.util.ts';
+import { toRegExp } from '../utils/to-regexp.util.ts';
 
 type StylesheetWalker = (root: Root, result: PostcssResult) => void;
 
@@ -22,12 +23,14 @@ const { createPlugin, utils } = stylelint;
 
 const DEFAULT_IGNORE_PATTERNS = ['^(js|qa|mat|cdk|mdc)-'];
 
+// eslint-disable-next-line local/no-unused-exports -- read by no-unused-classes.spec.ts
 export const ruleName = 'lint-suite/no-unused-classes';
 
 const rejected = (name: string): string => {
   return `Unexpected class ".${name}" not used by any template of this stylesheet`;
 };
 
+// eslint-disable-next-line local/no-unused-exports -- read by no-unused-classes.spec.ts
 export const messages = utils.ruleMessages(ruleName, { rejected });
 
 const meta: RuleMeta = {
@@ -35,8 +38,6 @@ const meta: RuleMeta = {
 };
 
 const isString = (value: unknown): boolean => typeof value === 'string';
-
-const toRegExp = (pattern: string): RegExp => new RegExp(pattern, 'u');
 
 const validate = (
   result: PostcssResult,
