@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-06
+
 ### Breaking
 
 - **TypeScript**: `@typescript-eslint/consistent-type-assertions` now uses `assertionStyle: 'never'`: every
@@ -415,8 +417,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.3...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.0...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[2.0.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.3...v2.0.0
 [1.6.3]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.0...v1.6.1
