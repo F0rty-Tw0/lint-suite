@@ -53,17 +53,17 @@ export const typescriptSafety = defineConfig([
       // Bad: { id: string; items: readonly T[] }
       // Good: { readonly id: string; readonly items: T[] }
       'local/readonly-type-properties': 'error',
-      // A source file has <name>.spec.ts beside it; types, consts, stubs
-      // exempt.
+      // A source file has <name>.spec.ts beside it; types, consts, and
+      // anything under test/ or testing/ are exempt.
       // Bad: order.ts alone   Good: order.ts next to order.spec.ts
       'local/sibling-spec': 'error',
       // A ternary branch is a name, literal, or plain member access.
       // Bad: c ? foo() : b   Good: const called = foo(); c ? called : b
       'local/ternary-branch-shape': 'error',
-      // No spec-support, helpers, or __mocks__ files; stubs are
-      // UPPER_SNAKE_STUB: Type.
-      // Bad: user.spec-helper.ts, export const userStub
-      // Good: utils/user.spec.util.ts, USER_STUB: User
+      // No spec-support, helpers, or __mocks__ files; stubs, mocks, and
+      // spec utils live under test/; stubs are UPPER_SNAKE_STUB: Type.
+      // Bad: user.spec-helper.ts, common/stubs/user.stub.ts
+      // Good: test/utils/user.spec.util.ts, test/stubs USER_STUB: User
       'local/test-file-shape': 'error',
       // Exported types live in common/*.type.ts; type-only imports come from
       // there.
@@ -71,7 +71,7 @@ export const typescriptSafety = defineConfig([
       // Good: export type Order in common/order.type.ts
       'local/type-placement': 'error',
       // utils/*.util.ts hold pure code: no fs, process, Date.now, module-level
-      // let or Map.
+      // let or Map. Files under test/ or testing/ are exempt.
       // Bad: const cache = new Map(); at module level
       // Good: pass the state in as an argument
       'local/util-purity': 'error',
