@@ -92,6 +92,11 @@ const isExempt = (filename: string, exempt: string[]): boolean => {
 
   if (isFixture) return true;
 
+  const isUnderTestDirectory = filename.includes('/test/');
+  const isUnderTestingDirectory = filename.includes('/testing/');
+
+  if (isUnderTestDirectory || isUnderTestingDirectory) return true;
+
   const isTypeScriptFile = filename.endsWith('.ts');
 
   if (!isTypeScriptFile) return true;

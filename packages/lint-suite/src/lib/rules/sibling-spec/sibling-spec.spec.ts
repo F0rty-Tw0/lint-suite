@@ -29,7 +29,7 @@ const ruleTester = new RuleTester({ languageOptions });
 
 const FIXTURE_DIR = join(
   import.meta.dirname,
-  'common',
+  'test',
   'fixtures',
   'sibling-spec'
 );
@@ -83,6 +83,11 @@ const valid: RuleTester.ValidTestCase[] = [
     name: 'exempts a file under a fixtures directory',
     code: 'export const x = 1;',
     filename: 'src/app/fixtures/orphan.ts'
+  },
+  {
+    name: 'exempts a file under a test directory',
+    code: 'export const x = 1;',
+    filename: 'src/app/test/utils/x.ts'
   },
   {
     name: 'exempts a non-.ts file',
