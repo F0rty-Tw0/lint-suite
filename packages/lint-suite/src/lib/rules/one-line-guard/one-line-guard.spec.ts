@@ -30,9 +30,10 @@ const oneLineGuardError: RuleTester.TestCaseError = {
   messageId: 'oneLineGuard'
 };
 
+const throwErrorData = { keyword: 'throw', max: 40 };
 const throwError: RuleTester.TestCaseError = {
   messageId: 'oneLineGuard',
-  data: { keyword: 'throw', max: 40 }
+  data: throwErrorData
 };
 
 const valid: RuleTester.ValidTestCase[] = [

@@ -15,12 +15,19 @@ const messages: Record<MessageIds, string> = {
     'Lone {{ keyword }} guard fits within {{ max }} columns; write it on one line without braces.'
 };
 
+const maxLineLengthSchema: JSONSchema.JSONSchema4 = {
+  type: 'integer',
+  minimum: 1
+};
+
+const properties: Record<string, JSONSchema.JSONSchema4> = {
+  maxLineLength: maxLineLengthSchema
+};
+
 const schema: JSONSchema.JSONSchema4[] = [
   {
     type: 'object',
-    properties: {
-      maxLineLength: { type: 'integer', minimum: 1 }
-    },
+    properties,
     additionalProperties: false
   }
 ];
@@ -74,9 +81,11 @@ const headText = (
   node: TSESTree.IfStatement,
   sourceCode: TSESLint.SourceCode
 ): string => {
-  return sourceCode.text
-    .slice(node.range[0], node.consequent.range[0])
-    .trimEnd();
+  const start = node.range[0];
+  const end = node.consequent.range[0];
+  const rawHead = sourceCode.text.slice(start, end);
+
+  return rawHead.trimEnd();
 };
 
 const collapsedLine = (
@@ -91,10 +100,12 @@ const collapsedLine = (
   return `${prefix}${head} ${bodyText}`;
 };
 
+const defaultOptions: Options = [{ maxLineLength: 80 }];
+
 export default createRule<Options, MessageIds>({
   name: 'one-line-guard',
   meta,
-  defaultOptions: [{ maxLineLength: 80 }],
+  defaultOptions,
   create(context, [{ maxLineLength }]) {
     const { sourceCode } = context;
 
