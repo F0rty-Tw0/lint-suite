@@ -4,6 +4,7 @@ import { Linter } from 'eslint';
 import type { RuleTester } from 'eslint';
 import { test } from 'vitest';
 
+import { projectRuleTester } from '../../utils/project-rule-tester.spec.util.ts';
 import { component } from '../utils/component-source.spec.util.ts';
 import {
   fixtureCase,
@@ -11,7 +12,6 @@ import {
 } from '../utils/fixture-project.spec.util.ts';
 import {
   lintConfig,
-  projectRuleTester,
   rule,
   ruleName
 } from '../utils/rule-under-test.spec.util.ts';

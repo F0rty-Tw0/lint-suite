@@ -69,6 +69,7 @@ export const isImportBinding = (
   return false;
 };
 
+// eslint-disable-next-line local/no-unused-exports -- read by angular-class-fields.spec.ts
 export const addAngularImport = (
   node: TSESTree.ImportDeclaration,
   imports: AngularImports

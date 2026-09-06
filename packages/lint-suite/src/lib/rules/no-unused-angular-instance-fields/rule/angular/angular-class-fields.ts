@@ -33,9 +33,13 @@ const memberCandidates = (
   const members: MemberCandidate[] = [];
 
   for (const element of node.body.body) {
-    const candidate =
-      fieldCandidate(element, options) ??
-      methodCandidate(element, options.localPrivateOnly, implementedMethods);
+    const fieldMatch = fieldCandidate(element, options);
+    const methodMatch = methodCandidate(
+      element,
+      options.localPrivateOnly,
+      implementedMethods
+    );
+    const candidate = fieldMatch ?? methodMatch;
 
     if (candidate) {
       members.push(candidate);

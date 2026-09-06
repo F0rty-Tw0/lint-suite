@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import { afterAll, beforeAll, describe, test } from 'vitest';
 
+import type { IncrementalProject } from './common/incremental-project.type.ts';
 import {
   createIncrementalProject,
   templateSettled
@@ -21,7 +22,7 @@ import {
   widgetMembers
 } from './utils/incremental-source.spec.util.ts';
 
-let project: ReturnType<typeof createIncrementalProject>;
+let project: IncrementalProject;
 
 const lint = (name: string, code: string): string[] => project.lint(name, code);
 const touch = (name: string, content: string): void => {

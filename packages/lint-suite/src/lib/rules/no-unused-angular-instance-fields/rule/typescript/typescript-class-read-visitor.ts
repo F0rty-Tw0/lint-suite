@@ -92,6 +92,7 @@ export const classReadVisitor = (
   dynamicClasses: DynamicClasses
 ): TSESLint.RuleListener => {
   const thisStack: boolean[] = [];
+  const lexicalThisListeners = lexicalThisVisitor(thisStack);
 
   const listeners: TSESLint.RuleListener = {
     ClassDeclaration(node: TSESTree.ClassDeclaration): void {
@@ -108,7 +109,7 @@ export const classReadVisitor = (
       stack.pop();
       thisStack.pop();
     },
-    ...lexicalThisVisitor(thisStack),
+    ...lexicalThisListeners,
     AssignmentExpression(node: TSESTree.AssignmentExpression): void {
       trackDestructuringRead(node, stack, thisStack, dynamicClasses);
     },

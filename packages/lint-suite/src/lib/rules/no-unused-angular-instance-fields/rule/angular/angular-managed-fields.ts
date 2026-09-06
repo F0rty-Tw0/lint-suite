@@ -17,6 +17,31 @@ const managedApis: ReadonlySet<string> = new Set([
   'contentChildren'
 ]);
 
+const isManualCleanupDisabledProperty = (
+  property: TSESTree.ObjectLiteralElement
+): boolean => {
+  if (
+    property.type !== TSESTree.AST_NODE_TYPES.Property ||
+    property.computed
+  ) {
+    return false;
+  }
+
+  const isIdentifierManualCleanup =
+    property.key.type === TSESTree.AST_NODE_TYPES.Identifier &&
+    property.key.name === 'manualCleanup';
+  const isLiteralManualCleanup =
+    property.key.type === TSESTree.AST_NODE_TYPES.Literal &&
+    property.key.value === 'manualCleanup';
+  const manualCleanup = isIdentifierManualCleanup || isLiteralManualCleanup;
+
+  return (
+    !manualCleanup ||
+    (property.value.type === TSESTree.AST_NODE_TYPES.Literal &&
+      property.value.value === false)
+  );
+};
+
 const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
   const options = node.arguments.at(1);
 
@@ -24,26 +49,7 @@ const hasAutomaticEffectCleanup = (node: TSESTree.CallExpression): boolean => {
 
   if (options.type !== TSESTree.AST_NODE_TYPES.ObjectExpression) return false;
 
-  return options.properties.every((property) => {
-    if (
-      property.type !== TSESTree.AST_NODE_TYPES.Property ||
-      property.computed
-    ) {
-      return false;
-    }
-
-    const manualCleanup =
-      (property.key.type === TSESTree.AST_NODE_TYPES.Identifier &&
-        property.key.name === 'manualCleanup') ||
-      (property.key.type === TSESTree.AST_NODE_TYPES.Literal &&
-        property.key.value === 'manualCleanup');
-
-    return (
-      !manualCleanup ||
-      (property.value.type === TSESTree.AST_NODE_TYPES.Literal &&
-        property.value.value === false)
-    );
-  });
+  return options.properties.every(isManualCleanupDisabledProperty);
 };
 
 const angularCoreImportedName = (
@@ -83,9 +89,10 @@ export const isAngularComponentRefField = (
     return false;
   }
 
-  const reference = sourceCode
-    .getScope(type.typeName)
-    .references.find(({ identifier }) => identifier === type.typeName);
+  const scope = sourceCode.getScope(type.typeName);
+  const reference = scope.references.find(
+    ({ identifier }) => identifier === type.typeName
+  );
   const definition = reference?.resolved?.defs[0];
 
   return angularCoreImportedName(definition) === 'ComponentRef';

@@ -20,7 +20,8 @@ const expectationPattern = /\/\/ expect (unusedField|unusedMethod): (\w+)/gu;
 const optionsPattern = /\/\/ options: (.+)/u;
 
 const expectations = (code: string): string[] => {
-  const matches = [...code.matchAll(expectationPattern)];
+  const foundMatches = code.matchAll(expectationPattern);
+  const matches = [...foundMatches];
   const reported = matches.map(([, messageId, name]) => `${messageId}:${name}`);
 
   return reported.sort();
