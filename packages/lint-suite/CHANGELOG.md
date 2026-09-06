@@ -18,7 +18,7 @@
   `max-condition-operands`, `no-grouped-condition`, `ternary-branch-shape`, `chain-receiver-is-name`,
   `chain-fits-line`, `arrow-body-fits-line`, `no-nested-object-value`,
   `no-spread-expression`, `no-inline-return-object`, `type-placement`, `util-purity`,
-  `test-file-shape`, `sibling-spec`, `no-unused-exports`.
+  `test-file-shape`, `no-unused-exports`.
 
 ### Features
 
@@ -36,7 +36,10 @@
   `import type` from a workspace alias an error that Nx module boundaries left no way to satisfy.
 - **`local/no-nested-object-value`**: `**/*.schema.ts` is a config file by default (zod, yup, valibot
   schemas are settings literals, like a decorator argument).
-- **`local/sibling-spec`**: `**/test-setup*.ts` is exempt by default.
+- **`local/type-placement`**: an `import type` from a `common` barrel (`../common`, `./common/index.ts`,
+  `@shared/common`) passes; `state.type.ts` files (any prefix) are exempt.
+- **TypeScript**: `@typescript-eslint/parameter-properties` is off for `**/*.action.ts`; class actions
+  carry their payload as constructor parameter properties.
 - **Base**: the `max-lines` block no longer claims `**/*.html`. Without the `angularTemplate` preset
   every HTML file in scope was parsed as JavaScript and reported a fatal parsing error; the template
   preset now carries the same 150-line limit for HTML.

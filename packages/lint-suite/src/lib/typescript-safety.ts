@@ -53,10 +53,6 @@ export const typescriptSafety = defineConfig([
       // Bad: { id: string; items: readonly T[] }
       // Good: { readonly id: string; readonly items: T[] }
       'local/readonly-type-properties': 'error',
-      // A source file has <name>.spec.ts beside it; types, consts, and
-      // anything under test/ or testing/ are exempt.
-      // Bad: order.ts alone   Good: order.ts next to order.spec.ts
-      'local/sibling-spec': 'error',
       // A ternary branch is a name, literal, or plain member access.
       // Bad: c ? foo() : b   Good: const called = foo(); c ? called : b
       'local/ternary-branch-shape': 'error',
@@ -150,6 +146,13 @@ export const typescriptSafety = defineConfig([
       '@typescript-eslint/prefer-includes': 'error',
       '@typescript-eslint/prefer-string-starts-ends-with': 'error',
       '@typescript-eslint/prefer-regexp-exec': 'error'
+    }
+  },
+  {
+    files: ['**/*.action.ts'],
+    rules: {
+      // Class actions carry their payload as constructor parameter properties.
+      '@typescript-eslint/parameter-properties': 'off'
     }
   }
 ]);

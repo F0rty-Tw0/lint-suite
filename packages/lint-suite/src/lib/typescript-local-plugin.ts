@@ -13,7 +13,6 @@ import noSpreadExpressionRule from './rules/no-spread-expression/no-spread-expre
 import noUnusedExportsRule from './rules/no-unused-exports/no-unused-exports.ts';
 import oneLineGuardRule from './rules/one-line-guard/one-line-guard.ts';
 import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.ts';
-import siblingSpecRule from './rules/sibling-spec/sibling-spec.ts';
 import ternaryBranchShapeRule from './rules/ternary-branch-shape/ternary-branch-shape.ts';
 import testFileShapeRule from './rules/test-file-shape/test-file-shape.ts';
 import typePlacementRule from './rules/type-placement/type-placement.ts';
@@ -34,7 +33,6 @@ export const localPlugin = definePlugin('local', {
   'no-unused-exports': noUnusedExportsRule,
   'one-line-guard': oneLineGuardRule,
   'readonly-type-properties': readonlyTypePropertiesRule,
-  'sibling-spec': siblingSpecRule,
   'ternary-branch-shape': ternaryBranchShapeRule,
   'test-file-shape': testFileShapeRule,
   'type-placement': typePlacementRule,

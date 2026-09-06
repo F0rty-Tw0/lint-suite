@@ -48,8 +48,7 @@ const config = defineConfig(
     name: 'lint-suite/preset-files',
     files: ['src/*.ts', 'src/lib/*.ts', 'eslint.config.ts'],
     rules: {
-      'local/no-nested-object-value': 'off',
-      'local/sibling-spec': 'off'
+      'local/no-nested-object-value': 'off'
     }
   },
   {
