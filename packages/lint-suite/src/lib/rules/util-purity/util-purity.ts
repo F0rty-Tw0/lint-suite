@@ -15,7 +15,8 @@ import type { MessageIds, Options } from './common/util-purity.type.ts';
 type RuleContext = TSESLint.RuleContext<MessageIds, Options>;
 
 const UTIL_FILE = /\/utils\/[^/]+\.util\.ts$/;
-const SPEC_UTIL_FILE_SUFFIX = '.spec.util.ts';
+const TEST_SEGMENT = '/test/';
+const TESTING_SEGMENT = '/testing/';
 
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/F0rty-Tw0/lint-suite#util-purity'
@@ -26,7 +27,9 @@ const isUtilFile = (filename: string): boolean => {
 
   if (!isUtilPath) return false;
 
-  return !filename.endsWith(SPEC_UTIL_FILE_SUFFIX);
+  const isUnderTest = filename.includes(TEST_SEGMENT) || filename.includes(TESTING_SEGMENT);
+
+  return !isUnderTest;
 };
 
 const identifierName = (

@@ -25,7 +25,8 @@ const languageOptions: Linter.LanguageOptions = {
 const ruleTester = new RuleTester({ languageOptions });
 
 const UTIL_FILE = '/p/feature/utils/parse-line.util.ts';
-const SPEC_UTIL_FILE = '/p/feature/utils/parse-line.spec.util.ts';
+const SPEC_UTIL_FILE = '/p/feature/test/utils/parse-line.spec.util.ts';
+const UNPLACED_SPEC_UTIL_FILE = '/p/feature/utils/parse-line.spec.util.ts';
 const NON_UTIL_FILE = '/p/feature/service.ts';
 
 const impureImportData = { source: 'fs' };
@@ -65,7 +66,7 @@ const valid: RuleTester.ValidTestCase[] = [
     code: `import fs from 'fs';`
   },
   {
-    name: 'ignores a .spec.util.ts file',
+    name: 'ignores a .spec.util.ts file under test/',
     filename: SPEC_UTIL_FILE,
     code: `import fs from 'fs';`
   },
@@ -100,6 +101,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'reports an import of a banned module',
     filename: UTIL_FILE,
+    code: `import fs from 'fs';`,
+    errors: [impureImportError]
+  },
+  {
+    name: 'reports a .spec.util.ts file outside test/',
+    filename: UNPLACED_SPEC_UTIL_FILE,
     code: `import fs from 'fs';`,
     errors: [impureImportError]
   },
