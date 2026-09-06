@@ -5,7 +5,10 @@ import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
-import { missingReadonly } from './utils/readonly-type-properties-cases.spec.util.ts';
+import {
+  missingReadonly,
+  readonlyArray
+} from './utils/readonly-type-properties-cases.spec.util.ts';
 import { typescript } from '../../typescript.ts';
 
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
@@ -65,10 +68,6 @@ const valid: RuleTester.ValidTestCase[] = [
   {
     name: 'ignores an Array<T> property',
     code: `type A = { roles: Array<string> }`
-  },
-  {
-    name: 'ignores a ReadonlyArray<T> property',
-    code: `type A = { roles: ReadonlyArray<string> }`
   },
   {
     name: 'ignores a type reference property',
@@ -203,6 +202,24 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: `type A = { readonly a: string; b: string };`,
     output: `type A = { readonly a: string; readonly b: string };`,
     errors: mixedErrors
+  },
+  {
+    name: 'fixes a readonly array type to T[]',
+    code: `type A = readonly string[];`,
+    output: `type A = string[];`,
+    errors: [readonlyArray()]
+  },
+  {
+    name: 'fixes a ReadonlyArray<T> property to T[]',
+    code: `type A = { roles: ReadonlyArray<string> };`,
+    output: `type A = { roles: string[] };`,
+    errors: [readonlyArray()]
+  },
+  {
+    name: 'fixes a ReadonlyArray<A | B> to a parenthesised union array',
+    code: `type A = ReadonlyArray<A | B>;`,
+    output: `type A = (A | B)[];`,
+    errors: [readonlyArray()]
   }
 ];
 

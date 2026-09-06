@@ -9,3 +9,9 @@ export const missingReadonly = (name: string): RuleTester.TestCaseError => {
 
   return error;
 };
+
+export const readonlyArray = (): RuleTester.TestCaseError => {
+  const error: RuleTester.TestCaseError = { messageId: 'readonlyArray' };
+
+  return error;
+};
