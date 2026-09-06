@@ -4,7 +4,7 @@ import { test } from 'vitest';
 
 import { templateUsage } from './template-usage.ts';
 import type { TemplateSource } from '../common/no-unused-classes.type.ts';
-import { fixtureFile } from '../utils/fixture-stylesheet.spec.util.ts';
+import { fixtureFile } from '../test/utils/fixture-stylesheet.spec.util.ts';
 
 const fileSource = (name: string, file: string): TemplateSource => {
   const source: TemplateSource = {

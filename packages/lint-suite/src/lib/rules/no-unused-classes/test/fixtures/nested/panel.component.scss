@@ -1,0 +1,36 @@
+.panel {
+  &__header {
+    &--sticky {
+      color: red;
+    }
+  }
+
+  &.is-open {
+    color: red;
+  }
+
+  & > .inner {
+    color: red;
+  }
+
+  .wrapper & {
+    color: red;
+  }
+
+  @media (width >= 1px) {
+    &__body {
+      color: red;
+    }
+  }
+
+  &:hover .hover-child {
+    color: red;
+  }
+}
+
+.a,
+.b {
+  &__x {
+    color: red;
+  }
+}

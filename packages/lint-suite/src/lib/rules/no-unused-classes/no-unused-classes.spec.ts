@@ -6,7 +6,7 @@ import { test } from 'vitest';
 
 import type { RuleOptions } from './common/no-unused-classes.type.ts';
 import plugin, { messages, ruleName } from './no-unused-classes.ts';
-import { fixtureCase } from './utils/fixture-stylesheet.spec.util.ts';
+import { fixtureCase } from './test/utils/fixture-stylesheet.spec.util.ts';
 import { stylelint as preset } from '../../../stylelint.ts';
 
 type PresetOverride = NonNullable<Config['overrides']>[number];

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { test } from 'vitest';
 
 import { stylesheetTemplates } from './stylesheet-components.ts';
-import { fixtureFile } from '../utils/fixture-stylesheet.spec.util.ts';
+import { fixtureFile } from '../test/utils/fixture-stylesheet.spec.util.ts';
 
 test('reads the templateUrl of the component that owns the stylesheet', () => {
   const stylesheet = fixtureFile('flat', 'card.component.scss');

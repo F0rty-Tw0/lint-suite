@@ -1,0 +1,11 @@
+:host(.dark) .title {
+  color: red;
+}
+
+:host-context(.rtl) .title {
+  color: blue;
+}
+
+::ng-deep .mat-mdc-dialog-surface {
+  color: green;
+}

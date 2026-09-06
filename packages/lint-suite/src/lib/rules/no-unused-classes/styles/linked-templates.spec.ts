@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { test } from 'vitest';
 
 import { linkedTemplates, templateLinks } from './linked-templates.ts';
-import { fixtureFile } from '../utils/fixture-stylesheet.spec.util.ts';
+import { fixtureFile } from '../test/utils/fixture-stylesheet.spec.util.ts';
 
 const template = fixtureFile('linked-elsewhere', join('pages', 'index.html'));
 const stylesheet = fixtureFile('linked-elsewhere', join('styles', 'theme.css'));
