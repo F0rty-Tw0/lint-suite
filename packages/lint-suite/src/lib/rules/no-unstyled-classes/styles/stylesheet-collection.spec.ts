@@ -6,7 +6,7 @@ import { test } from 'vitest';
 
 import { collectStylesheet } from './stylesheet-collection.ts';
 import type { StylesheetEntry } from '../common/no-unstyled-classes.type.ts';
-import { fixtureDirectory } from '../utils/fixture-template.spec.util.ts';
+import { fixtureDirectory } from '../test/utils/fixture-template.spec.util.ts';
 
 const partials = fixtureDirectory('partials');
 

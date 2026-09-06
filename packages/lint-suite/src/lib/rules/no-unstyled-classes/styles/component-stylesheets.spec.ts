@@ -9,7 +9,7 @@ import {
 import {
   fixtureDirectory,
   fixtureFile
-} from '../utils/fixture-template.spec.util.ts';
+} from '../test/utils/fixture-template.spec.util.ts';
 
 test('reads styleUrls declared by the component metadata', () => {
   const sources = componentStylesheets(

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { test } from 'vitest';
 
 import { resolveStylesheetImport } from './stylesheet-imports.ts';
-import { fixtureDirectory } from '../utils/fixture-template.spec.util.ts';
+import { fixtureDirectory } from '../test/utils/fixture-template.spec.util.ts';
 
 const partials = fixtureDirectory('partials');
 

@@ -3,13 +3,13 @@ import type { RuleTester } from 'eslint';
 import {
   fixtureCase,
   fixtureFile
-} from './utils/fixture-template.spec.util.ts';
+} from './test/utils/fixture-template.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester,
   unstyledClassError
-} from './utils/rule-under-test.spec.util.ts';
+} from './test/utils/rule-under-test.spec.util.ts';
 
 const globalStyles = [fixtureFile('global', 'styles.scss')];
 const globalOptions = [{ globalStyles }];

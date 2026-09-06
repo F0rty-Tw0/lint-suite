@@ -6,7 +6,7 @@ import { linkedStylesheets } from './linked-stylesheets.ts';
 import {
   fixtureCase,
   fixtureFile
-} from '../utils/fixture-template.spec.util.ts';
+} from '../test/utils/fixture-template.spec.util.ts';
 
 const page = fixtureCase('linked', 'page.html');
 

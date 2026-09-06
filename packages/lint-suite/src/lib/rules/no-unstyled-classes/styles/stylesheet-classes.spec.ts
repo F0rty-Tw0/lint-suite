@@ -4,7 +4,7 @@ import { test } from 'vitest';
 
 import { stylesheetClasses } from './stylesheet-classes.ts';
 import type { StylesheetSource } from '../common/no-unstyled-classes.type.ts';
-import { fixtureFile } from '../utils/fixture-template.spec.util.ts';
+import { fixtureFile } from '../test/utils/fixture-template.spec.util.ts';
 
 const listStylesheet: StylesheetSource = {
   kind: 'file',

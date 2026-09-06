@@ -7,7 +7,7 @@ import {
   fixtureCase,
   fixtureDirectory,
   fixtureFile
-} from '../utils/fixture-template.spec.util.ts';
+} from '../test/utils/fixture-template.spec.util.ts';
 
 const globalDirectory = fixtureDirectory('global');
 const appTemplate = fixtureFile('global', 'app.component.html');
