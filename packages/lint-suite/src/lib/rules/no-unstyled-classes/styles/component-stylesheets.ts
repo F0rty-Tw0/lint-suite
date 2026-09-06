@@ -1,26 +1,21 @@
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-import type { ObjectLiteralExpression } from 'typescript';
-
-import {
-  componentMetadata,
-  metadataTexts
-} from '../../component-metadata.ts';
+import type { ComponentDescriptor } from '../../common/class-usage.type.ts';
+import { componentMetadata } from '../../component-metadata.ts';
 import type { StylesheetSource } from '../common/no-unstyled-classes.type.ts';
 
 const SIBLING_EXTENSIONS = ['.scss', '.css'];
 const HTML_EXTENSION = /\.html$/iu;
 
 const matchesTemplate = (
-  metadata: ObjectLiteralExpression,
+  metadata: ComponentDescriptor,
   directory: string,
   templateFilename: string
 ): boolean => {
-  const urls = metadataTexts(metadata, 'templateUrl');
-  const [templateUrl] = urls;
+  const { templateUrl } = metadata;
 
-  if (templateUrl === undefined) return false;
+  if (templateUrl === null) return false;
 
   const declared = resolve(directory, templateUrl);
   const linted = resolve(templateFilename);
@@ -31,10 +26,10 @@ const matchesTemplate = (
 const templateMetadata = (
   componentPath: string,
   templateFilename: string
-): ObjectLiteralExpression | null => {
+): ComponentDescriptor | null => {
   const components = componentMetadata(componentPath);
   const directory = dirname(componentPath);
-  const matches = (metadata: ObjectLiteralExpression): boolean => {
+  const matches = (metadata: ComponentDescriptor): boolean => {
     return matchesTemplate(metadata, directory, templateFilename);
   };
   const matched = components.find(matches);
@@ -95,13 +90,9 @@ const metadataSources = (
 
   if (metadata === null) return [];
 
-  const singleUrl = metadataTexts(metadata, 'styleUrl');
-  const listedUrls = metadataTexts(metadata, 'styleUrls');
-  const styles = metadataTexts(metadata, 'styles');
   const directory = dirname(componentPath);
-  const urls = [...singleUrl, ...listedUrls];
-  const files = stylesheetFiles(urls, directory);
-  const inline = inlineSources(styles, componentPath);
+  const files = stylesheetFiles(metadata.styleUrls, directory);
+  const inline = inlineSources(metadata.styles, componentPath);
 
   return [...files, ...inline];
 };

@@ -1,9 +1,9 @@
-import { readFileSync, statSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 import { parse } from 'postcss-scss';
 
 import { collectStylesheet } from './stylesheet-collection.ts';
+import { createFileCache, readCached } from '../../file-cache.ts';
 import { classMatcher } from '../../utils/selector-classes.util.ts';
 import type {
   StylesheetClasses,
@@ -11,23 +11,16 @@ import type {
   StylesheetSource
 } from '../common/no-unstyled-classes.type.ts';
 
-type CachedStylesheet = {
-  readonly entry: StylesheetEntry;
-  readonly version: string;
+type MergedChain = {
+  readonly chain: StylesheetEntry[];
+  readonly classes: StylesheetClasses;
 };
 
-type ClassSink = {
-  readonly exact: Set<string>;
-  readonly patterns: string[];
-};
+const EMPTY_ENTRY: StylesheetEntry = { classes: [], patterns: [], imports: [] };
 
-const stylesheets = new Map<string, CachedStylesheet>();
-
-const emptyEntry = (): StylesheetEntry => {
-  const entry: StylesheetEntry = { classes: [], patterns: [], imports: [] };
-
-  return entry;
-};
+const stylesheets = createFileCache<StylesheetEntry>('stylesheets');
+const inlineStylesheets = new Map<string, StylesheetEntry>();
+const merged = new Map<string, MergedChain>();
 
 const parseStylesheet = (source: string, path: string): StylesheetEntry => {
   try {
@@ -35,51 +28,55 @@ const parseStylesheet = (source: string, path: string): StylesheetEntry => {
 
     return collectStylesheet(root, dirname(path));
   } catch {
-    return emptyEntry();
+    return EMPTY_ENTRY;
   }
 };
 
 const fileEntry = (path: string): StylesheetEntry => {
-  try {
-    const stats = statSync(path, { bigint: true });
-    const version = `${stats.mtimeNs}:${stats.size}`;
-    const cached = stylesheets.get(path);
-
-    if (cached?.version === version) return cached.entry;
-
-    const entry = parseStylesheet(readFileSync(path, 'utf8'), path);
-    const fresh: CachedStylesheet = { entry, version };
-
-    stylesheets.set(path, fresh);
-
-    return entry;
-  } catch {
-    return emptyEntry();
-  }
+  return readCached(stylesheets, path, parseStylesheet) ?? EMPTY_ENTRY;
 };
 
-const addEntry = (
+const inlineEntry = (source: string, path: string): StylesheetEntry => {
+  const key = `${path}\0${source}`;
+  const cached = inlineStylesheets.get(key);
+
+  if (cached !== undefined) return cached;
+
+  const entry = parseStylesheet(source, path);
+
+  inlineStylesheets.set(key, entry);
+
+  return entry;
+};
+
+const collectImports = (
   entry: StylesheetEntry,
-  sink: ClassSink,
+  chain: StylesheetEntry[],
   visited: Set<string>
 ): void => {
-  for (const name of entry.classes) sink.exact.add(name);
-
-  sink.patterns.push(...entry.patterns);
-
   for (const imported of entry.imports) {
     const isVisited = visited.has(imported);
 
     if (isVisited) continue;
 
     visited.add(imported);
-    addEntry(fileEntry(imported), sink, visited);
+
+    const importedEntry = fileEntry(imported);
+
+    chain.push(importedEntry);
+    collectImports(importedEntry, chain, visited);
   }
 };
 
-const addSource = (
+const entryOf = (source: StylesheetSource): StylesheetEntry => {
+  if (source.kind === 'file') return fileEntry(source.path);
+
+  return inlineEntry(source.source, source.path);
+};
+
+const collectChain = (
   source: StylesheetSource,
-  sink: ClassSink,
+  chain: StylesheetEntry[],
   visited: Set<string>
 ): void => {
   if (source.kind === 'file') {
@@ -88,32 +85,74 @@ const addSource = (
     if (isVisited) return;
 
     visited.add(source.path);
-    addEntry(fileEntry(source.path), sink, visited);
-
-    return;
   }
 
-  addEntry(parseStylesheet(source.source, source.path), sink, visited);
+  const entry = entryOf(source);
+
+  chain.push(entry);
+  collectImports(entry, chain, visited);
 };
 
 const toRegExp = (pattern: string): RegExp => {
   return new RegExp(pattern, 'u');
 };
 
-export const stylesheetClasses = (
-  sources: StylesheetSource[]
-): StylesheetClasses => {
+const mergeChain = (chain: StylesheetEntry[]): StylesheetClasses => {
   const exact = new Set<string>();
   const patterns: string[] = [];
-  const sink: ClassSink = { exact, patterns };
-  const visited = new Set<string>();
 
-  for (const source of sources) addSource(source, sink, visited);
+  for (const entry of chain) {
+    for (const name of entry.classes) exact.add(name);
+
+    patterns.push(...entry.patterns);
+  }
 
   const compiled = patterns.map(toRegExp);
   const has = classMatcher(exact, compiled);
   const size = exact.size + compiled.length;
   const classes: StylesheetClasses = { has, size };
+
+  return classes;
+};
+
+const isCurrentChain = (
+  cached: MergedChain | undefined,
+  chain: StylesheetEntry[]
+): cached is MergedChain => {
+  if (cached === undefined) return false;
+
+  if (cached.chain.length !== chain.length) return false;
+
+  return cached.chain.every((entry, position) => entry === chain[position]);
+};
+
+const sourceKey = (source: StylesheetSource): string => {
+  if (source.kind === 'file') return source.path;
+
+  return `${source.path}\0${source.source}`;
+};
+
+const keyOf = (sources: StylesheetSource[]): string => {
+  return sources.map(sourceKey).join('\n');
+};
+
+export const stylesheetClasses = (
+  sources: StylesheetSource[]
+): StylesheetClasses => {
+  const chain: StylesheetEntry[] = [];
+  const visited = new Set<string>();
+
+  for (const source of sources) collectChain(source, chain, visited);
+
+  const key = keyOf(sources);
+  const cached = merged.get(key);
+
+  if (isCurrentChain(cached, chain)) return cached.classes;
+
+  const classes = mergeChain(chain);
+  const fresh: MergedChain = { chain, classes };
+
+  merged.set(key, fresh);
 
   return classes;
 };

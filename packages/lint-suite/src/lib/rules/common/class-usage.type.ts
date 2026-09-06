@@ -31,4 +31,5 @@ export type ComponentDescriptor = {
   readonly templateUrl: string | null;
   readonly template: string | null;
   readonly styleUrls: string[];
+  readonly styles: string[];
 };

@@ -2,6 +2,7 @@ import {
   componentStylesheets,
   stylesheetFiles
 } from './component-stylesheets.ts';
+import { linkedStylesheets } from './linked-stylesheets.ts';
 import { stylesheetClasses } from './stylesheet-classes.ts';
 import type {
   StylesheetClasses,
@@ -11,6 +12,7 @@ import type {
 
 export const templateStylesheets = (
   templateFilename: string,
+  template: string,
   cwd: string,
   globalStyles: string[]
 ): StylesheetLookup => {
@@ -20,8 +22,9 @@ export const templateStylesheets = (
     if (known !== null) return known;
 
     const component = componentStylesheets(templateFilename);
+    const linked = linkedStylesheets(template, templateFilename);
     const global = stylesheetFiles(globalStyles, cwd);
-    const sources: StylesheetSource[] = [...component, ...global];
+    const sources: StylesheetSource[] = [...component, ...linked, ...global];
 
     known = stylesheetClasses(sources);
 
