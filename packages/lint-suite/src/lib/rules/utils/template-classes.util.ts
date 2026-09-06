@@ -5,7 +5,10 @@ import type {
 } from '@angular/compiler';
 
 import { classExpressionLiterals } from './class-expression-literals.util.ts';
-import type { ClassAttributeHost, TemplateClass } from '../common/class-usage.type.ts';
+import type {
+  ClassAttributeHost,
+  TemplateClass
+} from '../common/class-usage.type.ts';
 
 const CLASS_ATTRIBUTE = 'class';
 const CLASS_BINDING_PREFIX = 'class.';
@@ -98,11 +101,17 @@ export const templateClasses = (node: ClassAttributeHost): TemplateClass[] => {
   for (const attribute of node.attributes) {
     const isClassName = attribute.name === CLASS_ATTRIBUTE;
 
-    if (isClassName) classes.push(...staticClasses(attribute));
+    if (isClassName) {
+      const found = staticClasses(attribute);
+
+      classes.push(...found);
+    }
   }
 
   for (const input of node.inputs) {
-    classes.push(...inputClasses(input));
+    const found = inputClasses(input);
+
+    classes.push(...found);
   }
 
   return classes;

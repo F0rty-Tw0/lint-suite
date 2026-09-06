@@ -12,8 +12,8 @@ import {
 } from '@angular/compiler';
 import type { AST, ASTWithSource, LiteralMapKey } from '@angular/compiler';
 
-import { classNamePattern } from './selector-classes.util.ts';
 import type { ClassExpressionUsage } from '../common/class-usage.type.ts';
+import { classNamePattern } from '../selector-classes.ts';
 
 const WHITESPACE = /\s+/u;
 const EXPRESSION_FILE = 'class-expression';
@@ -112,7 +112,9 @@ export const classExpressionLiterals = (source: string): string[] => {
 
   collect(ast, names);
 
-  return [...new Set(names)];
+  const uniqueNames = new Set(names);
+
+  return [...uniqueNames];
 };
 
 const isSpreadKey = (key: LiteralMapKey): boolean => key.kind === 'spread';
@@ -148,9 +150,11 @@ const interpolationUsage = (ast: Interpolation): ClassExpressionUsage => {
   const named = tokens.filter(isNamedToken);
   const patterns = named.filter(isPatternToken).map(classNamePattern);
   const names = named.filter(isPlainToken);
+  const uniqueNames = new Set(names);
+  const uniquePatterns = new Set(patterns);
   const usage: ClassExpressionUsage = {
-    names: [...new Set(names)],
-    patterns: [...new Set(patterns)],
+    names: [...uniqueNames],
+    patterns: [...uniquePatterns],
     isDynamic: named.length < tokens.length
   };
 
@@ -175,8 +179,9 @@ export const classExpressionUsage = (source: string): ClassExpressionUsage => {
   collect(ast, names);
 
   const isDynamic = isDynamicAst(ast);
+  const uniqueNames = new Set(names);
   const usage: ClassExpressionUsage = {
-    names: [...new Set(names)],
+    names: [...uniqueNames],
     patterns: [],
     isDynamic
   };

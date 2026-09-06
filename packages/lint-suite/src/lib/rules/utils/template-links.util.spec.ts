@@ -5,10 +5,11 @@ import { test } from 'vitest';
 import { linkedStylesheetHrefs } from './template-links.util.ts';
 
 test('reads relative stylesheet hrefs in document order', () => {
-  const template = [
+  const templateLines = [
     '<link rel="stylesheet" href="../shared/index.css" />',
     '<link rel="stylesheet" href="theme.css">'
-  ].join('\n');
+  ];
+  const template = templateLines.join('\n');
 
   assert.deepEqual(linkedStylesheetHrefs(template), [
     '../shared/index.css',
@@ -17,22 +18,24 @@ test('reads relative stylesheet hrefs in document order', () => {
 });
 
 test('skips root-relative, protocol-relative, and absolute URLs', () => {
-  const template = [
+  const templateLines = [
     '<link rel="stylesheet" href="/theme.css">',
     '<link rel="stylesheet" href="//cdn.example.com/theme.css">',
     '<link rel="stylesheet" href="https://cdn.example.com/theme.css">'
-  ].join('\n');
+  ];
+  const template = templateLines.join('\n');
 
   assert.deepEqual(linkedStylesheetHrefs(template), []);
 });
 
 test('skips links that are not stylesheets or have no href', () => {
-  const template = [
+  const templateLines = [
     '<link rel="icon" href="theme.css">',
     '<link href="theme.css">',
     '<link rel="stylesheet">',
     '<link rel="stylesheet" href="">'
-  ].join('\n');
+  ];
+  const template = templateLines.join('\n');
 
   assert.deepEqual(linkedStylesheetHrefs(template), []);
 });

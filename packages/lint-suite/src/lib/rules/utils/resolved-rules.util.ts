@@ -1,6 +1,6 @@
 import type { ChildNode, Container, Root, Rule } from 'postcss';
 
-import { resolveSelectors } from './selector-classes.util.ts';
+import { resolveSelectors } from '../selector-classes.ts';
 
 type ResolvedRuleVisitor = (
   rule: Rule,
