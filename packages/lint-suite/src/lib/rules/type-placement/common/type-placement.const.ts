@@ -15,7 +15,7 @@ const docs: TSESLint.RuleMetaDataDocs = {
 
 const messages: Record<MessageIds, string> = {
   typeOutsideTypeFile:
-    "Exported type '{{ name }}' belongs in a common/*.type.ts file, not here.",
+    "Exported type '{{ name }}' belongs in a common/*.type.ts or test/common/*.type.ts file, not here.",
   valueInTypeFile:
     'A *.type.ts file may only export type aliases and interfaces.',
   nonConstInConstFile:

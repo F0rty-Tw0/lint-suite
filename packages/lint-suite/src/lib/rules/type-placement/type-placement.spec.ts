@@ -65,7 +65,7 @@ const valid: RuleTester.ValidTestCase[] = [
   },
   {
     name: 'ignores a stub file exporting an interface',
-    filename: '/p/feature/common/stubs/order.stub.ts',
+    filename: '/p/feature/test/stubs/order.stub.ts',
     code: `export interface Order {}`
   },
   {
@@ -81,6 +81,11 @@ const valid: RuleTester.ValidTestCase[] = [
   {
     name: 'accepts a type exported from a common type file',
     filename: '/p/feature/common/order.type.ts',
+    code: `export type Order = { readonly id: string };`
+  },
+  {
+    name: 'accepts an exported type in test/common/x.type.ts',
+    filename: '/p/feature/test/common/order.type.ts',
     code: `export type Order = { readonly id: string };`
   },
   {
@@ -115,6 +120,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'reports a type file that is not under common',
     filename: '/p/feature/order.type.ts',
+    code: `export type Order = { readonly id: string };`,
+    errors: [typeOutsideTypeFileError]
+  },
+  {
+    name: 'reports an exported type from a test/utils/x.spec.util.ts',
+    filename: '/p/feature/test/utils/order.spec.util.ts',
     code: `export type Order = { readonly id: string };`,
     errors: [typeOutsideTypeFileError]
   },

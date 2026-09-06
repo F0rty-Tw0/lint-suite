@@ -16,7 +16,7 @@ type FileShape = {
 const TYPE_FILE_SUFFIX = '.type.ts';
 const CONST_FILE_SUFFIX = '.const.ts';
 const COMMON_SEGMENT = '/common/';
-const EXEMPT_FILE = /\.(spec|stub|spec\.util|d)\.ts$/;
+const EXEMPT_FILE = /\.(spec|stub|d)\.ts$/;
 const FIXTURES_SEGMENT = '/fixtures/';
 const TYPE_FILE_SEGMENT = /\.type(\.ts)?$/;
 
