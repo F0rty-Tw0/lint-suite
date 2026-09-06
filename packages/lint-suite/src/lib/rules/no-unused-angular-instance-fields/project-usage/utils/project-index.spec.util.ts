@@ -6,13 +6,14 @@ export const emptyProjectIndex = (): ProjectIndex => {
   const index: ProjectIndex = {
     candidateNames: new Set(),
     classes: new Map(),
+    declarationCounts: new Map(),
     directives: buildDirectiveIndex([]),
     directiveShape: '',
     entries: new Map(),
+    fallbackNameCounts: new Map(),
     program: null,
     templateCheckDuration: 0,
-    templateCheckedAt: 0,
-    usage: undefined
+    templateCheckedAt: 0
   };
 
   return index;

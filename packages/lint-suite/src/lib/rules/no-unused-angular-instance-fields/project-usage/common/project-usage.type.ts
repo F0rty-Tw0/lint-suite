@@ -34,6 +34,8 @@ export type ReadSink = {
    * surfaced when LINT_SUITE_DEBUG is set.
    */
   readonly addFallbackNames: (names: Iterable<string>, reason: string) => void;
+  /** Records a property name this file reads, candidate or not. */
+  readonly addMention: (name: string) => void;
   readonly addType: (type: Type) => void;
 };
 
@@ -101,7 +103,7 @@ export type DiscoveredClasses = {
 
 /** Program-wide lookup of the classes a template reference can point at. */
 export type DirectiveIndex = {
-  readonly byDeclaration: ReadonlyMap<ClassLikeDeclaration, AngularClass>;
+  readonly byDeclaration: Map<ClassLikeDeclaration, AngularClass>;
   readonly byExportAs: ReadonlyMap<string, ClassLikeDeclaration[]>;
   readonly componentMatcher: SelectorMatcher<ClassLikeDeclaration[]>;
 };
