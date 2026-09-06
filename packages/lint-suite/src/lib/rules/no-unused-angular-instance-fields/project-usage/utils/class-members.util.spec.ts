@@ -95,10 +95,12 @@ const enclosingMemberName = (node: Node): string | null => {
   return null;
 };
 
+const matchesMember = (node: Node, member: string): boolean => {
+  return enclosingMemberName(node) === member;
+};
+
 const accessIn = (member: string): PropertyAccessExpression => {
-  const access = thisAccesses.find((node) => {
-    return enclosingMemberName(node) === member;
-  });
+  const access = thisAccesses.find((node) => matchesMember(node, member));
 
   assert.ok(access, `fixture must read this inside ${member}`);
 

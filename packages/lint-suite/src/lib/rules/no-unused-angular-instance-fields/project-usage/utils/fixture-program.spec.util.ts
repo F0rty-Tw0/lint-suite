@@ -6,7 +6,7 @@ import type { Program, SourceFile, TypeChecker } from 'typescript';
 
 import { fixtureDirectory } from '../../utils/fixture-project.spec.util.ts';
 
-export type FixtureProgram = {
+type FixtureProgram = {
   readonly program: Program;
   readonly checker: TypeChecker;
   readonly sourceFile: SourceFile;
