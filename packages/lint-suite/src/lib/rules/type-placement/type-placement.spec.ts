@@ -50,6 +50,12 @@ const aliasTypeImportError: RuleTester.TestCaseError = {
   data: aliasSourceData
 };
 
+const commonModuleSourceData = { source: './common/order.ts' };
+const commonModuleTypeImportError: RuleTester.TestCaseError = {
+  messageId: 'typeImportNotFromTypeFile',
+  data: commonModuleSourceData
+};
+
 const aliasOptions = [{ internalPatterns: ['^@shared/'] }];
 
 const valid: RuleTester.ValidTestCase[] = [
@@ -72,6 +78,11 @@ const valid: RuleTester.ValidTestCase[] = [
     name: 'ignores a declaration file exporting an interface',
     filename: '/p/feature/order.d.ts',
     code: `export interface Order {}`
+  },
+  {
+    name: 'ignores a state.type.ts file outside common',
+    filename: '/p/feature/+state/user.state.type.ts',
+    code: `export type UserState = { readonly id: string };`
   },
   {
     name: 'ignores a file under a fixtures folder',
@@ -107,6 +118,22 @@ const valid: RuleTester.ValidTestCase[] = [
     name: 'ignores a non type-only relative import',
     filename: '/p/feature/order.ts',
     code: `import { Order } from './order.ts';`
+  },
+  {
+    name: 'accepts a type-only import from a sibling common barrel',
+    filename: '/p/feature/order.ts',
+    code: `import type { Order } from '../common';`
+  },
+  {
+    name: 'accepts a type-only import from a common barrel index file',
+    filename: '/p/feature/order.ts',
+    code: `import type { Order } from './common/index.ts';`
+  },
+  {
+    name: 'accepts a type-only import from an internal alias common barrel',
+    filename: '/p/feature/order.ts',
+    code: `import type { Order } from '@shared/common';`,
+    options: aliasOptions
   }
 ];
 
@@ -153,6 +180,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: `import type { X } from '@shared/x';`,
     options: aliasOptions,
     errors: [aliasTypeImportError]
+  },
+  {
+    name: 'reports a type-only import from a non-type module inside common',
+    filename: '/p/feature/order.ts',
+    code: `import type { Order } from './common/order.ts';`,
+    errors: [commonModuleTypeImportError]
   }
 ];
 

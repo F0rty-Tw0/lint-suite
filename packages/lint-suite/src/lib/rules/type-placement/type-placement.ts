@@ -17,8 +17,10 @@ const TYPE_FILE_SUFFIX = '.type.ts';
 const CONST_FILE_SUFFIX = '.const.ts';
 const COMMON_SEGMENT = '/common/';
 const EXEMPT_FILE = /\.(spec|stub|d)\.ts$/;
+const STATE_TYPE_FILE = /(^|[./])state\.type\.ts$/;
 const FIXTURES_SEGMENT = '/fixtures/';
 const TYPE_FILE_SEGMENT = /\.type(\.ts)?$/;
+const COMMON_BARREL = /(^|\/)common(\/index(\.ts)?)?$/;
 
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/F0rty-Tw0/lint-suite#type-placement'
@@ -29,6 +31,10 @@ const isExemptFile = (filename: string): boolean => {
 
   if (isExemptSuffix) return true;
 
+  const isStateTypeFile = STATE_TYPE_FILE.test(filename);
+
+  if (isStateTypeFile) return true;
+
   return filename.includes(FIXTURES_SEGMENT);
 };
 
@@ -38,8 +44,13 @@ const lastSegment = (source: string): string => {
   return segments[segments.length - 1] ?? source;
 };
 
-const isFromTypeFile = (source: string): boolean =>
-  TYPE_FILE_SEGMENT.test(lastSegment(source));
+const isTypeOnlySource = (source: string): boolean => {
+  const isCommonBarrel = COMMON_BARREL.test(source);
+
+  if (isCommonBarrel) return true;
+
+  return TYPE_FILE_SEGMENT.test(lastSegment(source));
+};
 
 const isInternalSource = (source: string, patterns: RegExp[]): boolean => {
   const isRelative = source.startsWith('.');
@@ -131,7 +142,7 @@ const handleTypeImport = (
 
   if (!isInternal) return;
 
-  const isTypeSource = isFromTypeFile(source);
+  const isTypeSource = isTypeOnlySource(source);
 
   if (isTypeSource) return;
 
