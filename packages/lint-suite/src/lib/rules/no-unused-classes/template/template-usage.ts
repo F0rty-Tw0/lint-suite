@@ -12,12 +12,11 @@ import type {
   TmplAstTemplate
 } from '@angular/compiler';
 
-import { readFileSync } from 'node:fs';
-
 import type {
   ClassAttributeHost,
   ClassMatcher
 } from '../../common/class-usage.type.ts';
+import { createFileCache, readCached } from '../../file-cache.ts';
 import { classExpressionUsage } from '../../utils/class-expression-literals.util.ts';
 import { classMatcher } from '../../utils/selector-classes.util.ts';
 import { templateClasses } from '../../utils/template-classes.util.ts';
@@ -26,9 +25,10 @@ import type {
   TemplateUsage
 } from '../common/no-unused-classes.type.ts';
 
-type TemplateText = {
-  readonly text: string;
-  readonly path: string;
+type UsageEntry = {
+  readonly names: string[];
+  readonly patterns: string[];
+  readonly isDynamic: boolean;
 };
 
 const CLASS_ATTRIBUTE = 'class';
@@ -43,6 +43,8 @@ const UNKNOWN_USAGE: TemplateUsage = {
 };
 
 const toRegExp = (pattern: string): RegExp => new RegExp(pattern, 'u');
+
+const templates = createFileCache<UsageEntry | null>('template-usage');
 
 const expressionSource = (value: AST): string | null => {
   const isWithSource = value instanceof ASTWithSource;
@@ -119,45 +121,49 @@ class ClassUsageVisitor extends TmplAstRecursiveVisitor {
   }
 }
 
-const templateText = (source: TemplateSource): TemplateText | null => {
+const parseUsage = (text: string, path: string): UsageEntry | null => {
+  const parsed = parseTemplate(text, path);
+
+  if (parsed.errors !== null) return null;
+
+  const visitor = new ClassUsageVisitor();
+
+  tmplAstVisitAll(visitor, parsed.nodes);
+
+  const names = [...visitor.names];
+  const patterns = [...visitor.patterns];
+  const entry: UsageEntry = { names, patterns, isDynamic: visitor.isDynamic };
+
+  return entry;
+};
+
+const sourceUsage = (source: TemplateSource): UsageEntry | null => {
   if (source.kind === 'unknown') return null;
 
-  if (source.kind === 'inline') {
-    const inline: TemplateText = { text: source.source, path: source.path };
+  if (source.kind === 'inline') return parseUsage(source.source, source.path);
 
-    return inline;
-  }
-
-  try {
-    const text = readFileSync(source.path, 'utf8');
-    const file: TemplateText = { text, path: source.path };
-
-    return file;
-  } catch {
-    return null;
-  }
+  return readCached(templates, source.path, parseUsage) ?? null;
 };
 
 export const templateUsage = (sources: TemplateSource[]): TemplateUsage => {
-  const visitor = new ClassUsageVisitor();
+  const names = new Set<string>();
+  const patterns = new Set<string>();
 
   for (const source of sources) {
-    const template = templateText(source);
+    const entry = sourceUsage(source);
 
-    if (template === null) return UNKNOWN_USAGE;
+    if (entry === null) return UNKNOWN_USAGE;
 
-    const parsed = parseTemplate(template.text, template.path);
+    if (entry.isDynamic) return UNKNOWN_USAGE;
 
-    if (parsed.errors !== null) return UNKNOWN_USAGE;
+    for (const name of entry.names) names.add(name);
 
-    tmplAstVisitAll(visitor, parsed.nodes);
+    for (const pattern of entry.patterns) patterns.add(pattern);
   }
 
-  if (visitor.isDynamic) return UNKNOWN_USAGE;
-
-  const patterns = [...visitor.patterns].map(toRegExp);
-  const has = classMatcher(visitor.names, patterns);
-  const size = visitor.names.size;
+  const compiled = [...patterns].map(toRegExp);
+  const has = classMatcher(names, compiled);
+  const size = names.size;
   const usage: TemplateUsage = { has, isDynamic: false, size };
 
   return usage;

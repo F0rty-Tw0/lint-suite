@@ -1,14 +1,37 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-import { componentDescriptors } from './component-descriptors.ts';
+import { linkedTemplates } from './linked-templates.ts';
 import type { ComponentDescriptor } from '../../common/class-usage.type.ts';
+import { componentMetadata } from '../../component-metadata.ts';
 import type { TemplateSource } from '../common/no-unused-classes.type.ts';
 
 const MODULE_EXTENSION = /\.ts$/iu;
 const STYLE_EXTENSION = /\.(?:scss|sass|css)$/iu;
 
 const UNKNOWN_TEMPLATE: TemplateSource = { kind: 'unknown' };
+
+const listings = new Map<string, DirectoryListing>();
+
+type DirectoryListing = {
+  readonly files: string[];
+  readonly version: string;
+};
+
+const directoryListing = (directory: string): string[] => {
+  const stats = statSync(directory, { bigint: true });
+  const version = `${stats.mtimeNs}`;
+  const cached = listings.get(directory);
+
+  if (cached?.version === version) return cached.files;
+
+  const files = readdirSync(directory);
+  const fresh: DirectoryListing = { files, version };
+
+  listings.set(directory, fresh);
+
+  return files;
+};
 
 const declaredStylesheets = (
   descriptor: ComponentDescriptor,
@@ -71,7 +94,7 @@ const matchedTemplates = (
   const directory = dirname(componentPath);
   const sources: TemplateSource[] = [];
 
-  for (const descriptor of componentDescriptors(componentPath)) {
+  for (const descriptor of componentMetadata(componentPath)) {
     const declared = declaredStylesheets(descriptor, directory);
     const isMatch = declared.includes(stylesheetPath);
 
@@ -83,23 +106,31 @@ const matchedTemplates = (
   return sources;
 };
 
-const directoryModules = (directory: string): string[] => {
+const directoryFiles = (directory: string, extension: RegExp): string[] => {
   try {
-    return readdirSync(directory).filter((file) => MODULE_EXTENSION.test(file));
+    return directoryListing(directory).filter((file) => extension.test(file));
   } catch {
     return [];
   }
 };
 
-const siblingTemplates = (stylesheetPath: string): TemplateSource[] => {
-  const path = stylesheetPath.replace(STYLE_EXTENSION, '.html');
-  const isPresent = existsSync(path);
+const fallbackTemplates = (stylesheetPath: string): TemplateSource[] => {
+  const sibling = stylesheetPath.replace(STYLE_EXTENSION, '.html');
+  const paths = new Set<string>();
 
-  if (!isPresent) return [];
+  const hasSibling = existsSync(sibling);
 
-  const source: TemplateSource = { kind: 'file', path };
+  if (hasSibling) paths.add(sibling);
 
-  return [source];
+  for (const path of linkedTemplates(stylesheetPath)) paths.add(path);
+
+  const toSource = (path: string): TemplateSource => {
+    const source: TemplateSource = { kind: 'file', path };
+
+    return source;
+  };
+
+  return [...paths].map(toSource);
 };
 
 export const stylesheetTemplates = (
@@ -109,7 +140,7 @@ export const stylesheetTemplates = (
   const directory = dirname(resolved);
   const sources: TemplateSource[] = [];
 
-  for (const file of directoryModules(directory)) {
+  for (const file of directoryFiles(directory, MODULE_EXTENSION)) {
     const componentPath = join(directory, file);
 
     sources.push(...matchedTemplates(componentPath, resolved));
@@ -117,5 +148,5 @@ export const stylesheetTemplates = (
 
   if (sources.length > 0) return sources;
 
-  return siblingTemplates(resolved);
+  return fallbackTemplates(resolved);
 };

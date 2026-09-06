@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
 
 import { test } from 'vitest';
 
@@ -36,6 +37,23 @@ test('falls back to the sibling template when no component matches', () => {
 
   assert.deepEqual(stylesheetTemplates(stylesheet), [
     { kind: 'file', path: fixtureFile('sibling', 'note.component.html') }
+  ]);
+});
+
+test('falls back to the templates that link the stylesheet', () => {
+  const stylesheet = fixtureFile('linked', 'theme.css');
+
+  assert.deepEqual(stylesheetTemplates(stylesheet), [
+    { kind: 'file', path: fixtureFile('linked', 'index.html') }
+  ]);
+});
+
+test('finds a template in another directory that links the stylesheet', () => {
+  const stylesheet = fixtureFile('linked-elsewhere', join('styles', 'theme.css'));
+  const template = fixtureFile('linked-elsewhere', join('pages', 'index.html'));
+
+  assert.deepEqual(stylesheetTemplates(stylesheet), [
+    { kind: 'file', path: template }
   ]);
 });
 

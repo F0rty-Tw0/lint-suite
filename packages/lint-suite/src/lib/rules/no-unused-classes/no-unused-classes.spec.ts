@@ -142,6 +142,21 @@ test('falls back to the sibling template of the stylesheet', async () => {
   assert.deepEqual(textsOf(warnings), [messages.rejected('nope')]);
 });
 
+test('falls back to the templates that link the stylesheet', async () => {
+  const warnings = await warningsOf({ name: 'linked', file: 'theme.css' });
+
+  assert.deepEqual(textsOf(warnings), [messages.rejected('nope')]);
+});
+
+test('finds the template in another directory that links the stylesheet', async () => {
+  const warnings = await warningsOf({
+    name: 'linked-elsewhere',
+    file: 'styles/theme.css'
+  });
+
+  assert.deepEqual(textsOf(warnings), [messages.rejected('nope')]);
+});
+
 test('ignores framework prefixes by default', async () => {
   const warnings = await warningsOf({
     name: 'ignored',
