@@ -4,8 +4,8 @@ import { test } from 'vitest';
 
 import { isExemptCall } from './call-exemptions.util.ts';
 import { conditionParts } from './condition-calls.util.ts';
-import { parseCondition } from './parsed-condition.spec.util.ts';
 import type { CallExemptions } from '../common/no-call-in-condition.type.ts';
+import { parseCondition } from '../test/utils/parsed-condition.spec.util.ts';
 
 const isExempt = (code: string, allowed: RegExp[] = []): boolean => {
   const { condition, scope } = parseCondition(code);

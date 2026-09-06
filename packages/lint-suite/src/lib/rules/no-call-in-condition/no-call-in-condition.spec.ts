@@ -30,7 +30,7 @@ const languageOptions: Linter.LanguageOptions = {
 
 const ruleTester = new RuleTester({ languageOptions });
 
-const fixtures = join(import.meta.dirname, 'common', 'fixtures', 'predicates');
+const fixtures = join(import.meta.dirname, 'test', 'fixtures', 'predicates');
 const parserOptions = { projectService: true, tsconfigRootDir: fixtures };
 const typedLanguageOptions: Linter.LanguageOptions = {
   ...languageOptions,

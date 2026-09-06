@@ -8,7 +8,7 @@ import {
   conditionParts,
   constFeed
 } from './condition-calls.util.ts';
-import { parseCondition } from './parsed-condition.spec.util.ts';
+import { parseCondition } from '../test/utils/parsed-condition.spec.util.ts';
 
 const calledNames = (code: string): (string | undefined)[] => {
   const { condition } = parseCondition(code);
