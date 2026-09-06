@@ -2,13 +2,13 @@ import { join } from 'node:path';
 
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.ts';
-import { fixtureDirectory } from '../../utils/fixture-project.spec.util.ts';
+import { component } from '../../test/utils/component-source.spec.util.ts';
+import { fixtureDirectory } from '../../test/utils/fixture-project.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.ts';
+} from '../../test/utils/rule-under-test.spec.util.ts';
 
 const externalComponentFilename = join(
   fixtureDirectory('external-template'),

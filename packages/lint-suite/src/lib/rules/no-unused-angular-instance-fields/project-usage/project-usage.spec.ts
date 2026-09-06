@@ -6,7 +6,7 @@ import type { Program } from 'typescript';
 import { test } from 'vitest';
 
 import { projectUsage, projectUsageIsCurrent } from './project-usage.ts';
-import { fixtureDirectory } from '../utils/fixture-project.spec.util.ts';
+import { fixtureDirectory } from '../test/utils/fixture-project.spec.util.ts';
 
 const CONFIG_FILE_PATH = 'project-usage.spec.tsconfig.json';
 

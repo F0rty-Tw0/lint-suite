@@ -9,9 +9,9 @@ import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
 import { projectUsage } from './project-usage/project-usage.ts';
-import { fixtureDirectory } from './utils/fixture-project.spec.util.ts';
-import { reportedMembers } from './utils/lint-messages.spec.util.ts';
-import { lintConfig } from './utils/rule-under-test.spec.util.ts';
+import { fixtureDirectory } from './test/utils/fixture-project.spec.util.ts';
+import { reportedMembers } from './test/utils/lint-messages.spec.util.ts';
+import { lintConfig } from './test/utils/rule-under-test.spec.util.ts';
 
 const localDirectory = fixtureDirectory('local');
 const projectDirectory = fixtureDirectory('project');

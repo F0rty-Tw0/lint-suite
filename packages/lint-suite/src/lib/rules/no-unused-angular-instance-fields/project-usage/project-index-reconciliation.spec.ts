@@ -4,21 +4,21 @@ import { readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { Linter } from 'eslint';
 import { afterAll, test } from 'vitest';
 
-import { projectRuleTester } from '../../utils/project-rule-tester.spec.util.ts';
+import { projectRuleTester } from '../../test/utils/project-rule-tester.spec.util.ts';
 import {
   copyFixtureProject,
   fixtureCase,
   fixtureDirectory
-} from '../utils/fixture-project.spec.util.ts';
+} from '../test/utils/fixture-project.spec.util.ts';
 import {
   lintConfig,
   rule,
   ruleName
-} from '../utils/rule-under-test.spec.util.ts';
+} from '../test/utils/rule-under-test.spec.util.ts';
 import {
   memberError,
   projectInvalidCase
-} from './utils/project-analysis-case.spec.util.ts';
+} from './test/utils/project-analysis-case.spec.util.ts';
 
 type ReportedMessage = Pick<
   Linter.LintMessage,

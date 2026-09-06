@@ -12,7 +12,7 @@ import { test } from 'vitest';
 
 import { assignmentPatternElements } from './typescript-assignment-pattern-elements.ts';
 import type { AssignmentPattern } from '../common/project-usage.type.ts';
-import { fixtureProgram } from '../utils/fixture-program.spec.util.ts';
+import { fixtureProgram } from '../test/utils/fixture-program.spec.util.ts';
 
 const { checker, sourceFile } = fixtureProgram('destructuring', 'sample.ts');
 

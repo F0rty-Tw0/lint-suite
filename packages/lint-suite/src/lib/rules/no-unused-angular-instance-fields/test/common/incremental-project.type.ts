@@ -1,4 +1,3 @@
-// eslint-disable-next-line local/no-unused-exports -- read by no-unused-angular-instance-fields.incremental.spec.ts
 import type { Linter } from 'eslint';
 
 export type IncrementalProject = {

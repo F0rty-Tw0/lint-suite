@@ -1,12 +1,12 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.ts';
+import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.ts';
-import { unusedFieldError } from '../../utils/unused-member-error.spec.util.ts';
+} from '../../test/utils/rule-under-test.spec.util.ts';
+import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsNonNullThisReceiver: RuleTester.ValidTestCase = {
   name: 'accepts a field read through a non-null this receiver',

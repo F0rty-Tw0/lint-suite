@@ -1,11 +1,11 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.ts';
+import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.ts';
+} from '../../test/utils/rule-under-test.spec.util.ts';
 
 const acceptsClassTypeScriptRead: RuleTester.ValidTestCase = {
   name: 'accepts a field read by class TypeScript',

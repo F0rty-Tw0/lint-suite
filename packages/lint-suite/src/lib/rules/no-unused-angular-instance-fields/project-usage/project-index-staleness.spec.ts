@@ -12,8 +12,8 @@ import {
   indexableSourceFiles,
   removeEntry
 } from './project-index-staleness.ts';
-import { fixtureProgram } from './utils/fixture-program.spec.util.ts';
-import { emptyProjectIndex } from './utils/project-index.spec.util.ts';
+import { fixtureProgram } from './test/utils/fixture-program.spec.util.ts';
+import { emptyProjectIndex } from './test/utils/project-index.spec.util.ts';
 
 const { program, sourceFile } = fixtureProgram('destructuring', 'sample.ts');
 

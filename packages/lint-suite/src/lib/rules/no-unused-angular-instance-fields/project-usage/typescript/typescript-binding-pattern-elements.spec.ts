@@ -8,7 +8,7 @@ import {
   bindingPatternElements,
   isBindingPattern
 } from './typescript-binding-pattern-elements.ts';
-import { fixtureProgram } from '../utils/fixture-program.spec.util.ts';
+import { fixtureProgram } from '../test/utils/fixture-program.spec.util.ts';
 
 const { checker, sourceFile } = fixtureProgram('destructuring', 'sample.ts');
 

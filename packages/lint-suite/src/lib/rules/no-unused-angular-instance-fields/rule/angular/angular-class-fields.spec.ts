@@ -6,14 +6,14 @@ import { test } from 'vitest';
 
 import { reportUnusedMembers } from './angular-class-fields.ts';
 import { addAngularImport } from './angular-imports.ts';
-import { component } from '../../utils/component-source.spec.util.ts';
-import { parseSource } from '../../utils/parsed-source.spec.util.ts';
+import { component } from '../../test/utils/component-source.spec.util.ts';
+import { parseSource } from '../../test/utils/parsed-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.ts';
-import { unusedFieldError } from '../../utils/unused-member-error.spec.util.ts';
+} from '../../test/utils/rule-under-test.spec.util.ts';
+import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 import type { ReportUnusedMembersOptions } from '../common/no-unused-angular-instance-fields.type.ts';
 
 const isImportDeclaration = (

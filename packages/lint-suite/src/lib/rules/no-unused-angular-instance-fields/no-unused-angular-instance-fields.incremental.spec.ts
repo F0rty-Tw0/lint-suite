@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 
 import { afterAll, beforeAll, describe, test } from 'vitest';
 
-import type { IncrementalProject } from './common/incremental-project.type.ts';
+import type { IncrementalProject } from './test/common/incremental-project.type.ts';
 import {
   createIncrementalProject,
   templateSettled
-} from './utils/incremental-project.spec.util.ts';
+} from './test/utils/incremental-project.spec.util.ts';
 import {
   broken,
   consumer,
@@ -20,7 +20,7 @@ import {
   paths,
   widget,
   widgetMembers
-} from './utils/incremental-source.spec.util.ts';
+} from './test/utils/incremental-source.spec.util.ts';
 
 let project: IncrementalProject;
 

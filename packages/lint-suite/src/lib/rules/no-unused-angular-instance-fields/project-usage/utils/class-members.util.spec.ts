@@ -24,7 +24,7 @@ import {
   ownMembersNamed,
   thisClassOf
 } from './class-members.util.ts';
-import { fixtureDirectory } from '../../utils/fixture-project.spec.util.ts';
+import { fixtureDirectory } from '../../test/utils/fixture-project.spec.util.ts';
 
 const sampleFilename = join(fixtureDirectory('class-members'), 'sample.ts');
 const program = createProgram([sampleFilename], { noLib: true });

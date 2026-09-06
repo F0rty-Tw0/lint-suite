@@ -1,15 +1,15 @@
 import type { RuleTester } from 'eslint';
 
-import { component } from '../../utils/component-source.spec.util.ts';
+import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
   ruleName,
   ruleTester
-} from '../../utils/rule-under-test.spec.util.ts';
+} from '../../test/utils/rule-under-test.spec.util.ts';
 import {
   unusedFieldError,
   unusedMethodError
-} from '../../utils/unused-member-error.spec.util.ts';
+} from '../../test/utils/unused-member-error.spec.util.ts';
 
 const ignoresExportedDirectiveMethods: RuleTester.ValidTestCase = {
   name: 'conservatively ignores externally exposed directive methods',

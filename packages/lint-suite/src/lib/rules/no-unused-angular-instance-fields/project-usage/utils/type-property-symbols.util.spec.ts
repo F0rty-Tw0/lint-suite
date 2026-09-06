@@ -9,7 +9,7 @@ import {
   stringIndexTypes,
   symbolsForName
 } from './type-property-symbols.util.ts';
-import { fixtureDirectory } from '../../utils/fixture-project.spec.util.ts';
+import { fixtureDirectory } from '../../test/utils/fixture-project.spec.util.ts';
 
 const sampleFilename = join(fixtureDirectory('type-properties'), 'sample.ts');
 const program = createProgram([sampleFilename], { noLib: true });
