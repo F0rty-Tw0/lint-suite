@@ -19,7 +19,7 @@ import type {
   TypeChecker
 } from 'typescript';
 
-export type AddDeclaration = (declaration: Declaration) => void;
+type AddDeclaration = (declaration: Declaration) => void;
 
 /**
  * Receives every read resolved while indexing one source file. Types are
@@ -28,13 +28,7 @@ export type AddDeclaration = (declaration: Declaration) => void;
  */
 export type ReadSink = {
   readonly addDeclaration: AddDeclaration;
-  /**
-   * Reports that reads could not be resolved exactly; every candidate
-   * member with one of these names is then treated as read. `reason` is
-   * surfaced when LINT_SUITE_DEBUG is set.
-   */
   readonly addFallbackNames: (names: Iterable<string>, reason: string) => void;
-  /** Records a property name this file reads, candidate or not. */
   readonly addMention: (name: string) => void;
   readonly addType: (type: Type) => void;
 };
@@ -74,17 +68,11 @@ export type AngularClass = {
   readonly component: boolean;
   readonly declaration: ClassLikeDeclaration;
   readonly exportAs: string[];
-  /** True when `hostDirectives` is set; their exportAs is not modelled. */
   readonly hostDirectives: boolean;
   readonly name: string;
-  /**
-   * Program classes a standalone component's `imports` resolve to, or null
-   * when the compilation scope cannot be determined statically.
-   */
   readonly scope: ClassLikeDeclaration[] | null;
   readonly selector: string | null;
   readonly template: AngularTemplate | null;
-  /** False when the metadata cannot be read statically (fail closed). */
   readonly valid: boolean;
 };
 
@@ -92,7 +80,6 @@ export type DecoratorKind = 'Component' | 'Directive' | 'NgModule' | 'Pipe';
 
 export type Discovery = {
   readonly checker: TypeChecker;
-  /** Files whose contents the discovered metadata depends on. */
   readonly dependencies: Set<SourceFile>;
 };
 

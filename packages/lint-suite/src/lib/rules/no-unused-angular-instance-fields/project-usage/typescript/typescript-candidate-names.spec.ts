@@ -8,8 +8,9 @@ import { collectCandidateNames } from './typescript-candidate-names.ts';
 const namesIn = (code: string): string[] => {
   const sourceFile = createSourceFile('sample.ts', code, ScriptTarget.Latest);
   const names = collectCandidateNames(sourceFile);
+  const nameList = [...names];
 
-  return [...names].sort();
+  return nameList.sort();
 };
 
 test('collects members of decorated classes, including string-named ones', () => {

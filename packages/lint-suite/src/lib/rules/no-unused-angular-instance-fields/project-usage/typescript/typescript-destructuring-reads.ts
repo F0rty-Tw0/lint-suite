@@ -109,9 +109,9 @@ const collectPatternReads = (
     if (nested === null) continue;
 
     for (const symbol of symbols) {
-      const nestedType = lazyType(() => {
-        return checker.getTypeOfSymbolAtLocation(symbol, read.location);
-      });
+      const nestedTypeOf = (): Type =>
+        checker.getTypeOfSymbolAtLocation(symbol, read.location);
+      const nestedType = lazyType(nestedTypeOf);
 
       collectPatternReads(nested, nestedType, context);
     }

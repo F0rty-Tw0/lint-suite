@@ -27,7 +27,6 @@ import {
   thisClassOf
 } from '../utils/class-members.util.ts';
 
-/** `this.name` declared by the enclosing class needs no checker: true when handled. */
 const addOwnMemberRead = (
   node: PropertyAccessExpression,
   sink: ReadSink
