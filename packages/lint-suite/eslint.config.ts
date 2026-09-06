@@ -6,7 +6,10 @@ import { base } from './src/lib/base.ts';
 import { boundaries } from './src/lib/boundaries.ts';
 import { javascript } from './src/lib/javascript.ts';
 import { prettier } from './src/lib/prettier.ts';
+import { entryPointDefaults } from './src/lib/rules/no-unused-exports/common/no-unused-exports.const.ts';
 import { typescript } from './src/lib/typescript.ts';
+
+const packageEntryPoints = [...entryPointDefaults, '**/src/*.ts'];
 
 // Used only as string locators (stylelint extends), by fixtures (angular, rxjs), or by specs (vitest).
 const ignoredDependencies = [
@@ -37,7 +40,16 @@ const config = defineConfig(
     name: 'lint-suite/prettier-width',
     files: ['**/*.ts'],
     rules: {
-      'local/one-line-guard': ['error', { maxLineLength: 80 }]
+      'local/one-line-guard': ['error', { maxLineLength: 80 }],
+      'local/no-unused-exports': ['error', { entryPoints: packageEntryPoints }]
+    }
+  },
+  {
+    name: 'lint-suite/preset-files',
+    files: ['src/*.ts', 'src/lib/*.ts', 'eslint.config.ts'],
+    rules: {
+      'local/no-nested-object-value': 'off',
+      'local/sibling-spec': 'off'
     }
   },
   {

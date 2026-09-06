@@ -1,7 +1,7 @@
 declare module 'eslint-plugin-import-x' {
   import type { Linter, Rule } from 'eslint';
 
-  export const flatConfigs: {
+  type ImportXFlatConfigs = {
     recommended: Linter.FlatConfig;
     errors: Linter.FlatConfig;
     warnings: Linter.FlatConfig;
@@ -11,6 +11,8 @@ declare module 'eslint-plugin-import-x' {
     typescript: Linter.FlatConfig;
     [key: string]: Linter.FlatConfig;
   };
+
+  export const flatConfigs: ImportXFlatConfigs;
 
   export const rules: Record<string, Rule.RuleModule>;
 }

@@ -366,6 +366,9 @@ type User = { readonly name: string; roles: string[]; profile: Profile };
 - Arrays, object types, type references (including string-union aliases
   like `Status`), functions, and tuples are left untouched because the
   rule is syntactic and does not resolve types.
+- The same rule reports and fixes `readonly T[]` and `ReadonlyArray<T>` to
+  `T[]`: the property reference is readonly, the array contents stay
+  mutable.
 - Index signatures, mapped types, and method signatures are out of scope.
 - Use `// eslint-disable-next-line local/readonly-type-properties` when a
   property genuinely needs to stay mutable.
@@ -373,29 +376,25 @@ type User = { readonly name: string; roles: string[]; profile: Profile };
 ### No inline object types
 
 The `typescript` preset enables `local/no-inline-object-types`, which
-reports object type literals nested inside a `type NAME = ...` alias
-declaration (nested properties, array element types, union members,
-intersection members, and generic arguments such as `Readonly<{...}>`).
-It is not auto-fixable: extracting an inline object type requires
-choosing a name.
+reports every object type literal that is not the direct body of a
+`type NAME = ...` alias: nested properties, array element types, union and
+intersection members, generic arguments such as `Readonly<{...}>`, function
+parameter and return types, `satisfies` targets, interface and class
+members, and members of a `declare module` block. It is not auto-fixable:
+extracting an inline object type requires choosing a name.
 
 ```ts
 // Before
-type LineItem = { readonly name: string; readonly item: { readonly id: string } };
+const describe = (field: { readonly name: string }): { readonly label: string } => ...
 
 // After
-type Item = { readonly id: string };
-type LineItem = { readonly name: string; readonly item: Item };
+type Field = { readonly name: string };
+type FieldSummary = { readonly label: string };
+const describe = (field: Field): FieldSummary => ...
 ```
 
-- The direct body of a `type X = {...}` alias is allowed to be an object
-  literal; any object type literal nested inside that alias must reference
-  a named type instead.
-- Positions outside a type alias — function parameters and return types,
-  `as`/`satisfies` expressions, generic call arguments, interface members,
-  and class members — are not checked by this rule.
-- Declare the shape as `type Item = {...}` and reference it instead of
-  inlining the object type.
+- The direct body of a `type X = {...}` alias is the only allowed position.
+- Mapped types (`{ [K in Keys]: T }`) are a different node and stay valid.
 
 ### One-line guard
 
@@ -428,6 +427,84 @@ if (!user) return null;
 - Complements `curly: multi-line`: that rule tolerates a brace-less
   single-line guard once it exists, while `local/one-line-guard` is what
   collapses a braced guard down to one line in the first place.
+
+### Statement shape rules
+
+The `typescript` preset enables a family of small syntactic rules that make
+control flow and data shape visible by reading the code's outline. None of
+them reads type information or the filesystem; each listens to one node
+type and reports in microseconds per file. Where a fix needs a name the rule
+offers an IDE suggestion with a placeholder name instead of an auto-fix.
+
+| Rule | Reports | Fix |
+|---|---|---|
+| `local/no-call-in-condition` | A function call inside an `if` condition, or inside a boolean `const` that an `if` tests. Zero-argument `this.x()` calls (Angular signal reads) and type-predicate calls are exempt; predicates are found through scope in the same file, or through the type checker when a program is available. Option `allowPredicates` (regex sources, default `['^(is\|has)[A-Z]']`) applies when there is no program. | Suggestion: hoist to a `const` |
+| `local/max-condition-operands` | An `if` condition with more than `max` (default 3) operands joined by `&&` / `\|\|`. | none |
+| `local/no-grouped-condition` | A parenthesised group with a different operator inside an `if` condition or a boolean `const` (`a && (b \|\| c)`). | Suggestion: hoist the group |
+| `local/ternary-branch-shape` | A ternary branch that is not a name, literal, template literal, or plain member access. | none |
+| `local/chain-receiver-is-name` | A member chain starting on an inline expression: `(a ?? b).x`, `{...}.x`, `[...].x`, `(await p).x`. | Suggestion: name the receiver |
+| `local/chain-fits-line` | A chain of two or more calls whose `.method(` parts sit on different lines. A multi-line callback argument does not count. | none |
+| `local/arrow-body-fits-line` | An expression-bodied arrow whose body wraps onto more lines. | Fix: block body with `return` |
+| `local/no-nested-object-value` | A property value that is a non-empty object literal, an array holding object literals, a ternary, or a call chain. Decorator arguments (`@Component({...})`) and files matching `configFiles` (default `**/*.config.*`, `**/eslint.config.*`, `**/*.schema.ts`) are exempt. | Suggestion: hoist to a `const` |
+| `local/no-spread-expression` | `...(expr)` where the argument is not a name or member access. | Suggestion: hoist to a `const` |
+| `local/no-inline-return-object` | `return {...}` and `=> ({...})`. | Suggestion: `const result = {...}; return result;` |
+
+### Project layout rules
+
+Also in the `typescript` preset. These read only the file's own path and
+return no listeners for files they do not cover, so they cost one regex
+per file.
+
+| Rule | Reports | Options |
+|---|---|---|
+| `local/type-placement` | An exported `type` outside a `common/*.type.ts` file; a value exported from a `*.type.ts` file; a non-`const` export from a `*.const.ts` file; an `import type` from a relative or internal path that is not a `*.type.ts` file. Never resolves imports. | `internalPatterns`: regex sources for alias prefixes that must resolve to a `*.type.ts` file. Default empty: a workspace alias (`@shared/common`) resolves to a library entry point, and module boundaries forbid deep imports, so alias type imports pass. |
+| `local/util-purity` | Inside `utils/*.util.ts` (not `*.spec.util.ts`): imports of `node:fs`, `child_process`, `os`, `process`, `http`, `net`, `worker_threads`; a module-level `let`; a module-level `new Map/Set/WeakMap/WeakSet`; `process.*`, `globalThis`, `window`, `document`, `localStorage`, `console`; `Date.now`, `Math.random`, `performance.now`, `crypto.randomUUID`; `setTimeout`, `setInterval`, `fetch`, `inject`, `require`. | `bannedModules` |
+| `local/test-file-shape` | A file named `*.spec-support.ts`, `*.spec-helper.ts`, `*.test-utils.ts`, `*-fixture.ts`, or under `__mocks__/` / `helpers/`; a `common/stubs/*.stub.ts` export not named `UPPER_SNAKE_STUB` or without a type annotation. | none |
+| `local/sibling-spec` | A source `.ts` file with no `<name>.spec.ts` or `<name>.<group>.spec.ts` beside it. One `existsSync` per file; the directory is listed only when the sibling is missing. Types, consts, stubs, specs, `.d.ts`, and fixtures are skipped. | `exempt`: globs (default `**/main.ts`, `**/*.config.ts`, `**/*.routes.ts`, `**/*.stories.ts`, `**/index.ts`, `**/environment*.ts`, `**/test-setup*.ts`) |
+
+### No unused exports
+
+The `typescript` preset enables `local/no-unused-exports`, which reports an
+export (values and types) that no other file in the TypeScript program
+imports, and a module that exports names but is never imported at all.
+
+- Source of truth is the program typescript-eslint already built for the
+  type-aware rules: no extra parse, no file enumeration, no filesystem.
+- Per file the rule walks top-level statements, plus every node of a file
+  whose text contains `import(`, and caches the result
+  on the `ts.SourceFile` object; the project-wide usage map is cached per
+  `ts.Program`. Editing one file re-walks that file and rebuilds the map
+  once. At 10k files the warm cost is map lookups.
+- Re-exports are followed: `export { x } from`, `export * from`, and
+  `export * as ns from` count usage at the file that declares `x`, so a
+  barrel does not hide a dead export. `import * as ns`, default imports,
+  and dynamic `import('./x')` anywhere in the file (a lazy route's
+  `loadComponent: () => import('./x')` included) count every export of the
+  target as used.
+- Files matching `entryPoints` are never reported (default `**/main.ts`,
+  `**/main.*.ts`, `**/public-api.ts`, `**/index.ts`, `**/*.config.ts`,
+  `**/*.config.mts`, `**/*.config.cts`, `**/*.spec.ts`, `**/*.spec.util.ts`,
+  `**/*.stub.ts`, `**/*.d.ts`, `**/*.stories.ts`, `**/environment*.ts`).
+  Files with `export =` or a `declare module` block are skipped.
+- Names an entry point re-exports (`export { x } from`, `export * from`)
+  are public API and never reported: an Nx library's `index.ts` protects
+  the exports other projects consume, even though those projects sit
+  outside the library's own TypeScript program.
+- The project is the linted file's tsconfig program. An export used only
+  from a file outside that program (for example a spec excluded by
+  `tsconfig.lib.json`) reports as unused; that is the same boundary `tsc`
+  draws.
+
+### Test callback return type
+
+The `vitest` preset enables `local/test-callback-return-type`, which
+reports a `describe` / `it` / `test` / `beforeEach` / `afterEach` /
+`beforeAll` / `afterAll` callback (including `it.each(...)(...)` and
+`test.only`) without a return type annotation, and fixes it with `: void`
+or `: Promise<void>` for `async` callbacks.
+`@typescript-eslint/explicit-function-return-type` leaves these callbacks
+alone on purpose (`allowTypedFunctionExpressions`), so this rule closes the
+gap for test code only.
 
 ## Stylelint and Prettier presets
 

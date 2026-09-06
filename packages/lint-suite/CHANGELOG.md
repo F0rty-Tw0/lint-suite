@@ -2,6 +2,47 @@
 
 ## [Unreleased]
 
+### Breaking
+
+- **TypeScript**: `@typescript-eslint/consistent-type-assertions` now uses `assertionStyle: 'never'`: every
+  `as` cast except `as const` is an error. Narrow with type predicates or fix the declared type.
+- **TypeScript**: `@typescript-eslint/parameter-properties` is on, and `no-restricted-syntax` bans non-ambient
+  `enum` and `namespace` declarations (erasable syntax only).
+- **TypeScript**: `local/no-inline-object-types` now reports every object type literal that is not the body
+  of a type alias (parameter and return types, generic arguments, `satisfies`, interface and class members,
+  `declare module` members), not only literals nested inside an alias.
+- **TypeScript**: `local/readonly-type-properties` also reports and fixes `readonly T[]` and
+  `ReadonlyArray<T>` to `T[]`.
+- **TypeScript**: sixteen new `local/*` rules are enabled in the `typescript` preset (see the README
+  sections "Statement shape rules", "Project layout rules", "No unused exports"): `no-call-in-condition`,
+  `max-condition-operands`, `no-grouped-condition`, `ternary-branch-shape`, `chain-receiver-is-name`,
+  `chain-fits-line`, `arrow-body-fits-line`, `no-nested-object-value`,
+  `no-spread-expression`, `no-inline-return-object`, `type-placement`, `util-purity`,
+  `test-file-shape`, `sibling-spec`, `no-unused-exports`.
+- **Vitest**: `local/test-callback-return-type` is enabled in the `vitest` preset and fixes missing return
+  types on test harness callbacks.
+
+### Features
+
+- **`local/no-unused-exports`**: project-wide unused export and unused module detection built on the
+  program typescript-eslint already holds. No extra parsing or filesystem access; per-file results are
+  cached on the `ts.SourceFile`, the usage map per `ts.Program`, and re-exports (`export { x } from`,
+  `export * from`, `export * as ns from`) are followed to the declaring file. Names re-exported by an
+  entry point (`index.ts`, `public-api.ts`, ...) are public API and never reported; `*.config.mts`,
+  `*.config.cts`, `main.*.ts`, and `environment*.ts` are entry points too. A dynamic `import()` anywhere
+  in a file (lazy routes) marks its target as used.
+
+### Fixes
+
+- **`local/type-placement`**: `internalPatterns` defaults to `[]`. The old alias list made every
+  `import type` from a workspace alias an error that Nx module boundaries left no way to satisfy.
+- **`local/no-nested-object-value`**: `**/*.schema.ts` is a config file by default (zod, yup, valibot
+  schemas are settings literals, like a decorator argument).
+- **`local/sibling-spec`**: `**/test-setup*.ts` is exempt by default.
+- **Base**: the `max-lines` block no longer claims `**/*.html`. Without the `angularTemplate` preset
+  every HTML file in scope was parsed as JavaScript and reported a fatal parsing error; the template
+  preset now carries the same 150-line limit for HTML.
+
 ## [1.6.3] - 2026-09-05
 
 ### Features

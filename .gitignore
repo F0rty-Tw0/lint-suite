@@ -50,3 +50,5 @@ Thumbs.db
 .claude
 .omc
 .nx/migrate-runs
+# TypeScript build info
+*.tsbuildinfo
