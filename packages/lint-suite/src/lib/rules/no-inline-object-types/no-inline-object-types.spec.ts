@@ -44,44 +44,16 @@ const valid: RuleTester.ValidTestCase[] = [
     code: `type A = { readonly item: Item };`
   },
   {
-    name: 'ignores an interface member',
-    code: `interface A { item: { name: string } }`
-  },
-  {
-    name: 'ignores a function parameter type',
-    code: `function f(opts: { a: string }): void {}`
-  },
-  {
-    name: 'ignores a function return type',
-    code: `function f(): { a: string } { return { a: '' }; }`
-  },
-  {
-    name: 'ignores a satisfies expression',
-    code: `const cfg = { port: 1 } satisfies { port: number };`
-  },
-  {
-    name: 'ignores an as expression',
-    code: `const raw = x as { ok: boolean };`
-  },
-  {
-    name: 'ignores a generic call argument',
-    code: `const s = signal<{ open: boolean }>({ open: false });`
-  },
-  {
-    name: 'ignores a declare module member',
-    code: `declare module 'x' { export const y: { z: number }; }`
-  },
-  {
-    name: 'ignores a class property type',
-    code: `class A { public state: { open: boolean } = { open: false }; }`
-  },
-  {
     name: 'ignores an array type alias',
     code: `type A = Item[];`
   },
   {
     name: 'accepts a generic type alias object type',
     code: `type A<T> = { readonly value: T };`
+  },
+  {
+    name: 'accepts a mapped type',
+    code: `type A = { [K in Keys]: number };`
   }
 ];
 
@@ -113,7 +85,7 @@ const invalid: RuleTester.InvalidTestCase[] = [
   },
   {
     name: 'reports an inline object generic argument in Record',
-    code: `type A = Record<string, { count: number }>;`,
+    code: `type A = Record<string, { a: number }>;`,
     errors: oneError
   },
   {
@@ -129,6 +101,46 @@ const invalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'reports a nested inline object in an exported type alias',
     code: `export type A = { item: { name: string } };`,
+    errors: oneError
+  },
+  {
+    name: 'reports an interface member type',
+    code: `interface A { item: { name: string } }`,
+    errors: oneError
+  },
+  {
+    name: 'reports a function parameter type',
+    code: `function f(opts: { a: string }): void {}`,
+    errors: oneError
+  },
+  {
+    name: 'reports a function return type',
+    code: `function f(): { a: string } { return { a: '' }; }`,
+    errors: oneError
+  },
+  {
+    name: 'reports a satisfies expression type',
+    code: `const cfg = { port: 1 } satisfies { port: number };`,
+    errors: oneError
+  },
+  {
+    name: 'reports an as expression type',
+    code: `const raw = x as { ok: boolean };`,
+    errors: oneError
+  },
+  {
+    name: 'reports a generic call argument type',
+    code: `const s = signal<{ open: boolean }>({ open: false });`,
+    errors: oneError
+  },
+  {
+    name: 'reports a declare module member type',
+    code: `declare module 'x' { export const y: { a: number }; }`,
+    errors: oneError
+  },
+  {
+    name: 'reports a class property type',
+    code: `class A { public state: { open: boolean } = { open: false }; }`,
     errors: oneError
   }
 ];
