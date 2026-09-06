@@ -8,11 +8,87 @@ export const typescriptSafety = defineConfig([
     files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
     plugins: { local: localPlugin },
     rules: {
+      // Expression arrow whose body wraps gets a block body. Fixes.
+      // Bad: (x) => a &&  b on two lines   Good: (x) => { return a && b; }
+      'local/arrow-body-fits-line': 'error',
+      // Two or more calls in one chain stay on one line.
+      // Bad: a .b() .c() over three lines   Good: const b = a.b(); b.c();
+      'local/chain-fits-line': 'error',
+      // A member chain starts on a name, never on an inline expression.
+      // Bad: (a ?? b).c   Good: const ab = a ?? b; ab.c
+      'local/chain-receiver-is-name': 'error',
+      // Every class member states public, private, or protected. Fixes.
+      // Bad: field = 1;   Good: private field = 1;
       'local/explicit-accessibility': 'error',
-      'local/readonly-type-properties': 'error',
+      // An if condition holds at most 3 operands joined by && or ||.
+      // Bad: if (a && b && c && d)   Good: const isAll = a && b && c && d;
+      'local/max-condition-operands': 'error',
+      // No call inside an if; type predicates and this.x() reads are exempt.
+      // Bad: if (validate(o))   Good: const isValid = validate(o); if (isValid)
+      'local/no-call-in-condition': 'error',
+      // No parenthesised group with a different operator inside an if.
+      // Bad: if (a && (b || c))   Good: const isBOrC = b || c; if (a && isBOrC)
+      'local/no-grouped-condition': 'error',
+      // An object type literal appears only as the body of a type alias.
+      // Bad: (f: { a: string })   Good: type F = { a: string }; (f: F)
       'local/no-inline-object-types': 'error',
+      // Never return an object literal inline; name it first.
+      // Bad: return { a: 1 };   Good: const result = { a: 1 }; return result;
+      'local/no-inline-return-object': 'error',
+      // A nested object, array of objects, ternary, or chain as a value gets a
+      // name.
+      // Bad: { a: { b: 1 } }   Good: const a = { b: 1 }; { a }
+      'local/no-nested-object-value': 'error',
+      // Spread only a name or a member access.
+      // Bad: f(...getArgs())   Good: const args = getArgs(); f(...args)
+      'local/no-spread-expression': 'error',
+      // An export no file in the program imports is dead; entry points exempt.
+      // Bad: export const unused = 1;   Good: delete it, or import it
+      'local/no-unused-exports': 'error',
+      // A lone return/throw/continue/break guard drops braces when it fits.
+      // Bad: braced three-line if (x) { return; }   Good: if (x) return;
       'local/one-line-guard': ['error', { maxLineLength: MAX_LINE_LENGTH }],
+      // Type properties are readonly; arrays stay T[], never readonly T[].
+      // Fixes.
+      // Bad: { id: string; items: readonly T[] }
+      // Good: { readonly id: string; readonly items: T[] }
+      'local/readonly-type-properties': 'error',
+      // A source file has <name>.spec.ts beside it; types, consts, stubs
+      // exempt.
+      // Bad: order.ts alone   Good: order.ts next to order.spec.ts
+      'local/sibling-spec': 'error',
+      // A ternary branch is a name, literal, or plain member access.
+      // Bad: c ? foo() : b   Good: const called = foo(); c ? called : b
+      'local/ternary-branch-shape': 'error',
+      // No spec-support, helpers, or __mocks__ files; stubs are
+      // UPPER_SNAKE_STUB: Type.
+      // Bad: user.spec-helper.ts, export const userStub
+      // Good: utils/user.spec.util.ts, USER_STUB: User
+      'local/test-file-shape': 'error',
+      // Exported types live in common/*.type.ts; type-only imports come from
+      // there.
+      // Bad: export type Order in order.ts
+      // Good: export type Order in common/order.type.ts
+      'local/type-placement': 'error',
+      // utils/*.util.ts hold pure code: no fs, process, Date.now, module-level
+      // let or Map.
+      // Bad: const cache = new Map(); at module level
+      // Good: pass the state in as an argument
+      'local/util-purity': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
+      '@typescript-eslint/parameter-properties': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'TSEnumDeclaration[declare!=true]',
+          message:
+            'enum is not erasable syntax; use a union of literals or an as-const object.'
+        },
+        {
+          selector: 'TSModuleDeclaration[kind="namespace"][declare!=true]',
+          message: 'namespace is not erasable syntax; use a module.'
+        }
+      ],
       '@typescript-eslint/no-empty-function': 'error',
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-use-before-define': 'error',

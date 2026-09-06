@@ -6,7 +6,7 @@ export const typescriptConsistency = defineConfig([
     rules: {
       '@typescript-eslint/consistent-type-assertions': [
         'error',
-        { assertionStyle: 'as', objectLiteralTypeAssertions: 'never' }
+        { assertionStyle: 'never' }
       ],
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/consistent-type-imports': [

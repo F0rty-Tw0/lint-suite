@@ -1,8 +1,11 @@
 import vitestEslint from '@vitest/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 
+import { localPlugin } from './typescript-local-plugin.ts';
+
 const vitestPlugin = {
-  vitest: vitestEslint
+  vitest: vitestEslint,
+  local: localPlugin
 };
 
 export const vitest = defineConfig([
@@ -11,6 +14,9 @@ export const vitest = defineConfig([
     plugins: vitestPlugin,
     rules: {
       ...vitestEslint.configs.recommended.rules,
+      // Test harness callbacks state a return type. Fixes.
+      // Bad: it('x', () => {})   Good: it('x', (): void => {})
+      'local/test-callback-return-type': 'error',
       'vitest/max-nested-describe': ['error', { max: 3 }],
       // Matcher improvements
       'vitest/prefer-to-be': 'error',

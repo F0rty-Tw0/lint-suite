@@ -10,8 +10,7 @@ export const baseLimits = defineConfig([
       '**/*.ts',
       '**/*.tsx',
       '**/*.cts',
-      '**/*.mts',
-      '**/*.html'
+      '**/*.mts'
     ],
     rules: {
       'max-lines': [

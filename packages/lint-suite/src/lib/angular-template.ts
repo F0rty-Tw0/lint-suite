@@ -4,7 +4,7 @@ import { defineConfig } from 'eslint/config';
 import { definePlugin } from './rules/define-plugin.util.ts';
 import noUnstyledClassesRule from './rules/no-unstyled-classes/no-unstyled-classes.ts';
 
-export const lintSuiteAngularTemplatePlugin = definePlugin(
+const lintSuiteAngularTemplatePlugin = definePlugin(
   'lint-suite-angular-template',
   { 'no-unstyled-classes': noUnstyledClassesRule }
 );
@@ -17,6 +17,14 @@ export const angularTemplate = defineConfig([
       'lint-suite-angular-template': lintSuiteAngularTemplatePlugin
     },
     rules: {
+      'max-lines': [
+        'error',
+        { max: 150, skipBlankLines: true, skipComments: true }
+      ],
+      // A template class name no stylesheet of the component selects is
+      // reported.
+      // Bad: class="ghost" with no .ghost rule
+      // Good: add .ghost, or drop the class
       'lint-suite-angular-template/no-unstyled-classes': 'error',
       '@angular-eslint/template/prefer-template-literal': 'error',
       '@angular-eslint/template/no-any': 'error',

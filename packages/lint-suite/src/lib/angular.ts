@@ -5,7 +5,7 @@ import globals from 'globals';
 import { definePlugin } from './rules/define-plugin.util.ts';
 import noUnusedInstanceFieldsRule from './rules/no-unused-angular-instance-fields/rule/no-unused-angular-instance-fields.ts';
 
-export const lintSuiteAngularPlugin = definePlugin('lint-suite-angular', {
+const lintSuiteAngularPlugin = definePlugin('lint-suite-angular', {
   'no-unused-instance-fields': noUnusedInstanceFieldsRule
 });
 
@@ -32,6 +32,10 @@ export const angular = defineConfig([
     },
     ...inlineTemplates,
     rules: {
+      // Component and directive members nothing reads (class, template, host)
+      // are dead.
+      // Bad: private unused = 1; read nowhere
+      // Good: delete it, or read it in the template
       'lint-suite-angular/no-unused-instance-fields': [
         'error',
         { analysis: 'project' }
