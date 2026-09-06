@@ -19,15 +19,7 @@ import {
 } from './incremental-source.spec.util.ts';
 import { reportedMembers } from './lint-messages.spec.util.ts';
 import { lintConfig } from './rule-under-test.spec.util.ts';
-
-type IncrementalProject = {
-  readonly projectDirectory: string;
-  readonly linter: Linter;
-  readonly file: (name: string) => string;
-  readonly lint: (name: string, code: string) => string[];
-  readonly touch: (name: string, content: string) => void;
-  readonly dispose: () => void;
-};
+import type { IncrementalProject } from '../common/incremental-project.type.ts';
 
 const angularCore = join(
   import.meta.dirname,
@@ -35,6 +27,10 @@ const angularCore = join(
 );
 
 export const templateSettled = async (): Promise<void> => sleep(300);
+
+const bumpMtimeByOneSecond = (path: string): void => {
+  utimesSync(path, new Date(), new Date(Date.now() + 1000));
+};
 
 const seedProject = (file: (name: string) => string): void => {
   writeFileSync(file('widget.component.ts'), widget(widgetMembers));
@@ -92,9 +88,7 @@ export const createIncrementalProject = (): IncrementalProject => {
     },
     touch: (name: string, content: string): void => {
       writeFileSync(file(name), content);
-      // Bump mtime by a full second so the change is visible on coarse
-      // filesystems even when the file is rewritten immediately.
-      utimesSync(file(name), new Date(), new Date(Date.now() + 1000));
+      bumpMtimeByOneSecond(file(name));
     },
     dispose: project.dispose
   };

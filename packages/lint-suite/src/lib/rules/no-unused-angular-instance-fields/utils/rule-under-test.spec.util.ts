@@ -8,7 +8,7 @@ import { angular } from '../../../angular.ts';
 import {
   LINTER_CONFIG_STUB,
   LINTER_LANGUAGE_OPTIONS_STUB
-} from '../common/stubs/linter-config.stub.ts';
+} from '../../common/stubs/linter-config.stub.ts';
 
 type LintConfigOptions = {
   readonly analysis: 'local' | 'project';
@@ -54,16 +54,6 @@ const projectLanguageOptions = (
   const projectOptions: Linter.LanguageOptions = { parserOptions };
 
   return projectOptions;
-};
-
-export const projectRuleTester = (directory: string): RuleTester => {
-  const parserOptions = { projectService: true, tsconfigRootDir: directory };
-  const languageOptions: Linter.LanguageOptions = {
-    ...LINTER_CONFIG_STUB.languageOptions,
-    parserOptions
-  };
-
-  return new RuleTester({ languageOptions });
 };
 
 export const lintConfig = ({

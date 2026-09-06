@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 
 import type { Linter } from 'eslint';
 
-export const reportedMembers = (messages: Linter.LintMessage[]): string[] => {
-  const members = messages.map((message) => {
-    assert.ok(
-      message.messageId,
-      `unexpected non-rule message: ${message.message}`
-    );
+const memberKey = (message: Linter.LintMessage): string => {
+  assert.ok(
+    message.messageId,
+    `unexpected non-rule message: ${message.message}`
+  );
 
-    return `${message.messageId}:${/'([^']+)'/u.exec(message.message)?.[1]}`;
-  });
+  return `${message.messageId}:${/'([^']+)'/u.exec(message.message)?.[1]}`;
+};
+
+export const reportedMembers = (messages: Linter.LintMessage[]): string[] => {
+  const members = messages.map(memberKey);
 
   return members.sort();
 };

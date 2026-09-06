@@ -37,7 +37,7 @@ export type AngularClassMetadata = {
   readonly metadata: TSESTree.ObjectExpression;
 };
 
-export type IdentifierKey = {
+type IdentifierKey = {
   readonly key: TSESTree.Identifier;
 };
 
