@@ -6,7 +6,7 @@ import { test } from 'vitest';
 import { componentMetadata } from './component-metadata.ts';
 
 const fixtureFile = (file: string): string => {
-  return join(import.meta.dirname, 'common', 'fixtures', 'component-metadata', file);
+  return join(import.meta.dirname, 'test', 'fixtures', 'component-metadata', file);
 };
 
 const heroComponent = fixtureFile('hero.component.ts');

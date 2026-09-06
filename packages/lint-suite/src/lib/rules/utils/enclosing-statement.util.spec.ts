@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 import { test } from 'vitest';
 
 import { enclosingStatement } from './enclosing-statement.util.ts';
-import { programOf } from './parsed-program.spec.util.ts';
+import { programOf } from '../test/utils/parsed-program.spec.util.ts';
 
 type Captured = {
   readonly declarations: TSESTree.VariableDeclaration[];
