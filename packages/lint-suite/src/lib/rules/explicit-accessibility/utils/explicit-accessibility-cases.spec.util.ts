@@ -1,12 +1,15 @@
 import type { RuleTester } from 'eslint';
 
-type Accessibility = 'private' | 'protected' | 'public';
-type FixAccessibility = Accessibility | 'none';
+import type {
+  Accessibility,
+  FixAccessibility,
+  MemberCase
+} from '../common/explicit-accessibility.type.ts';
+
 type Render = (modifier: string) => string;
 type MemberOptions = { readonly defaultAccessibility: FixAccessibility };
-type MemberCase = Omit<RuleTester.InvalidTestCase, 'name'>;
 
-const accessibilities: readonly Accessibility[] = [
+const accessibilities: Accessibility[] = [
   'public',
   'private',
   'protected'

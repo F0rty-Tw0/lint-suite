@@ -1,10 +1,11 @@
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { RuleTester } from 'eslint';
 
 export type Accessibility = 'private' | 'protected' | 'public';
 
 export type FixAccessibility = Accessibility | 'none';
 
-export type AccessibilityOptions = {
+type AccessibilityOptions = {
   readonly defaultAccessibility?: FixAccessibility;
 };
 
@@ -24,3 +25,6 @@ export type Member =
 export type Fix = (fixer: TSESLint.RuleFixer) => TSESLint.RuleFix | null;
 
 export type AutoFix = { readonly fix?: Fix };
+
+// eslint-disable-next-line local/no-unused-exports -- read by explicit-accessibility.spec.ts
+export type MemberCase = Omit<RuleTester.InvalidTestCase, 'name'>;

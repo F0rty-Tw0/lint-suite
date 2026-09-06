@@ -10,7 +10,7 @@ import type {
   Options
 } from './explicit-accessibility.type.ts';
 
-export const accessibilities: readonly Accessibility[] = [
+export const accessibilities: Accessibility[] = [
   'public',
   'private',
   'protected'

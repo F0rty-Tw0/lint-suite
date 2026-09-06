@@ -5,6 +5,7 @@ import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
+import type { MemberCase } from './common/explicit-accessibility.type.ts';
 import {
   accessibilityError,
   inClass,
@@ -113,186 +114,183 @@ const valid: RuleTester.ValidTestCase[] = [
   }
 ];
 
+const plainMethodCase = member(
+  'method',
+  inClass((m) => `${m}method(): void {}`)
+);
+const decoratedPropertyCase = member(
+  'name',
+  inClass((m) => `@Input() ${m}name = '';`)
+);
+const adjacentDecoratorCase = member(
+  'name',
+  inClass((m) => `@Input()${m ? ` ${m}` : ''}name = '';`)
+);
+const readonlyPropertyCase = member(
+  'x',
+  inClass((m) => `${m}readonly x = 1;`)
+);
+const staticPropertyCase = member(
+  'x',
+  inClass((m) => `${m}static x = 1;`)
+);
+const overridePropertyCase = member(
+  'x',
+  inClass((m) => `${m}override x = 1;`)
+);
+const declarePropertyCase = member(
+  'x',
+  inClass((m) => `${m}declare x: string;`)
+);
+const asyncMethodCase = member(
+  'run',
+  inClass((m) => `${m}async run(): Promise<void> {}`)
+);
+const generatorMethodCase = member(
+  'gen',
+  inClass((m) => `${m}*gen(): Generator<number> {}`)
+);
+const getterCase = member(
+  'v',
+  inClass((m) => `${m}get v(): number { return 1; }`)
+);
+const setterCase = member(
+  'v',
+  inClass((m) => `${m}set v(_: number) {}`)
+);
+const computedKeyMethodCase = member(
+  'Symbol.iterator',
+  inClass((m) => `${m}[Symbol.iterator](): void {}`)
+);
+const abstractMethodCase = member(
+  'run',
+  inClass((m) => `${m}abstract run(): void;`, true)
+);
+const abstractPropertyCase = member(
+  'field',
+  inClass((m) => `${m}abstract field: string;`, true)
+);
+const accessorPropertyCase = member(
+  'acc',
+  inClass((m) => `${m}accessor acc = 1;`)
+);
+const classExpressionMethodCase = member(
+  'method',
+  (m) => `const A = class { ${m}method(): void {} };`
+);
+const constructorDefaultPrivateCase = member(
+  'constructor',
+  inClass((m) => `${m}constructor() {}`),
+  { defaultAccessibility: 'private' },
+  'public'
+);
+const readonlyParameterPropertyCase = member(
+  'dep',
+  inClass((m) => `public constructor(${m}readonly dep: string) {}`)
+);
+const privateParameterPropertyCase = member(
+  'dep',
+  inClass((m) => `public constructor(${m}readonly dep: string) {}`),
+  { defaultAccessibility: 'private' }
+);
+const defaultedParameterPropertyCase = member(
+  'limit',
+  inClass((m) => `public constructor(${m}readonly limit = 1) {}`)
+);
+const noFixFieldCase = member(
+  'field',
+  inClass((m) => `${m}field = 1;`),
+  { defaultAccessibility: 'none' }
+);
+const noFixConstructorCase = member(
+  'constructor',
+  inClass((m) => `${m}constructor() {}`),
+  { defaultAccessibility: 'none' }
+);
+const privateFieldCase = member(
+  'field',
+  inClass((m) => `${m}field = 1;`),
+  { defaultAccessibility: 'private' }
+);
+const protectedFieldCase = member(
+  'field',
+  inClass((m) => `${m}field = 1;`),
+  { defaultAccessibility: 'protected' }
+);
+
+const namedCase = (
+  name: string,
+  testCase: MemberCase
+): RuleTester.InvalidTestCase => {
+  const invalidCase: RuleTester.InvalidTestCase = { name, ...testCase };
+
+  return invalidCase;
+};
+
+const pairCase: RuleTester.InvalidTestCase = {
+  name: 'fixes a constructor and its parameter property together',
+  code: `class A { constructor(readonly dep: string) {} }`,
+  options: pairOptions,
+  output: `class A { public constructor(private readonly dep: string) {} }`,
+  errors: pairErrors
+};
+
 const invalid: RuleTester.InvalidTestCase[] = [
-  {
-    name: 'fixes a plain method to public and suggests the other levels',
-    ...member(
-      'method',
-      inClass((m) => `${m}method(): void {}`)
-    )
-  },
-  {
-    name: 'fixes a property after a decorator without doubling spaces',
-    ...member(
-      'name',
-      inClass((m) => `@Input() ${m}name = '';`)
-    )
-  },
-  {
-    name: 'fixes a property directly adjacent to a decorator',
-    ...member(
-      'name',
-      inClass((m) => `@Input()${m ? ` ${m}` : ''}name = '';`)
-    )
-  },
-  {
-    name: 'fixes a readonly property',
-    ...member(
-      'x',
-      inClass((m) => `${m}readonly x = 1;`)
-    )
-  },
-  {
-    name: 'fixes a static property',
-    ...member(
-      'x',
-      inClass((m) => `${m}static x = 1;`)
-    )
-  },
-  {
-    name: 'fixes an override property',
-    ...member(
-      'x',
-      inClass((m) => `${m}override x = 1;`)
-    )
-  },
-  {
-    name: 'fixes a declare property',
-    ...member(
-      'x',
-      inClass((m) => `${m}declare x: string;`)
-    )
-  },
-  {
-    name: 'fixes an async method',
-    ...member(
-      'run',
-      inClass((m) => `${m}async run(): Promise<void> {}`)
-    )
-  },
-  {
-    name: 'fixes a generator method',
-    ...member(
-      'gen',
-      inClass((m) => `${m}*gen(): Generator<number> {}`)
-    )
-  },
-  {
-    name: 'fixes a getter',
-    ...member(
-      'v',
-      inClass((m) => `${m}get v(): number { return 1; }`)
-    )
-  },
-  {
-    name: 'fixes a setter',
-    ...member(
-      'v',
-      inClass((m) => `${m}set v(_: number) {}`)
-    )
-  },
-  {
-    name: 'fixes a computed key method',
-    ...member(
-      'Symbol.iterator',
-      inClass((m) => `${m}[Symbol.iterator](): void {}`)
-    )
-  },
-  {
-    name: 'fixes an abstract method',
-    ...member(
-      'run',
-      inClass((m) => `${m}abstract run(): void;`, true)
-    )
-  },
-  {
-    name: 'fixes an abstract property',
-    ...member(
-      'field',
-      inClass((m) => `${m}abstract field: string;`, true)
-    )
-  },
-  {
-    name: 'fixes an accessor property',
-    ...member(
-      'acc',
-      inClass((m) => `${m}accessor acc = 1;`)
-    )
-  },
-  {
-    name: 'fixes a class expression member',
-    ...member('method', (m) => `const A = class { ${m}method(): void {} };`)
-  },
-  {
-    name: 'fixes a constructor to public even when the default is private',
-    ...member(
-      'constructor',
-      inClass((m) => `${m}constructor() {}`),
-      { defaultAccessibility: 'private' },
-      'public'
-    )
-  },
-  {
-    name: 'fixes a readonly parameter property with the default',
-    ...member(
-      'dep',
-      inClass((m) => `public constructor(${m}readonly dep: string) {}`)
-    )
-  },
-  {
-    name: 'fixes a parameter property with the private option',
-    ...member(
-      'dep',
-      inClass((m) => `public constructor(${m}readonly dep: string) {}`),
-      { defaultAccessibility: 'private' }
-    )
-  },
-  {
-    name: 'fixes a defaulted parameter property and reports its name',
-    ...member(
-      'limit',
-      inClass((m) => `public constructor(${m}readonly limit = 1) {}`)
-    )
-  },
-  {
-    name: 'fixes a constructor and its parameter property together',
-    code: `class A { constructor(readonly dep: string) {} }`,
-    options: pairOptions,
-    output: `class A { public constructor(private readonly dep: string) {} }`,
-    errors: pairErrors
-  },
-  {
-    name: 'reports without a fix and suggests all levels under none',
-    ...member(
-      'field',
-      inClass((m) => `${m}field = 1;`),
-      { defaultAccessibility: 'none' }
-    )
-  },
-  {
-    name: 'reports a constructor without a fix under none',
-    ...member(
-      'constructor',
-      inClass((m) => `${m}constructor() {}`),
-      { defaultAccessibility: 'none' }
-    )
-  },
-  {
-    name: 'uses the private option for ordinary members',
-    ...member(
-      'field',
-      inClass((m) => `${m}field = 1;`),
-      { defaultAccessibility: 'private' }
-    )
-  },
-  {
-    name: 'uses the protected option for ordinary members',
-    ...member(
-      'field',
-      inClass((m) => `${m}field = 1;`),
-      { defaultAccessibility: 'protected' }
-    )
-  }
+  namedCase(
+    'fixes a plain method to public and suggests the other levels',
+    plainMethodCase
+  ),
+  namedCase(
+    'fixes a property after a decorator without doubling spaces',
+    decoratedPropertyCase
+  ),
+  namedCase(
+    'fixes a property directly adjacent to a decorator',
+    adjacentDecoratorCase
+  ),
+  namedCase('fixes a readonly property', readonlyPropertyCase),
+  namedCase('fixes a static property', staticPropertyCase),
+  namedCase('fixes an override property', overridePropertyCase),
+  namedCase('fixes a declare property', declarePropertyCase),
+  namedCase('fixes an async method', asyncMethodCase),
+  namedCase('fixes a generator method', generatorMethodCase),
+  namedCase('fixes a getter', getterCase),
+  namedCase('fixes a setter', setterCase),
+  namedCase('fixes a computed key method', computedKeyMethodCase),
+  namedCase('fixes an abstract method', abstractMethodCase),
+  namedCase('fixes an abstract property', abstractPropertyCase),
+  namedCase('fixes an accessor property', accessorPropertyCase),
+  namedCase('fixes a class expression member', classExpressionMethodCase),
+  namedCase(
+    'fixes a constructor to public even when the default is private',
+    constructorDefaultPrivateCase
+  ),
+  namedCase(
+    'fixes a readonly parameter property with the default',
+    readonlyParameterPropertyCase
+  ),
+  namedCase(
+    'fixes a parameter property with the private option',
+    privateParameterPropertyCase
+  ),
+  namedCase(
+    'fixes a defaulted parameter property and reports its name',
+    defaultedParameterPropertyCase
+  ),
+  pairCase,
+  namedCase(
+    'reports without a fix and suggests all levels under none',
+    noFixFieldCase
+  ),
+  namedCase(
+    'reports a constructor without a fix under none',
+    noFixConstructorCase
+  ),
+  namedCase('uses the private option for ordinary members', privateFieldCase),
+  namedCase(
+    'uses the protected option for ordinary members',
+    protectedFieldCase
+  )
 ];
 
 ruleTester.run('local/explicit-accessibility', rule, { valid, invalid });
