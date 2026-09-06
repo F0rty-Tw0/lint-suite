@@ -7,12 +7,12 @@ import {
   replaceDeclarations
 } from './angular/angular-directive-index.ts';
 import type {
+  CurrentSourceFiles,
   FileClasses,
   LazyChecker,
   ProjectIndex
 } from './common/project-index.type.ts';
 import { dropEntries, isReplaced, removeEntry } from './project-index-staleness.ts';
-import type { CurrentSourceFiles } from './project-index-staleness.ts';
 import { collectCandidateNames } from './typescript/typescript-candidate-names.ts';
 
 const dropReplacedClasses = (
@@ -80,7 +80,7 @@ const indexFileClasses = (
 
 const indexNewClasses = (
   index: ProjectIndex,
-  current: readonly SourceFile[],
+  current: SourceFile[],
   checker: LazyChecker,
   newNames: Set<string>
 ): FileClasses[] => {
@@ -98,7 +98,8 @@ const indexNewClasses = (
 };
 
 const rebuildDirectives = (index: ProjectIndex): void => {
-  const fileClasses = [...index.classes.values()];
+  const classesValues = index.classes.values();
+  const fileClasses = [...classesValues];
   const classes = fileClasses.flatMap((entry) => entry.classes);
   const shape = directiveShape(classes);
 
@@ -114,7 +115,6 @@ const shapesOf = (files: FileClasses[]): string => {
   return files.map((file) => file.shape).sort().join('\n');
 };
 
-/** Same files, same selectors: repoint the index at the new declarations. */
 const repointDirectives = (
   index: ProjectIndex,
   dropped: FileClasses[],
@@ -129,7 +129,7 @@ const repointDirectives = (
 /** Re-index changed files' classes; returns member names never seen before. */
 export const reconcileClasses = (
   index: ProjectIndex,
-  indexable: readonly SourceFile[],
+  indexable: SourceFile[],
   current: CurrentSourceFiles,
   checker: LazyChecker
 ): Set<string> => {

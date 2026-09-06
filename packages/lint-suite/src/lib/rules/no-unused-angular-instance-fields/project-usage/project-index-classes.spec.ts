@@ -24,7 +24,11 @@ test('indexes every current file and reports its member names as new', () => {
 
   assert.ok(index.classes.has(sourceFile.fileName));
   assert.ok(newNames.size > 0);
-  assert.deepEqual([...index.candidateNames].sort(), [...newNames].sort());
+
+  const candidateNameArray = [...index.candidateNames];
+  const newNameArray = [...newNames];
+
+  assert.deepEqual(candidateNameArray.sort(), newNameArray.sort());
 });
 
 test('reports nothing new when the same program is reconciled again', () => {

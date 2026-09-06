@@ -1,9 +1,6 @@
+import { projectRuleTester } from '../../utils/project-rule-tester.spec.util.ts';
 import { fixtureDirectory } from '../utils/fixture-project.spec.util.ts';
-import {
-  projectRuleTester,
-  rule,
-  ruleName
-} from '../utils/rule-under-test.spec.util.ts';
+import { rule, ruleName } from '../utils/rule-under-test.spec.util.ts';
 import {
   memberError,
   projectInvalidCase

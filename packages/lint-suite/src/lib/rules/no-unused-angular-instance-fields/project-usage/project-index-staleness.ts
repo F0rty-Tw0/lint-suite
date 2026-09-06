@@ -2,6 +2,7 @@ import type { Program, SourceFile } from 'typescript';
 
 import { templateFileIsCurrent } from './angular/angular-template-reads.ts';
 import type {
+  CurrentSourceFiles,
   FileEntry,
   ProjectIndex,
   TemplateFileVersion
@@ -36,7 +37,8 @@ const adjustCounts = <K>(
   delta: number
 ): void => {
   for (const key of keys) {
-    const count = (counts.get(key) ?? 0) + delta;
+    const current = counts.get(key) ?? 0;
+    const count = current + delta;
 
     if (count > 0) {
       counts.set(key, count);
@@ -73,8 +75,6 @@ export const dropEntries = (
     if (isStale) removeEntry(index, fileName);
   }
 };
-
-export type CurrentSourceFiles = ReadonlySet<SourceFile>;
 
 /** The Program's source file objects, for identity checks without path work. */
 export const currentSourceFiles = (program: Program): CurrentSourceFiles => {

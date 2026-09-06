@@ -91,12 +91,6 @@ const isLocalEntry = (
   return entry.templateVersions.some(isNearby);
 };
 
-/**
- * Templates of the linted file and of every component in its folder are
- * checked on every lint, so an edit next to the file is seen at once; every
- * other template is checked on the throttled schedule of
- * `dropStaleTemplateEntries`.
- */
 const refreshLocalEntries = (
   index: ProjectIndex,
   program: Program,

@@ -4,6 +4,7 @@ import { readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { Linter } from 'eslint';
 import { afterAll, test } from 'vitest';
 
+import { projectRuleTester } from '../../utils/project-rule-tester.spec.util.ts';
 import {
   copyFixtureProject,
   fixtureCase,
@@ -11,7 +12,6 @@ import {
 } from '../utils/fixture-project.spec.util.ts';
 import {
   lintConfig,
-  projectRuleTester,
   rule,
   ruleName
 } from '../utils/rule-under-test.spec.util.ts';
