@@ -1,46 +1,10 @@
-import assert from 'node:assert/strict';
+import type { RuleTester } from 'eslint';
 
-import { RuleTester } from 'eslint';
-import type { Linter } from 'eslint';
-import tseslint from 'typescript-eslint';
-import { describe, test } from 'vitest';
-
-import { typescript } from '../../typescript.ts';
-
-const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
-  ?.rules?.['test-file-shape'];
-
-assert.ok(rule, 'typescript preset must register local/test-file-shape');
-
-RuleTester.describe = describe;
-RuleTester.it = test;
-RuleTester.itOnly = test.only;
-
-const languageOptions: Linter.LanguageOptions = {
-  ecmaVersion: 'latest',
-  parser: tseslint.parser,
-  sourceType: 'module'
-};
-
-const ruleTester = new RuleTester({ languageOptions });
+import { rule, ruleTester } from './test/utils/rule-under-test.spec.util.ts';
 
 const forbiddenTestFileError = (shape: string): RuleTester.TestCaseError => {
   const data = { shape };
   const error: RuleTester.TestCaseError = { messageId: 'forbiddenTestFile', data };
-
-  return error;
-};
-
-const stubNameError = (name: string): RuleTester.TestCaseError => {
-  const data = { name };
-  const error: RuleTester.TestCaseError = { messageId: 'stubName', data };
-
-  return error;
-};
-
-const stubTypeError = (name: string): RuleTester.TestCaseError => {
-  const data = { name };
-  const error: RuleTester.TestCaseError = { messageId: 'stubType', data };
 
   return error;
 };
@@ -52,14 +16,14 @@ const valid: RuleTester.ValidTestCase[] = [
     filename: 'src/app/user.service.ts'
   },
   {
-    name: 'accepts a well-formed stub',
-    code: 'export const USER_STUB: User = { id: 1 };',
-    filename: 'src/app/common/stubs/user.stub.ts'
+    name: 'accepts a spec util under test/utils/',
+    code: 'export const userHarness = () => ({});',
+    filename: 'src/app/test/utils/user.spec.util.ts'
   },
   {
-    name: 'accepts a well-formed multi-segment stub name',
-    code: 'export const ADMIN_USER_STUB: User = { id: 2 };',
-    filename: 'src/app/common/stubs/admin-user.stub.ts'
+    name: 'accepts a fixture under a testing library',
+    code: 'export const a = 1;',
+    filename: 'libs/testing/src/lib/fixtures/a.ts'
   }
 ];
 
@@ -107,22 +71,34 @@ const invalid: RuleTester.InvalidTestCase[] = [
     errors: [forbiddenTestFileError('__mocks__/')]
   },
   {
-    name: 'rejects a stub whose name is not SCREAMING_SNAKE_CASE',
-    code: 'export const userStub: User = { id: 1 };',
+    name: 'rejects a stub under common/stubs/',
+    code: 'export const x = 1;',
     filename: 'src/app/common/stubs/user.stub.ts',
-    errors: [stubNameError('userStub')]
+    errors: [forbiddenTestFileError('common/stubs/')]
   },
   {
-    name: 'rejects a stub whose name does not end in _STUB',
-    code: 'export const USER: User = { id: 1 };',
-    filename: 'src/app/common/stubs/user.stub.ts',
-    errors: [stubNameError('USER')]
+    name: 'rejects a fixtures directory outside test/fixtures/',
+    code: 'export const x = 1;',
+    filename: 'src/app/fixtures/a.ts',
+    errors: [forbiddenTestFileError('fixtures/ outside test/fixtures/')]
   },
   {
-    name: 'rejects a stub with no type annotation',
-    code: 'export const USER_STUB = { id: 1 };',
-    filename: 'src/app/common/stubs/user.stub.ts',
-    errors: [stubTypeError('USER_STUB')]
+    name: 'rejects a fixture under common/fixtures/',
+    code: 'export const x = 1;',
+    filename: 'src/app/common/fixtures/a.ts',
+    errors: [forbiddenTestFileError('fixtures/ outside test/fixtures/')]
+  },
+  {
+    name: 'rejects a .spec.util.ts file outside test/utils/',
+    code: 'export const x = 1;',
+    filename: 'src/app/utils/x.spec.util.ts',
+    errors: [forbiddenTestFileError('.spec.util.ts outside test/utils/')]
+  },
+  {
+    name: 'rejects a .mock.ts file outside test/mocks/',
+    code: 'export const x = 1;',
+    filename: 'src/app/x.mock.ts',
+    errors: [forbiddenTestFileError('.mock.ts outside test/mocks/')]
   }
 ];
 
