@@ -17,13 +17,15 @@ import {
   symbolsForName
 } from '../utils/type-property-symbols.util.ts';
 
-const hasAnyOrUnknownFlag = (type: { flags: TypeFlags }): boolean => {
+type FlaggedType = { readonly flags: TypeFlags };
+
+const hasAnyOrUnknownFlag = (type: FlaggedType): boolean => {
   const anyOrUnknown = TypeFlags.Any | TypeFlags.Unknown;
 
   return (type.flags & anyOrUnknown) !== 0;
 };
 
-const isAnyOrUnknown = (types: { flags: TypeFlags }[]): boolean => {
+const isAnyOrUnknown = (types: FlaggedType[]): boolean => {
   return types.some(hasAnyOrUnknownFlag);
 };
 
@@ -58,7 +60,6 @@ const memberTypes = (
   return types;
 };
 
-/** A lone `name` the class declares itself needs no checker: true when handled. */
 const addOwnMemberPath = (
   declaration: ClassLikeDeclaration,
   names: ReadSegment[],

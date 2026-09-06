@@ -41,11 +41,6 @@ const memberNames = (declaration: ClassLikeDeclaration): string[] => {
   return declaration.members.flatMap(memberNameOf);
 };
 
-/**
- * What a template we cannot read might reference: the component's own
- * members and those of every class in its scope, or every candidate name
- * when the scope is unknown.
- */
 const unknownTemplateNames = (
   { declaration, scope }: AngularClass,
   allNames: CandidateNames
@@ -53,7 +48,8 @@ const unknownTemplateNames = (
   if (scope === null) return allNames;
 
   const scopeNames = scope.flatMap(memberNames);
-  const names = [...memberNames(declaration), ...scopeNames];
+  const declarationNames = memberNames(declaration);
+  const names = [...declarationNames, ...scopeNames];
 
   return names;
 };

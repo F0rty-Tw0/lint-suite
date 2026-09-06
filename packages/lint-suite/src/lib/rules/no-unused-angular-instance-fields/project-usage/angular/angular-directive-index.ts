@@ -7,10 +7,6 @@ import type {
   DirectiveIndex
 } from '../common/project-usage.type.ts';
 
-/**
- * A description of every directive's selector and exportAs; when it changes
- * between programs, cached template reference resolutions are stale.
- */
 const classShape = ({
   component,
   declaration,
@@ -32,7 +28,8 @@ const classShape = ({
 };
 
 export const directiveShape = (classes: Iterable<AngularClass>): string => {
-  const shapes = [...classes].map(classShape);
+  const classList = [...classes];
+  const shapes = classList.map(classShape);
 
   return shapes.sort().join('\n');
 };
@@ -47,7 +44,6 @@ const parseSelector = (selector: string): CssSelector[] | null => {
 
 type Slots = Map<string, ClassLikeDeclaration[][]>;
 
-/** The arrays inside each index that hold a class, by file and class name. */
 const slotsOf = new WeakMap<DirectiveIndex, Slots>();
 
 const classKey = ({ declaration, name }: AngularClass): string => {

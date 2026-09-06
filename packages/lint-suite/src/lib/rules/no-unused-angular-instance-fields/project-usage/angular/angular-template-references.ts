@@ -13,13 +13,6 @@ import type {
 } from '../common/project-usage.type.ts';
 import { chainText } from '../utils/read-chain-text.util.ts';
 
-/**
- * Classes a `#reference` can resolve to. Candidates come from the whole
- * Program and are narrowed to the component's standalone `imports` when
- * that scope is known; a scope member with `hostDirectives` may expose
- * exportAs names that are not modelled, so it keeps the wider set. Extra
- * candidates only add reads.
- */
 const referenceTargets = (
   reference: TmplAstReference,
   owner: ReferenceOwner | undefined,
@@ -36,17 +29,15 @@ const referenceTargets = (
   } else if (owner instanceof TmplAstElement) {
     directives.componentMatcher.match(
       createCssSelectorFromNode(owner),
-      (_selector, declarations) => {
-        targets.push(...declarations);
-      }
+      (_selector, declarations) => targets.push(...declarations)
     );
   }
 
-  const scoped =
-    scope !== null &&
-    !scope.some(
+  const hostDirectiveInScope =
+    scope?.some(
       (declaration) => directives.byDeclaration.get(declaration)?.hostDirectives
-    );
+    ) ?? false;
+  const scoped = scope !== null && !hostDirectiveInScope;
 
   if (!scoped) return targets;
 
