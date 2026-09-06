@@ -457,10 +457,10 @@ per file.
 
 | Rule | Reports | Options |
 |---|---|---|
-| `local/type-placement` | An exported `type` outside a `common/*.type.ts` file; a value exported from a `*.type.ts` file; a non-`const` export from a `*.const.ts` file; an `import type` from a relative or internal path that is not a `*.type.ts` file. Never resolves imports. | `internalPatterns`: regex sources for alias prefixes that must resolve to a `*.type.ts` file. Default empty: a workspace alias (`@shared/common`) resolves to a library entry point, and module boundaries forbid deep imports, so alias type imports pass. |
-| `local/util-purity` | Inside `utils/*.util.ts` (not `*.spec.util.ts`): imports of `node:fs`, `child_process`, `os`, `process`, `http`, `net`, `worker_threads`; a module-level `let`; a module-level `new Map/Set/WeakMap/WeakSet`; `process.*`, `globalThis`, `window`, `document`, `localStorage`, `console`; `Date.now`, `Math.random`, `performance.now`, `crypto.randomUUID`; `setTimeout`, `setInterval`, `fetch`, `inject`, `require`. | `bannedModules` |
-| `local/test-file-shape` | A file named `*.spec-support.ts`, `*.spec-helper.ts`, `*.test-utils.ts`, `*-fixture.ts`, or under `__mocks__/` / `helpers/`; a `common/stubs/*.stub.ts` export not named `UPPER_SNAKE_STUB` or without a type annotation. | none |
-| `local/sibling-spec` | A source `.ts` file with no `<name>.spec.ts` or `<name>.<group>.spec.ts` beside it. One `existsSync` per file; the directory is listed only when the sibling is missing. Types, consts, stubs, specs, `.d.ts`, and fixtures are skipped. | `exempt`: globs (default `**/main.ts`, `**/*.config.ts`, `**/*.routes.ts`, `**/*.stories.ts`, `**/index.ts`, `**/environment*.ts`, `**/test-setup*.ts`) |
+| `local/type-placement` | An exported `type` outside a `common/*.type.ts` or `test/common/*.type.ts` file; a value exported from a `*.type.ts` file; a non-`const` export from a `*.const.ts` file; an `import type` from a relative or internal path that is not a `*.type.ts` file. `.spec.ts`, `.stub.ts`, `.d.ts`, and fixtures are exempt; a `.spec.util.ts` file is not, so an exported type in one is reported. Never resolves imports. | `internalPatterns`: regex sources for alias prefixes that must resolve to a `*.type.ts` file. Default empty: a workspace alias (`@shared/common`) resolves to a library entry point, and module boundaries forbid deep imports, so alias type imports pass. |
+| `local/util-purity` | Inside `utils/*.util.ts` (excluding paths under `test/` or `testing/`): imports of `node:fs`, `child_process`, `os`, `process`, `http`, `net`, `worker_threads`; a module-level `let`; a module-level `new Map/Set/WeakMap/WeakSet`; `process.*`, `globalThis`, `window`, `document`, `localStorage`, `console`; `Date.now`, `Math.random`, `performance.now`, `crypto.randomUUID`; `setTimeout`, `setInterval`, `fetch`, `inject`, `require`. | `bannedModules` |
+| `local/test-file-shape` | A file named `*.spec-support.ts`, `*.spec-helper.ts`, `*.test-utils.ts`, `*-fixture.ts`, or under `__mocks__/` / `helpers/` / `common/stubs/`; a `.stub.ts` outside `test/stubs/`, a `.mock.ts` outside `test/mocks/`, a `.spec.util.ts` outside `test/utils/`, or any `fixtures/` directory outside `test/fixtures/` (a dedicated `testing/` library is exempt from all of these); a `test/stubs/*.stub.ts` export not named `UPPER_SNAKE_STUB` or without a type annotation; a `test/mocks/*.mock.ts` export that is not a camelCase `...Mock` function with an explicit return type. | none |
+| `local/sibling-spec` | A source `.ts` file with no `<name>.spec.ts` or `<name>.<group>.spec.ts` beside it. One `existsSync` per file; the directory is listed only when the sibling is missing. Types, consts, stubs, specs, `.d.ts`, fixtures, and anything under `test/` or `testing/` are skipped. | `exempt`: globs (default `**/main.ts`, `**/*.config.ts`, `**/*.routes.ts`, `**/*.stories.ts`, `**/index.ts`, `**/environment*.ts`, `**/test-setup*.ts`) |
 
 ### No unused exports
 
@@ -473,8 +473,12 @@ imports, and a module that exports names but is never imported at all.
 - Per file the rule walks top-level statements, plus every node of a file
   whose text contains `import(`, and caches the result
   on the `ts.SourceFile` object; the project-wide usage map is cached per
-  `ts.Program`. Editing one file re-walks that file and rebuilds the map
-  once. At 10k files the warm cost is map lookups.
+  `ts.Program`, and an edit that only touches a few files patches that map
+  in place instead of rebuilding it. The patch is scoped per project
+  (`tsconfig`): programs from different projects never share an aggregate,
+  even when ESLint alternates between them in the same process. Editing one
+  file re-walks that file and rebuilds the map once. At 10k files the warm
+  cost is map lookups.
 - Re-exports are followed: `export { x } from`, `export * from`, and
   `export * as ns from` count usage at the file that declares `x`, so a
   barrel does not hide a dead export. `import * as ns`, default imports,
@@ -484,7 +488,8 @@ imports, and a module that exports names but is never imported at all.
 - Files matching `entryPoints` are never reported (default `**/main.ts`,
   `**/main.*.ts`, `**/public-api.ts`, `**/index.ts`, `**/*.config.ts`,
   `**/*.config.mts`, `**/*.config.cts`, `**/*.spec.ts`, `**/*.spec.util.ts`,
-  `**/*.stub.ts`, `**/*.d.ts`, `**/*.stories.ts`, `**/environment*.ts`).
+  `**/*.stub.ts`, `**/*.mock.ts`, `**/*.d.ts`, `**/*.stories.ts`,
+  `**/environment*.ts`).
   Files with `export =` or a `declare module` block are skipped.
 - Names an entry point re-exports (`export { x } from`, `export * from`)
   are public API and never reported: an Nx library's `index.ts` protects
