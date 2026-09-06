@@ -6,13 +6,13 @@ import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
 import type { MemberCase } from './common/explicit-accessibility.type.ts';
+import { typescript } from '../../typescript.ts';
 import {
   accessibilityError,
   inClass,
   member,
   suggestion
-} from './utils/explicit-accessibility-cases.spec.util.ts';
-import { typescript } from '../../typescript.ts';
+} from './test/utils/explicit-accessibility-cases.spec.util.ts';
 
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
   ?.rules?.['explicit-accessibility'];
