@@ -1,3 +1,5 @@
+import { dirname } from 'node:path';
+
 import type { Program, SourceFile, TypeChecker } from 'typescript';
 
 import type {
@@ -22,7 +24,20 @@ const AGGREGATES = new WeakMap<Program, Aggregate>();
 
 const PUBLIC = new WeakMap<Aggregate, WeakMap<GlobMatcher, PublicExports>>();
 
-let lastAggregate: Aggregate | undefined = undefined;
+const LAST_AGGREGATE = new Map<string, Aggregate>();
+
+const projectKey = (program: Program): string => {
+  const configFilePath = program.getCompilerOptions()['configFilePath'];
+
+  if (typeof configFilePath === 'string') return configFilePath;
+
+  const directories = program.getRootFileNames().map(dirname);
+  const uniqueDirectorySet = new Set(directories);
+  const uniqueDirectories = [...uniqueDirectorySet];
+  const sortedDirectories = uniqueDirectories.sort();
+
+  return sortedDirectories.join('|');
+};
 
 const fileEdges = (
   sourceFile: SourceFile,
@@ -59,18 +74,21 @@ const programEdges = (program: Program): Map<string, FileEdges> => {
   return byFile;
 };
 
-const nextAggregate = (byFile: Map<string, FileEdges>): Aggregate => {
-  if (!lastAggregate) return buildAggregate(byFile);
+const nextAggregate = (
+  byFile: Map<string, FileEdges>,
+  previous: Aggregate | undefined
+): Aggregate => {
+  if (!previous) return buildAggregate(byFile);
 
-  const changes = fileChanges(lastAggregate.byFile, byFile);
-  const isPatchable = isIncremental(changes, lastAggregate.starTouched);
+  const changes = fileChanges(previous.byFile, byFile);
+  const isPatchable = isIncremental(changes, previous.starTouched);
 
   if (!isPatchable) return buildAggregate(byFile);
 
-  updateAggregate(lastAggregate, changes);
-  PUBLIC.delete(lastAggregate);
+  updateAggregate(previous, changes);
+  PUBLIC.delete(previous);
 
-  return lastAggregate;
+  return previous;
 };
 
 export const exportIndex = (program: Program): Aggregate => {
@@ -78,11 +96,12 @@ export const exportIndex = (program: Program): Aggregate => {
 
   if (cached) return cached;
 
+  const key = projectKey(program);
   const byFile = programEdges(program);
-  const aggregate = nextAggregate(byFile);
+  const aggregate = nextAggregate(byFile, LAST_AGGREGATE.get(key));
 
   AGGREGATES.set(program, aggregate);
-  lastAggregate = aggregate;
+  LAST_AGGREGATE.set(key, aggregate);
 
   return aggregate;
 };

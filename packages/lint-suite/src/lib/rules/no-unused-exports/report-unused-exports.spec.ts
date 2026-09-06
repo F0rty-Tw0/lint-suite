@@ -1,6 +1,6 @@
 import type { RuleTester } from 'eslint';
 
-import { fixtureDirectory } from './utils/fixture-project.spec.util.ts';
+import { fixtureDirectory } from './test/utils/fixture-project.spec.util.ts';
 import {
   exportError,
   invalidCase,
@@ -8,8 +8,8 @@ import {
   rule,
   ruleName,
   validCase
-} from './utils/rule-under-test.spec.util.ts';
-import { projectRuleTester } from '../utils/project-rule-tester.spec.util.ts';
+} from './test/utils/rule-under-test.spec.util.ts';
+import { projectRuleTester } from '../test/utils/project-rule-tester.spec.util.ts';
 
 const unusedExportsDirectory = fixtureDirectory('unused-exports');
 const edgeCasesDirectory = fixtureDirectory('edge-cases');

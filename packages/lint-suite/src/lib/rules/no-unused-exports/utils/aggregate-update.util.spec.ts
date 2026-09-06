@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import { buildAggregate, updateAggregate } from './aggregate-update.util.ts';
-import { byFileStub, fileEdgesStub } from './file-edges.spec.util.ts';
 import type {
   Aggregate,
   FileChange,
   FileEdges,
   ImportEdge
 } from '../common/no-unused-exports.type.ts';
+import { byFileStub, fileEdgesStub } from '../test/utils/file-edges.spec.util.ts';
 
 const usedImport: ImportEdge = { target: 'used.ts', names: ['usedValue'] };
 

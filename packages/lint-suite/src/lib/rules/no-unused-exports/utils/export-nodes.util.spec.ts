@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import { exportNodes } from './export-nodes.util.ts';
-import { programOf } from '../../utils/parsed-program.spec.util.ts';
+import { programOf } from '../../test/utils/parsed-program.spec.util.ts';
 
 const namesOf = (code: string): string[] => {
   const nodes = exportNodes(programOf(code));

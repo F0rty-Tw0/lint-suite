@@ -22,6 +22,7 @@ export const entryPointDefaults: string[] = [
   '**/*.spec.ts',
   '**/*.spec.util.ts',
   '**/*.stub.ts',
+  '**/*.mock.ts',
   '**/*.d.ts',
   '**/*.stories.ts',
   '**/environment*.ts'

@@ -4,8 +4,8 @@ import { isImportDeclaration } from 'typescript';
 import type { Expression } from 'typescript';
 import { test } from 'vitest';
 
-import { fixtureProgram, fixtureSourceFile } from './fixture-program.spec.util.ts';
 import { moduleTarget } from './module-target.util.ts';
+import { fixtureProgram, fixtureSourceFile } from '../test/utils/fixture-program.spec.util.ts';
 
 const FIXTURE = 'edge-cases';
 

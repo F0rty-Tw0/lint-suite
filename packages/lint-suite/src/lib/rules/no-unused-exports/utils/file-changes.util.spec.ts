@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import { fileChanges, isIncremental } from './file-changes.util.ts';
-import { byFileStub, fileEdgesStub } from './file-edges.spec.util.ts';
 import type { ReExportEdge } from '../common/no-unused-exports.type.ts';
+import { byFileStub, fileEdgesStub } from '../test/utils/file-edges.spec.util.ts';
 
 const NO_STARS = new Map<string, number>();
 

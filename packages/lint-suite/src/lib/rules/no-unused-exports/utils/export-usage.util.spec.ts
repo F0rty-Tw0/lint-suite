@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import { markUsage, reExportIndex } from './export-usage.util.ts';
-import { fileEdgesStub as fileEdges } from './file-edges.spec.util.ts';
 import type {
   FileEdges,
   ReExportEdge,
   UsageContext,
   UsageKey
 } from '../common/no-unused-exports.type.ts';
+import { fileEdgesStub as fileEdges } from '../test/utils/file-edges.spec.util.ts';
 
 const contextOf = (byFile: Map<string, FileEdges>): UsageContext => {
   const context: UsageContext = {

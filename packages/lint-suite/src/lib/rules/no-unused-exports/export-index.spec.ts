@@ -5,13 +5,13 @@ import { test } from 'vitest';
 
 import type { Aggregate, FileEdges } from './common/no-unused-exports.type.ts';
 import { exportIndex } from './export-index.ts';
-import { buildAggregate } from './utils/aggregate-update.util.ts';
 import {
   derivedProgram,
   editedSourceFile,
   fixtureProgram,
   fixtureSourceFile
-} from './utils/fixture-program.spec.util.ts';
+} from './test/utils/fixture-program.spec.util.ts';
+import { buildAggregate } from './utils/aggregate-update.util.ts';
 import { moduleEdges } from './utils/module-edges.util.ts';
 
 const FIXTURE = 'unused-exports';
@@ -150,4 +150,27 @@ test('forgets a removed file without rebuilding', () => {
   assert.equal(index, before);
   assert.equal(index.byFile.has(fileName('orphan-module.ts')), false);
   assert.ok(usageOf(index, 'used.ts', 'usedValue') > 0);
+});
+
+test('keeps aggregates of different projects apart', () => {
+  const projectA = derivedProgram(program, roots, undefined, {
+    configFilePath: 'tsconfig.project-a.json'
+  });
+  const indexA = exportIndex(projectA);
+  const usageBefore = usageOf(indexA, 'used.ts', 'usedValue');
+  const text =
+    "import { starDead } from './star-origin';\n\nexport const started = starDead;\n";
+  const edited = editedSourceFile(program, FIXTURE, 'main.ts', text);
+  const projectB = derivedProgram(program, roots, edited, {
+    configFilePath: 'tsconfig.project-b.json'
+  });
+
+  const indexB = exportIndex(projectB);
+  const indexAAgain = exportIndex(projectA);
+
+  assert.notEqual(indexB, indexA);
+  assert.equal(indexAAgain, indexA);
+  assert.equal(usageOf(indexAAgain, 'used.ts', 'usedValue'), usageBefore);
+  assert.equal(usageOf(indexAAgain, 'star-origin.ts', 'starDead'), 0);
+  assert.equal(usageOf(indexB, 'star-origin.ts', 'starDead'), 1);
 });

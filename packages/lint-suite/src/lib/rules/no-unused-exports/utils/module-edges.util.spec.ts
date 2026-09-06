@@ -3,15 +3,15 @@ import assert from 'node:assert/strict';
 import type { SourceFile } from 'typescript';
 import { test } from 'vitest';
 
-import {
-  fixtureProgram,
-  fixtureSourceFile
-} from './fixture-program.spec.util.ts';
 import { moduleEdges } from './module-edges.util.ts';
 import type {
   FileEdges,
   ImportEdge
 } from '../common/no-unused-exports.type.ts';
+import {
+  fixtureProgram,
+  fixtureSourceFile
+} from '../test/utils/fixture-program.spec.util.ts';
 
 const FIXTURE = 'edge-cases';
 

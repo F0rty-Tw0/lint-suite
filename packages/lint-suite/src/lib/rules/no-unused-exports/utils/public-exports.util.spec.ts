@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import { reExportIndex } from './export-usage.util.ts';
-import { byFileStub, fileEdgesStub } from './file-edges.spec.util.ts';
 import { publicExports } from './public-exports.util.ts';
 import type {
   ReExportEdge,
   UsageContext
 } from '../common/no-unused-exports.type.ts';
+import { byFileStub, fileEdgesStub } from '../test/utils/file-edges.spec.util.ts';
 
 const namedReExport: ReExportEdge = {
   target: 'origin.ts',
