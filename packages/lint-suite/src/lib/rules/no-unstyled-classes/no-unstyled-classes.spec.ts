@@ -74,6 +74,11 @@ const invalid: RuleTester.InvalidTestCase[] = [
     errors: flatErrors
   },
   {
+    name: 'reports a class the stylesheet linked from the template misses',
+    ...fixtureCase('linked', 'page.html'),
+    errors: missingClassErrors
+  },
+  {
     name: 'resolves nested, media, and multi-parent selectors',
     ...fixtureCase('nested', 'panel.component.html'),
     errors: missingClassErrors

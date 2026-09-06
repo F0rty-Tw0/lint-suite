@@ -95,6 +95,7 @@ export default createRule<Options, MessageIds>({
     const ignored = options.ignoreClassPatterns.map(toRegExp);
     const stylesheets = templateStylesheets(
       context.filename,
+      context.sourceCode.text,
       context.cwd,
       options.globalStyles
     );
