@@ -5,11 +5,11 @@ import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
 import { describe, test } from 'vitest';
 
+import { typescript } from '../../typescript.ts';
 import {
   missingReadonly,
   readonlyArray
-} from './utils/readonly-type-properties-cases.spec.util.ts';
-import { typescript } from '../../typescript.ts';
+} from './test/utils/readonly-type-properties-cases.spec.util.ts';
 
 const rule = typescript.map((config) => config.plugins?.['local']).find(Boolean)
   ?.rules?.['readonly-type-properties'];
