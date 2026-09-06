@@ -4,7 +4,8 @@ import { parse } from 'postcss-scss';
 
 import { collectStylesheet } from './stylesheet-collection.ts';
 import { createFileCache, readCached } from '../../file-cache.ts';
-import { classMatcher } from '../../utils/selector-classes.util.ts';
+import { classMatcher } from '../../selector-classes.ts';
+import { toRegExp } from '../../utils/to-regexp.util.ts';
 import type {
   StylesheetClasses,
   StylesheetEntry,
@@ -91,10 +92,6 @@ const collectChain = (
 
   chain.push(entry);
   collectImports(entry, chain, visited);
-};
-
-const toRegExp = (pattern: string): RegExp => {
-  return new RegExp(pattern, 'u');
 };
 
 const mergeChain = (chain: StylesheetEntry[]): StylesheetClasses => {

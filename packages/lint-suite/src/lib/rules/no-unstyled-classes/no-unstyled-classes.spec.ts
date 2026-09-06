@@ -18,8 +18,9 @@ const widenedPatterns = [
   { ignoreClassPatterns: ['^(js|qa|mat|cdk|mdc)-', '^nope$'] }
 ];
 
+const unstyledOneError = unstyledClassError('unstyled-one');
 const staticTokenError: RuleTester.TestCaseError = {
-  ...unstyledClassError('unstyled-one'),
+  ...unstyledOneError,
   line: 1,
   column: 40,
   endColumn: 52
@@ -51,18 +52,44 @@ const partialsErrors = [
   unstyledClassError('nope-two')
 ];
 
+const noStylesheetCase = fixtureCase('no-stylesheet', 'plain.component.html');
+const invalidScssCase = fixtureCase('invalid-scss', 'broken.component.html');
+const ignoredHooksCase = fixtureCase('ignored', 'hooks.component.html');
+const flatCardCase = fixtureCase('flat', 'card.component.html');
+const linkedPageCase = fixtureCase('linked', 'page.html');
+const nestedPanelCase = fixtureCase('nested', 'panel.component.html');
+const partialsListCase = fixtureCase('partials', 'list.component.html');
+const interpolationBadgeCase = fixtureCase(
+  'interpolation',
+  'badge.component.html'
+);
+const metadataHeroCase = fixtureCase('metadata', 'hero.component.html');
+const inlineStylesOnlyBannerCase = fixtureCase(
+  'inline-styles-only',
+  'banner.component.html'
+);
+const globalAppCase = fixtureCase('global', 'app.component.html');
+const expressionsWidgetCase = fixtureCase(
+  'expressions',
+  'widget.component.html'
+);
+const customElementPageCase = fixtureCase(
+  'custom-element',
+  'page.component.html'
+);
+
 const valid: RuleTester.ValidTestCase[] = [
   {
     name: 'accepts a template whose component declares no stylesheet',
-    ...fixtureCase('no-stylesheet', 'plain.component.html')
+    ...noStylesheetCase
   },
   {
     name: 'accepts a template whose only stylesheet fails to parse',
-    ...fixtureCase('invalid-scss', 'broken.component.html')
+    ...invalidScssCase
   },
   {
     name: 'accepts classes matched by the configured ignore patterns',
-    ...fixtureCase('ignored', 'hooks.component.html'),
+    ...ignoredHooksCase,
     options: widenedPatterns
   }
 ];
@@ -70,69 +97,69 @@ const valid: RuleTester.ValidTestCase[] = [
 const invalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'reports a static token and a class binding the stylesheet misses',
-    ...fixtureCase('flat', 'card.component.html'),
+    ...flatCardCase,
     errors: flatErrors
   },
   {
     name: 'reports a class the stylesheet linked from the template misses',
-    ...fixtureCase('linked', 'page.html'),
+    ...linkedPageCase,
     errors: missingClassErrors
   },
   {
     name: 'resolves nested, media, and multi-parent selectors',
-    ...fixtureCase('nested', 'panel.component.html'),
+    ...nestedPanelCase,
     errors: missingClassErrors
   },
   {
     name: 'follows use and import partials of the component stylesheet',
-    ...fixtureCase('partials', 'list.component.html'),
+    ...partialsListCase,
     errors: partialsErrors
   },
   {
     name: 'treats an interpolated selector as a pattern, not a bare prefix',
-    ...fixtureCase('interpolation', 'badge.component.html'),
+    ...interpolationBadgeCase,
     errors: interpolationErrors
   },
   {
     name: 'reads styleUrls and inline styles from component metadata',
-    ...fixtureCase('metadata', 'hero.component.html'),
+    ...metadataHeroCase,
     errors: missingClassErrors
   },
   {
     name: 'reads a component that declares inline styles and no stylesheet',
-    ...fixtureCase('inline-styles-only', 'banner.component.html'),
+    ...inlineStylesOnlyBannerCase,
     errors: missingClassErrors
   },
   {
     name: 'reports a global class when no global stylesheet is configured',
-    ...fixtureCase('global', 'app.component.html'),
+    ...globalAppCase,
     errors: globalErrors
   },
   {
     name: 'accepts a global class once the global stylesheet is configured',
-    ...fixtureCase('global', 'app.component.html'),
+    ...globalAppCase,
     options: globalOptions,
     errors: missingClassErrors
   },
   {
     name: 'reads literal class names out of class binding expressions',
-    ...fixtureCase('expressions', 'widget.component.html'),
+    ...expressionsWidgetCase,
     errors: expressionErrors
   },
   {
     name: 'ignores framework prefixes by default',
-    ...fixtureCase('ignored', 'hooks.component.html'),
+    ...ignoredHooksCase,
     errors: missingClassErrors
   },
   {
     name: 'replaces the default ignore patterns with the configured ones',
-    ...fixtureCase('ignored', 'hooks.component.html'),
+    ...ignoredHooksCase,
     options: replacedPatterns,
     errors: prefixedErrors
   },
   {
     name: 'skips custom elements and containers whose classes are unknowable',
-    ...fixtureCase('custom-element', 'page.component.html'),
+    ...customElementPageCase,
     errors: missingClassErrors
   }
 ];

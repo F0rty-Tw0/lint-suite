@@ -10,6 +10,7 @@ import type {
 } from './common/no-unstyled-classes.type.ts';
 import { templateStylesheets } from './styles/template-stylesheets.ts';
 import { templateClasses } from '../utils/template-classes.util.ts';
+import { toRegExp } from '../utils/to-regexp.util.ts';
 
 type Options = [RuleOptions];
 
@@ -78,8 +79,6 @@ const isTemplateServices = (
 
   return typeof services.convertNodeSourceSpanToLoc === 'function';
 };
-
-const toRegExp = (pattern: string): RegExp => new RegExp(pattern, 'u');
 
 export default createRule<Options, MessageIds>({
   name: 'no-unstyled-classes',

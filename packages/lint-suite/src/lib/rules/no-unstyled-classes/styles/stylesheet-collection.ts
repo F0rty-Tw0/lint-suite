@@ -1,8 +1,8 @@
 import type { AtRule, Root, Rule } from 'postcss';
 
 import { resolveStylesheetImport } from './stylesheet-imports.ts';
+import { selectorClasses } from '../../selector-classes.ts';
 import { walkResolvedRules } from '../../utils/resolved-rules.util.ts';
-import { selectorClasses } from '../../utils/selector-classes.util.ts';
 import type { StylesheetEntry } from '../common/no-unstyled-classes.type.ts';
 
 const IMPORT_AT_RULES = new Set(['use', 'import', 'forward']);
