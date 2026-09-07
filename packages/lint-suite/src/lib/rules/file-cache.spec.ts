@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   rmSync,
+  statSync,
   utimesSync,
   writeFileSync
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import { afterEach, beforeEach, test } from 'vitest';
 
@@ -61,6 +63,19 @@ test('parses again when the file changes', () => {
 
   assert.equal(readCached(cache, file, parse), 'TWO');
   assert.equal(parsed, 2);
+});
+
+test('parses again when a stored entry came from another package version', () => {
+  const cache = freshCache();
+  const stats = statSync(file, { bigint: true });
+  const stale = { value: 'STALE', version: `${stats.mtimeNs}:${stats.size}` };
+  const stored = join(directory, 'cache', `${cache.name}.v1.json`);
+
+  mkdirSync(dirname(stored), { recursive: true });
+  writeFileSync(stored, JSON.stringify({ [file]: stale }));
+
+  assert.equal(readCached(cache, file, parse), 'ONE');
+  assert.equal(parsed, 1);
 });
 
 test('reads null for a file that cannot be opened', () => {

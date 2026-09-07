@@ -9,6 +9,7 @@
 
 ### Fixes
 
+- **Disk cache**: entries are keyed by the installed `lint-suite` version, so an upgrade that changes what a parser reads (like `routerLinkActive` support) no longer serves stale results from `node_modules/.cache/lint-suite`.
 - **`local/no-unused-classes`**: a rule that only wraps nested rules, like `.dialog` in
   `.dialog { &__name {} }`, emits no selector of its own and is no longer reported; `.shell` in
   `.shell { .inner {} }` still is, because `.shell .inner` reaches the output.

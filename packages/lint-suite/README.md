@@ -110,8 +110,9 @@ export default [
 
 `no-unstyled-classes`, `no-unused-classes`, and `no-unused-instance-fields`
 parse component metadata, stylesheets, and templates once per file and keep
-the result in memory for the life of the process, keyed by the file's mtime
-and size. The same entries are mirrored to
+the result in memory for the life of the process, keyed by the installed
+lint-suite version and the file's mtime and size, so an upgrade reparses
+every file. The same entries are mirrored to
 `node_modules/.cache/lint-suite/*.json` under the current working directory
 at process exit, so the next ESLint or stylelint process (a CI run, or an
 editor's first lint) skips every parse of a file that did not change. Set
