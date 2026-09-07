@@ -1,4 +1,4 @@
-import type { AtRule, Root, Rule } from 'postcss';
+import type { AtRule, ChildNode, Root, Rule } from 'postcss';
 import stylelint from 'stylelint';
 import type { Plugin, PostcssResult, Problem, RuleMeta } from 'stylelint';
 
@@ -16,6 +16,7 @@ type UnusedContext = {
   readonly result: PostcssResult;
   readonly ignored: RegExp[];
   readonly extended: Set<string>;
+  readonly emitted: Set<string>;
   readonly isUsed: ClassMatcher;
 };
 
@@ -69,6 +70,30 @@ const extendedClasses = (root: Root): Set<string> => {
   return names;
 };
 
+const isEmittingRule = (rule: Rule): boolean => {
+  const isEmittingNode = (node: ChildNode): boolean => {
+    return node.type === 'decl' || node.type === 'atrule';
+  };
+  const children = rule.nodes;
+
+  return children.some(isEmittingNode);
+};
+
+const emittedClasses = (root: Root): Set<string> => {
+  const names = new Set<string>();
+  const visit = (rule: Rule, resolved: string[]): void => {
+    const isEmitting = isEmittingRule(rule);
+
+    if (!isEmitting) return;
+
+    for (const selector of resolved) addNames(selector, names);
+  };
+
+  walkResolvedRules(root, visit);
+
+  return names;
+};
+
 const ruleClasses = (resolved: string[], parents: string[]): string[] => {
   const inherited = new Set<string>();
 
@@ -94,6 +119,10 @@ const reportUnused = (
   rule: Rule,
   name: string
 ): void => {
+  const isEmitted = context.emitted.has(name);
+
+  if (!isEmitted) return;
+
   const matchesIgnored = (pattern: RegExp): boolean => pattern.test(name);
   const isIgnored = context.ignored.some(matchesIgnored);
 
@@ -144,10 +173,12 @@ const noUnusedClasses = (
     const patterns = secondary?.ignoreClassPatterns ?? DEFAULT_IGNORE_PATTERNS;
     const ignored = patterns.map(toRegExp);
     const extended = extendedClasses(root);
+    const emitted = emittedClasses(root);
     const context: UnusedContext = {
       result,
       ignored,
       extended,
+      emitted,
       isUsed: usage.has
     };
     const visit = (rule: Rule, resolved: string[], parents: string[]): void => {

@@ -19,7 +19,10 @@ import type {
 import { createFileCache, readCached } from '../../file-cache.ts';
 import { classMatcher } from '../../selector-classes.ts';
 import { classExpressionUsage } from '../../utils/class-expression-literals.util.ts';
-import { templateClasses } from '../../utils/template-classes.util.ts';
+import {
+  isClassExpression,
+  templateClasses
+} from '../../utils/template-classes.util.ts';
 import { toRegExp } from '../../utils/to-regexp.util.ts';
 import type {
   TemplateSource,
@@ -32,7 +35,6 @@ type UsageEntry = {
   readonly isDynamic: boolean;
 };
 
-const CLASS_ATTRIBUTE = 'class';
 const NG_CLASS_ATTRIBUTE = 'ngClass';
 
 const matchesNone: ClassMatcher = () => false;
@@ -58,15 +60,7 @@ const isClassInput = (input: TmplAstBoundAttribute): boolean => {
 
   if (isNgClass) return true;
 
-  const isClass = input.name === CLASS_ATTRIBUTE;
-
-  if (!isClass) return false;
-
-  const { details } = input.keySpan;
-
-  if (details === null) return true;
-
-  return details === CLASS_ATTRIBUTE;
+  return isClassExpression(input);
 };
 
 class ClassUsageVisitor extends TmplAstRecursiveVisitor {

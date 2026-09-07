@@ -81,3 +81,17 @@ test('reads nothing from an unrelated property binding', () => {
 test('reads nothing from an attribute binding on a class attribute', () => {
   assert.deepEqual(namesOf('<div [attr.class]="x"></div>'), []);
 });
+
+test('reads the classes of a routerLinkActive attribute and binding', () => {
+  const template =
+    '<a routerLinkActive="r-a r-b" [routerLinkActive]="\'r-c\'"></a>';
+
+  assert.deepEqual(namesOf(template), ['r-a', 'r-b', 'r-c']);
+});
+
+test('reads the classes of animate.enter and animate.leave', () => {
+  const template =
+    '<div animate.enter="e-1" [animate.leave]="\'e-2\'"></div>';
+
+  assert.deepEqual(namesOf(template), ['e-1', 'e-2']);
+});

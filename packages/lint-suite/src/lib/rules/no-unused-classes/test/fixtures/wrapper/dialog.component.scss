@@ -1,0 +1,31 @@
+.dialog {
+  &__name {
+    color: red;
+  }
+
+  &__description {
+    color: red;
+  }
+
+  &__link--active {
+    color: red;
+  }
+
+  &__link--current {
+    color: red;
+  }
+
+  &--enter {
+    color: red;
+  }
+
+  &--leave {
+    color: red;
+  }
+}
+
+.shell {
+  .inner {
+    color: red;
+  }
+}

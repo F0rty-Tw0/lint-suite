@@ -78,6 +78,18 @@ test('reports nested selectors on the rule that declares them', async () => {
   assert.deepEqual(lines, [26, 33]);
 });
 
+test('skips a nesting wrapper that emits no selector of its own', async () => {
+  const warnings = await warningsOf({
+    name: 'wrapper',
+    file: 'dialog.component.scss'
+  });
+
+  assert.deepEqual(textsOf(warnings), [
+    messages.rejected('shell'),
+    messages.rejected('inner')
+  ]);
+});
+
 test('accepts host, host-context, and ng-deep selectors', async () => {
   const warnings = await warningsOf({
     name: 'host',

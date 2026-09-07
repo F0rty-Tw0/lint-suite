@@ -10,7 +10,12 @@ import type {
   TemplateClass
 } from '../common/class-usage.type.ts';
 
-const CLASS_ATTRIBUTE = 'class';
+const CLASS_ATTRIBUTES = [
+  'class',
+  'routerLinkActive',
+  'animate.enter',
+  'animate.leave'
+];
 const CLASS_BINDING_PREFIX = 'class.';
 const TOKEN = /\S+/gu;
 
@@ -52,8 +57,8 @@ const boundClassName = (input: TmplAstBoundAttribute): string | null => {
   return input.name;
 };
 
-const isClassExpression = (input: TmplAstBoundAttribute): boolean => {
-  const isClassName = input.name === CLASS_ATTRIBUTE;
+export const isClassExpression = (input: TmplAstBoundAttribute): boolean => {
+  const isClassName = CLASS_ATTRIBUTES.includes(input.name);
 
   if (!isClassName) return false;
 
@@ -61,7 +66,7 @@ const isClassExpression = (input: TmplAstBoundAttribute): boolean => {
 
   if (details === null) return true;
 
-  return details === CLASS_ATTRIBUTE;
+  return details === input.name;
 };
 
 const expressionClasses = (input: TmplAstBoundAttribute): TemplateClass[] => {
@@ -99,7 +104,7 @@ export const templateClasses = (node: ClassAttributeHost): TemplateClass[] => {
   const classes: TemplateClass[] = [];
 
   for (const attribute of node.attributes) {
-    const isClassName = attribute.name === CLASS_ATTRIBUTE;
+    const isClassName = CLASS_ATTRIBUTES.includes(attribute.name);
 
     if (isClassName) {
       const found = staticClasses(attribute);

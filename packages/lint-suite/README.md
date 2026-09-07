@@ -207,7 +207,9 @@ literal class names inside `[class]="..."` expressions and `class="a {{ b }}"`
 interpolations. String literals, object-literal keys, array elements, and both
 branches of a ternary contribute names; identifiers, calls, pipes, and `+`
 concatenations contribute nothing, so a class the rule cannot see is never
-reported. `[ngClass]` is deliberately not analysed.
+reported. `[ngClass]` is deliberately not analysed. `routerLinkActive`,
+`animate.enter`, and `animate.leave` are also read as class lists, static or
+bound.
 
 Stylesheets come from the component beside the template: `styleUrl`,
 `styleUrls`, and inline `styles` read as string or template literals from the
@@ -278,13 +280,17 @@ Selectors resolve through the same parser as the ESLint rule, so `&__element`,
 `&--modifier`, `&.other`, `& > .child`, `.wrapper &`, `@media` blocks, and
 selector lists all report the resolved name on the rule that declares it: in
 `.panel { .inner {} }` only `inner` is checked on the inner rule, never `panel`
-twice. Arguments of `:host(.dark)` and `:host-context(.rtl)` are skipped, and
+twice. A rule that only wraps nested rules, like `.dialog` in
+`.dialog { &__name {} }`, emits no selector of its own and is never reported;
+`.shell` in `.shell { .inner {} }` still is, because `.shell .inner` reaches
+the output. Arguments of `:host(.dark)` and `:host-context(.rtl)` are skipped, and
 everything after `::ng-deep`, `/deep/`, or `>>>` is skipped too, because those
 classes live in other templates. A selector built with interpolation
 (`.icon-#{$size}`) is never reported, and `@extend .base` counts `base` as
 used.
 
-The template side reads the same sources as `no-unstyled-classes` plus
+The template side reads the same sources as `no-unstyled-classes` (including
+`routerLinkActive`, `animate.enter`, and `animate.leave`, static or bound) plus
 `[ngClass]`, and it does not skip custom elements: a class on
 `<app-child class="foo">` is written by this template, so `.foo` counts as
 used. When any template of the stylesheet holds a class source the rule cannot
