@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-09-07
+
 ### Features
 
 - **`local/no-unstyled-classes`, `local/no-unused-classes`**: `routerLinkActive`, `animate.enter`, and
@@ -438,8 +440,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.2...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[2.0.2]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.3...v2.0.0
 [1.6.3]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.2...v1.6.3
