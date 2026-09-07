@@ -2,14 +2,25 @@
 
 ## [Unreleased]
 
+### Features
+
+- **`local/no-unstyled-classes`, `local/no-unused-classes`**: `routerLinkActive`, `animate.enter`, and
+  `animate.leave` are read as class lists, static or bound, so a class named only there counts as used.
+
+### Fixes
+
+- **`local/no-unused-classes`**: a rule that only wraps nested rules, like `.dialog` in
+  `.dialog { &__name {} }`, emits no selector of its own and is no longer reported; `.shell` in
+  `.shell { .inner {} }` still is, because `.shell .inner` reaches the output.
+- **TypeScript**: `@typescript-eslint/no-inferrable-types` is off for `**/*.stub.ts`; `local/test-file-shape`
+  requires `STUB: Type` there, which the two rules otherwise fight over for literal stubs.
+
 ## [2.0.1] - 2026-09-06
 
 ### Fixes
 
 - **`local/type-placement`**: `*.schema.ts` files are exempt (an inferred type lives beside its schema), and
   an `import type` from a `*.schema.ts` file passes.
-- **TypeScript**: `@typescript-eslint/no-inferrable-types` is off for `**/*.stub.ts`; `local/test-file-shape`
-  requires `STUB: Type` there, which the two rules otherwise fight over for literal stubs.
 
 ## [2.0.0] - 2026-09-06
 
