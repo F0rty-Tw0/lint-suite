@@ -26,6 +26,19 @@ const isResolvable = (specifier: string): boolean => {
   return !specifier.endsWith('.css');
 };
 
+/** The specifier of a `@use`, `@import`, or `@forward` that may name a file. */
+export const importSpecifier = (params: string): string | null => {
+  const specifier = specifierOf(params);
+
+  if (specifier === null) return null;
+
+  const isCandidate = isResolvable(specifier);
+
+  if (!isCandidate) return null;
+
+  return specifier;
+};
+
 const candidatesOf = (path: string): string[] => {
   const isStylesheet = path.endsWith('.scss');
 
@@ -41,18 +54,15 @@ const candidatesOf = (path: string): string[] => {
   ];
 };
 
+/**
+ * The file a specifier names right now. Resolved on every read, never with
+ * the parse: a partial created after the `@use` was written must show up
+ * without the importer changing.
+ */
 export const resolveStylesheetImport = (
-  params: string,
+  specifier: string,
   directory: string
 ): string | null => {
-  const specifier = specifierOf(params);
-
-  if (specifier === null) return null;
-
-  const isCandidate = isResolvable(specifier);
-
-  if (!isCandidate) return null;
-
   const path = resolve(directory, specifier);
   const candidates = candidatesOf(path);
   const existing = candidates.find((candidate) => existsSync(candidate));

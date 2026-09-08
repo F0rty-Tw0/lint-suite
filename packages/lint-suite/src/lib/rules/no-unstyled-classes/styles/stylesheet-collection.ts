@@ -1,6 +1,6 @@
 import type { AtRule, Root, Rule } from 'postcss';
 
-import { resolveStylesheetImport } from './stylesheet-imports.ts';
+import { importSpecifier } from './stylesheet-imports.ts';
 import { selectorClasses } from '../../selector-classes.ts';
 import { walkResolvedRules } from '../../utils/resolved-rules.util.ts';
 import type { StylesheetEntry } from '../common/no-unstyled-classes.type.ts';
@@ -16,30 +16,23 @@ const addSelectors = (selectors: string[], entry: StylesheetEntry): void => {
   }
 };
 
-const addImport = (
-  node: AtRule,
-  entry: StylesheetEntry,
-  directory: string
-): void => {
+const addImport = (node: AtRule, entry: StylesheetEntry): void => {
   const isImport = IMPORT_AT_RULES.has(node.name);
 
   if (!isImport) return;
 
-  const imported = resolveStylesheetImport(node.params, directory);
+  const specifier = importSpecifier(node.params);
 
-  if (imported !== null) entry.imports.push(imported);
+  if (specifier !== null) entry.imports.push(specifier);
 };
 
-export const collectStylesheet = (
-  root: Root,
-  directory: string
-): StylesheetEntry => {
+export const collectStylesheet = (root: Root): StylesheetEntry => {
   const entry: StylesheetEntry = { classes: [], patterns: [], imports: [] };
   const onRule = (_rule: Rule, resolved: string[]): void => {
     addSelectors(resolved, entry);
   };
   const onAtRule = (node: AtRule): void => {
-    addImport(node, entry, directory);
+    addImport(node, entry);
   };
 
   walkResolvedRules(root, onRule);

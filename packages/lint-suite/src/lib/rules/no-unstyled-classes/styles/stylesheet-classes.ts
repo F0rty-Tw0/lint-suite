@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import { parse } from 'postcss-scss';
 
 import { collectStylesheet } from './stylesheet-collection.ts';
+import { resolveStylesheetImport } from './stylesheet-imports.ts';
 import { createFileCache, readCached } from '../../file-cache.ts';
 import { classMatcher } from '../../selector-classes.ts';
 import { toRegExp } from '../../utils/to-regexp.util.ts';
@@ -25,9 +26,7 @@ const merged = new Map<string, MergedChain>();
 
 const parseStylesheet = (source: string, path: string): StylesheetEntry => {
   try {
-    const root = parse(source, { from: path });
-
-    return collectStylesheet(root, dirname(path));
+    return collectStylesheet(parse(source, { from: path }));
   } catch {
     return EMPTY_ENTRY;
   }
@@ -52,10 +51,15 @@ const inlineEntry = (source: string, path: string): StylesheetEntry => {
 
 const collectImports = (
   entry: StylesheetEntry,
+  directory: string,
   chain: StylesheetEntry[],
   visited: Set<string>
 ): void => {
-  for (const imported of entry.imports) {
+  for (const specifier of entry.imports) {
+    const imported = resolveStylesheetImport(specifier, directory);
+
+    if (imported === null) continue;
+
     const isVisited = visited.has(imported);
 
     if (isVisited) continue;
@@ -65,7 +69,7 @@ const collectImports = (
     const importedEntry = fileEntry(imported);
 
     chain.push(importedEntry);
-    collectImports(importedEntry, chain, visited);
+    collectImports(importedEntry, dirname(imported), chain, visited);
   }
 };
 
@@ -91,7 +95,7 @@ const collectChain = (
   const entry = entryOf(source);
 
   chain.push(entry);
-  collectImports(entry, chain, visited);
+  collectImports(entry, dirname(source.path), chain, visited);
 };
 
 const mergeChain = (chain: StylesheetEntry[]): StylesheetClasses => {

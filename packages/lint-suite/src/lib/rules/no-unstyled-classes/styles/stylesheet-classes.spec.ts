@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { test } from 'vitest';
 
@@ -106,4 +109,25 @@ test('reads the same file twice without changing the result', () => {
 
   assert.equal(first.size, second.size);
   assert.equal(second.has('token-a'), true);
+});
+
+test('sees a partial created after the stylesheet that uses it was read', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'lint-suite-partials-'));
+  const importer: StylesheetSource = {
+    kind: 'file',
+    path: join(directory, 'late.component.scss')
+  };
+
+  writeFileSync(importer.path, "@use './late.tokens';\n");
+
+  const before = stylesheetClasses([importer]);
+
+  writeFileSync(join(directory, '_late.tokens.scss'), '.late-token {}\n');
+
+  const after = stylesheetClasses([importer]);
+
+  rmSync(directory, { force: true, recursive: true });
+
+  assert.equal(before.has('late-token'), false);
+  assert.equal(after.has('late-token'), true);
 });

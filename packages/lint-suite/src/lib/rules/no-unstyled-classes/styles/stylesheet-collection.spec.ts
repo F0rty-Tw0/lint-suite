@@ -1,17 +1,13 @@
 import assert from 'node:assert/strict';
-import { join } from 'node:path';
 
 import { parse } from 'postcss-scss';
 import { test } from 'vitest';
 
 import { collectStylesheet } from './stylesheet-collection.ts';
 import type { StylesheetEntry } from '../common/no-unstyled-classes.type.ts';
-import { fixtureDirectory } from '../test/utils/fixture-template.spec.util.ts';
 
-const partials = fixtureDirectory('partials');
-
-const collect = (source: string, directory = partials): StylesheetEntry => {
-  return collectStylesheet(parse(source), directory);
+const collect = (source: string): StylesheetEntry => {
+  return collectStylesheet(parse(source));
 };
 
 test('collects the classes of top level rules', () => {
@@ -58,17 +54,14 @@ test('collects no pattern for a bare nesting selector in a mixin', () => {
   assert.deepEqual(entry.patterns, []);
 });
 
-test('records use, import, and forward targets it can resolve', () => {
+test('records the specifiers of use, import, and forward', () => {
   const source = "@use './list.tokens'; @import 'shared/_mixins';";
   const entry = collect(source);
 
-  assert.deepEqual(entry.imports, [
-    join(partials, '_list.tokens.scss'),
-    join(partials, 'shared', '_mixins.scss')
-  ]);
+  assert.deepEqual(entry.imports, ['./list.tokens', 'shared/_mixins']);
 });
 
-test('records no target for an import it cannot resolve', () => {
+test('records no specifier for an import that names no file', () => {
   const entry = collect("@use 'sass:math';");
 
   assert.deepEqual(entry.imports, []);
