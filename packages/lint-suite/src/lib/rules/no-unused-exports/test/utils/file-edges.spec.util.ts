@@ -11,6 +11,7 @@ export const fileEdgesStub = (overrides: FileEdgesInput): FileEdges => {
     imports: [],
     reExports: [],
     starTargets: [],
+    dangling: [],
     skipped: false,
     ...overrides
   };

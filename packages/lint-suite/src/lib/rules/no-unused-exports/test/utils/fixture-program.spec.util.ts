@@ -10,7 +10,13 @@ import {
   createProgram,
   createSourceFile
 } from 'typescript';
-import type { CompilerOptions, Program, SourceFile } from 'typescript';
+import type {
+  CompilerHost,
+  CompilerOptions,
+  Program,
+  ResolvedModuleWithFailedLookupLocations,
+  SourceFile
+} from 'typescript';
 
 import { fixtureDirectory } from './fixture-project.spec.util.ts';
 
@@ -21,13 +27,17 @@ const COMPILER_OPTIONS: CompilerOptions = {
   moduleResolution: ModuleResolutionKind.Bundler
 };
 
+export const filesProgram = (files: string[]): Program => {
+  return createProgram(files, COMPILER_OPTIONS);
+};
+
 export const fixtureProgram = (name: string): Program => {
   const directory = fixtureDirectory(name);
   const entries = readdirSync(directory);
   const sources = entries.filter((entry) => entry.endsWith('.ts'));
   const files = sources.map((entry) => join(directory, entry));
 
-  return createProgram(files, COMPILER_OPTIONS);
+  return filesProgram(files);
 };
 
 export const fixtureSourceFile = (
@@ -58,6 +68,28 @@ export const editedSourceFile = (
   return createSourceFile(original.fileName, text, ScriptTarget.ES2022, true);
 };
 
+/** A host that serves the previous Program's source file objects, like an editor's document registry. */
+const reusingHost = (
+  program: Program,
+  options: CompilerOptions,
+  edited: SourceFile | undefined
+): CompilerHost => {
+  const host = createCompilerHost(options);
+  const readSourceFile = host.getSourceFile;
+  const editedName = normalised(edited?.fileName ?? '');
+
+  host.getSourceFile = (fileName, ...rest): SourceFile | undefined => {
+    const path = normalised(fileName);
+    const isEdited = path === editedName;
+
+    if (isEdited) return edited;
+
+    return program.getSourceFile(fileName) ?? readSourceFile(fileName, ...rest);
+  };
+
+  return host;
+};
+
 export const derivedProgram = (
   program: Program,
   rootFiles: string[],
@@ -65,18 +97,29 @@ export const derivedProgram = (
   options: CompilerOptions = {}
 ): Program => {
   const compilerOptions = { ...COMPILER_OPTIONS, ...options };
-  const host = createCompilerHost(compilerOptions);
-  const editedPath = edited?.fileName ?? '';
-  const editedName = normalised(editedPath);
-
-  host.getSourceFile = (fileName): SourceFile | undefined => {
-    const path = normalised(fileName);
-    const isEdited = path === editedName;
-
-    if (isEdited) return edited;
-
-    return program.getSourceFile(fileName);
-  };
+  const host = reusingHost(program, compilerOptions, edited);
 
   return createProgram(rootFiles, compilerOptions, host);
+};
+
+const unresolved: ResolvedModuleWithFailedLookupLocations = {
+  resolvedModule: undefined
+};
+
+/**
+ * A derived Program whose module resolution fails for every specifier, like
+ * an editor's project service that never watched a new file appear.
+ */
+export const staleProgram = (
+  program: Program,
+  rootFiles: string[]
+): Program => {
+  const host = reusingHost(program, COMPILER_OPTIONS, undefined);
+
+  host.resolveModuleNameLiterals = (
+    literals
+  ): ResolvedModuleWithFailedLookupLocations[] =>
+    literals.map(() => unresolved);
+
+  return createProgram(rootFiles, COMPILER_OPTIONS, host);
 };
