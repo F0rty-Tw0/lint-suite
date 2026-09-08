@@ -13,18 +13,17 @@ import type {
   ImportDeclaration,
   Node,
   SourceFile,
-  Statement,
-  TypeChecker
+  Statement
 } from 'typescript';
 
 import { addExportFrom, addLocalExport } from './export-edges.util.ts';
 import { exportedNames } from './exported-names.util.ts';
-import { moduleTarget } from './module-target.util.ts';
+import { moduleResolver } from './module-resolver.util.ts';
 import type {
   EdgeAccumulator,
   FileEdges,
   ImportEdge,
-  IsExternalFile,
+  ModuleResolution,
   ModuleResolver
 } from '../common/no-unused-exports.type.ts';
 
@@ -139,7 +138,8 @@ const emptyEdges = (): EdgeAccumulator => {
     declared: new Set(),
     imports: [],
     reExports: [],
-    starTargets: []
+    starTargets: [],
+    dangling: []
   };
 
   return edges;
@@ -147,12 +147,10 @@ const emptyEdges = (): EdgeAccumulator => {
 
 export const moduleEdges = (
   sourceFile: SourceFile,
-  checker: TypeChecker,
-  isExternal: IsExternalFile
+  resolution: ModuleResolution
 ): FileEdges => {
-  const resolve: ModuleResolver = (specifier) =>
-    moduleTarget(specifier, checker, isExternal);
   const edges = emptyEdges();
+  const resolve = moduleResolver(resolution, edges.dangling);
   let skipped = false;
 
   for (const statement of sourceFile.statements) {

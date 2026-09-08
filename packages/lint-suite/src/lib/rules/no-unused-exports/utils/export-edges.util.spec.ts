@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 
-import { ScriptTarget, createSourceFile, isExportDeclaration } from 'typescript';
+import {
+  ScriptTarget,
+  createSourceFile,
+  isExportDeclaration
+} from 'typescript';
 import type { ExportDeclaration } from 'typescript';
 import { test } from 'vitest';
 
@@ -25,7 +29,8 @@ const emptyEdges = (): EdgeAccumulator => {
     declared: new Set(),
     imports: [],
     reExports: [],
-    starTargets: []
+    starTargets: [],
+    dangling: []
   };
 
   return edges;
@@ -36,7 +41,9 @@ const resolveTo = (target: string | undefined): ModuleResolver => {
 };
 
 test('records a re-exported name and its origin', () => {
-  const statement = exportDeclarationOf("export { origin as renamed } from './mod';");
+  const statement = exportDeclarationOf(
+    "export { origin as renamed } from './mod';"
+  );
   const edges = emptyEdges();
 
   addExportFrom(statement, edges, resolveTo('target.ts'));
@@ -87,7 +94,9 @@ test('records a namespace re-export as both an export and a star import', () => 
 });
 
 test('records a local export list without a module specifier', () => {
-  const statement = exportDeclarationOf('const a = 1;\nconst b = 2;\nexport { a, b };');
+  const statement = exportDeclarationOf(
+    'const a = 1;\nconst b = 2;\nexport { a, b };'
+  );
   const edges = emptyEdges();
 
   addLocalExport(statement, edges);

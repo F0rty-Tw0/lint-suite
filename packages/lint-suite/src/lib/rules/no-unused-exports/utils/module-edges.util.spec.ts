@@ -15,6 +15,8 @@ import {
 
 const FIXTURE = 'edge-cases';
 
+const never = (): undefined => undefined;
+
 const program = fixtureProgram(FIXTURE);
 const checker = program.getTypeChecker();
 
@@ -25,7 +27,7 @@ const isExternal = (sourceFile: SourceFile): boolean => {
 const edgesOf = (file: string): FileEdges => {
   const sourceFile = fixtureSourceFile(program, FIXTURE, file);
 
-  return moduleEdges(sourceFile, checker, isExternal);
+  return moduleEdges(sourceFile, { checker, isExternal, onDisk: never });
 };
 
 const targetName = fixtureSourceFile(program, FIXTURE, 'target.ts').fileName;
@@ -87,4 +89,11 @@ test('records a renamed local export and its import origin', () => {
   assert.deepEqual(edges.imports, expected);
   assert.deepEqual(edges.exports, ['exportedName']);
   assert.deepEqual(edges.reExports, []);
+});
+
+test('lists a literal import that resolves nowhere as dangling', () => {
+  const edges = edgesOf('dangling-import.ts');
+
+  assert.deepEqual(edges.imports, []);
+  assert.deepEqual(edges.dangling, ['./gone']);
 });
