@@ -64,18 +64,15 @@
     "./package.json": "./package.json",
     "./eslint": {
       "types": "./eslint.d.ts",
-      "import": "./eslint.js",
-      "require": "./eslint.cjs"
+      "default": "./eslint.js"
     },
     "./stylelint": {
       "types": "./stylelint.d.ts",
-      "import": "./stylelint.js",
-      "require": "./stylelint.cjs"
+      "default": "./stylelint.js"
     },
     "./prettier": {
       "types": "./prettier.d.ts",
-      "import": "./prettier.js",
-      "require": "./prettier.cjs"
+      "default": "./prettier.js"
     }
   },
   "files": [

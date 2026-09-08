@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **CommonJS entry removed**: `lint-suite/eslint`, `lint-suite/stylelint`, and `lint-suite/prettier`
+  ship as ESM only; the `require` export condition and the `.cjs` bundles are gone. They had not
+  loaded since `@eslint/json` arrived (`Cannot read properties of undefined (reading 'recommended')`),
+  because the bundler's CommonJS interop put `module.exports` in `.default`. A CommonJS config file
+  can still `require()` the ESM entries on Node 20.19+ / 22.12+.
+
+### Fixes
+
+- **`local/no-unused-exports`**: a file created after an import of it was written (or imported while
+  still empty) stayed "never imported" in the editor until ESLint restarted. Specifiers the checker
+  cannot resolve are now resolved on disk, and re-read on every Program until they resolve.
+- **`lint-suite-angular/no-unused-instance-fields`**: a member read through an import that resolved
+  to no module yet stayed "never read" in the editor until ESLint restarted. Such a file now counts
+  every candidate member it mentions as read, and is re-indexed on every Program until it resolves.
+- **`lint-suite-angular/no-unused-instance-fields`**: a component whose `templateUrl` file did not
+  exist yet stayed in name fallback after the file was created; a missing template is now remembered
+  and re-read once it exists.
+- **`lint-suite-angular-template/no-unstyled-classes`**: a partial created after the `@use`,
+  `@import`, or `@forward` that names it was written stayed invisible, also across restarts through
+  the disk cache, until the importing stylesheet changed. Import targets are now resolved on every
+  read; the cache keeps only the specifier.
+- **Disk cache**: the `lint-suite` version that keys every entry is read from this package's own
+  `package.json`, not resolved from `process.cwd()`. A monorepo root that does not itself depend on
+  `lint-suite` used the placeholder `dev` and never invalidated on upgrade.
+
 ## [2.0.2] - 2026-09-07
 
 ### Features

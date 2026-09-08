@@ -26,7 +26,7 @@
         "outputPath": "dist",
         "tsConfig": "packages/lint-suite/tsconfig.lib.json",
         "platform": "node",
-        "format": ["esm", "cjs"],
+        "format": ["esm"],
         "assets": [
           {
             "glob": "README.md",

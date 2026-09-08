@@ -44,6 +44,9 @@ import { recommended } from 'lint-suite/eslint';
 export default [...recommended];
 ```
 
+The package ships as ESM only. A CommonJS config (`eslint.config.cjs`) can
+still `require('lint-suite/eslint')` on Node 20.19+ / 22.12+.
+
 Or selectively include configurations:
 
 ```js
@@ -171,13 +174,20 @@ templates can read a component or directive member:
   folder, are re-read on every lint; edits to templates in other folders are
   picked up on a throttled schedule (at most every 100× the duration of the
   last check), so a cross-folder template edit can take a moment to show up
-  in another file's diagnostics.
+  in another file's diagnostics. A `templateUrl` file that does not exist
+  yet is remembered as missing and read on the same schedule once it does.
 - `analysis` defaults to `'local'`. Project mode excludes spec-file reads. A
   file it cannot index exactly (a template that does not parse, metadata it
   cannot evaluate, a read it cannot type) falls back to name matching for
   that file only: every member whose name that file mentions counts as read.
   Set `LINT_SUITE_DEBUG=1` to print which files fell back and why, for
   example `LINT_SUITE_DEBUG=1 eslint --no-cache src/app/some.component.ts`.
+- A file with an import that resolves to no module (its file does not exist
+  yet, or is still empty) reads through untyped values, so every candidate
+  member it mentions counts as read, and it is re-indexed on every Program
+  until the import resolves. The project service of typescript-eslint never
+  retries a resolution that failed, so in an editor this lasts until the
+  importing file is edited or ESLint restarts.
 - `allowEffectFields` defaults to `false`. When enabled, fields holding
   auto-cleaned Angular `effect()` calls are allowed; effects configured with
   `manualCleanup: true` must still be read.
@@ -475,7 +485,10 @@ export (values and types) that no other file in the TypeScript program
 imports, and a module that exports names but is never imported at all.
 
 - Source of truth is the program typescript-eslint already built for the
-  type-aware rules: no extra parse, no file enumeration, no filesystem.
+  type-aware rules: no extra parse, no file enumeration. The disk is only
+  asked about a specifier the checker cannot resolve, because the project
+  service of typescript-eslint never retries a failed resolution; such a file
+  is re-read on every Program until the specifier resolves.
 - Per file the rule walks top-level statements, plus every node of a file
   whose text contains `import(`, and caches the result
   on the `ts.SourceFile` object; the project-wide usage map is cached per
