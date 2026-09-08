@@ -1,15 +1,25 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import type { Program, SourceFile } from 'typescript';
 import { test } from 'vitest';
 
-import type { Aggregate, FileEdges } from './common/no-unused-exports.type.ts';
+import type {
+  Aggregate,
+  FileEdges,
+  ModuleResolution
+} from './common/no-unused-exports.type.ts';
+import { diskResolver } from './disk-resolver.ts';
 import { exportIndex } from './export-index.ts';
 import {
   derivedProgram,
   editedSourceFile,
+  filesProgram,
   fixtureProgram,
-  fixtureSourceFile
+  fixtureSourceFile,
+  staleProgram
 } from './test/utils/fixture-program.spec.util.ts';
 import { buildAggregate } from './utils/aggregate-update.util.ts';
 import { moduleEdges } from './utils/module-edges.util.ts';
@@ -46,10 +56,12 @@ const freshAggregate = (source: Program): Aggregate => {
   const checker = source.getTypeChecker();
   const isExternal = (file: SourceFile): boolean =>
     source.isSourceFileFromExternalLibrary(file);
+  const onDisk = diskResolver(source);
+  const resolution: ModuleResolution = { checker, isExternal, onDisk };
   const byFile = new Map<string, FileEdges>();
 
   for (const file of indexedFiles(source)) {
-    byFile.set(file.fileName, moduleEdges(file, checker, isExternal));
+    byFile.set(file.fileName, moduleEdges(file, resolution));
   }
 
   return buildAggregate(byFile);
@@ -173,4 +185,42 @@ test('keeps aggregates of different projects apart', () => {
   assert.equal(usageOf(indexAAgain, 'used.ts', 'usedValue'), usageBefore);
   assert.equal(usageOf(indexAAgain, 'star-origin.ts', 'starDead'), 0);
   assert.equal(usageOf(indexB, 'star-origin.ts', 'starDead'), 1);
+});
+
+test('links an importer to a file that was not a module when first indexed', () => {
+  const text = 'export const later = 1;\n';
+  const saved = savedProgram('empty-target.ts', text);
+
+  const index = exportIndex(saved);
+
+  assert.ok(index.imported.has(fileName('empty-target.ts')));
+  assert.equal(usageOf(index, 'empty-target.ts', 'later'), 1);
+});
+
+test('links an importer to a file created after the import was written', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'lint-suite-exports-'));
+  const importer = join(directory, 'importer.ts');
+  const target = join(directory, 'later.ts');
+
+  writeFileSync(
+    importer,
+    "import { later } from './later';\n\nexport const started = later;\n"
+  );
+
+  const before = filesProgram([importer]);
+  const dangling = exportIndex(before);
+
+  assert.equal(dangling.imported.size, 0);
+
+  writeFileSync(target, 'export const later = 1;\n');
+
+  const after = staleProgram(before, [importer, target]);
+  const index = exportIndex(after);
+  const targetFile = after.getSourceFile(target);
+
+  rmSync(directory, { force: true, recursive: true });
+
+  assert.ok(targetFile);
+  assert.ok(index.imported.has(targetFile.fileName));
+  assert.equal(index.usage.get(targetFile.fileName)?.get('later'), 1);
 });

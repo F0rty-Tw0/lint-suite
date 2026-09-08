@@ -1,14 +1,16 @@
 import { dirname } from 'node:path';
 
-import type { Program, SourceFile, TypeChecker } from 'typescript';
+import type { Program, SourceFile } from 'typescript';
 
 import type {
   Aggregate,
   FileEdges,
   IsExternalFile,
+  ModuleResolution,
   PublicExports,
   UsageContext
 } from './common/no-unused-exports.type.ts';
+import { diskResolver } from './disk-resolver.ts';
 import {
   buildAggregate,
   updateAggregate
@@ -39,16 +41,22 @@ const projectKey = (program: Program): string => {
   return sortedDirectories.join('|');
 };
 
+/**
+ * Edges are cached per source file object, which an editor keeps across
+ * Programs while the text is unchanged. A file with a dangling import is
+ * re-read on every Program: its target may have appeared since.
+ */
 const fileEdges = (
   sourceFile: SourceFile,
-  checker: TypeChecker,
-  isExternal: IsExternalFile
+  resolution: ModuleResolution
 ): FileEdges => {
   const cached = FILE_EDGES.get(sourceFile);
+  const isCached = cached !== undefined;
+  const isSettled = isCached && cached.dangling.length === 0;
 
-  if (cached) return cached;
+  if (isSettled) return cached;
 
-  const edges = moduleEdges(sourceFile, checker, isExternal);
+  const edges = moduleEdges(sourceFile, resolution);
 
   FILE_EDGES.set(sourceFile, edges);
 
@@ -59,6 +67,8 @@ const programEdges = (program: Program): Map<string, FileEdges> => {
   const checker = program.getTypeChecker();
   const isExternal: IsExternalFile = (sourceFile) =>
     program.isSourceFileFromExternalLibrary(sourceFile);
+  const onDisk = diskResolver(program);
+  const resolution: ModuleResolution = { checker, isExternal, onDisk };
   const byFile = new Map<string, FileEdges>();
 
   for (const sourceFile of program.getSourceFiles()) {
@@ -68,7 +78,7 @@ const programEdges = (program: Program): Map<string, FileEdges> => {
 
     if (isSourceExternal) continue;
 
-    byFile.set(sourceFile.fileName, fileEdges(sourceFile, checker, isExternal));
+    byFile.set(sourceFile.fileName, fileEdges(sourceFile, resolution));
   }
 
   return byFile;

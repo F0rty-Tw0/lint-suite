@@ -1,5 +1,10 @@
 import type { TSESLint } from '@typescript-eslint/utils';
-import type { Expression, SourceFile } from 'typescript';
+import type {
+  Expression,
+  SourceFile,
+  StringLiteralLike,
+  TypeChecker
+} from 'typescript';
 
 export type MessageIds = 'unusedExport' | 'unusedModule';
 
@@ -27,6 +32,7 @@ export type FileEdges = {
   readonly imports: ImportEdge[];
   readonly reExports: ReExportEdge[];
   readonly starTargets: string[];
+  readonly dangling: string[];
   readonly skipped: boolean;
 };
 
@@ -36,6 +42,7 @@ export type EdgeAccumulator = {
   readonly imports: ImportEdge[];
   readonly reExports: ReExportEdge[];
   readonly starTargets: string[];
+  readonly dangling: string[];
 };
 
 export type ModuleResolver = (
@@ -86,3 +93,13 @@ export type Aggregate = {
 };
 
 export type IsExternalFile = (sourceFile: SourceFile) => boolean;
+
+export type DiskResolver = (
+  specifier: StringLiteralLike
+) => SourceFile | undefined;
+
+export type ModuleResolution = {
+  readonly checker: TypeChecker;
+  readonly isExternal: IsExternalFile;
+  readonly onDisk: DiskResolver;
+};
