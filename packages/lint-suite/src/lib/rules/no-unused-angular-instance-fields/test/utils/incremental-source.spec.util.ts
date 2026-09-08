@@ -116,3 +116,52 @@ export const broken = (template: string): string => {
 export class BrokenComponent {}
 `;
 };
+
+export const laterDirective = (members: string): string => {
+  return `import { Directive } from '@angular/core';
+
+@Directive({ selector: '[appLater]' })
+export class LaterDirective {
+${members}
+}
+`;
+};
+
+export const laterHost = `import { Component, inject } from '@angular/core';
+
+import { LaterDirective } from './later.directive';
+
+@Component({ selector: 'app-later-host', template: '{{ later.laterCount }}' })
+export class LaterHostComponent {
+  readonly later = inject(LaterDirective);
+}
+`;
+
+export const emptyDirective = (members: string): string => {
+  return `import { Directive } from '@angular/core';
+
+@Directive({ selector: '[appEmpty]' })
+export class EmptyDirective {
+${members}
+}
+`;
+};
+
+export const emptyHost = `import { Component, inject } from '@angular/core';
+
+import { EmptyDirective } from './empty.directive';
+
+@Component({ selector: 'app-empty-host', template: '{{ empty.emptyCount }}' })
+export class EmptyHostComponent {
+  readonly empty = inject(EmptyDirective);
+}
+`;
+
+export const orphan = `import { Component } from '@angular/core';
+
+@Component({ selector: 'app-orphan', templateUrl: './orphan.component.html' })
+export class OrphanComponent {
+  readonly shown = 'shown';
+  readonly hidden = 'hidden';
+}
+`;

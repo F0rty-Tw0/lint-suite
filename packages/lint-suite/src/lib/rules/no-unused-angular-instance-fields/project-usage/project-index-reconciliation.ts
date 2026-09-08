@@ -13,6 +13,7 @@ import { reconcileClasses } from './project-index-classes.ts';
 import {
   addEntry,
   currentSourceFiles,
+  dropEntries,
   dropEntriesMentioning,
   dropReplacedEntries,
   dropStaleTemplateEntries,
@@ -25,6 +26,8 @@ const lazyChecker = (program: Program): LazyChecker => {
 
   return () => (typeChecker ??= program.getTypeChecker());
 };
+
+const isDangling = (entry: FileEntry): boolean => entry.dangling;
 
 const indexMissingEntries = (
   index: ProjectIndex,
@@ -49,6 +52,7 @@ const reindexProgram = (
   const current = currentSourceFiles(program);
 
   dropReplacedEntries(index, current);
+  dropEntries(index, isDangling);
 
   const newNames = reconcileClasses(index, indexable, current, checker);
 

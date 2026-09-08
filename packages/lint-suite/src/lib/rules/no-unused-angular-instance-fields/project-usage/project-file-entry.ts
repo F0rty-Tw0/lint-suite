@@ -7,6 +7,7 @@ import type {
   TemplateReads
 } from './common/project-index.type.ts';
 import type { ReadSink } from './common/project-usage.type.ts';
+import { hasDanglingImport } from './typescript/typescript-dangling-imports.ts';
 import { collectTypeScriptReads } from './typescript/typescript-reads.ts';
 import { addTypeDependencies } from './typescript/typescript-type-dependencies.ts';
 
@@ -51,6 +52,24 @@ const collectFileReads = (
   }
 };
 
+/**
+ * A file with a dangling import reads through untyped values, so every
+ * candidate member it mentions counts as read until the import resolves.
+ */
+const addDanglingFallback = (
+  index: ProjectIndex,
+  sourceFile: SourceFile,
+  mentionedNames: ReadonlySet<string>,
+  sink: ReadSink
+): void => {
+  const isCandidate = (name: string): boolean => index.candidateNames.has(name);
+  const mentioned = [...mentionedNames];
+  const names = mentioned.filter(isCandidate);
+  const reason = `${sourceFile.fileName}: an import resolves to no module`;
+
+  sink.addFallbackNames(names, reason);
+};
+
 export const computeEntry = (
   index: ProjectIndex,
   sourceFile: SourceFile,
@@ -79,11 +98,15 @@ export const computeEntry = (
     }
   };
   const reads = collectFileReads(index, sourceFile, checker, sink);
+  const dangling = hasDanglingImport(sourceFile, checker);
+
+  if (dangling) addDanglingFallback(index, sourceFile, mentionedNames, sink);
 
   dependencies.delete(sourceFile);
 
   const fileEntry: FileEntry = {
     ...reads,
+    dangling,
     declarations,
     dependencies,
     fallbackNames,

@@ -12,7 +12,12 @@ import {
   consumer,
   consumerBody,
   consumerWithTemplateFile,
+  emptyDirective,
+  emptyHost,
   gallery,
+  laterDirective,
+  laterHost,
+  orphan,
   otherPanel,
   panel,
   panelHost,
@@ -187,5 +192,53 @@ describe('project analysis in an editor session', () => {
     ]);
 
     lint('consumer.component.ts', consumer(consumerBody));
+  });
+  test('a directive read before its file exists counts once the file appears', async () => {
+    const members = `  readonly laterCount = 1;\n  readonly laterHidden = 2;`;
+
+    touch('later-host.component.ts', laterHost);
+    await templateSettled();
+
+    assert.deepEqual(lint('later-host.component.ts', laterHost), []);
+
+    touch('later.directive.ts', laterDirective(members));
+    await templateSettled();
+
+    assert.deepEqual(lint('later.directive.ts', laterDirective(members)), [
+      'unusedField:laterHidden'
+    ]);
+  });
+
+  test('a directive imported while its file was empty is read once filled', async () => {
+    const members = `  readonly emptyCount = 1;\n  readonly emptyHidden = 2;`;
+
+    touch('empty.directive.ts', '');
+    await templateSettled();
+
+    assert.deepEqual(lint('empty.directive.ts', ''), []);
+
+    touch('empty-host.component.ts', emptyHost);
+    await templateSettled();
+
+    assert.deepEqual(lint('empty-host.component.ts', emptyHost), []);
+
+    touch('empty.directive.ts', emptyDirective(members));
+
+    assert.deepEqual(lint('empty.directive.ts', emptyDirective(members)), [
+      'unusedField:emptyHidden'
+    ]);
+  });
+
+  test('a template file created after its component is read once it exists', async () => {
+    touch('orphan.component.ts', orphan);
+    await templateSettled();
+
+    assert.deepEqual(lint('orphan.component.ts', orphan), []);
+
+    touch('orphan.component.html', '<h1>{{ shown }}</h1>');
+
+    assert.deepEqual(lint('orphan.component.ts', orphan), [
+      'unusedField:hidden'
+    ]);
   });
 });

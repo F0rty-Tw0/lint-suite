@@ -22,6 +22,7 @@ const entryFor = (
   overrides: Partial<FileEntry> = {}
 ): FileEntry => {
   const entry: FileEntry = {
+    dangling: false,
     declarations: new Set(),
     dependencies: new Set(),
     fallbackNames: new Set(),

@@ -21,6 +21,9 @@ type TemplateSource = {
   readonly source: string;
 };
 
+/** The version of a template file that does not exist; current until it does. */
+const MISSING = -1n;
+
 const memberNameOf = (member: ClassElement): string[] => {
   const name = member.name;
 
@@ -61,11 +64,23 @@ const addTemplateMentions = (source: string, sink: ReadSink): void => {
 };
 
 const templateFileVersion = (fileName: string): TemplateFileVersion => {
-  const { mtimeNs, size } = statSync(fileName, { bigint: true });
   const directory = dirname(normalize(fileName));
-  const version: TemplateFileVersion = { directory, fileName, mtimeNs, size };
 
-  return version;
+  try {
+    const { mtimeNs, size } = statSync(fileName, { bigint: true });
+    const version: TemplateFileVersion = { directory, fileName, mtimeNs, size };
+
+    return version;
+  } catch {
+    const missing: TemplateFileVersion = {
+      directory,
+      fileName,
+      mtimeNs: MISSING,
+      size: MISSING
+    };
+
+    return missing;
+  }
 };
 
 export const templateFileIsCurrent = (
@@ -76,7 +91,7 @@ export const templateFileIsCurrent = (
 
     return current.mtimeNs === version.mtimeNs && current.size === version.size;
   } catch {
-    return false;
+    return version.mtimeNs === MISSING;
   }
 };
 
@@ -109,9 +124,9 @@ const templateSourceOf = (
 
   const templateFileName = template.fileName;
 
-  try {
-    versions.push(templateFileVersion(templateFileName));
+  versions.push(templateFileVersion(templateFileName));
 
+  try {
     const source = readFileSync(templateFileName, 'utf8');
     const externalSource: TemplateSource = {
       fileName: templateFileName,

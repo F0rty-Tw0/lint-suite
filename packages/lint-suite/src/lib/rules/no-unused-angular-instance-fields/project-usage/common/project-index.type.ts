@@ -25,6 +25,7 @@ export type TemplateReads = {
  * objects is still the one the current Program holds.
  */
 export type FileEntry = {
+  readonly dangling: boolean;
   readonly declarations: ReadonlySet<Node>;
   readonly dependencies: ReadonlySet<SourceFile>;
   readonly fallbackNames: ReadonlySet<string>;
