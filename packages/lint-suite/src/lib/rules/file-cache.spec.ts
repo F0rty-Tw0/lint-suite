@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   statSync,
   utimesSync,
@@ -13,8 +14,12 @@ import { dirname, join } from 'node:path';
 
 import { afterEach, beforeEach, test } from 'vitest';
 
-import type { FileCache } from './common/file-cache.type.ts';
+import type { CachedFile, FileCache } from './common/file-cache.type.ts';
 import { createFileCache, flushFileCaches, readCached } from './file-cache.ts';
+
+type Manifest = { readonly version: string };
+
+type StoredEntries = Record<string, CachedFile<string>>;
 
 let directory = '';
 let file = '';
@@ -110,4 +115,18 @@ test('writes nothing to disk when the cache is disabled', () => {
   flushFileCaches();
 
   assert.equal(existsSync(join(directory, 'cache')), false);
+});
+
+test('keys stored entries by the version of this package, not of the cwd', () => {
+  const cache = freshCache();
+  const manifest = join(import.meta.dirname, '..', '..', '..', 'package.json');
+  const { version } = JSON.parse(readFileSync(manifest, 'utf8')) as Manifest;
+  const stored = join(directory, 'cache', `${cache.name}.v1.json`);
+
+  readCached(cache, file, parse);
+  flushFileCaches();
+
+  const entries = JSON.parse(readFileSync(stored, 'utf8')) as StoredEntries;
+
+  assert.ok(entries[file]?.version.startsWith(`${version}:`));
 });

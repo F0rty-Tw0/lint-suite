@@ -5,38 +5,14 @@ import {
   statSync,
   writeFileSync
 } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 
 import type { CachedFile, FileCache } from './common/file-cache.type.ts';
+import { PACKAGE_VERSION } from './package-version.ts';
 
 type FileParser<T> = (text: string, path: string) => T;
 
 const CACHE_FORMAT_VERSION = 1;
-
-const MANIFEST = 'lint-suite/package.json';
-const DEV_VERSION = 'dev';
-
-const packageVersion = (): string => {
-  const resolve = createRequire(join(process.cwd(), 'package.json'));
-
-  try {
-    const manifest: unknown = resolve(MANIFEST);
-    const isRecord = typeof manifest === 'object' && manifest !== null;
-
-    if (!isRecord) return DEV_VERSION;
-
-    if (!('version' in manifest)) return DEV_VERSION;
-
-    if (typeof manifest.version !== 'string') return DEV_VERSION;
-
-    return manifest.version;
-  } catch {
-    return DEV_VERSION;
-  }
-};
-
-const PACKAGE_VERSION = packageVersion();
 
 const caches = new Set<FileCache<unknown>>();
 
