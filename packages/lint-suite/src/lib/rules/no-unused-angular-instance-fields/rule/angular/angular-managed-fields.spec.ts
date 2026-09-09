@@ -9,12 +9,19 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 import type { RuleOptions } from '../common/no-unused-angular-instance-fields.type.ts';
 
-const effectFieldsAllowed: RuleOptions = { allowEffectFields: true };
+const effectFieldsAllowed: RuleOptions = {
+  analysis: 'local',
+  allowEffectFields: true
+};
 const allowEffectFieldsOptions = [effectFieldsAllowed];
-const effectFieldsDenied: RuleOptions = { allowEffectFields: false };
+const effectFieldsDenied: RuleOptions = {
+  analysis: 'local',
+  allowEffectFields: false
+};
 const denyEffectFieldsOptions = [effectFieldsDenied];
 
 const exemptsSignalAndDecoratorFields: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'exempts Angular signal APIs and decorator-managed fields',
   code: component(
     `@Input() public decoratedInput = ''; @ViewChild('content') private content: unknown;
@@ -64,6 +71,7 @@ const allowsNamespaceImportedEffect: RuleTester.ValidTestCase = {
 };
 
 const treatsSignalQueriesAsManaged: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'treats Angular signal query fields as managed',
   code: component(
     `private readonly view = viewChild<unknown>('view');
@@ -79,6 +87,7 @@ const treatsSignalQueriesAsManaged: RuleTester.ValidTestCase = {
 };
 
 const exemptsComponentRefTypedField: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'exempts unread fields typed with an Angular ComponentRef import',
   code: `import { Component } from '@angular/core';
         import type { ComponentRef } from '@angular/core';
@@ -89,6 +98,7 @@ const exemptsComponentRefTypedField: RuleTester.ValidTestCase = {
 
 const exemptsComponentRefTypedFieldUnderShadowingValue: RuleTester.ValidTestCase =
   {
+    options: [{ analysis: 'local' }],
     name: 'exempts unread fields typed with an Angular ComponentRef import despite an enclosing same-named value',
     code: `import { Component } from '@angular/core';
         import type { ComponentRef } from '@angular/core';
@@ -102,6 +112,7 @@ const exemptsComponentRefTypedFieldUnderShadowingValue: RuleTester.ValidTestCase
   };
 
 const reportsEffectFieldWithoutOption: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports auto-cleaned Angular effect fields when allowEffectFields is omitted',
   code: component(`private readonly titleEffect = effect(() => undefined);`, {
     metadata: `template: ''`,
@@ -206,6 +217,7 @@ const reportsUnreadSubscriptionField: RuleTester.InvalidTestCase = {
 };
 
 const reportsLocalComponentRefTypedField: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports unread fields whose local type is named ComponentRef',
   code: `import { Component } from '@angular/core';
         interface ComponentRef {}

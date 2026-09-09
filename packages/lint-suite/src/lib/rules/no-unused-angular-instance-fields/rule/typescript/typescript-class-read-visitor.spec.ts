@@ -8,6 +8,7 @@ import {
 } from '../../test/utils/rule-under-test.spec.util.ts';
 
 const acceptsClassTypeScriptRead: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'accepts a field read by class TypeScript',
   code: component(
     `private value = 'used'; public read(): string { return this.value; }`,
@@ -16,6 +17,7 @@ const acceptsClassTypeScriptRead: RuleTester.ValidTestCase = {
 };
 
 const acceptsMethodTypeScriptRead: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'accepts a method read by TypeScript',
   code: component(`private used(): void {} ngOnInit(): void { this.used(); }`)
 };

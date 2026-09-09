@@ -84,7 +84,6 @@ for (const kind of ['valid', 'invalid']) {
 const projectLinter = new Linter({ cwd: projectDirectory });
 const projectConfig = (options: Record<string, boolean>): Linter.Config => {
   return lintConfig({
-    analysis: 'project',
     directory: projectDirectory,
     options
   });

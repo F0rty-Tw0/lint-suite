@@ -9,6 +9,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsCompoundAssignmentRead: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'accepts a field read by a compound assignment operator',
   code: component(
     `private count = 0; public bump(): void { this.count += 1; }`,
@@ -19,6 +20,7 @@ const acceptsCompoundAssignmentRead: RuleTester.ValidTestCase = {
 const errors = [unusedFieldError('value')];
 
 const reportsPlainWrite: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'does not count a TypeScript write as a read',
   code: component(
     `private value = ''; public update(): void { this.value = 'written'; }`,
@@ -28,6 +30,7 @@ const reportsPlainWrite: RuleTester.InvalidTestCase = {
 };
 
 const reportsDeletedField: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'does not count a delete target as a read',
   code: component(
     `private value?: string; public drop(): void { delete this.value; }`,
@@ -37,6 +40,7 @@ const reportsDeletedField: RuleTester.InvalidTestCase = {
 };
 
 const reportsObjectDestructuringWrite: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'does not count an object-destructuring assignment as a component field read',
   code: component(
     `private value = ''; public update(source: { value: string }): void { ({ value: this.value } = source); }`,
@@ -46,6 +50,7 @@ const reportsObjectDestructuringWrite: RuleTester.InvalidTestCase = {
 };
 
 const reportsLoopTargetWrite: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'does not count a for-of loop target as a component field read',
   code: component(
     `private value = ''; public fill(source: string[]): void { for (this.value of source) {} }`,

@@ -12,6 +12,7 @@ import {
 } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const ignoresExportedDirectiveMethods: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'conservatively ignores externally exposed directive methods',
   code: component(`public externallyReadable(): void {}`, {
     metadata: `selector: '[example]', exportAs: 'example'`,
@@ -21,6 +22,7 @@ const ignoresExportedDirectiveMethods: RuleTester.ValidTestCase = {
 };
 
 const exemptsNonConcreteMethodKinds: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'exempts lifecycle and non-concrete method kinds',
   code: `import { Component, Input } from '@angular/core';
         @Component({ template: '' }) class TestComponent {
@@ -39,6 +41,7 @@ const exemptsNonConcreteMethodKinds: RuleTester.ValidTestCase = {
 };
 
 const exemptsNonConcreteFields: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'exempts static and non-concrete fields',
   code: `
         import { Component } from '@angular/core';
@@ -51,12 +54,14 @@ const exemptsNonConcreteFields: RuleTester.ValidTestCase = {
 };
 
 const ignoresExportedDirectiveFields: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'conservatively ignores externally exposed directive fields',
   code: `import { Directive } from '@angular/core'; @Directive({ selector: '[example]', exportAs: 'example' })
         class TestDirective { public externallyReadable = 'used'; }`
 };
 
 const ignoresAbstractNonPrivateMembers: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'conservatively ignores non-private members of abstract components',
   code: component(
     `protected forSubclass = 'used elsewhere'; helper(): void {}`,
@@ -70,6 +75,7 @@ const ignoresAbstractNonPrivateMembers: RuleTester.ValidTestCase = {
 };
 
 const exemptsImplementedFormsMethods: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'exempts Angular forms interface methods declared via implements',
   code: component(
     `writeValue(value: unknown): void {}
@@ -86,12 +92,14 @@ const exemptsImplementedFormsMethods: RuleTester.ValidTestCase = {
 };
 
 const reportsUnreadPublicComponentMethod: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports an unread public component method',
   code: component(`public unusedMethod(): void {}`),
   errors: [unusedMethodError('unusedMethod')]
 };
 
 const reportsPrivateDirectiveField: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports a private unused directive field',
   code: `import { Directive } from '@angular/core'; @Directive({ selector: '[example]' })
         class TestDirective { private internalOnly = 'unused'; }`,
@@ -99,6 +107,7 @@ const reportsPrivateDirectiveField: RuleTester.InvalidTestCase = {
 };
 
 const reportsPrivateDirectiveMethod: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports a private unused directive method',
   code: component(`private internalOnly(): void {}`, {
     metadata: `selector: '[example]'`,
@@ -109,6 +118,7 @@ const reportsPrivateDirectiveMethod: RuleTester.InvalidTestCase = {
 };
 
 const reportsAbstractPrivateMembers: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports private unused members of abstract components',
   code: component(`private internal = 'unused'; private helper(): void {}`, {
     metadata: "template: ''",
@@ -120,6 +130,7 @@ const reportsAbstractPrivateMembers: RuleTester.InvalidTestCase = {
 };
 
 const reportsValidateWithoutFormsInterface: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports an unread validate method when no forms interface is implemented',
   code: component(`validate(): null { return null; }`),
   errors: [unusedMethodError('validate')]

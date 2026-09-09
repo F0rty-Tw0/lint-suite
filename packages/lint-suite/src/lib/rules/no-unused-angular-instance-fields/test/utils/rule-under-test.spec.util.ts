@@ -11,7 +11,7 @@ import {
 } from '../../../test/stubs/linter-config.stub.ts';
 
 type LintConfigOptions = {
-  readonly analysis: 'local' | 'project';
+  readonly analysis?: 'local' | 'project';
   readonly directory?: string;
   readonly options?: Record<string, boolean>;
 };
@@ -69,7 +69,8 @@ export const lintConfig = ({
   const rulesUnderTest = { 'no-unused-instance-fields': rule };
   const pluginUnderTest: ESLint.Plugin = { rules: rulesUnderTest };
   const plugins = { 'lint-suite-angular': pluginUnderTest };
-  const ruleOptions = { analysis, ...options };
+  const ruleOptions =
+    analysis === undefined ? { ...options } : { analysis, ...options };
   const ruleEntry: Linter.RuleEntry = ['error', ruleOptions];
   const rules: Linter.RulesRecord = { [ruleName]: ruleEntry };
   const linterConfig: Linter.Config = {

@@ -9,6 +9,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const reportsFieldUnreadByHostAndTemplate: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports only a field unread by both host and template',
   code: component(
     `private hostRead = ''; private templateRead = ''; private unused = '';`,

@@ -143,9 +143,8 @@ export default [
 ### Unused Angular instance fields
 
 The `angular` config enables `lint-suite-angular/no-unused-instance-fields`.
-Local analysis recognizes reads from the class, component template, and host
-expressions. Use project analysis when other TypeScript files or Angular
-templates can read a component or directive member:
+Project analysis is the default and recognizes reads from other TypeScript
+files and Angular templates. It requires parser services with type information:
 
 ```js
 {
@@ -176,7 +175,9 @@ templates can read a component or directive member:
   last check), so a cross-folder template edit can take a moment to show up
   in another file's diagnostics. A `templateUrl` file that does not exist
   yet is remembered as missing and read on the same schedule once it does.
-- `analysis` defaults to `'local'`. Project mode excludes spec-file reads. A
+- `analysis` defaults to `'project'`. Set `analysis: 'local'` to check only
+  the class, component template, and host expressions without type information.
+  Project mode excludes spec-file reads. A
   file it cannot index exactly (a template that does not parse, metadata it
   cannot evaluate, a read it cannot type) falls back to name matching for
   that file only: every member whose name that file mentions counts as read.

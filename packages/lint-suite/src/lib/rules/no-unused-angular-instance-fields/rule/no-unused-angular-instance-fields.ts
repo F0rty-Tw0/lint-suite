@@ -71,7 +71,7 @@ const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
 
 const ruleDefaults: RuleOptions = {
   allowEffectFields: false,
-  analysis: 'local'
+  analysis: 'project'
 };
 
 const defaultOptions: Options = [ruleDefaults];
@@ -119,7 +119,7 @@ export default createRule<Options, MessageIds>({
   meta,
   defaultOptions,
   create(context, [options]): TSESLint.RuleListener {
-    const analysis = options.analysis ?? 'local';
+    const analysis = options.analysis ?? 'project';
     const isSpec = isSpecFile(context.filename);
     const noListeners: TSESLint.RuleListener = {};
 

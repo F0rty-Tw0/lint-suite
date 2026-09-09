@@ -19,28 +19,28 @@ import {
 const projectDirectory = fixtureDirectory('project-usage');
 const projectTester = projectRuleTester(projectDirectory);
 
-test('requires parser services for project analysis', () => {
-  const linter = new Linter();
-  const lintProjectComponent = (): void => {
-    const source = component(`private readonly unread = 'unused';`);
-    const config = lintConfig({ analysis: 'project' });
+test.each([undefined, 'project'] as const)(
+  'requires parser services for %s analysis',
+  (analysis) => {
+    const linter = new Linter();
+    const lintProjectComponent = (): void => {
+      const source = component(`private readonly unread = 'unused';`);
+      const config = lintConfig({ analysis });
 
-    linter.verify(source, config, { filename: 'component.ts' });
-  };
+      linter.verify(source, config, { filename: 'component.ts' });
+    };
 
-  assert.throws(lintProjectComponent, /parser services/i);
-});
+    assert.throws(lintProjectComponent, /parser services/i);
+  }
+);
 
-const projectAnalysis = { analysis: 'project' };
-const options = [projectAnalysis];
 const excludedSpecCase = fixtureCase(
   projectDirectory,
   'project-excluded.spec.ts'
 );
 const excludesSpecFiles: RuleTester.ValidTestCase = {
-  name: 'excludes spec files from project-mode reports',
-  ...excludedSpecCase,
-  options
+  name: 'excludes spec files from project-mode reports by default',
+  ...excludedSpecCase
 };
 const valid = [excludesSpecFiles];
 const invalid: RuleTester.InvalidTestCase[] = [];

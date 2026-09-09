@@ -75,6 +75,7 @@ test('resolves inline template reads before project member lookup', () => {
 });
 
 const skipsDynamicallyIndexedClasses: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'skips classes the read visitor marked as dynamically indexed',
   code: component(
     `private value = ''; public read(key: string): unknown { return this[key]; }`
@@ -82,6 +83,7 @@ const skipsDynamicallyIndexedClasses: RuleTester.ValidTestCase = {
 };
 
 const reportsBothDemonstrationFields: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports both demonstration component fields',
   code: `import { Component, inject } from '@angular/core'; class IconService {}
         @Component({ template: '' }) class AboutComponent {
@@ -91,6 +93,7 @@ const reportsBothDemonstrationFields: RuleTester.InvalidTestCase = {
 };
 
 const reportsEveryAngularClassInFile: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports members of every Angular class in one file',
   code: `import { Component, Directive } from '@angular/core';
         @Component({ template: '' }) class FirstComponent { private first = ''; }

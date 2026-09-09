@@ -9,6 +9,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsComputedMetadataKey: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'bails out of metadata holding a computed key',
   code: component(`private unused = '';`, {
     metadata: `['tem' + 'plate']: ''`
@@ -18,6 +19,7 @@ const acceptsComputedMetadataKey: RuleTester.ValidTestCase = {
 const errors = [unusedFieldError('unused')];
 
 const readsTemplateUnderQuotedKey: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reads a template declared under a quoted metadata key',
   code: component(`private used = ''; private unused = '';`, {
     metadata: `'template': '{{ used }}'`
@@ -26,6 +28,7 @@ const readsTemplateUnderQuotedKey: RuleTester.InvalidTestCase = {
 };
 
 const readsTemplateLiteralTemplate: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reads a template declared as a template literal',
   code: component(`private used = ''; private unused = '';`, {
     metadata: 'template: `{{ used }}`'

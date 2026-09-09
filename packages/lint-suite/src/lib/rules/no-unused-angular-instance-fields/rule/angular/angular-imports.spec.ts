@@ -9,11 +9,13 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const ignoresNonAngularClasses: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'ignores fields outside Angular components and directives',
   code: `class Service { private unused = 'unused'; }`
 };
 
 const acceptsAliasedComponentTemplateRead: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'accepts a field read by the template of an aliased Component import',
   code: component(`protected fromTemplate = 'used';`, {
     metadata: `template: '{{ fromTemplate }}'`,
@@ -23,6 +25,7 @@ const acceptsAliasedComponentTemplateRead: RuleTester.ValidTestCase = {
 };
 
 const reportsNamespaceImportedComponentField: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports an unused field in a namespace-imported component',
   code: `import * as ng from '@angular/core'; @ng.Component({ template: '' })
         class TestComponent { private unused = ''; }`,
@@ -30,6 +33,7 @@ const reportsNamespaceImportedComponentField: RuleTester.InvalidTestCase = {
 };
 
 const reportsAliasedComponentField: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
   name: 'reports an unused field in a component with an aliased Component import',
   code: component(`private unused = '';`, {
     metadata: `template: ''`,
