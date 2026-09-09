@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-08
+
 ### Breaking Changes
 
 - **CommonJS entry removed**: `lint-suite/eslint`, `lint-suite/stylelint`, and `lint-suite/prettier`
@@ -467,8 +469,9 @@
 - Added detailed type definitions for eslint plugins
 - Provided comprehensive configuration examples
 
-[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.1.0...HEAD
 [1.3.4]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.3.2...v1.3.4
+[2.1.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/F0rty-Tw0/lint-suite/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/F0rty-Tw0/lint-suite/compare/v1.6.3...v2.0.0
