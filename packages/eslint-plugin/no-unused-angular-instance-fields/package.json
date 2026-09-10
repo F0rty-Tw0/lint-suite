@@ -1,0 +1,44 @@
+{
+  "name": "@lint-suite/eslint-plugin-no-unused-angular-instance-fields",
+  "version": "1.0.0",
+  "description": "Disallow unread instance fields and methods in Angular components and directives",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/eslint-plugin/no-unused-angular-instance-fields"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "rule/**/*.js",
+    "rule/**/*.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@angular/compiler": "catalog:angular",
+    "@typescript-eslint/utils": "catalog:typescript"
+  },
+  "peerDependencies": {
+    "eslint": "catalog:base",
+    "typescript": "catalog:typescript-compatibility"
+  },
+  "devDependencies": {
+    "@lint-suite/rule-test-support": "workspace:*",
+    "typescript-eslint": "catalog:dev"
+  }
+}
