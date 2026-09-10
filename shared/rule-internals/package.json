@@ -1,0 +1,20 @@
+{
+  "name": "@lint-suite/rule-internals",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./utils/*.ts": "./src/utils/*.ts",
+    "./common/*.ts": "./src/common/*.ts",
+    "./stubs/*.ts": "./src/stubs/*.ts",
+    "./*.ts": "./src/*.ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/utils": "catalog:typescript",
+    "@angular/compiler": "catalog:angular",
+    "typescript": "catalog:typescript",
+    "postcss": "catalog:styles",
+    "postcss-scss": "catalog:styles",
+    "postcss-selector-parser": "catalog:styles",
+    "@lint-suite/rule-test-support": "workspace:*"
+  }
+}
