@@ -29,10 +29,13 @@ jobs:
           require-lockfile: true
 
       - name: Build
-        run: pnpm exec nx run lint-suite:build
+        run: pnpm exec nx run-many -t build
+
+      - name: Typecheck
+        run: pnpm exec nx run-many -t typecheck
 
       - name: Lint
-        run: pnpm exec nx run lint-suite:lint
+        run: pnpm exec nx run-many -t lint
 
       - name: Test
-        run: pnpm exec nx run lint-suite:test
+        run: pnpm exec nx run-many -t test
