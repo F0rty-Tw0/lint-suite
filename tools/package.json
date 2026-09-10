@@ -1,0 +1,5 @@
+{
+  "name": "@lint-suite/tools",
+  "private": true,
+  "type": "module"
+}

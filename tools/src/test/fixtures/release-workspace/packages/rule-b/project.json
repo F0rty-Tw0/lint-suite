@@ -1,0 +1,14 @@
+{
+  "name": "rule-b",
+  "projectType": "library",
+  "sourceRoot": "packages/rule-b/src",
+  "targets": {
+    "nx-release-publish": {
+      "executor": "@nx/js:release-publish",
+      "inputs": ["default"],
+      "options": {
+        "packageRoot": "packages/rule-b"
+      }
+    }
+  }
+}

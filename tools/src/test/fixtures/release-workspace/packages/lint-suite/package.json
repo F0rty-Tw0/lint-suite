@@ -1,0 +1,12 @@
+{
+  "name": "lint-suite",
+  "version": "2.1.0",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@lint-suite/rule-a": "workspace:*",
+    "@lint-suite/rule-b": "workspace:*"
+  }
+}

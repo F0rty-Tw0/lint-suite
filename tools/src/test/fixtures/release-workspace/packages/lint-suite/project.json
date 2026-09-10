@@ -1,0 +1,14 @@
+{
+  "name": "lint-suite",
+  "projectType": "library",
+  "sourceRoot": "packages/lint-suite/src",
+  "targets": {
+    "nx-release-publish": {
+      "executor": "@nx/js:release-publish",
+      "inputs": ["default"],
+      "options": {
+        "packageRoot": "packages/lint-suite"
+      }
+    }
+  }
+}

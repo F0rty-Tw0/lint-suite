@@ -1,0 +1,5 @@
+{
+  "name": "private-helper",
+  "projectType": "library",
+  "sourceRoot": "shared/private-helper/src"
+}
