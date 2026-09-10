@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-unused-exports",
+  "sourceRoot": "packages/eslint-plugin/no-unused-exports/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}
