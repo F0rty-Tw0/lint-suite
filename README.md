@@ -26,10 +26,72 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 pnpm add -D lint-suite
 ```
 
-## Dependencies
+## Standalone custom rules
+
+Keep `lint-suite` for the complete presets, or install one custom rule without
+the umbrella's framework and tooling dependencies. Each scoped package is
+versioned independently. Existing `lint-suite/eslint`, `lint-suite/stylelint`,
+and `lint-suite/prettier` imports and rule IDs are unchanged.
 
 ```bash
-pnpm add -D eslint typescript-eslint eslint-config-prettier
+pnpm add -D @lint-suite/eslint-plugin-arrow-body-fits-line eslint typescript typescript-eslint
+```
+
+```js
+import arrow from '@lint-suite/eslint-plugin-arrow-body-fits-line';
+import tseslint from 'typescript-eslint';
+
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { arrow },
+    rules: { 'arrow/arrow-body-fits-line': 'error' }
+  }
+];
+```
+
+Each ESLint package exports a default plugin containing exactly one rule and
+a named export for composition. The 18 TypeScript rules use camel-cased
+rule names ending in `Rule`, such as `arrowBodyFitsLineRule`; the Angular
+instance-field and template rules retain `rule`. Choose your own plugin namespace;
+the rule key below stays fixed. Packages do not enable rules or configure
+parsers automatically. Do not enable a standalone rule alongside its
+equivalent umbrella rule unless you want duplicate reports.
+
+| Package                                                                                                                           | Rule key                       |
+| --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| [@lint-suite/eslint-plugin-arrow-body-fits-line](packages/eslint-plugin/arrow-body-fits-line/README.md)                           | `arrow-body-fits-line`         |
+| [@lint-suite/eslint-plugin-chain-fits-line](packages/eslint-plugin/chain-fits-line/README.md)                                     | `chain-fits-line`              |
+| [@lint-suite/eslint-plugin-chain-receiver-is-name](packages/eslint-plugin/chain-receiver-is-name/README.md)                       | `chain-receiver-is-name`       |
+| [@lint-suite/eslint-plugin-explicit-accessibility](packages/eslint-plugin/explicit-accessibility/README.md)                       | `explicit-accessibility`       |
+| [@lint-suite/eslint-plugin-max-condition-operands](packages/eslint-plugin/max-condition-operands/README.md)                       | `max-condition-operands`       |
+| [@lint-suite/eslint-plugin-no-call-in-condition](packages/eslint-plugin/no-call-in-condition/README.md)                           | `no-call-in-condition`         |
+| [@lint-suite/eslint-plugin-no-grouped-condition](packages/eslint-plugin/no-grouped-condition/README.md)                           | `no-grouped-condition`         |
+| [@lint-suite/eslint-plugin-no-inline-object-types](packages/eslint-plugin/no-inline-object-types/README.md)                       | `no-inline-object-types`       |
+| [@lint-suite/eslint-plugin-no-inline-return-object](packages/eslint-plugin/no-inline-return-object/README.md)                     | `no-inline-return-object`      |
+| [@lint-suite/eslint-plugin-no-nested-object-value](packages/eslint-plugin/no-nested-object-value/README.md)                       | `no-nested-object-value`       |
+| [@lint-suite/eslint-plugin-no-spread-expression](packages/eslint-plugin/no-spread-expression/README.md)                           | `no-spread-expression`         |
+| [@lint-suite/eslint-plugin-no-unused-exports](packages/eslint-plugin/no-unused-exports/README.md)                                 | `no-unused-exports`            |
+| [@lint-suite/eslint-plugin-one-line-guard](packages/eslint-plugin/one-line-guard/README.md)                                       | `one-line-guard`               |
+| [@lint-suite/eslint-plugin-readonly-type-properties](packages/eslint-plugin/readonly-type-properties/README.md)                   | `readonly-type-properties`     |
+| [@lint-suite/eslint-plugin-ternary-branch-shape](packages/eslint-plugin/ternary-branch-shape/README.md)                           | `ternary-branch-shape`         |
+| [@lint-suite/eslint-plugin-test-file-shape](packages/eslint-plugin/test-file-shape/README.md)                                     | `test-file-shape`              |
+| [@lint-suite/eslint-plugin-type-placement](packages/eslint-plugin/type-placement/README.md)                                       | `type-placement`               |
+| [@lint-suite/eslint-plugin-util-purity](packages/eslint-plugin/util-purity/README.md)                                             | `util-purity`                  |
+| [@lint-suite/eslint-plugin-no-unused-angular-instance-fields](packages/eslint-plugin/no-unused-angular-instance-fields/README.md) | `no-unused-instance-fields`    |
+| [@lint-suite/eslint-plugin-no-unstyled-classes](packages/eslint-plugin/no-unstyled-classes/README.md)                             | `no-unstyled-classes`          |
+| [@lint-suite/stylelint-no-unused-classes](packages/stylelint/no-unused-classes/README.md)                                         | `lint-suite/no-unused-classes` |
+
+The unused-exports and Angular instance-field rules need a configured
+TypeScript project for project analysis. The template and Stylelint rules
+resolve linked component/template/style files in your project; their package
+READMEs cover the parser and file requirements.
+
+## Umbrella dependencies
+
+```bash
+pnpm add -D eslint typescript typescript-eslint eslint-config-prettier
 ```
 
 If you use the Prettier preset (`lint-suite/prettier`), also install its peer dependency:
@@ -81,21 +143,21 @@ export default [
 
 ## Available Configurations
 
-| Configuration       | Description                                              |
-| ------------------- | -------------------------------------------------------- |
-| `base`              | Core JavaScript rules, formatting, and complexity limits |
-| `javascript`        | JavaScript-specific rules via `@nx/eslint-plugin`        |
-| `typescript`        | TypeScript strict typing, imports, and naming conventions |
-| `angular`           | Angular component best practices with Signal support     |
-| `angularTemplate`   | HTML template rules with accessibility and performance   |
-| `rxjs`              | Observable patterns, operator safety, and subscriptions  |
-| `vitest`            | Vitest testing rules and matcher improvements            |
-| `playwright`        | Playwright e2e locator and matcher best practices        |
-| `json`              | JSON linting with comment support for tsconfig/vscode    |
-| `storybook`         | Storybook CSF enforcement                                |
-| `boundaries`        | Module boundary rules (feature, data-access, ui, etc.)   |
-| `prettier`          | Disables rules that conflict with Prettier (use last)    |
-| **`recommended`**   | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
+| Configuration     | Description                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `base`            | Core JavaScript rules, formatting, and complexity limits                                                               |
+| `javascript`      | JavaScript-specific rules via `@nx/eslint-plugin`                                                                      |
+| `typescript`      | TypeScript strict typing, imports, and naming conventions                                                              |
+| `angular`         | Angular component best practices with Signal support                                                                   |
+| `angularTemplate` | HTML template rules with accessibility and performance                                                                 |
+| `rxjs`            | Observable patterns, operator safety, and subscriptions                                                                |
+| `vitest`          | Vitest testing rules and matcher improvements                                                                          |
+| `playwright`      | Playwright e2e locator and matcher best practices                                                                      |
+| `json`            | JSON linting with comment support for tsconfig/vscode                                                                  |
+| `storybook`       | Storybook CSF enforcement                                                                                              |
+| `boundaries`      | Module boundary rules (feature, data-access, ui, etc.)                                                                 |
+| `prettier`        | Disables rules that conflict with Prettier (use last)                                                                  |
+| **`recommended`** | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
 
 ## Customization
 

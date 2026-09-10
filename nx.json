@@ -3,8 +3,86 @@
   "defaultBase": "master",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": ["default", "!{projectRoot}/eslint.config.mjs"],
-    "sharedGlobals": []
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.spec.ts",
+      "!{projectRoot}/**/test/**"
+    ],
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/pnpm-workspace.yaml",
+      "{workspaceRoot}/pnpm-lock.yaml",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/nx.json",
+      "{workspaceRoot}/tools/**/*.ts"
+    ]
+  },
+  "targetDefaults": {
+    "build": [
+      {
+        "filter": {
+          "projects": ["packages/**"]
+        },
+        "executor": "nx:run-commands",
+        "cache": true,
+        "dependsOn": ["^build"],
+        "inputs": ["production", "^production"],
+        "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+        "options": {
+          "command": "node tools/src/build-package.ts {projectRoot}"
+        }
+      }
+    ],
+    "typecheck": [
+      {
+        "filter": {
+          "projects": ["packages/**"]
+        },
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": ["default", "^default"],
+        "options": {
+          "command": "tsc -p {projectRoot}/tsconfig.json --noEmit"
+        }
+      }
+    ],
+    "lint": [
+      {
+        "filter": {
+          "projects": ["packages/**"]
+        },
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": ["default", "^default"],
+        "options": {
+          "command": "eslint . --max-warnings=0",
+          "cwd": "{projectRoot}"
+        }
+      }
+    ],
+    "test": [
+      {
+        "filter": {
+          "projects": ["packages/**"]
+        },
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": ["default", "^default"],
+        "options": {
+          "command": "vitest run --config {projectRoot}/vitest.config.ts"
+        }
+      }
+    ],
+    "nx-release-publish": [
+      {
+        "filter": {
+          "projects": ["packages/**"]
+        },
+        "options": {
+          "packageRoot": "dist/{projectRoot}"
+        }
+      }
+    ]
   },
   "plugins": [
     {
@@ -35,20 +113,51 @@
     }
   ],
   "release": {
-    "version": {
-      "preVersionCommand": "pnpm exec nx run-many -t build"
-    }
-  },
-  "targetDefaults": {
-    "@nx/esbuild:esbuild": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+    "projects": [
+      "eslint-plugin-arrow-body-fits-line",
+      "eslint-plugin-chain-fits-line",
+      "eslint-plugin-chain-receiver-is-name",
+      "eslint-plugin-explicit-accessibility",
+      "eslint-plugin-max-condition-operands",
+      "eslint-plugin-no-call-in-condition",
+      "eslint-plugin-no-grouped-condition",
+      "eslint-plugin-no-inline-object-types",
+      "eslint-plugin-no-inline-return-object",
+      "eslint-plugin-no-nested-object-value",
+      "eslint-plugin-no-spread-expression",
+      "eslint-plugin-no-unused-exports",
+      "eslint-plugin-one-line-guard",
+      "eslint-plugin-readonly-type-properties",
+      "eslint-plugin-ternary-branch-shape",
+      "eslint-plugin-test-file-shape",
+      "eslint-plugin-type-placement",
+      "eslint-plugin-util-purity",
+      "eslint-plugin-no-unused-angular-instance-fields",
+      "eslint-plugin-no-unstyled-classes",
+      "stylelint-no-unused-classes",
+      "lint-suite"
+    ],
+    "projectsRelationship": "independent",
+    "releaseTag": {
+      "pattern": "{projectName}@{version}",
+      "checkAllBranchesWhen": ["master"]
     },
-    "lint": {
-      "options": {
-        "args": "--max-warnings=0"
+    "version": {
+      "currentVersionResolver": "disk",
+      "updateDependents": "always",
+      "preserveLocalDependencyProtocols": true,
+      "versionPrefix": "",
+      "manifestRootsToUpdate": ["{projectRoot}"],
+      "versionActionsOptions": {
+        "installIgnoreScripts": true
       }
+    },
+    "changelog": {
+      "workspaceChangelog": false,
+      "projectChangelogs": {
+        "createRelease": false
+      },
+      "automaticFromRef": true
     }
   },
   "analytics": false
