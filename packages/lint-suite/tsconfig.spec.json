@@ -1,22 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/spec",
-    "types": ["vitest", "node"],
-    "rewriteRelativeImportExtensions": false,
-    "allowImportingTsExtensions": true
+    "types": ["vitest", "node"]
   },
-  "include": [
-    "../../eslint.config.base.ts",
-    "eslint.config.ts",
-    "vitest.config.ts",
-    "src/**/test/**/*.ts",
-    "src/**/*.spec.ts"
-  ],
-  "exclude": ["src/**/fixtures/**"],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
-  ]
+  "include": ["src/**/*.ts", "*.config.ts"],
+  "exclude": ["**/fixtures/**"]
 }

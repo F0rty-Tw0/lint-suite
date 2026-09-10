@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Features
+
+- All 21 custom rules are independently installable as scoped ESLint and
+  Stylelint packages. The umbrella composes them without changing existing
+  entrypoints, rule IDs, severity/options, or parser configuration.
+- Each scoped package has an independent release version. The umbrella
+  adopts exact versions of affected rule packages.
+
+### Fixes
+
+- Template and Stylelint disk caches are isolated by the owning public
+  plugin's package name and version, including when both share a directory.
+- Stylelint preset dependencies resolve from the installed umbrella, including
+  ESM-only presets, without requiring pnpm consumers to install those
+  transitive configuration packages directly.
+
 ## [2.1.0] - 2026-09-08
 
 ### Breaking Changes

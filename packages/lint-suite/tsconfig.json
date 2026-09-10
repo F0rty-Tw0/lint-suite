@@ -1,16 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ],
-  "nx": {
-    "addTypecheckTarget": false
-  }
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "*.config.ts"],
+  "exclude": ["**/fixtures/**"],
+  "nx": { "addTypecheckTarget": false }
 }

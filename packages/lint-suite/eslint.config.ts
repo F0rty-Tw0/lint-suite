@@ -1,4 +1,8 @@
 import { defineConfig, globalIgnores } from 'eslint/config';
+import {
+  createTypeScriptImportResolver,
+  defaultConditionNames
+} from 'eslint-import-resolver-typescript';
 import * as jsoncParser from 'jsonc-eslint-parser';
 
 import { workspaceConfig } from '../../eslint.config.base.ts';
@@ -6,14 +10,28 @@ import { base } from './src/lib/base.ts';
 import { boundaries } from './src/lib/boundaries.ts';
 import { javascript } from './src/lib/javascript.ts';
 import { prettier } from './src/lib/prettier.ts';
-import { entryPointDefaults } from './src/lib/rules/no-unused-exports/common/no-unused-exports.const.ts';
 import { typescript } from './src/lib/typescript.ts';
 
-const packageEntryPoints = [...entryPointDefaults, '**/src/*.ts'];
+const packageEntryPoints = [
+  '**/src/*.ts',
+  '**/main.ts',
+  '**/main.*.ts',
+  '**/public-api.ts',
+  '**/index.ts',
+  '**/*.config.{ts,mts,cts}',
+  '**/*.spec.ts',
+  '**/*.spec.util.ts',
+  '**/*.stub.ts',
+  '**/*.mock.ts',
+  '**/*.d.ts',
+  '**/*.stories.ts',
+  '**/environment*.ts'
+];
 
-// Used only as string locators (stylelint extends), by fixtures (angular, rxjs), or by specs (vitest).
+// String-located presets, fixture frameworks, test runners, and the public parser peer.
 const ignoredDependencies = [
   'vitest',
+  'typescript',
   '@angular/common',
   '@angular/core',
   '@angular/forms',
@@ -39,6 +57,19 @@ const config = defineConfig(
   {
     name: 'lint-suite/prettier-width',
     files: ['**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname
+      }
+    },
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          alwaysTryTypes: true,
+          conditionNames: ['development', ...defaultConditionNames]
+        })
+      ]
+    },
     rules: {
       'local/one-line-guard': ['error', { maxLineLength: 80 }],
       'local/no-unused-exports': ['error', { entryPoints: packageEntryPoints }]
