@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-call-in-condition",
+  "sourceRoot": "packages/eslint-plugin/no-call-in-condition/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}
