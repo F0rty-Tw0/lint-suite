@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-readonly-type-properties",
+  "sourceRoot": "packages/eslint-plugin/readonly-type-properties/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}
