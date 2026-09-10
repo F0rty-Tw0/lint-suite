@@ -1,0 +1,44 @@
+{
+  "name": "@lint-suite/stylelint-no-unused-classes",
+  "version": "1.0.0",
+  "description": "Disallow stylesheet classes unused by linked Angular or HTML templates",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/stylelint/no-unused-classes"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "rule/**/*.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@angular/compiler": "catalog:angular",
+    "postcss": "catalog:styles",
+    "postcss-selector-parser": "catalog:styles"
+  },
+  "peerDependencies": {
+    "stylelint": "catalog:stylelint",
+    "typescript": "catalog:typescript-compatibility"
+  },
+  "devDependencies": {
+    "@lint-suite/rule-internals": "workspace:*",
+    "postcss-scss": "catalog:styles"
+  }
+}
