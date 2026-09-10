@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-max-condition-operands",
+  "sourceRoot": "packages/eslint-plugin/max-condition-operands/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}
