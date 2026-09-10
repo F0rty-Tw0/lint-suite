@@ -1,13 +1,6 @@
+import lintSuiteAngularTemplatePlugin from '@lint-suite/eslint-plugin-no-unstyled-classes';
 import { configs } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
-
-import { definePlugin } from './rules/define-plugin.util.ts';
-import noUnstyledClassesRule from './rules/no-unstyled-classes/no-unstyled-classes.ts';
-
-const lintSuiteAngularTemplatePlugin = definePlugin(
-  'lint-suite-angular-template',
-  { 'no-unstyled-classes': noUnstyledClassesRule }
-);
 
 export const angularTemplate = defineConfig([
   {

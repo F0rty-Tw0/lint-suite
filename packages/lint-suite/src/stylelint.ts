@@ -1,8 +1,15 @@
+import { fileURLToPath } from 'node:url';
+
+import noUnusedClasses from '@lint-suite/stylelint-no-unused-classes';
 import type { Config } from 'stylelint';
 import stylelintScss from 'stylelint-scss';
 import bemPattern from 'stylelint-selector-bem-pattern';
 
-import noUnusedClasses from './lib/rules/no-unused-classes/no-unused-classes.ts';
+const resolveConfig = (specifier: string): string => {
+  const url = import.meta.resolve(specifier);
+
+  return fileURLToPath(url);
+};
 
 export const stylelint: Config = {
   // Stylelint resolves config for cwd when picking a formatter; without a
@@ -12,9 +19,9 @@ export const stylelint: Config = {
     {
       files: ['**/*.scss', '**/*.css'],
       extends: [
-        'stylelint-config-standard',
-        'stylelint-config-standard-scss',
-        'stylelint-config-recess-order'
+        resolveConfig('stylelint-config-standard'),
+        resolveConfig('stylelint-config-standard-scss'),
+        resolveConfig('stylelint-config-recess-order')
       ],
       plugins: [...stylelintScss, bemPattern, noUnusedClasses],
       rules: {
