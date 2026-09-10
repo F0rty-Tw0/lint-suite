@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-grouped-condition",
+  "sourceRoot": "packages/eslint-plugin/no-grouped-condition/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}
