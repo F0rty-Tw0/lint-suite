@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-inline-object-types",
+  "sourceRoot": "packages/eslint-plugin/no-inline-object-types/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

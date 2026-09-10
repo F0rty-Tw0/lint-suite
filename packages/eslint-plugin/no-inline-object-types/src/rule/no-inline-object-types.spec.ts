@@ -1,0 +1,150 @@
+import assert from 'node:assert/strict';
+
+import { RuleTester } from 'eslint';
+import type { Linter } from 'eslint';
+import tseslint from 'typescript-eslint';
+import { describe, test } from 'vitest';
+
+import plugin from '../index.ts';
+
+const rule = plugin.rules?.['no-inline-object-types'];
+
+assert.ok(rule);
+
+RuleTester.describe = describe;
+RuleTester.it = test;
+RuleTester.itOnly = test.only;
+
+const languageOptions: Linter.LanguageOptions = {
+  ecmaVersion: 'latest',
+  parser: tseslint.parser,
+  sourceType: 'module'
+};
+
+const ruleTester = new RuleTester({ languageOptions });
+
+const inlineObjectType: RuleTester.TestCaseError = {
+  messageId: 'inlineObjectType'
+};
+
+const oneError: RuleTester.TestCaseError[] = [inlineObjectType];
+const twoErrors: RuleTester.TestCaseError[] = [
+  inlineObjectType,
+  inlineObjectType
+];
+
+const valid: RuleTester.ValidTestCase[] = [
+  {
+    name: 'accepts a plain type alias object type',
+    code: `type A = { readonly a: string };`
+  },
+  {
+    name: 'accepts a type alias referencing another type',
+    code: `type A = { readonly item: Item };`
+  },
+  {
+    name: 'ignores an array type alias',
+    code: `type A = Item[];`
+  },
+  {
+    name: 'accepts a generic type alias object type',
+    code: `type A<T> = { readonly value: T };`
+  },
+  {
+    name: 'accepts a mapped type',
+    code: `type A = { [K in Keys]: number };`
+  }
+];
+
+const invalid: RuleTester.InvalidTestCase[] = [
+  {
+    name: 'reports a nested inline object property',
+    code: `type A = { item: { name: string } };`,
+    errors: oneError
+  },
+  {
+    name: 'reports an inline object array element type',
+    code: `type A = { items: { name: string }[] };`,
+    errors: oneError
+  },
+  {
+    name: 'reports an inline object union member',
+    code: `type A = { item: { name: string } | null };`,
+    errors: oneError
+  },
+  {
+    name: 'reports both sides of an intersection',
+    code: `type A = { a: string } & { b: string };`,
+    errors: twoErrors
+  },
+  {
+    name: 'reports an inline object generic argument in Readonly',
+    code: `type A = Readonly<{ a: string }>;`,
+    errors: oneError
+  },
+  {
+    name: 'reports an inline object generic argument in Record',
+    code: `type A = Record<string, { a: number }>;`,
+    errors: oneError
+  },
+  {
+    name: 'reports an inline object generic argument in Promise',
+    code: `type A = Promise<{ a: string }>;`,
+    errors: oneError
+  },
+  {
+    name: 'reports each level of a deeply nested inline object',
+    code: `type A = { a: { b: { c: string } } };`,
+    errors: twoErrors
+  },
+  {
+    name: 'reports a nested inline object in an exported type alias',
+    code: `export type A = { item: { name: string } };`,
+    errors: oneError
+  },
+  {
+    name: 'reports an interface member type',
+    code: `interface A { item: { name: string } }`,
+    errors: oneError
+  },
+  {
+    name: 'reports a function parameter type',
+    code: `function f(opts: { a: string }): void {}`,
+    errors: oneError
+  },
+  {
+    name: 'reports a function return type',
+    code: `function f(): { a: string } { return { a: '' }; }`,
+    errors: oneError
+  },
+  {
+    name: 'reports a satisfies expression type',
+    code: `const cfg = { port: 1 } satisfies { port: number };`,
+    errors: oneError
+  },
+  {
+    name: 'reports an as expression type',
+    code: `const raw = x as { ok: boolean };`,
+    errors: oneError
+  },
+  {
+    name: 'reports a generic call argument type',
+    code: `const s = signal<{ open: boolean }>({ open: false });`,
+    errors: oneError
+  },
+  {
+    name: 'reports a declare module member type',
+    code: `declare module 'x' { export const y: { a: number }; }`,
+    errors: oneError
+  },
+  {
+    name: 'reports a class property type',
+    code: `class A { public state: { open: boolean } = { open: false }; }`,
+    errors: oneError
+  }
+];
+
+ruleTester.run('no-inline-object-types/no-inline-object-types', rule, {
+  valid,
+  invalid
+});
