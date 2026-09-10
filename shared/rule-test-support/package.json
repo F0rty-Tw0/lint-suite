@@ -1,0 +1,16 @@
+{
+  "name": "@lint-suite/rule-test-support",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./utils/*.ts": "./src/utils/*.ts",
+    "./common/*.ts": "./src/common/*.ts",
+    "./stubs/*.ts": "./src/stubs/*.ts",
+    "./*.ts": "./src/*.ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/utils": "catalog:typescript",
+    "eslint": "catalog:dev",
+    "typescript-eslint": "catalog:dev"
+  }
+}
