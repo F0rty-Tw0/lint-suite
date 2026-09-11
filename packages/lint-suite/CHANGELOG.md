@@ -1,3 +1,41 @@
+## 2.1.1 (2026-09-11)
+
+### 🚀 Features
+
+- ⚠️  **lint-suite:** ✨ extract custom rules into standalone packages ([b25ded1](https://github.com/F0rty-Tw0/lint-suite/commit/b25ded1))
+
+### ⚠️  Breaking Changes
+
+- **lint-suite:** ✨ extract custom rules into standalone packages  ([b25ded1](https://github.com/F0rty-Tw0/lint-suite/commit/b25ded1))
+
+### 🧱 Updated Dependencies
+
+- Updated eslint-plugin-arrow-body-fits-line to 1.0.0
+- Updated eslint-plugin-chain-fits-line to 1.0.0
+- Updated eslint-plugin-chain-receiver-is-name to 1.0.0
+- Updated eslint-plugin-explicit-accessibility to 1.0.0
+- Updated eslint-plugin-max-condition-operands to 1.0.0
+- Updated eslint-plugin-no-call-in-condition to 1.0.0
+- Updated eslint-plugin-no-grouped-condition to 1.0.0
+- Updated eslint-plugin-no-inline-object-types to 1.0.0
+- Updated eslint-plugin-no-inline-return-object to 1.0.0
+- Updated eslint-plugin-no-nested-object-value to 1.0.0
+- Updated eslint-plugin-no-spread-expression to 1.0.0
+- Updated eslint-plugin-no-unused-exports to 1.0.0
+- Updated eslint-plugin-one-line-guard to 1.0.0
+- Updated eslint-plugin-readonly-type-properties to 1.0.0
+- Updated eslint-plugin-ternary-branch-shape to 1.0.0
+- Updated eslint-plugin-test-file-shape to 1.0.0
+- Updated eslint-plugin-type-placement to 1.0.0
+- Updated eslint-plugin-util-purity to 1.0.0
+- Updated eslint-plugin-no-unused-angular-instance-fields to 1.0.0
+- Updated eslint-plugin-no-unstyled-classes to 1.0.0
+- Updated stylelint-no-unused-classes to 1.0.0
+
+### ❤️ Thank You
+
+- Artiom Tofan
+
 # Changelog
 
 ## [Unreleased]
