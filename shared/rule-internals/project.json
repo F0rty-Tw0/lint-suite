@@ -1,0 +1,19 @@
+{
+  "name": "rule-internals",
+  "sourceRoot": "shared/rule-internals/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {
+      "command": "tsc -p shared/rule-internals/tsconfig.json --noEmit"
+    },
+    "test": {
+      "command": "vitest run --config shared/rule-internals/vitest.config.ts",
+      "options": {
+        "cwd": "."
+      }
+    },
+    "lint": {
+      "command": "eslint shared/rule-internals --config shared/rule-internals/eslint.config.ts --max-warnings=0"
+    }
+  }
+}

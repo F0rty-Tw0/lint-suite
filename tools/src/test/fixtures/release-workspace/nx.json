@@ -1,0 +1,33 @@
+{
+  "defaultBase": "master",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": [
+      "{workspaceRoot}/pnpm-lock.yaml",
+      "{workspaceRoot}/tools/**/*.ts"
+    ]
+  },
+  "release": {
+    "projects": ["rule-a", "rule-b", "lint-suite"],
+    "projectsRelationship": "independent",
+    "releaseTag": {
+      "pattern": "{projectName}@{version}"
+    },
+    "version": {
+      "currentVersionResolver": "disk",
+      "updateDependents": "always",
+      "preserveLocalDependencyProtocols": true,
+      "versionPrefix": "",
+      "versionActionsOptions": {
+        "installIgnoreScripts": true
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": false,
+      "projectChangelogs": {
+        "createRelease": false
+      },
+      "automaticFromRef": true
+    }
+  }
+}

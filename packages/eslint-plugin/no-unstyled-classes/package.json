@@ -1,0 +1,47 @@
+{
+  "name": "@lint-suite/eslint-plugin-no-unstyled-classes",
+  "version": "1.0.0",
+  "description": "Disallow Angular template classes that no component stylesheet selects",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/eslint-plugin/no-unstyled-classes"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "rule/**/*.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@angular/compiler": "catalog:angular",
+    "@typescript-eslint/utils": "catalog:typescript",
+    "postcss": "catalog:styles",
+    "postcss-scss": "catalog:styles",
+    "postcss-selector-parser": "catalog:styles"
+  },
+  "peerDependencies": {
+    "eslint": "catalog:base",
+    "typescript": "catalog:typescript-compatibility"
+  },
+  "devDependencies": {
+    "@lint-suite/rule-internals": "workspace:*",
+    "angular-eslint": "catalog:dev",
+    "typescript-eslint": "catalog:dev"
+  }
+}

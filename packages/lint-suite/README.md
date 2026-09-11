@@ -1,6 +1,17 @@
-# Lint Suite
+# Lint Suite — ESLint, Stylelint, and Prettier configs for TypeScript and Angular
 
-A comprehensive collection of ESLint Flat configurations for modern web applications.
+`lint-suite` provides composable ESLint flat configs for JavaScript, TypeScript, Angular, RxJS, Vitest, and Playwright, plus standalone Stylelint and Prettier presets. Use the framework-agnostic `recommended` config as a baseline, then add the framework and testing configs your project needs.
+
+The suite includes custom rules for TypeScript code structure, unused exports, unused Angular instance fields, and mismatches between Angular template classes and CSS/SCSS selectors. Each custom rule is also available as an independent `@lint-suite` package when you do not need the full preset.
+
+## Quick navigation
+
+- [Installation](#installation) and [ESLint flat config setup](#usage)
+- [Available configurations](#available-configurations)
+- [Valid and invalid TypeScript examples](#examples)
+- [Standalone custom rule packages](#standalone-custom-rules)
+- [Angular rule customization](#unused-angular-instance-fields)
+- [Stylelint and Prettier presets](#stylelint-and-prettier-presets)
 
 ## Features
 
@@ -22,10 +33,45 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 pnpm add -D lint-suite
 ```
 
+## Standalone custom rules
+
+All 21 custom rules also have independently versioned scoped packages.
+Installing one does not install this umbrella or its unrelated presets.
+For example:
+
+```bash
+pnpm add -D @lint-suite/eslint-plugin-arrow-body-fits-line eslint typescript typescript-eslint
+```
+
+```js
+import arrow from '@lint-suite/eslint-plugin-arrow-body-fits-line';
+import tseslint from 'typescript-eslint';
+
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { arrow },
+    rules: { 'arrow/arrow-body-fits-line': 'error' }
+  }
+];
+```
+
+The [package catalog](https://github.com/F0rty-Tw0/lint-suite#standalone-custom-rules)
+lists every package and its rule key. The Angular instance-field package is
+`@lint-suite/eslint-plugin-no-unused-angular-instance-fields`; its rule key
+remains `no-unused-instance-fields`. The Stylelint package is
+`@lint-suite/stylelint-no-unused-classes`, with rule ID
+`lint-suite/no-unused-classes`.
+
+No migration is needed for existing umbrella users: its three entrypoints,
+presets, rule IDs, severities, and options are unchanged. Avoid enabling a
+standalone rule alongside the corresponding umbrella rule.
+
 ## Dependencies
 
 ```bash
-pnpm add -D eslint typescript-eslint eslint-config-prettier
+pnpm add -D eslint typescript typescript-eslint eslint-config-prettier
 ```
 
 If you use the Prettier preset (`lint-suite/prettier`), also install its peer dependency:
@@ -44,8 +90,8 @@ import { recommended } from 'lint-suite/eslint';
 export default [...recommended];
 ```
 
-The package ships as ESM only. A CommonJS config (`eslint.config.cjs`) can
-still `require('lint-suite/eslint')` on Node 20.19+ / 22.12+.
+The packages ship as ESM. Use Node.js 24 with the current ESLint,
+TypeScript, and Angular toolchain.
 
 Or selectively include configurations:
 
@@ -86,41 +132,49 @@ export default [
 
 ## Available Configurations
 
-| Configuration                                                                                                 | Description                                                                                                            |
-| ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `base`                                                                                                        | Core JavaScript rules, formatting, and complexity limits                                                               |
-| `javascript`                                                                                                  | JavaScript-specific rules via `@nx/eslint-plugin`                                                                      |
-| `typescript`                                                                                                  | TypeScript strict typing, imports, and naming conventions                                                              |
-| `angular`                                                                                                     | Angular component best practices with Signal support                                                                   |
-| `angularTemplate`                                                                                             | HTML template rules with accessibility, performance, and `lint-suite-angular-template/no-unstyled-classes`             |
-| `rxjs`                                                                                                        | Observable patterns, operator safety, and subscriptions                                                                |
-| `vitest`                                                                                                      | Vitest testing rules and matcher improvements                                                                          |
-| `playwright`                                                                                                  | Playwright e2e locator and matcher best practices                                                                      |
-| `json`                                                                                                        | JSON linting with comment support for tsconfig/vscode                                                                  |
-| `storybook`                                                                                                   | Storybook CSF enforcement                                                                                              |
-| `boundaries`                                                                                                  | Module boundary rules (feature, data-access, ui, etc.)                                                                 |
-| `prettier`                                                                                                    | Disables rules that conflict with Prettier (use last)                                                                  |
-| **`recommended`**                                                                                             | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
-| **Angular project analysis:** The `angular` preset enables `projectService: true` and project analysis for    |
-| `lint-suite-angular/no-unused-instance-fields`. It counts exact reads in the configured TypeScript/Angular    |
-| Program, including external parent templates/TypeScript, subclasses, and Angular interface implementations;   |
-| code outside that Program is unknowable. Project mode also reports unused public/protected directive members. |
-| Direct rule usage remains local by default, and `allowEffectFields` is opt-in. After cross-file or template   |
-| changes, do not use ESLint `--cache` for correctness gates; run a full non-cached lint (for example,          |
-| `eslint --no-cache`).                                                                                         |
+| Configuration     | Description                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `base`            | Core JavaScript rules, formatting, and complexity limits                                                               |
+| `javascript`      | JavaScript-specific rules via `@nx/eslint-plugin`                                                                      |
+| `typescript`      | TypeScript strict typing, imports, and naming conventions                                                              |
+| `angular`         | Angular component best practices with Signal support                                                                   |
+| `angularTemplate` | HTML template rules with accessibility, performance, and `lint-suite-angular-template/no-unstyled-classes`             |
+| `rxjs`            | Observable patterns, operator safety, and subscriptions                                                                |
+| `vitest`          | Vitest testing rules and matcher improvements                                                                          |
+| `playwright`      | Playwright e2e locator and matcher best practices                                                                      |
+| `json`            | JSON linting with comment support for tsconfig/vscode                                                                  |
+| `storybook`       | Storybook CSF enforcement                                                                                              |
+| `boundaries`      | Module boundary rules (feature, data-access, ui, etc.)                                                                 |
+| `prettier`        | Disables rules that conflict with Prettier (use last)                                                                  |
+| **`recommended`** | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
+
+**Angular project analysis:** The `angular` preset enables `projectService:
+true` and project analysis for `lint-suite-angular/no-unused-instance-fields`.
+It counts exact reads in the configured TypeScript/Angular Program, including
+external parent templates/TypeScript, subclasses, and Angular interface
+implementations; code outside that Program is unknowable. Project mode also
+reports unused public/protected directive members.
+
+Direct rule usage also defaults to project analysis; select `analysis:
+'local'` explicitly for local analysis. `allowEffectFields` is opt-in. After
+cross-file or template changes, do not use ESLint `--cache` for correctness
+gates; run a full non-cached lint such as `eslint --no-cache`.
 
 ## Disk cache
 
-`no-unstyled-classes`, `no-unused-classes`, and `no-unused-instance-fields`
-parse component metadata, stylesheets, and templates once per file and keep
-the result in memory for the life of the process, keyed by the installed
-lint-suite version and the file's mtime and size, so an upgrade reparses
-every file. The same entries are mirrored to
-`node_modules/.cache/lint-suite/*.json` under the current working directory
-at process exit, so the next ESLint or stylelint process (a CI run, or an
-editor's first lint) skips every parse of a file that did not change. Set
-`LINT_SUITE_CACHE_DIR` to move the directory, or `LINT_SUITE_CACHE=0` to
-keep everything in memory only.
+`no-unstyled-classes` and `no-unused-classes` cache parsed component metadata,
+stylesheets, and templates in memory and mirror those entries to
+`node_modules/.cache/lint-suite/` under the current working directory at
+process exit. Each cache is isolated by its owning scoped plugin's package
+name, version, and cache format. Upgrading either plugin invalidates its own
+entries without reusing or overwriting the other plugin's cache.
+
+Entries are also invalidated by file mtime and size. Malformed disk entries
+are discarded and rebuilt. Set `LINT_SUITE_CACHE_DIR` to choose a directory,
+or `LINT_SUITE_CACHE=0` to keep caching in memory only.
+
+The Angular instance-field rule maintains a separate in-memory project
+usage index; it does not use this disk cache.
 
 ## Customization
 
@@ -454,18 +508,18 @@ them reads type information or the filesystem; each listens to one node
 type and reports in microseconds per file. Where a fix needs a name the rule
 offers an IDE suggestion with a placeholder name instead of an auto-fix.
 
-| Rule | Reports | Fix |
-|---|---|---|
-| `local/no-call-in-condition` | A function call inside an `if` condition, or inside a boolean `const` that an `if` tests. Zero-argument `this.x()` calls (Angular signal reads) and type-predicate calls are exempt; predicates are found through scope in the same file, or through the type checker when a program is available. Option `allowPredicates` (regex sources, default `['^(is\|has)[A-Z]']`) applies when there is no program. | Suggestion: hoist to a `const` |
-| `local/max-condition-operands` | An `if` condition with more than `max` (default 3) operands joined by `&&` / `\|\|`. | none |
-| `local/no-grouped-condition` | A parenthesised group with a different operator inside an `if` condition or a boolean `const` (`a && (b \|\| c)`). | Suggestion: hoist the group |
-| `local/ternary-branch-shape` | A ternary branch that is not a name, literal, template literal, or plain member access. | none |
-| `local/chain-receiver-is-name` | A member chain starting on an inline expression: `(a ?? b).x`, `{...}.x`, `[...].x`, `(await p).x`. | Suggestion: name the receiver |
-| `local/chain-fits-line` | A chain of two or more calls whose `.method(` parts sit on different lines. A multi-line callback argument does not count. | none |
-| `local/arrow-body-fits-line` | An expression-bodied arrow whose body wraps onto more lines. | Fix: block body with `return` |
-| `local/no-nested-object-value` | A property value that is a non-empty object literal, an array holding object literals, a ternary, or a call chain. Decorator arguments (`@Component({...})`) and files matching `configFiles` (default `**/*.config.*`, `**/eslint.config.*`, `**/*.schema.ts`) are exempt. | Suggestion: hoist to a `const` |
-| `local/no-spread-expression` | `...(expr)` where the argument is not a name or member access. | Suggestion: hoist to a `const` |
-| `local/no-inline-return-object` | `return {...}` and `=> ({...})`. | Suggestion: `const result = {...}; return result;` |
+| Rule                            | Reports                                                                                                                                                                                                                                                                                                                                                                                                      | Fix                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| `local/no-call-in-condition`    | A function call inside an `if` condition, or inside a boolean `const` that an `if` tests. Zero-argument `this.x()` calls (Angular signal reads) and type-predicate calls are exempt; predicates are found through scope in the same file, or through the type checker when a program is available. Option `allowPredicates` (regex sources, default `['^(is\|has)[A-Z]']`) applies when there is no program. | Suggestion: hoist to a `const`                     |
+| `local/max-condition-operands`  | An `if` condition with more than `max` (default 3) operands joined by `&&` / `\|\|`.                                                                                                                                                                                                                                                                                                                         | none                                               |
+| `local/no-grouped-condition`    | A parenthesised group with a different operator inside an `if` condition or a boolean `const` (`a && (b \|\| c)`).                                                                                                                                                                                                                                                                                           | Suggestion: hoist the group                        |
+| `local/ternary-branch-shape`    | A ternary branch that is not a name, literal, template literal, or plain member access.                                                                                                                                                                                                                                                                                                                      | none                                               |
+| `local/chain-receiver-is-name`  | A member chain starting on an inline expression: `(a ?? b).x`, `{...}.x`, `[...].x`, `(await p).x`.                                                                                                                                                                                                                                                                                                          | Suggestion: name the receiver                      |
+| `local/chain-fits-line`         | A chain of two or more calls whose `.method(` parts sit on different lines. A multi-line callback argument does not count.                                                                                                                                                                                                                                                                                   | none                                               |
+| `local/arrow-body-fits-line`    | An expression-bodied arrow whose body wraps onto more lines.                                                                                                                                                                                                                                                                                                                                                 | Fix: block body with `return`                      |
+| `local/no-nested-object-value`  | A property value that is a non-empty object literal, an array holding object literals, a ternary, or a call chain. Decorator arguments (`@Component({...})`) and files matching `configFiles` (default `**/*.config.*`, `**/eslint.config.*`, `**/*.schema.ts`) are exempt.                                                                                                                                  | Suggestion: hoist to a `const`                     |
+| `local/no-spread-expression`    | `...(expr)` where the argument is not a name or member access.                                                                                                                                                                                                                                                                                                                                               | Suggestion: hoist to a `const`                     |
+| `local/no-inline-return-object` | `return {...}` and `=> ({...})`.                                                                                                                                                                                                                                                                                                                                                                             | Suggestion: `const result = {...}; return result;` |
 
 ### Project layout rules
 
@@ -473,11 +527,11 @@ Also in the `typescript` preset. These read only the file's own path and
 return no listeners for files they do not cover, so they cost one regex
 per file.
 
-| Rule | Reports | Options |
-|---|---|---|
-| `local/type-placement` | An exported `type` outside a `common/*.type.ts` or `test/common/*.type.ts` file; a value exported from a `*.type.ts` file; a non-`const` export from a `*.const.ts` file; an `import type` from a relative or internal path that is neither a `*.type.ts` / `*.schema.ts` file nor a `common` barrel (`../common`, `./common/index.ts`, `@shared/common`). `.spec.ts`, `.stub.ts`, `.schema.ts` (an inferred type lives beside its schema), `.d.ts`, `state.type.ts` (any prefix), and fixtures are exempt; a `.spec.util.ts` file is not, so an exported type in one is reported. Never resolves imports. | `internalPatterns`: regex sources for alias prefixes that must resolve to a `*.type.ts` file. Default empty: a workspace alias (`@shared/common`) resolves to a library entry point, and module boundaries forbid deep imports, so alias type imports pass. |
-| `local/util-purity` | Inside `utils/*.util.ts` (excluding paths under `test/` or `testing/`): imports of `node:fs`, `child_process`, `os`, `process`, `http`, `net`, `worker_threads`; a module-level `let`; a module-level `new Map/Set/WeakMap/WeakSet`; `process.*`, `globalThis`, `window`, `document`, `localStorage`, `console`; `Date.now`, `Math.random`, `performance.now`, `crypto.randomUUID`; `setTimeout`, `setInterval`, `fetch`, `inject`, `require`. | `bannedModules` |
-| `local/test-file-shape` | A file named `*.spec-support.ts`, `*.spec-helper.ts`, `*.test-utils.ts`, `*-fixture.ts`, or under `__mocks__/` / `helpers/` / `common/stubs/`; a `.stub.ts` outside `test/stubs/`, a `.mock.ts` outside `test/mocks/`, a `.spec.util.ts` outside `test/utils/`, or any `fixtures/` directory outside `test/fixtures/` (a dedicated `testing/` library is exempt from all of these); a `test/stubs/*.stub.ts` export not named `UPPER_SNAKE_STUB` or without a type annotation; a `test/mocks/*.mock.ts` export that is not a camelCase `...Mock` function with an explicit return type. | none |
+| Rule                    | Reports                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Options                                                                                                                                                                                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `local/type-placement`  | An exported `type` outside a `common/*.type.ts` or `test/common/*.type.ts` file; a value exported from a `*.type.ts` file; a non-`const` export from a `*.const.ts` file; an `import type` from a relative or internal path that is neither a `*.type.ts` / `*.schema.ts` file nor a `common` barrel (`../common`, `./common/index.ts`, `@shared/common`). `.spec.ts`, `.stub.ts`, `.schema.ts` (an inferred type lives beside its schema), `.d.ts`, `state.type.ts` (any prefix), and fixtures are exempt; a `.spec.util.ts` file is not, so an exported type in one is reported. Never resolves imports. | `internalPatterns`: regex sources for alias prefixes that must resolve to a `*.type.ts` file. Default empty: a workspace alias (`@shared/common`) resolves to a library entry point, and module boundaries forbid deep imports, so alias type imports pass. |
+| `local/util-purity`     | Inside `utils/*.util.ts` (excluding paths under `test/` or `testing/`): imports of `node:fs`, `child_process`, `os`, `process`, `http`, `net`, `worker_threads`; a module-level `let`; a module-level `new Map/Set/WeakMap/WeakSet`; `process.*`, `globalThis`, `window`, `document`, `localStorage`, `console`; `Date.now`, `Math.random`, `performance.now`, `crypto.randomUUID`; `setTimeout`, `setInterval`, `fetch`, `inject`, `require`.                                                                                                                                                             | `bannedModules`                                                                                                                                                                                                                                             |
+| `local/test-file-shape` | A file named `*.spec-support.ts`, `*.spec-helper.ts`, `*.test-utils.ts`, `*-fixture.ts`, or under `__mocks__/` / `helpers/` / `common/stubs/`; a `.stub.ts` outside `test/stubs/`, a `.mock.ts` outside `test/mocks/`, a `.spec.util.ts` outside `test/utils/`, or any `fixtures/` directory outside `test/fixtures/` (a dedicated `testing/` library is exempt from all of these); a `test/stubs/*.stub.ts` export not named `UPPER_SNAKE_STUB` or without a type annotation; a `test/mocks/*.mock.ts` export that is not a camelCase `...Mock` function with an explicit return type.                    | none                                                                                                                                                                                                                                                        |
 
 ### No unused exports
 
@@ -519,6 +573,108 @@ imports, and a module that exports names but is never imported at all.
   from a file outside that program (for example a spec excluded by
   `tsconfig.lib.json`) reports as unused; that is the same boundary `tsc`
   draws.
+
+## Examples
+
+These five valid and five invalid TypeScript examples illustrate individual custom rules enabled by the `typescript` preset. Each example is judged by the named rule only; it is not a complete file guaranteed to pass every rule in the suite. Values such as `items`, `name`, and `enabled` represent existing application variables.
+
+### Valid examples
+
+#### 1. Name an object type before using it
+
+`local/no-inline-object-types` allows a named type alias used in a parameter annotation.
+
+```ts
+type User = { name: string };
+
+function greet(user: User): string {
+  return user.name;
+}
+```
+
+#### 2. Name a returned object
+
+`local/no-inline-return-object` allows returning an identifier instead of an inline object literal.
+
+```ts
+function createUser() {
+  const user = { name: 'Ada' };
+  return user;
+}
+```
+
+#### 3. Extract a nested object value
+
+`local/no-nested-object-value` allows an identifier as an object property value.
+
+```ts
+const address = { city: 'London' };
+const user = { name: 'Ada', address };
+```
+
+#### 4. Name a spread operand
+
+`local/no-spread-expression` allows spreading a named array.
+
+```ts
+const copy = [...items];
+```
+
+#### 5. Mark a primitive type property readonly
+
+`local/readonly-type-properties` accepts readonly primitive properties in type aliases.
+
+```ts
+type Settings = { readonly enabled: boolean };
+```
+
+### Invalid examples
+
+#### 1. Put an object type directly in a parameter annotation
+
+`local/no-inline-object-types` reports the inline type. Extract the `User` type shown above.
+
+```ts
+function greet(user: { name: string }): string {
+  return user.name;
+}
+```
+
+#### 2. Return an object literal directly
+
+`local/no-inline-return-object` reports the returned literal. Assign it to a named constant first.
+
+```ts
+function createUser() {
+  return { name: 'Ada' };
+}
+```
+
+#### 3. Nest an object literal inside another object
+
+`local/no-nested-object-value` reports the inline `address` value. Declare it separately.
+
+```ts
+const user = { name: 'Ada', address: { city: 'London' } };
+```
+
+#### 4. Spread the result of a call directly
+
+`local/no-spread-expression` reports the inline call used as a spread operand. Assign the filtered array to a named constant before spreading it.
+
+```ts
+const copy = [...items.filter(isVisible)];
+```
+
+#### 5. Leave a primitive type property mutable
+
+`local/readonly-type-properties` reports the missing `readonly` modifier.
+
+```ts
+type Settings = { enabled: boolean };
+```
+
+For more valid and invalid code examples, configuration options, and rule-specific exceptions, see the [standalone package catalog](https://github.com/F0rty-Tw0/lint-suite#standalone-custom-rules).
 
 ## Stylelint and Prettier presets
 

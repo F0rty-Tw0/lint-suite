@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-unstyled-classes",
+  "sourceRoot": "packages/eslint-plugin/no-unstyled-classes/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

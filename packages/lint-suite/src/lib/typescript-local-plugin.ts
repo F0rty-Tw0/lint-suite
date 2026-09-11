@@ -1,24 +1,25 @@
-import arrowBodyFitsLineRule from './rules/arrow-body-fits-line/arrow-body-fits-line.ts';
-import chainFitsLineRule from './rules/chain-fits-line/chain-fits-line.ts';
-import chainReceiverIsNameRule from './rules/chain-receiver-is-name/chain-receiver-is-name.ts';
-import { definePlugin } from './rules/define-plugin.util.ts';
-import explicitAccessibilityRule from './rules/explicit-accessibility/explicit-accessibility.ts';
-import maxConditionOperandsRule from './rules/max-condition-operands/max-condition-operands.ts';
-import noCallInConditionRule from './rules/no-call-in-condition/no-call-in-condition.ts';
-import noGroupedConditionRule from './rules/no-grouped-condition/no-grouped-condition.ts';
-import noInlineObjectTypesRule from './rules/no-inline-object-types/no-inline-object-types.ts';
-import noInlineReturnObjectRule from './rules/no-inline-return-object/no-inline-return-object.ts';
-import noNestedObjectValueRule from './rules/no-nested-object-value/no-nested-object-value.ts';
-import noSpreadExpressionRule from './rules/no-spread-expression/no-spread-expression.ts';
-import noUnusedExportsRule from './rules/no-unused-exports/no-unused-exports.ts';
-import oneLineGuardRule from './rules/one-line-guard/one-line-guard.ts';
-import readonlyTypePropertiesRule from './rules/readonly-type-properties/readonly-type-properties.ts';
-import ternaryBranchShapeRule from './rules/ternary-branch-shape/ternary-branch-shape.ts';
-import testFileShapeRule from './rules/test-file-shape/test-file-shape.ts';
-import typePlacementRule from './rules/type-placement/type-placement.ts';
-import utilPurityRule from './rules/util-purity/util-purity.ts';
+import { arrowBodyFitsLineRule } from '@lint-suite/eslint-plugin-arrow-body-fits-line';
+import { chainFitsLineRule } from '@lint-suite/eslint-plugin-chain-fits-line';
+import { chainReceiverIsNameRule } from '@lint-suite/eslint-plugin-chain-receiver-is-name';
+import { explicitAccessibilityRule } from '@lint-suite/eslint-plugin-explicit-accessibility';
+import { maxConditionOperandsRule } from '@lint-suite/eslint-plugin-max-condition-operands';
+import { noCallInConditionRule } from '@lint-suite/eslint-plugin-no-call-in-condition';
+import { noGroupedConditionRule } from '@lint-suite/eslint-plugin-no-grouped-condition';
+import { noInlineObjectTypesRule } from '@lint-suite/eslint-plugin-no-inline-object-types';
+import { noInlineReturnObjectRule } from '@lint-suite/eslint-plugin-no-inline-return-object';
+import { noNestedObjectValueRule } from '@lint-suite/eslint-plugin-no-nested-object-value';
+import { noSpreadExpressionRule } from '@lint-suite/eslint-plugin-no-spread-expression';
+import { noUnusedExportsRule } from '@lint-suite/eslint-plugin-no-unused-exports';
+import { oneLineGuardRule } from '@lint-suite/eslint-plugin-one-line-guard';
+import { readonlyTypePropertiesRule } from '@lint-suite/eslint-plugin-readonly-type-properties';
+import { ternaryBranchShapeRule } from '@lint-suite/eslint-plugin-ternary-branch-shape';
+import { testFileShapeRule } from '@lint-suite/eslint-plugin-test-file-shape';
+import { typePlacementRule } from '@lint-suite/eslint-plugin-type-placement';
+import { utilPurityRule } from '@lint-suite/eslint-plugin-util-purity';
+import type { CompatiblePlugin } from 'typescript-eslint';
 
-export const localPlugin = definePlugin('local', {
+const meta = { name: 'local' };
+const rules = {
   'arrow-body-fits-line': arrowBodyFitsLineRule,
   'chain-fits-line': chainFitsLineRule,
   'chain-receiver-is-name': chainReceiverIsNameRule,
@@ -37,4 +38,7 @@ export const localPlugin = definePlugin('local', {
   'test-file-shape': testFileShapeRule,
   'type-placement': typePlacementRule,
   'util-purity': utilPurityRule
-});
+};
+const plugin = { meta, rules };
+
+export const localPlugin: CompatiblePlugin = plugin;

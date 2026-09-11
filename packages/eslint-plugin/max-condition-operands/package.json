@@ -1,0 +1,41 @@
+{
+  "name": "@lint-suite/eslint-plugin-max-condition-operands",
+  "version": "1.0.0",
+  "description": "Limit operands in if statement conditions",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/eslint-plugin/max-condition-operands"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "rule/**/*.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "catalog:typescript"
+  },
+  "peerDependencies": {
+    "eslint": "catalog:base",
+    "typescript": "catalog:typescript-compatibility"
+  },
+  "devDependencies": {
+    "typescript-eslint": "catalog:dev"
+  }
+}

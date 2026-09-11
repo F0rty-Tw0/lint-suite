@@ -1,11 +1,12 @@
 {
   "name": "suites",
+  "private": true,
   "license": "MIT",
   "author": "Artiom Tofan artiomtofancv@gmail.com",
   "type": "module",
   "scripts": {
-    "release": "release-it",
-    "release:ci": "release-it --ci"
+    "release:plan": "node tools/src/release.ts plan",
+    "release:prepare": "node tools/src/release.ts prepare"
   },
   "devDependencies": {
     "@angular/common": "catalog:dev",
@@ -13,25 +14,26 @@
     "@angular/forms": "catalog:dev",
     "@angular/platform-browser": "catalog:dev",
     "@eslint/js": "catalog:dev",
+    "@nx/devkit": "catalog:dev",
     "@nx/esbuild": "catalog:dev",
     "@nx/eslint": "catalog:dev",
     "@nx/eslint-plugin": "catalog:dev",
     "@nx/js": "catalog:dev",
     "@nx/vitest": "catalog:dev",
-    "@release-it/keep-a-changelog": "catalog:dev",
     "@types/node": "catalog:dev",
     "angular-eslint": "catalog:dev",
     "esbuild": "catalog:dev",
     "eslint": "catalog:dev",
     "eslint-config-prettier": "catalog:dev",
     "jsonc-eslint-parser": "catalog:dev",
+    "npm": "catalog:dev",
     "nx": "catalog:dev",
     "prettier": "catalog:dev",
-    "release-it": "catalog:dev",
     "tslib": "catalog:dev",
     "typescript": "catalog:dev",
     "typescript-eslint": "catalog:dev",
-    "vitest": "catalog:dev"
+    "vitest": "catalog:dev",
+    "yaml": "catalog:dev"
   },
   "packageManager": "pnpm@11.25.0",
   "version": "2.1.0"

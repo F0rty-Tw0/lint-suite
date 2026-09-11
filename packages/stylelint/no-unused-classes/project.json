@@ -1,0 +1,8 @@
+{
+  "name": "stylelint-no-unused-classes",
+  "sourceRoot": "packages/stylelint/no-unused-classes/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

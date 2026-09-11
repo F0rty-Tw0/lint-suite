@@ -1,0 +1,19 @@
+{
+  "name": "rule-test-support",
+  "sourceRoot": "shared/rule-test-support/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {
+      "command": "tsc -p shared/rule-test-support/tsconfig.json --noEmit"
+    },
+    "test": {
+      "command": "vitest run --config shared/rule-test-support/vitest.config.ts",
+      "options": {
+        "cwd": "."
+      }
+    },
+    "lint": {
+      "command": "eslint shared/rule-test-support --config shared/rule-test-support/eslint.config.ts --max-warnings=0"
+    }
+  }
+}

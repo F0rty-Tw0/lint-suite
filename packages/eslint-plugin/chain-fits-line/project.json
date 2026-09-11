@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-chain-fits-line",
+  "sourceRoot": "packages/eslint-plugin/chain-fits-line/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

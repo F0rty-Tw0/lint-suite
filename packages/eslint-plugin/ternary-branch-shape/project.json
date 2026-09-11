@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-ternary-branch-shape",
+  "sourceRoot": "packages/eslint-plugin/ternary-branch-shape/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

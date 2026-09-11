@@ -1,5 +1,22 @@
 # Lint Suite Release Notes
 
+## Unreleased: independently installable custom rules
+
+- Extracted all 21 custom rules into `@lint-suite/eslint-plugin-*` and
+  `@lint-suite/stylelint-no-unused-classes` packages. Each can be installed
+  without the umbrella's unrelated presets and dependencies.
+- Kept all `lint-suite/eslint`, `lint-suite/stylelint`, and
+  `lint-suite/prettier` entrypoints and existing umbrella rule IDs, severities,
+  options, and parser behavior.
+- Isolated template and Stylelint disk caches by the owning public package
+  name and version. Both plugins can share `LINT_SUITE_CACHE_DIR` safely.
+- Replaced workspace-wide release versioning with affected-only independent
+  Nx releases. The umbrella adopts exact newly released rule versions.
+
+Existing umbrella consumers need no configuration changes. Standalone
+consumers configure their parser and enable the package's single rule
+explicitly; see the package README for project-aware rules.
+
 ## v1.3.2
 
 Patch release relaxing the `no-confusing-void-expression` rule for better developer experience.

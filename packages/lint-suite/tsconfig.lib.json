@@ -1,13 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "declaration": true,
-    "types": ["node"]
+    "types": ["node"],
+    "outDir": "../../dist/packages/lint-suite"
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
-  "exclude": [
-    "src/**/test/**",
-    "src/**/*.spec.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/test/**", "src/**/*.spec.ts"]
 }

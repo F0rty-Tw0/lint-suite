@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-chain-receiver-is-name",
+  "sourceRoot": "packages/eslint-plugin/chain-receiver-is-name/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

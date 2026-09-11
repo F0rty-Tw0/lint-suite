@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-spread-expression",
+  "sourceRoot": "packages/eslint-plugin/no-spread-expression/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

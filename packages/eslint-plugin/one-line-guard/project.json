@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-one-line-guard",
+  "sourceRoot": "packages/eslint-plugin/one-line-guard/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

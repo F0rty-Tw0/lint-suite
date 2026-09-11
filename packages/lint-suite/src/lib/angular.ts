@@ -1,13 +1,7 @@
+import noUnusedAngularInstanceFieldPlugin from '@lint-suite/eslint-plugin-no-unused-angular-instance-fields';
 import { configs, processInlineTemplates } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
-
-import { definePlugin } from './rules/define-plugin.util.ts';
-import noUnusedInstanceFieldsRule from './rules/no-unused-angular-instance-fields/rule/no-unused-angular-instance-fields.ts';
-
-const lintSuiteAngularPlugin = definePlugin('lint-suite-angular', {
-  'no-unused-instance-fields': noUnusedInstanceFieldsRule
-});
 
 const inlineTemplates = processInlineTemplates && {
   processor: processInlineTemplates
@@ -18,7 +12,7 @@ export const angular = defineConfig([
     files: ['**/*.ts'],
     extends: [...configs.tsRecommended],
     plugins: {
-      'lint-suite-angular': lintSuiteAngularPlugin
+      'lint-suite-angular': noUnusedAngularInstanceFieldPlugin
     },
     languageOptions: {
       globals: {

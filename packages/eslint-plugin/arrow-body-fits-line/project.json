@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-arrow-body-fits-line",
+  "sourceRoot": "packages/eslint-plugin/arrow-body-fits-line/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

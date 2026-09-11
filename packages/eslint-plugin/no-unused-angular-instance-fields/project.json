@@ -1,0 +1,8 @@
+{
+  "name": "eslint-plugin-no-unused-angular-instance-fields",
+  "sourceRoot": "packages/eslint-plugin/no-unused-angular-instance-fields/src",
+  "projectType": "library",
+  "targets": {
+    "typecheck": {}
+  }
+}

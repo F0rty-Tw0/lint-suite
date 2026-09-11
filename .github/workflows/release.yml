@@ -4,15 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version bump, or publish-current to retry the current version'
+        description: 'Release all affected packages, or retry the current release'
         required: true
-        default: 'patch'
+        default: patch
         type: choice
         options:
           - patch
           - minor
           - major
           - publish-current
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
 
 permissions: {}
 
@@ -23,14 +27,33 @@ jobs:
     permissions:
       contents: write
       id-token: write
+    env:
+      NX_DAEMON: 'false'
 
     steps:
+      - name: Verify authorized branch
+        env:
+          RELEASE_REF: ${{ github.ref }}
+        run: |
+          if [ "$RELEASE_REF" != 'refs/heads/master' ]; then
+            echo 'Releases are authorized only from master.' >&2
+            exit 1
+          fi
+
       # SHA = actions/checkout@v7.0.1
-      - name: Checkout
+      - name: Checkout dispatched master commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Restore current release for retry
+        if: inputs.version == 'publish-current'
+        run: |
+          git rev-parse --verify refs/tags/release/current
+          git merge-base --is-ancestor refs/tags/release/current refs/remotes/origin/master
+          git checkout --detach refs/tags/release/current
 
       # SHA = pnpm/setup@v2.1.0
       - name: Setup toolchain and install dependencies
@@ -42,22 +65,81 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Release
+      - name: Version affected packages with Nx
+        id: prepare
         if: inputs.version != 'publish-current'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ inputs.version }}
-        run: pnpm run release:ci -- "$RELEASE_VERSION"
+        run: pnpm run release:prepare "$RELEASE_VERSION"
 
-      - name: Publish current version
-        if: inputs.version == 'publish-current'
+      - name: Select packages to publish
+        id: packages
+        env:
+          RELEASE_MODE: ${{ inputs.version }}
+          AFFECTED_PROJECTS: ${{ steps.prepare.outputs.projects }}
         run: |
-          pnpm exec nx run lint-suite:build
-          cd dist/packages/lint-suite/src
-          VERSION=$(node --print "require('./package.json').version")
-          npm view "lint-suite@$VERSION" version 2>/dev/null \
-            && echo "lint-suite@$VERSION already published" \
-            || pnpm publish --no-git-checks --provenance --access public
+          if [ "$RELEASE_MODE" = 'publish-current' ]; then
+            projects=$(node tools/src/release.ts projects)
+          else
+            projects="$AFFECTED_PROJECTS"
+          fi
+          echo "projects=$projects" >> "$GITHUB_OUTPUT"
+
+      - name: Push versioned source and package tags
+        if: inputs.version != 'publish-current' && steps.packages.outputs.projects != ''
+        run: |
+          previous=$(git tag --list release/current --format='%(objectname)')
+          git tag --force release/current
+          git push --atomic origin HEAD:refs/heads/master --tags "--force-with-lease=refs/tags/release/current:$previous"
+
+      - name: Build final package versions
+        if: steps.packages.outputs.projects != ''
+        env:
+          RELEASE_PROJECTS: ${{ steps.packages.outputs.projects }}
+        run: pnpm exec nx run-many -t build --projects="$RELEASE_PROJECTS"
+
+      - name: Configure npm authentication
+        if: steps.packages.outputs.projects != ''
+        run: printf '%s\n' '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' >> "$HOME/.npmrc"
+
+      - name: Publish rules before the umbrella
+        if: steps.packages.outputs.projects != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
+          PNPM_CONFIG_PROVENANCE: 'true'
+          RELEASE_PROJECTS: ${{ steps.packages.outputs.projects }}
+        run: |
+          rules=()
+          umbrella=false
+          IFS=',' read -ra projects <<< "$RELEASE_PROJECTS"
+          for project in "${projects[@]}"; do
+            if [ "$project" = 'lint-suite' ]; then
+              umbrella=true
+            else
+              rules+=("$project")
+            fi
+          done
+          if [ ${#rules[@]} -gt 0 ]; then
+            rules_csv=$(IFS=,; printf '%s' "${rules[*]}")
+            pnpm exec nx release publish --projects="$rules_csv"
+          fi
+          if [ "$umbrella" = true ]; then
+            pnpm exec nx release publish --projects=lint-suite
+          fi
+
+      - name: Create GitHub releases with Nx
+        if: steps.packages.outputs.projects != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node tools/src/release.ts notes
+
+      - name: Advance successful release baseline
+        if: steps.packages.outputs.projects != ''
+        run: |
+          previous=$(git tag --list release/success --format='%(objectname)')
+          git tag --force release/success HEAD
+          git push origin refs/tags/release/success "--force-with-lease=refs/tags/release/success:$previous"

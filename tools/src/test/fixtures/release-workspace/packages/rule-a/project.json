@@ -1,0 +1,15 @@
+{
+  "name": "rule-a",
+  "projectType": "library",
+  "sourceRoot": "packages/rule-a/src",
+  "targets": {
+    "nx-release-publish": {
+      "executor": "@nx/js:release-publish",
+      "inputs": ["default"],
+      "options": {
+        "packageRoot": "packages/rule-a"
+      }
+    }
+  },
+  "implicitDependencies": ["private-helper"]
+}
