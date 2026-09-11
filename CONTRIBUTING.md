@@ -215,6 +215,11 @@ at that commit, rebuilds, and runs Nx publication without another version bump.
 Nx skips existing package versions; missing versions are published. GitHub
 releases are then created or updated, and the successful baseline advances.
 
+This retry requires an existing `release/current` tag on origin. If the tag is
+missing, run **patch**, **minor**, or **major** instead: no prepared release is
+available to retry. The normal workflow creates the marker when it pushes the
+versioned source and package tags; `publish-current` does not bootstrap it.
+
 Until `release/current` and `release/success` match, another normal release is
 refused. Changes merged after the interrupted release remain for the next
 normal release. Do not move these markers manually to bypass a failed release.

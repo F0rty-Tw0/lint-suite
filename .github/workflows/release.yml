@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release all affected packages, or retry the current release'
+        description: 'Bump affected packages, or retry an existing release/current tag'
         required: true
         default: patch
         type: choice
@@ -51,7 +51,10 @@ jobs:
       - name: Restore current release for retry
         if: inputs.version == 'publish-current'
         run: |
-          git rev-parse --verify refs/tags/release/current
+          if ! git rev-parse --verify --quiet refs/tags/release/current; then
+            echo '::error::No release/current tag exists. Run patch, minor, or major first; publish-current only retries a release whose versioned source and tags were pushed.'
+            exit 1
+          fi
           git merge-base --is-ancestor refs/tags/release/current refs/remotes/origin/master
           git checkout --detach refs/tags/release/current
 
