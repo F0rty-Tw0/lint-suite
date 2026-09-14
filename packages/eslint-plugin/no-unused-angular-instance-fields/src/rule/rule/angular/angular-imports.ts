@@ -72,11 +72,19 @@ export const isImportBinding = (
   return false;
 };
 
+const angularImportSources: ReadonlySet<string> = new Set([
+  '@angular/core',
+  '@angular/core/rxjs-interop'
+]);
+
 export const addAngularImport = (
   node: TSESTree.ImportDeclaration,
   imports: AngularImports
 ): void => {
-  if (node.source.value !== '@angular/core' || node.importKind === 'type') {
+  if (
+    !angularImportSources.has(node.source.value) ||
+    node.importKind === 'type'
+  ) {
     return;
   }
 

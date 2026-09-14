@@ -19,6 +19,16 @@ const effectFieldsDenied: RuleOptions = {
   allowEffectFields: false
 };
 const denyEffectFieldsOptions = [effectFieldsDenied];
+const rxjsInteropFieldsAllowed: RuleOptions = {
+  analysis: 'local',
+  allowRxjsInteropFields: true
+};
+const allowRxjsInteropFieldsOptions = [rxjsInteropFieldsAllowed];
+const rxjsInteropFieldsDenied: RuleOptions = {
+  analysis: 'local',
+  allowRxjsInteropFields: false
+};
+const denyRxjsInteropFieldsOptions = [rxjsInteropFieldsDenied];
 
 const exemptsSignalAndDecoratorFields: RuleTester.ValidTestCase = {
   options: [{ analysis: 'local' }],
@@ -68,6 +78,36 @@ const allowsNamespaceImportedEffect: RuleTester.ValidTestCase = {
           private readonly titleEffect = ng.effect(() => undefined);
         }`,
   options: allowEffectFieldsOptions
+};
+
+const acceptsUnreadToSignalFieldWhenAllowed: RuleTester.ValidTestCase = {
+  name: 'accepts an unread Angular toSignal field when allowRxjsInteropFields is true',
+  code: `import { Component } from '@angular/core';
+        import { toSignal } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly value = toSignal({ subscribe: () => undefined } as never);
+        }`,
+  options: allowRxjsInteropFieldsOptions
+};
+
+const allowsAliasedToObservableField: RuleTester.ValidTestCase = {
+  name: 'allows an aliased Angular toObservable field when enabled',
+  code: `import { Component } from '@angular/core';
+        import { toObservable as asObservable } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly source = asObservable({} as never);
+        }`,
+  options: allowRxjsInteropFieldsOptions
+};
+
+const allowsNamespaceImportedToSignal: RuleTester.ValidTestCase = {
+  name: 'allows a namespace-imported Angular toSignal field when enabled',
+  code: `import { Component } from '@angular/core';
+        import * as interop from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly value = interop.toSignal({ subscribe: () => undefined } as never);
+        }`,
+  options: allowRxjsInteropFieldsOptions
 };
 
 const treatsSignalQueriesAsManaged: RuleTester.ValidTestCase = {
@@ -216,6 +256,62 @@ const reportsUnreadSubscriptionField: RuleTester.InvalidTestCase = {
   errors: [unusedFieldError('subscription')]
 };
 
+const reportsToSignalFieldWithoutOption: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'reports Angular toSignal fields when allowRxjsInteropFields is omitted',
+  code: `import { Component } from '@angular/core';
+        import { toSignal } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly value = toSignal({ subscribe: () => undefined } as never);
+        }`,
+  errors: [unusedFieldError('value')]
+};
+
+const reportsToSignalFieldWhenDenied: RuleTester.InvalidTestCase = {
+  name: 'reports an unread Angular toSignal field when allowRxjsInteropFields is false',
+  code: `import { Component } from '@angular/core';
+        import { toSignal } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly value = toSignal({ subscribe: () => undefined } as never);
+        }`,
+  options: denyRxjsInteropFieldsOptions,
+  errors: [unusedFieldError('value')]
+};
+
+const reportsLocalToSignalField: RuleTester.InvalidTestCase = {
+  name: 'reports an unread same-named non-Angular toSignal field when allowRxjsInteropFields is true',
+  code: `import { Component } from '@angular/core';
+        function toSignal(source: unknown): unknown { return source; }
+        @Component({ template: '' }) class TestComponent {
+          private readonly value = toSignal({});
+        }`,
+  options: allowRxjsInteropFieldsOptions,
+  errors: [unusedFieldError('value')]
+};
+
+const reportsTakeUntilDestroyedField: RuleTester.InvalidTestCase = {
+  name: 'reports an unread Angular takeUntilDestroyed field even when allowRxjsInteropFields is true',
+  code: `import { Component } from '@angular/core';
+        import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly guard = takeUntilDestroyed();
+        }`,
+  options: allowRxjsInteropFieldsOptions,
+  errors: [unusedFieldError('guard')]
+};
+
+const reportsToSignalFieldWhenOnlyEffectFieldsAllowed: RuleTester.InvalidTestCase =
+  {
+    name: 'reports an unread Angular toSignal field when only allowEffectFields is true',
+    code: `import { Component } from '@angular/core';
+        import { toSignal } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          private readonly value = toSignal({ subscribe: () => undefined } as never);
+        }`,
+    options: allowEffectFieldsOptions,
+    errors: [unusedFieldError('value')]
+  };
+
 const reportsLocalComponentRefTypedField: RuleTester.InvalidTestCase = {
   options: [{ analysis: 'local' }],
   name: 'reports unread fields whose local type is named ComponentRef',
@@ -233,6 +329,9 @@ const valid: RuleTester.ValidTestCase[] = [
   allowsAutoCleanedEffectWithoutOptions,
   allowsAutoCleanedEffectWithInlineOptions,
   allowsNamespaceImportedEffect,
+  acceptsUnreadToSignalFieldWhenAllowed,
+  allowsAliasedToObservableField,
+  allowsNamespaceImportedToSignal,
   treatsSignalQueriesAsManaged,
   exemptsComponentRefTypedField,
   exemptsComponentRefTypedFieldUnderShadowingValue
@@ -249,6 +348,11 @@ const invalid: RuleTester.InvalidTestCase[] = [
   reportsEffectFieldWithComputedOption,
   reportsEffectFieldWithStringKeyedOption,
   reportsUnreadSubscriptionField,
+  reportsToSignalFieldWithoutOption,
+  reportsToSignalFieldWhenDenied,
+  reportsLocalToSignalField,
+  reportsTakeUntilDestroyedField,
+  reportsToSignalFieldWhenOnlyEffectFieldsAllowed,
   reportsLocalComponentRefTypedField
 ];
 

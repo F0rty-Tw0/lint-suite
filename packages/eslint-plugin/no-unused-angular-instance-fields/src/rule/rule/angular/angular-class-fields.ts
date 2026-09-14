@@ -90,6 +90,7 @@ const reportClassMembers = (
   const isLocalOnlyClass = !ngClass.component || entry.node.abstract === true;
   const candidateOptions: FieldCandidateOptions = {
     allowEffectFields: options.allowEffectFields,
+    allowRxjsInteropFields: options.allowRxjsInteropFields,
     imports: options.imports,
     localPrivateOnly: !projectAnalysis && isLocalOnlyClass,
     sourceCode: options.context.sourceCode

@@ -59,6 +59,7 @@ test('resolves inline template reads before project member lookup', () => {
   const projectIndexed = (): boolean => false;
   const reportOptions: ReportUnusedMembersOptions = {
     allowEffectFields: false,
+    allowRxjsInteropFields: false,
     classes,
     context,
     dynamicClasses,

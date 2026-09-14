@@ -16,6 +16,14 @@ const managedApis: ReadonlySet<string> = new Set([
   'contentChildren'
 ]);
 
+const rxjsInteropApis: ReadonlySet<string> = new Set([
+  'toObservable',
+  'toSignal',
+  'outputFromObservable',
+  'outputToObservable',
+  'rxResource'
+]);
+
 const isManualCleanupDisabledProperty = (
   property: TSESTree.ObjectLiteralElement
 ): boolean => {
@@ -99,7 +107,8 @@ export const isManagedField = (
   node: InstanceField,
   imports: AngularImports,
   allowEffectFields: boolean,
-  sourceCode: TSESLint.SourceCode
+  sourceCode: TSESLint.SourceCode,
+  allowRxjsInteropFields: boolean
 ): boolean => {
   if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) return false;
 
@@ -111,6 +120,10 @@ export const isManagedField = (
   const isManagedApi = managedApis.has(name);
 
   if (isManagedApi) return true;
+
+  if (allowRxjsInteropFields && rxjsInteropApis.has(name)) {
+    return isImportBinding(node.value.callee, sourceCode);
+  }
 
   if (!allowEffectFields) return false;
 

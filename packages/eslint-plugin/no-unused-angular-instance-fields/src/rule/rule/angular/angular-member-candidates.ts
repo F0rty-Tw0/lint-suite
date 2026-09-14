@@ -130,7 +130,8 @@ export const fieldCandidate = (
     node,
     options.imports,
     options.allowEffectFields,
-    sourceCode
+    sourceCode,
+    options.allowRxjsInteropFields
   );
 
   if (isManaged) return null;
