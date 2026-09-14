@@ -48,10 +48,13 @@ The default `analysis: 'project'` examines the TypeScript project, including rea
 type Options = {
   analysis?: 'local' | 'project';
   allowEffectFields?: boolean;
+  allowRxjsInteropFields?: boolean;
 };
 ```
 
 `allowEffectFields` defaults to `false`. When `true`, effect fields with Angular's automatic cleanup are not reported.
+
+`allowRxjsInteropFields` defaults to `false`. When `true`, unread fields holding `@angular/core/rxjs-interop` calls (`toSignal`, `toObservable`, `outputFromObservable`, `outputToObservable`, `rxResource`) are not reported.
 
 ```js
 rules: {

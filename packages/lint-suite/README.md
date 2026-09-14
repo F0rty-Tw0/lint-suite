@@ -246,6 +246,9 @@ files and Angular templates. It requires parser services with type information:
 - `allowEffectFields` defaults to `false`. When enabled, fields holding
   auto-cleaned Angular `effect()` calls are allowed; effects configured with
   `manualCleanup: true` must still be read.
+- `allowRxjsInteropFields` defaults to `false`. When enabled, unread fields
+  holding `@angular/core/rxjs-interop` calls (`toSignal`, `toObservable`,
+  `outputFromObservable`, `outputToObservable`, `rxResource`) are allowed.
 - Angular signal inputs, models, outputs, and query fields are always treated
   as framework-managed.
 - Fields typed with `ComponentRef` imported from `@angular/core` are excluded

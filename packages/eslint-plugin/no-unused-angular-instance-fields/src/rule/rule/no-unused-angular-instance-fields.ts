@@ -43,6 +43,12 @@ const allowEffectFieldsSchema: JSONSchema.JSONSchema4 = {
   description: 'Allow Angular effect() fields with automatic cleanup.'
 };
 
+const allowRxjsInteropFieldsSchema: JSONSchema.JSONSchema4 = {
+  type: 'boolean',
+  description:
+    'Allow Angular rxjs-interop fields such as toSignal() and toObservable().'
+};
+
 const analysisSchema: JSONSchema.JSONSchema4 = {
   type: 'string',
   enum: ['local', 'project'],
@@ -51,6 +57,7 @@ const analysisSchema: JSONSchema.JSONSchema4 = {
 
 const properties: Record<string, JSONSchema.JSONSchema4> = {
   allowEffectFields: allowEffectFieldsSchema,
+  allowRxjsInteropFields: allowRxjsInteropFieldsSchema,
   analysis: analysisSchema
 };
 
@@ -71,6 +78,7 @@ const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
 
 const ruleDefaults: RuleOptions = {
   allowEffectFields: false,
+  allowRxjsInteropFields: false,
   analysis: 'project'
 };
 
@@ -143,6 +151,7 @@ export default createRule<Options, MessageIds>({
 
     const reportOptions: ReportUnusedMembersOptions = {
       allowEffectFields: options.allowEffectFields ?? false,
+      allowRxjsInteropFields: options.allowRxjsInteropFields ?? false,
       classes,
       context,
       dynamicClasses,

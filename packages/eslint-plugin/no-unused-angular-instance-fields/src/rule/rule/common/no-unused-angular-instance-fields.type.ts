@@ -9,6 +9,7 @@ export type AngularImports = Map<string, AngularImport>;
 
 export type RuleOptions = {
   readonly allowEffectFields?: boolean;
+  readonly allowRxjsInteropFields?: boolean;
   readonly analysis?: 'local' | 'project';
 };
 
@@ -53,6 +54,7 @@ export type MemberCandidate = {
 
 export type FieldCandidateOptions = {
   readonly allowEffectFields: boolean;
+  readonly allowRxjsInteropFields: boolean;
   readonly imports: AngularImports;
   readonly localPrivateOnly: boolean;
   readonly sourceCode: TSESLint.SourceCode;
@@ -68,6 +70,7 @@ export type MetadataReadsOptions = {
 
 export type ReportUnusedMembersOptions = {
   readonly allowEffectFields: boolean;
+  readonly allowRxjsInteropFields: boolean;
   readonly classes: ClassEntry[];
   readonly context: ReportContext;
   readonly dynamicClasses: DynamicClasses;
