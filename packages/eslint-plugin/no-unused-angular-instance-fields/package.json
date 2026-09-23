@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-plugin-no-unused-angular-instance-fields",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Disallow unread instance fields and methods in Angular components and directives",
   "type": "module",
   "license": "MIT",

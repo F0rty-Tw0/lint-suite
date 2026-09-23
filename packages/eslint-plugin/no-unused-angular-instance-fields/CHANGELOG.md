@@ -1,3 +1,22 @@
+## 1.1.0 (2026-09-23)
+
+### 🚀 Features
+
+- ⚠️  **eslint-plugin:** ✨ report unread inputs, outputs, and queries ([57ab38a](https://github.com/F0rty-Tw0/lint-suite/commit/57ab38a))
+- **eslint-plugin:** ✨ add `allowRxjsInteropFields` option ([faa7d90](https://github.com/F0rty-Tw0/lint-suite/commit/faa7d90))
+- **angular:** ✨ add support for `allowRxjsInteropFields` option ([9965713](https://github.com/F0rty-Tw0/lint-suite/commit/9965713))
+
+### ⚠️  Breaking Changes
+
+- **eslint-plugin:** ✨ report unread inputs, outputs, and queries  ([57ab38a](https://github.com/F0rty-Tw0/lint-suite/commit/57ab38a))
+  unread inputs, outputs, and queries are now reported
+  by default.
+  Claude-Session: https://claude.ai/code/session_01GNCvxVFjNTyt6y9q281siN
+
+### ❤️ Thank You
+
+- Artiom Tofan
+
 # Changelog
 
 ## [Unreleased]
