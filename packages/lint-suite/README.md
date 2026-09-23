@@ -248,9 +248,15 @@ files and Angular templates. It requires parser services with type information:
   `manualCleanup: true` must still be read.
 - `allowRxjsInteropFields` defaults to `false`. When enabled, unread fields
   holding `@angular/core/rxjs-interop` calls (`toSignal`, `toObservable`,
-  `outputFromObservable`, `outputToObservable`, `rxResource`) are allowed.
-- Angular signal inputs, models, outputs, and query fields are always treated
-  as framework-managed.
+  `outputToObservable`, `rxResource`) are allowed.
+- Inputs, outputs, and queries (`input()`, `model()`, `output()`,
+  `viewChild()`, `viewChildren()`, `contentChild()`, `contentChildren()`, and
+  the matching `@Input()`, `@Output()`, `@ViewChild()`, `@ViewChildren()`,
+  `@ContentChild()`, and `@ContentChildren()` fields) are reported when the
+  class, its template, and its host metadata never read them. Parent bindings
+  do not count as reads. `outputFromObservable()` fields, `@Output()` fields
+  not initialized with `new EventEmitter()`, and inputs of classes that declare
+  `ngOnChanges` are always treated as framework-managed.
 - Fields typed with `ComponentRef` imported from `@angular/core` are excluded
   from unused-field reports.
 - In local mode, non-private members of `abstract` components and directives

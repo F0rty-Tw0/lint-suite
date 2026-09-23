@@ -57,6 +57,7 @@ export type FieldCandidateOptions = {
   readonly allowRxjsInteropFields: boolean;
   readonly imports: AngularImports;
   readonly localPrivateOnly: boolean;
+  readonly observesInputChanges: boolean;
   readonly sourceCode: TSESLint.SourceCode;
 };
 

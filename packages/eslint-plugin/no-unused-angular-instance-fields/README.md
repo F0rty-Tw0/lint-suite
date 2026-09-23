@@ -54,7 +54,13 @@ type Options = {
 
 `allowEffectFields` defaults to `false`. When `true`, effect fields with Angular's automatic cleanup are not reported.
 
-`allowRxjsInteropFields` defaults to `false`. When `true`, unread fields holding `@angular/core/rxjs-interop` calls (`toSignal`, `toObservable`, `outputFromObservable`, `outputToObservable`, `rxResource`) are not reported.
+`allowRxjsInteropFields` defaults to `false`. When `true`, unread fields holding `@angular/core/rxjs-interop` calls (`toSignal`, `toObservable`, `outputToObservable`, `rxResource`) are not reported.
+
+Inputs, outputs, and queries (signal `viewChild()`, `contentChildren()`, and similar, or `@ViewChild()`-style decorators) are reported like other fields: only reads by the class, its template, and its host metadata count, not bindings from parent templates. These fields are always exempt:
+
+- decorated setters such as `@Input() set value(v)` or `@ViewChild('box') set box(el)`;
+- `outputFromObservable()` fields and `@Output()` fields not initialized with `new EventEmitter()`;
+- inputs (`input()`, `model()`, `@Input()`) of classes that declare `ngOnChanges`, whose `changes['name']` reads the rule cannot see.
 
 ```js
 rules: {
@@ -171,7 +177,16 @@ import { Directive } from '@angular/core';
 class StateDirective { private readonly state = 'idle'; }
 ```
 
-#### 5. Field no project file reads
+#### 5. Unread signal input
+
+```ts
+// card.component.ts — local mode
+import { Component, input } from '@angular/core';
+@Component({ template: '' })
+class CardComponent { readonly title = input(''); }
+```
+
+#### 6. Field no project file reads
 
 ```ts
 // card.component.ts — project mode

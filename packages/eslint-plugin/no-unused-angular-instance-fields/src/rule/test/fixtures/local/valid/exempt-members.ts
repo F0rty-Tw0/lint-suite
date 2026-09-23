@@ -1,14 +1,6 @@
-// Scenario: lifecycle hooks, accessors, static, override, declare, decorated, #private and accessor members are never reported.
-import {
-  Component,
-  EventEmitter,
-  HostBinding,
-  HostListener,
-  Input,
-  Output,
-  ViewChild
-} from '@angular/core';
-import type { ElementRef, OnInit } from '@angular/core';
+// Scenario: lifecycle hooks, accessors, static, override, declare, host-decorated, #private and accessor members are never reported.
+import { Component, HostBinding, HostListener } from '@angular/core';
+import type { OnInit } from '@angular/core';
 
 class Base {
   title = '';
@@ -19,9 +11,6 @@ export class ExemptMembersComponent extends Base implements OnInit {
   static count = 0;
   declare declared: string;
   override title = 'override';
-  @Input() name = '';
-  @Output() changed = new EventEmitter<string>();
-  @ViewChild('box') box?: ElementRef<HTMLElement>;
   @HostBinding('class.on') on = true;
   #secret = 1;
   accessor stored = 1;
