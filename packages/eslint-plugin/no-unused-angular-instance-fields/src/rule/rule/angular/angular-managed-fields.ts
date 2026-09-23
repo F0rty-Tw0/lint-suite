@@ -2,24 +2,27 @@ import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 import { angularName, isImportBinding } from './angular-imports.ts';
 import type {
+  AngularImport,
   AngularImports,
   InstanceField
 } from '../common/no-unused-angular-instance-fields.type.ts';
 
-const managedApis: ReadonlySet<string> = new Set([
-  'input',
-  'model',
-  'output',
-  'viewChild',
-  'viewChildren',
-  'contentChild',
-  'contentChildren'
+const managedApis: ReadonlySet<string> = new Set(['outputFromObservable']);
+
+const signalInputApis: ReadonlySet<string> = new Set(['input', 'model']);
+
+const candidateDecorators: ReadonlySet<AngularImport | undefined> = new Set([
+  'Input',
+  'Output',
+  'ViewChild',
+  'ViewChildren',
+  'ContentChild',
+  'ContentChildren'
 ]);
 
 const rxjsInteropApis: ReadonlySet<string> = new Set([
   'toObservable',
   'toSignal',
-  'outputFromObservable',
   'outputToObservable',
   'rxResource'
 ]);
@@ -134,4 +137,63 @@ export const isManagedField = (
   if (!isImported) return false;
 
   return hasAutomaticEffectCleanup(node.value);
+};
+
+const decoratorName = (
+  decorator: TSESTree.Decorator,
+  imports: AngularImports
+): AngularImport | undefined => {
+  if (decorator.expression.type !== TSESTree.AST_NODE_TYPES.CallExpression) {
+    return undefined;
+  }
+
+  return angularName(decorator.expression.callee, imports);
+};
+
+const decoratorNames = (
+  node: InstanceField,
+  imports: AngularImports
+): (AngularImport | undefined)[] => {
+  return node.decorators.map((decorator) => decoratorName(decorator, imports));
+};
+
+const isEventEmitterValue = (
+  node: InstanceField,
+  imports: AngularImports
+): boolean => {
+  if (node.value?.type !== TSESTree.AST_NODE_TYPES.NewExpression) return false;
+
+  return angularName(node.value.callee, imports) === 'EventEmitter';
+};
+
+export const isCandidateDecoratedField = (
+  node: InstanceField,
+  imports: AngularImports
+): boolean => {
+  const names = decoratorNames(node, imports);
+  const isCandidate = names.every((name) => candidateDecorators.has(name));
+
+  if (!isCandidate) return false;
+
+  const isOutput = names.includes('Output');
+
+  if (!isOutput) return true;
+
+  return isEventEmitterValue(node, imports);
+};
+
+export const isInputField = (
+  node: InstanceField,
+  imports: AngularImports
+): boolean => {
+  const names = decoratorNames(node, imports);
+  const isDecoratedInput = names.includes('Input');
+
+  if (isDecoratedInput) return true;
+
+  if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) return false;
+
+  const name = angularName(node.value.callee, imports);
+
+  return typeof name === 'string' && signalInputApis.has(name);
 };

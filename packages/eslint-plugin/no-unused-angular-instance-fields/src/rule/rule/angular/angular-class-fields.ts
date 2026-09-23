@@ -2,6 +2,7 @@ import type { TSESLint } from '@typescript-eslint/utils';
 
 import { angularClassMetadata } from './angular-imports.ts';
 import {
+  declaresNgOnChanges,
   fieldCandidate,
   implementedFormsMethods,
   methodCandidate
@@ -93,6 +94,7 @@ const reportClassMembers = (
     allowRxjsInteropFields: options.allowRxjsInteropFields,
     imports: options.imports,
     localPrivateOnly: !projectAnalysis && isLocalOnlyClass,
+    observesInputChanges: declaresNgOnChanges(entry.node),
     sourceCode: options.context.sourceCode
   };
   const members = memberCandidates(entry.node, candidateOptions);

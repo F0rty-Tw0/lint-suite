@@ -91,6 +91,108 @@ const exemptsImplementedFormsMethods: RuleTester.ValidTestCase = {
   )
 };
 
+const exemptsDecoratedInputsWithNgOnChanges: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts unread decorated inputs of a class declaring ngOnChanges',
+  code: component(`@Input() name = ''; ngOnChanges(): void {}`, {
+    metadata: "template: ''",
+    imports: 'Component, Input'
+  })
+};
+
+const exemptsNonEventEmitterOutput: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts an unread decorated output not initialized with an Angular EventEmitter',
+  code: `import { Component, Output } from '@angular/core';
+        class EventEmitter {}
+        @Component({ template: '' }) class TestComponent {
+          @Output() streamed = ({ subscribe: () => undefined });
+          @Output() local = new EventEmitter();
+          @Output() declared!: unknown;
+        }`
+};
+
+const exemptsBindingDecoratorMixedWithOthers: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts an unread input that also carries another decorator',
+  code: component(`@HostBinding('class.on') @Input() on = false;`, {
+    metadata: "template: ''",
+    imports: 'Component, HostBinding, Input'
+  })
+};
+
+const exemptsNonAngularInputDecorator: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts fields decorated with a same-named non-Angular Input',
+  code: `import { Component } from '@angular/core';
+        const Input = (): PropertyDecorator => () => undefined;
+        @Component({ template: '' }) class TestComponent {
+          @Input() name = '';
+        }`
+};
+
+const exemptsDecoratedInputAccessor: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts decorated input setters',
+  code: component(`@Input() set name(value: string) {}`, {
+    metadata: "template: ''",
+    imports: 'Component, Input'
+  })
+};
+
+const exemptsDecoratedQueryAccessor: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts decorated query setters',
+  code: component(`@ViewChild('box') set box(value: unknown) {}`, {
+    metadata: "template: ''",
+    imports: 'Component, ViewChild'
+  })
+};
+
+const reportsUnreadDecoratedBindings: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'reports unread decorated inputs and EventEmitter outputs',
+  code: `import * as ng from '@angular/core';
+        import { Component, EventEmitter as Emitter, Input as In, Output } from '@angular/core';
+        @Component({ template: '' }) class TestComponent {
+          @In() name = ''; @ng.Input({ required: true }) id!: string;
+          @Output() changed = new Emitter<string>(); @ng.Output() closed = new ng.EventEmitter<void>();
+        }`,
+  errors: [
+    unusedFieldError('name'),
+    unusedFieldError('id'),
+    unusedFieldError('changed'),
+    unusedFieldError('closed')
+  ]
+};
+
+const reportsUnreadDecoratedQueries: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'reports unread decorated query fields',
+  code: `import * as ng from '@angular/core';
+        import { Component, ContentChild, ContentChildren, ViewChild as Child } from '@angular/core';
+        @Component({ template: '' }) class TestComponent {
+          @Child('a') view: unknown; @ng.ViewChildren('a') views: unknown;
+          @ContentChild('b') content: unknown; @ContentChildren('b') contents: unknown;
+        }`,
+  errors: [
+    unusedFieldError('view'),
+    unusedFieldError('views'),
+    unusedFieldError('content'),
+    unusedFieldError('contents')
+  ]
+};
+
+const reportsDecoratedOutputWithNgOnChanges: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'reports an unread decorated output of a class declaring ngOnChanges',
+  code: component(
+    `@Output() changed = new EventEmitter<string>(); ngOnChanges(): void {}`,
+    { metadata: "template: ''", imports: 'Component, EventEmitter, Output' }
+  ),
+  errors: [unusedFieldError('changed')]
+};
+
 const reportsUnreadPublicComponentMethod: RuleTester.InvalidTestCase = {
   options: [{ analysis: 'local' }],
   name: 'reports an unread public component method',
@@ -142,7 +244,13 @@ const valid: RuleTester.ValidTestCase[] = [
   exemptsNonConcreteFields,
   ignoresExportedDirectiveFields,
   ignoresAbstractNonPrivateMembers,
-  exemptsImplementedFormsMethods
+  exemptsImplementedFormsMethods,
+  exemptsDecoratedInputsWithNgOnChanges,
+  exemptsNonEventEmitterOutput,
+  exemptsBindingDecoratorMixedWithOthers,
+  exemptsNonAngularInputDecorator,
+  exemptsDecoratedInputAccessor,
+  exemptsDecoratedQueryAccessor
 ];
 
 const invalid: RuleTester.InvalidTestCase[] = [
@@ -150,7 +258,10 @@ const invalid: RuleTester.InvalidTestCase[] = [
   reportsPrivateDirectiveField,
   reportsPrivateDirectiveMethod,
   reportsAbstractPrivateMembers,
-  reportsValidateWithoutFormsInterface
+  reportsValidateWithoutFormsInterface,
+  reportsUnreadDecoratedBindings,
+  reportsUnreadDecoratedQueries,
+  reportsDecoratedOutputWithNgOnChanges
 ];
 
 ruleTester.run(ruleName, rule, { valid, invalid });

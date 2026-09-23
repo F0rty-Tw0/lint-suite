@@ -30,18 +30,25 @@ const rxjsInteropFieldsDenied: RuleOptions = {
 };
 const denyRxjsInteropFieldsOptions = [rxjsInteropFieldsDenied];
 
-const exemptsSignalAndDecoratorFields: RuleTester.ValidTestCase = {
+const exemptsOutputFromObservableWithoutOption: RuleTester.ValidTestCase = {
   options: [{ analysis: 'local' }],
-  name: 'exempts Angular signal APIs and decorator-managed fields',
-  code: component(
-    `@Input() public decoratedInput = ''; @ViewChild('content') private content: unknown;
-        public signalInput = inputSignal(''); public signalOutput = output<void>(); public signalModel = model(false);`,
-    {
-      metadata: "template: ''",
-      imports:
-        'Component, Input, ViewChild, input as inputSignal, model, output'
-    }
-  )
+  name: 'exempts an unread outputFromObservable field when allowRxjsInteropFields is omitted',
+  code: `import { Component } from '@angular/core';
+        import { outputFromObservable } from '@angular/core/rxjs-interop';
+        @Component({ template: '' }) class TestComponent {
+          readonly changed = outputFromObservable({} as never);
+        }`
+};
+
+const exemptsSignalInputsWithNgOnChanges: RuleTester.ValidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'exempts unread signal inputs and models of a class declaring ngOnChanges',
+  code: `import * as ng from '@angular/core';
+        @ng.Component({ template: '' }) class TestComponent {
+          readonly name = ng.input(''); readonly id = ng.input.required<string>();
+          readonly checked = ng.model(false);
+          ngOnChanges(): void {}
+        }`
 };
 
 const acceptsUnreadEffectFieldWhenAllowed: RuleTester.ValidTestCase = {
@@ -110,9 +117,9 @@ const allowsNamespaceImportedToSignal: RuleTester.ValidTestCase = {
   options: allowRxjsInteropFieldsOptions
 };
 
-const treatsSignalQueriesAsManaged: RuleTester.ValidTestCase = {
+const reportsUnreadSignalQueries: RuleTester.InvalidTestCase = {
   options: [{ analysis: 'local' }],
-  name: 'treats Angular signal query fields as managed',
+  name: 'reports unread Angular signal query fields',
   code: component(
     `private readonly view = viewChild<unknown>('view');
         private readonly views = viewChildren<unknown>('view');
@@ -123,7 +130,13 @@ const treatsSignalQueriesAsManaged: RuleTester.ValidTestCase = {
       imports:
         'Component, viewChild, viewChildren, contentChild, contentChildren'
     }
-  )
+  ),
+  errors: [
+    unusedFieldError('view'),
+    unusedFieldError('views'),
+    unusedFieldError('content'),
+    unusedFieldError('contents')
+  ]
 };
 
 const exemptsComponentRefTypedField: RuleTester.ValidTestCase = {
@@ -312,6 +325,37 @@ const reportsToSignalFieldWhenOnlyEffectFieldsAllowed: RuleTester.InvalidTestCas
     errors: [unusedFieldError('value')]
   };
 
+const reportsUnreadSignalBindings: RuleTester.InvalidTestCase = {
+  options: [{ analysis: 'local' }],
+  name: 'reports unread signal inputs, models and outputs',
+  code: component(
+    `public signalInput = inputSignal(''); public required = inputSignal.required<string>();
+        public signalOutput = output<void>(); public signalModel = model(false);`,
+    {
+      metadata: "template: ''",
+      imports: 'Component, input as inputSignal, model, output'
+    }
+  ),
+  errors: [
+    unusedFieldError('signalInput'),
+    unusedFieldError('required'),
+    unusedFieldError('signalOutput'),
+    unusedFieldError('signalModel')
+  ]
+};
+
+const reportsNamespaceSignalOutputWithNgOnChanges: RuleTester.InvalidTestCase =
+  {
+    options: [{ analysis: 'local' }],
+    name: 'reports an unread namespace-imported signal output of a class declaring ngOnChanges',
+    code: `import * as ng from '@angular/core';
+        @ng.Component({ template: '' }) class TestComponent {
+          readonly changed = ng.output<string>();
+          ngOnChanges(): void {}
+        }`,
+    errors: [unusedFieldError('changed')]
+  };
+
 const reportsLocalComponentRefTypedField: RuleTester.InvalidTestCase = {
   options: [{ analysis: 'local' }],
   name: 'reports unread fields whose local type is named ComponentRef',
@@ -324,7 +368,8 @@ const reportsLocalComponentRefTypedField: RuleTester.InvalidTestCase = {
 };
 
 const valid: RuleTester.ValidTestCase[] = [
-  exemptsSignalAndDecoratorFields,
+  exemptsOutputFromObservableWithoutOption,
+  exemptsSignalInputsWithNgOnChanges,
   acceptsUnreadEffectFieldWhenAllowed,
   allowsAutoCleanedEffectWithoutOptions,
   allowsAutoCleanedEffectWithInlineOptions,
@@ -332,7 +377,6 @@ const valid: RuleTester.ValidTestCase[] = [
   acceptsUnreadToSignalFieldWhenAllowed,
   allowsAliasedToObservableField,
   allowsNamespaceImportedToSignal,
-  treatsSignalQueriesAsManaged,
   exemptsComponentRefTypedField,
   exemptsComponentRefTypedFieldUnderShadowingValue
 ];
@@ -353,6 +397,9 @@ const invalid: RuleTester.InvalidTestCase[] = [
   reportsLocalToSignalField,
   reportsTakeUntilDestroyedField,
   reportsToSignalFieldWhenOnlyEffectFieldsAllowed,
+  reportsUnreadSignalBindings,
+  reportsUnreadSignalQueries,
+  reportsNamespaceSignalOutputWithNgOnChanges,
   reportsLocalComponentRefTypedField
 ];
 

@@ -1,8 +1,9 @@
 import { TSESTree } from '@typescript-eslint/utils';
-import type { TSESLint } from '@typescript-eslint/utils';
 
 import {
   isAngularComponentRefField,
+  isCandidateDecoratedField,
+  isInputField,
   isManagedField
 } from './angular-managed-fields.ts';
 import type {
@@ -53,21 +54,30 @@ const isInstanceMethod = (
 
 const isExcludedField = (
   node: InstanceField,
-  localPrivateOnly: boolean,
-  sourceCode: TSESLint.SourceCode
+  options: FieldCandidateOptions
 ): boolean => {
   const isModified = node.static || node.declare || node.override;
+
+  if (isModified) return true;
+
   const isDecorated = node.decorators.length > 0;
+  const isOtherDecorated =
+    isDecorated && !isCandidateDecoratedField(node, options.imports);
 
-  if (isModified || isDecorated) return true;
+  if (isOtherDecorated) return true;
 
-  const isComponentRef = isAngularComponentRefField(node, sourceCode);
+  const isObservedInput =
+    options.observesInputChanges && isInputField(node, options.imports);
+
+  if (isObservedInput) return true;
+
+  const isComponentRef = isAngularComponentRefField(node, options.sourceCode);
 
   if (isComponentRef) return true;
 
   const isNonPrivate = node.accessibility !== 'private';
 
-  return localPrivateOnly && isNonPrivate;
+  return options.localPrivateOnly && isNonPrivate;
 };
 
 const isExcludedMethod = (
@@ -113,6 +123,14 @@ export const implementedFormsMethods = (
   return methods;
 };
 
+const isNgOnChanges = (node: TSESTree.ClassElement): boolean => {
+  return isInstanceMethod(node) && node.key.name === 'ngOnChanges';
+};
+
+export const declaresNgOnChanges = (node: AngularClassNode): boolean => {
+  return node.body.body.some(isNgOnChanges);
+};
+
 export const fieldCandidate = (
   node: TSESTree.ClassElement,
   options: FieldCandidateOptions
@@ -121,8 +139,7 @@ export const fieldCandidate = (
 
   if (!isField) return null;
 
-  const { localPrivateOnly, sourceCode } = options;
-  const isExcluded = isExcludedField(node, localPrivateOnly, sourceCode);
+  const isExcluded = isExcludedField(node, options);
 
   if (isExcluded) return null;
 
@@ -130,7 +147,7 @@ export const fieldCandidate = (
     node,
     options.imports,
     options.allowEffectFields,
-    sourceCode,
+    options.sourceCode,
     options.allowRxjsInteropFields
   );
 
