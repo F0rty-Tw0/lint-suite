@@ -70,6 +70,7 @@ const lintWithFreshModules = async (file: string): Promise<FlushFileCaches> => {
 test('a warm disk cache lints a cross-project import without parsing specifiers', async (): Promise<void> => {
   const file = workspace.file('packages/a/src/index.ts');
 
+  vi.stubEnv('LINT_SUITE_CACHE', '1');
   vi.stubEnv('LINT_SUITE_CACHE_DIR', cacheDirectory);
 
   const flushFileCaches = await lintWithFreshModules(file);

@@ -6,6 +6,8 @@ export default defineConfig({
     name: 'eslint-plugin-modular-boundaries',
     watch: false,
     include: ['src/**/*.spec.ts'],
-    exclude: ['**/fixtures/**']
+    exclude: ['**/fixtures/**'],
+    // Fixture workspaces live in tmp; a disk cache would fill the repo's own cache with their paths.
+    env: { LINT_SUITE_CACHE: '0' }
   }
 });
