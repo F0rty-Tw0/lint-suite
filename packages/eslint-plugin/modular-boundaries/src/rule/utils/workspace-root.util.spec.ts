@@ -34,6 +34,12 @@ test('package.json with the workspaces object form marks a workspace root', (): 
   assert.equal(isRoot, true);
 });
 
+test('package.json with a UTF-8 BOM and workspaces marks a workspace root', (): void => {
+  const isRoot = isRootWith({ 'package.json': '\uFEFF{ "workspaces": [] }' });
+
+  assert.equal(isRoot, true);
+});
+
 test('package.json without workspaces is not a workspace root', (): void => {
   const isRoot = isRootWith({ 'package.json': '{ "name": "a" }' });
 

@@ -9,6 +9,7 @@ import { parse } from 'yaml';
 import type { Parser, ParseResult } from '../common/modular-boundaries.type.ts';
 
 const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+const LEADING_BOM = /^\uFEFF/u;
 
 const errorMessage = (error: unknown): string => {
   if (error instanceof Error) return error.message;
@@ -29,8 +30,10 @@ const success = <T>(data: T): ParseResult<T> => {
 };
 
 export const parseJson: Parser<unknown> = (text) => {
+  const json = text.replace(LEADING_BOM, '');
+
   try {
-    const data: unknown = JSON.parse(text);
+    const data: unknown = JSON.parse(json);
 
     return success(data);
   } catch (error) {

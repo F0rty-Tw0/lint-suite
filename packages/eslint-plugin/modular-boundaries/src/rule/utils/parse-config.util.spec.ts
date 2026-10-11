@@ -29,6 +29,12 @@ test('parseJson parses strict JSON', (): void => {
   assert.deepEqual(result, { ok: true, data: { name: 'a' } });
 });
 
+test('parseJson accepts a leading UTF-8 BOM', (): void => {
+  const result = parseJson('\uFEFF{ "name": "a" }', '/w/package.json');
+
+  assert.deepEqual(result, { ok: true, data: { name: 'a' } });
+});
+
 test('parseJson returns a JSON-safe message instead of throwing', (): void => {
   const result = parseJson('{ nope', '/w/package.json');
 
