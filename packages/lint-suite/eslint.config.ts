@@ -36,7 +36,6 @@ const ignoredDependencies = [
   '@angular/core',
   '@angular/forms',
   'rxjs',
-  '@eslint/js',
   'stylelint-config-recess-order',
   'stylelint-config-standard',
   'stylelint-config-standard-scss'

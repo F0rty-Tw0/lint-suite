@@ -29,6 +29,7 @@ export const typescriptOverrides = defineConfig([
       '**/*.e2e.js'
     ],
     rules: {
+      'no-empty-function': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off'

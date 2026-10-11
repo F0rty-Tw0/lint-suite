@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import { configs as nxConfigs } from '@nx/eslint-plugin';
 import prettier from 'eslint-config-prettier';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import tseslint from 'typescript-eslint';
@@ -20,6 +21,7 @@ export const typescriptConfig = defineConfig(
 );
 
 export const workspaceConfig = defineConfig([
+  { name: 'workspace/nx-plugin', extends: [...nxConfigs['flat/base']] },
   globalIgnores(['**/dist'], 'workspace/build-output'),
   {
     name: 'workspace/rules',
