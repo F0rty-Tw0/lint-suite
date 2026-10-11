@@ -1,4 +1,14 @@
-import type { MessageIds } from './modular-boundaries.type.ts';
+import type {
+  ESLintUtils,
+  JSONSchema,
+  TSESLint
+} from '@typescript-eslint/utils';
+
+import type {
+  MessageIds,
+  Options,
+  RuleOptions
+} from './modular-boundaries.type.ts';
 
 /**
  * Workspace root markers, in check order. `package.json` counts only with a
@@ -32,7 +42,7 @@ export const SOURCE_EXTENSIONS: string[] = [
 
 export const STALE_AFTER_MS = 10_000;
 
-export const messages: Record<MessageIds, string> = {
+const messages: Record<MessageIds, string> = {
   noRelativeOrAbsoluteImportsAcrossLibraries:
     "Projects should use the package name or path alias to import '{{target}}' from '{{source}}', not a relative path.",
   noSelfCircularDependencies:
@@ -53,3 +63,104 @@ export const messages: Record<MessageIds, string> = {
     "'{{source}}' cannot import '{{target}}': {{side}} project '{{project}}' must not carry any of {{tags}} ({{origin}}).",
   workspaceConfigError: 'Workspace config error in {{file}}: {{message}}'
 };
+
+const docs: TSESLint.RuleMetaDataDocs = {
+  description:
+    'Enforce dependency constraints between workspace projects by tag, without Nx'
+};
+
+const stringSchema: JSONSchema.JSONSchema4 = { type: 'string' };
+
+const stringArraySchema: JSONSchema.JSONSchema4 = {
+  type: 'array',
+  items: stringSchema
+};
+
+const booleanSchema: JSONSchema.JSONSchema4 = { type: 'boolean' };
+
+const depConstraintProperties: Record<string, JSONSchema.JSONSchema4> = {
+  sourceTag: stringSchema,
+  allSourceTags: stringArraySchema,
+  onlyDependOnLibsWithTags: stringArraySchema,
+  notDependOnLibsWithTags: stringArraySchema,
+  allowedExternalImports: stringArraySchema,
+  bannedExternalImports: stringArraySchema
+};
+
+const hasSourceTag: JSONSchema.JSONSchema4 = {
+  type: 'object',
+  required: ['sourceTag']
+};
+
+const hasAllSourceTags: JSONSchema.JSONSchema4 = {
+  type: 'object',
+  required: ['allSourceTags']
+};
+
+const depConstraintSchema: JSONSchema.JSONSchema4 = {
+  type: 'object',
+  properties: depConstraintProperties,
+  additionalProperties: false,
+  oneOf: [hasSourceTag, hasAllSourceTags]
+};
+
+const depConstraintsSchema: JSONSchema.JSONSchema4 = {
+  type: 'array',
+  items: depConstraintSchema
+};
+
+const projectPairSchema: JSONSchema.JSONSchema4 = {
+  type: 'array',
+  items: stringSchema,
+  minItems: 2,
+  maxItems: 2
+};
+
+const ignoredCircularDependenciesSchema: JSONSchema.JSONSchema4 = {
+  type: 'array',
+  items: projectPairSchema
+};
+
+const configSourcesProperties: Record<string, JSONSchema.JSONSchema4> = {
+  turbo: booleanSchema,
+  moon: booleanSchema
+};
+
+const configSourcesSchema: JSONSchema.JSONSchema4 = {
+  type: 'object',
+  properties: configSourcesProperties,
+  additionalProperties: false
+};
+
+const properties: Record<string, JSONSchema.JSONSchema4> = {
+  allow: stringArraySchema,
+  depConstraints: depConstraintsSchema,
+  ignoredCircularDependencies: ignoredCircularDependenciesSchema,
+  checkCircularDependencies: booleanSchema,
+  checkUndeclaredDependencies: booleanSchema,
+  configSources: configSourcesSchema,
+  workspaceRoot: stringSchema
+};
+
+const optionsSchema: JSONSchema.JSONSchema4 = {
+  type: 'object',
+  properties,
+  additionalProperties: false
+};
+
+const schema: JSONSchema.JSONSchema4[] = [optionsSchema];
+
+export const meta: ESLintUtils.NamedCreateRuleMeta<
+  MessageIds,
+  unknown,
+  Options
+> = {
+  type: 'problem',
+  docs,
+  schema,
+  messages
+};
+
+const ruleDefaults: RuleOptions = {};
+
+export const defaultOptions: Options = [ruleDefaults];
