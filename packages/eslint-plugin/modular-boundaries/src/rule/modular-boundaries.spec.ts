@@ -14,15 +14,25 @@ import {
   ruleTester,
   validCase
 } from './test/utils/rule-under-test.spec.util.ts';
+import { extractSpecifiers } from './utils/specifiers.util.ts';
+
+import type { RuleOptions } from './common/modular-boundaries.type.ts';
+
+vi.mock('./utils/specifiers.util.ts', { spy: true });
+// No disk cache: a warm cache from an earlier run would hide the specifier parses the spy tests count.
+vi.stubEnv('LINT_SUITE_CACHE', '0');
 
 const pnpm = copyFixtureWorkspace('pnpm-plain');
 const nx = copyFixtureWorkspace('nx');
 const broken = copyFixtureWorkspace('broken');
+const cycles = copyFixtureWorkspace('cycles');
 
 afterAll((): void => {
   pnpm.dispose();
   nx.dispose();
   broken.dispose();
+  cycles.dispose();
+  vi.unstubAllEnvs();
 });
 
 const featureFile = pnpm.file('packages/feature/src/a.ts');
@@ -55,6 +65,30 @@ const banMoment = constraintOptions({
 const featureOnly = constraintOptions({ sourceTag: 'type:feature' });
 const undeclaredOff = { checkUndeclaredDependencies: false };
 const banMomentQuiet = { ...banMoment, ...undeclaredOff };
+const cycleAFile = cycles.file('packages/a/src/index.ts');
+const cycleDFile = cycles.file('packages/d/src/index.ts');
+const importB = "import { b } from '@c/b';";
+const ignoredPair: [string, string] = ['@c/a', '@c/d'];
+const ignoreAD: RuleOptions = { ignoredCircularDependencies: [ignoredPair] };
+const cycleData = {
+  source: '@c/a',
+  target: '@c/b',
+  path: '@c/a -> @c/b -> @c/c -> @c/a'
+};
+const cycleError: RuleTester.TestCaseError = {
+  messageId: 'noCircularDependencies',
+  data: cycleData
+};
+const cycleErrors = [cycleError];
+const threeProjectCycleCase = validCase(
+  'a three-project cycle is reported with the shortest path',
+  cycleAFile,
+  importB
+);
+const threeProjectCycle: RuleTester.InvalidTestCase = {
+  ...threeProjectCycleCase,
+  errors: cycleErrors
+};
 
 const valid: RuleTester.ValidTestCase[] = [
   validCase(
@@ -124,6 +158,18 @@ const valid: RuleTester.ValidTestCase[] = [
     featureFile,
     importData,
     { workspaceRoot: broken.directory }
+  ),
+  validCase(
+    'an ignored pair breaks the cycle from the source side',
+    cycleAFile,
+    "import { d } from '@c/d';",
+    ignoreAD
+  ),
+  validCase(
+    'an ignored pair breaks the cycle from the target side',
+    cycleDFile,
+    "import { a } from '@c/a';",
+    ignoreAD
   )
 ];
 
@@ -259,6 +305,15 @@ const invalid: RuleTester.InvalidTestCase[] = [
       onlyUi
     ),
     'onlyTagsConstraintViolation'
+  ),
+  threeProjectCycle,
+  invalidCase(
+    validCase(
+      'reports the cycle an ignored pair would break when it is not ignored',
+      cycleDFile,
+      "import { a } from '@c/a';"
+    ),
+    'noCircularDependencies'
   )
 ];
 
@@ -331,4 +386,32 @@ test('rejects a constraint with both sourceTag and allSourceTags', (): void => {
     lintWithRule(pnpm.directory, featureFile, importData, options);
 
   assert.throws(lint, /oneOf|exactly one/i);
+});
+
+// Each spy case lints its own fresh copy: a copy graphed by an earlier case hides a wrong build behind cached
+// specifiers and the per-model graph cache, so the spy would read 0 vacuously.
+const specifierParsesFor = (code: string, options: RuleOptions = {}): number => {
+  const workspace = copyFixtureWorkspace('cycles');
+  const file = workspace.file('packages/a/src/index.ts');
+  const spy = vi.mocked(extractSpecifiers);
+
+  onTestFinished(workspace.dispose);
+  spy.mockClear();
+  lintWithRule(workspace.directory, file, code, options);
+
+  return spy.mock.calls.length;
+};
+
+test('checkCircularDependencies: false never builds the graph', (): void => {
+  const options = { checkCircularDependencies: false };
+
+  assert.equal(specifierParsesFor(importB, options), 0);
+});
+
+test('a file with no cross-project import never builds the graph', (): void => {
+  assert.equal(specifierParsesFor("import './local.ts';"), 0);
+});
+
+test('positive control: a cross-project import on a fresh copy builds the graph', (): void => {
+  assert.ok(specifierParsesFor(importB) > 0);
 });
