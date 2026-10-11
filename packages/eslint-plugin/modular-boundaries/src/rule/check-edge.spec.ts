@@ -115,6 +115,19 @@ test('banned external matches the full specifier', (): void => {
   );
 });
 
+test('banned external matches the specifier, not the package name', (): void => {
+  const source = projectStub('app', { declaredDependencies: ['lodash'] });
+  const constraints = sourceConstraintSetStub(
+    { bannedExternal: ['lodash/fp'] },
+    source
+  );
+  const subpath = check({ source, target: npm('lodash', 'lodash/fp'), constraints });
+  const root = check({ source, target: npm('lodash'), constraints });
+
+  assert.equal(subpath?.messageId, 'bannedExternalImportsViolation');
+  assert.equal(root, undefined);
+});
+
 test('allowedExternal [] bans every npm import', (): void => {
   const constraints = sourceConstraintSetStub({ allowedExternal: [] }, app);
   const report = check({ target: npm('lodash'), constraints });
