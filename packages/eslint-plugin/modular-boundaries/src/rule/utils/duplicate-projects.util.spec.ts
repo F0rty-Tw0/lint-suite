@@ -69,3 +69,12 @@ test('the later manifest in sorted path order carries the error', (): void => {
 
   assert.deepEqual(files, ['/w/b/moon.yml']);
 });
+
+test('the error lands on the first project when its manifest sorts later', (): void => {
+  const projects = [project('/w/a', 'same'), project('/w/a-b', 'same')];
+  const manifests = new Set(['/w/a/package.json', '/w/a-b/package.json']);
+  const { errors } = dropDuplicateProjects(projects, manifests);
+  const files = errors.map((error) => error.file);
+
+  assert.deepEqual(files, ['/w/a/package.json']);
+});
