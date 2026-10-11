@@ -1,3 +1,65 @@
+## 2.3.0 (2026-10-11)
+
+### 🚀 Features
+
+- ⚠️  **lint-suite:** ✨ add workspace project boundaries enforcement ([3c1ca35](https://github.com/F0rty-Tw0/lint-suite/commit/3c1ca35))
+- ⚠️  **lint-suite:** ✨ add new ESLint rules and stylelint configuration ([c004e95](https://github.com/F0rty-Tw0/lint-suite/commit/c004e95))
+- ⚠️  **tests:** ✨ add `reportedRuleIds` utility function for ESLint ([15f4794](https://github.com/F0rty-Tw0/lint-suite/commit/15f4794))
+- ⚠️  **tests:** ✨ add tests for angular, boundaries, and playwright ([5e43275](https://github.com/F0rty-Tw0/lint-suite/commit/5e43275))
+- ⚠️  **lint-suite:** ✨ drop nx's legacy settings from the JS and TS presets ([a63e5e5](https://github.com/F0rty-Tw0/lint-suite/commit/a63e5e5))
+- ⚠️  **lint-suite:** ✨ drop the @nx/eslint-plugin dependency ([79d6b62](https://github.com/F0rty-Tw0/lint-suite/commit/79d6b62))
+
+### ⚠️  Breaking Changes
+
+- **lint-suite:** ✨ add workspace project boundaries enforcement  ([3c1ca35](https://github.com/F0rty-Tw0/lint-suite/commit/3c1ca35))
+  projects tagged `type:lib` or `type:app` cannot
+  import each other; untagged projects are unconstrained. See
+  migration details in the documentation.
+- **lint-suite:** ✨ add new ESLint rules and stylelint configuration  ([c004e95](https://github.com/F0rty-Tw0/lint-suite/commit/c004e95))
+- **tests:** ✨ add `reportedRuleIds` utility function for ESLint  ([15f4794](https://github.com/F0rty-Tw0/lint-suite/commit/15f4794))
+- **tests:** ✨ add tests for angular, boundaries, and playwright  ([5e43275](https://github.com/F0rty-Tw0/lint-suite/commit/5e43275))
+- **lint-suite:** ✨ drop nx's legacy settings from the JS and TS presets  ([a63e5e5](https://github.com/F0rty-Tw0/lint-suite/commit/a63e5e5))
+  JS files report the 18 core bug rules and no longer
+  get @typescript-eslint/* rules; ecmaVersion is latest; .cjs files get
+  CommonJS scoping; @typescript-eslint/no-empty-interface is no longer
+  set. Migrations are in RELEASE_NOTES.md.
+- **lint-suite:** ✨ drop the @nx/eslint-plugin dependency  ([79d6b62](https://github.com/F0rty-Tw0/lint-suite/commit/79d6b62))
+  the @nx plugin is no longer registered; composing
+  base/javascript/typescript without prettier now reports formatting
+  rules nx's prettier append used to turn off; the default TS
+  tsconfigRootDir is process.cwd() instead of the Nx workspace root.
+  Migrations are in RELEASE_NOTES.md.
+
+### 🧱 Updated Dependencies
+
+- Updated eslint-plugin-arrow-body-fits-line to 1.1.0
+- Updated eslint-plugin-chain-fits-line to 1.1.0
+- Updated eslint-plugin-chain-receiver-is-name to 1.1.0
+- Updated eslint-plugin-explicit-accessibility to 1.1.0
+- Updated eslint-plugin-max-condition-operands to 1.1.0
+- Updated eslint-plugin-modular-boundaries to 1.0.0
+- Updated eslint-plugin-no-call-in-condition to 1.1.0
+- Updated eslint-plugin-no-grouped-condition to 1.1.0
+- Updated eslint-plugin-no-inline-object-types to 1.1.0
+- Updated eslint-plugin-no-inline-return-object to 1.1.0
+- Updated eslint-plugin-no-nested-object-value to 1.1.0
+- Updated eslint-plugin-no-spread-expression to 1.1.0
+- Updated eslint-plugin-no-unused-exports to 1.1.0
+- Updated eslint-plugin-one-line-guard to 1.1.0
+- Updated eslint-plugin-readonly-type-properties to 1.1.0
+- Updated eslint-plugin-ternary-branch-shape to 1.1.0
+- Updated eslint-plugin-test-file-shape to 1.1.0
+- Updated eslint-plugin-type-placement to 1.1.0
+- Updated eslint-plugin-util-purity to 1.1.0
+- Updated eslint-plugin-no-unused-angular-instance-fields to 1.2.0
+- Updated eslint-plugin-no-unstyled-classes to 1.1.0
+- Updated stylelint-no-unused-classes to 1.1.0
+
+### ❤️ Thank You
+
+- Artiom Tofan
+- F0rty-Tw0
+
 ## 2.2.0 (2026-09-23)
 
 ### 🚀 Features

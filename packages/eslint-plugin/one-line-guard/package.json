@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-plugin-one-line-guard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Require lone guard statements to fit on one line",
   "type": "module",
   "license": "MIT",

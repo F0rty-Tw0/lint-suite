@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-plugin-readonly-type-properties",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Require readonly primitive type properties and mutable array syntax",
   "type": "module",
   "license": "MIT",

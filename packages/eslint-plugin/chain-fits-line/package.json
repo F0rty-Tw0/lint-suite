@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-plugin-chain-fits-line",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Require member call chains to keep every call on one line",
   "type": "module",
   "license": "MIT",
