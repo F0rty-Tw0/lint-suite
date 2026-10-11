@@ -4,8 +4,9 @@
 
 `lint-suite` no longer depends on `@nx/eslint-plugin`, so installs no longer
 pull in `nx`, `@nx/*` and their Babel tree. The `javascript` and `typescript`
-presets now inline the same `@eslint/js` + `typescript-eslint` recommended
-rules and overrides. Breaking changes:
+presets are rebuilt on `@eslint/js` and `typescript-eslint` recommended,
+without the legacy parser options and rule overrides that came from the Nx
+configs. Breaking changes:
 
 - The `@nx` plugin is no longer registered, so `@nx/*` rules fail with
   "Could not find plugin @nx". Migration: install `@nx/eslint-plugin` and add
@@ -27,6 +28,32 @@ rules and overrides. Breaking changes:
   first working directory. Migration: set
   `parserOptions.tsconfigRootDir: import.meta.dirname` in your config, which
   avoids both.
+- JS files now report 18 core bug rules that were turned off for them
+  (`no-undef`, `no-dupe-keys`, `no-const-assign`, `no-unreachable` and
+  others). Most likely hit: `no-undef` for globals the config doesn't know,
+  such as test-runner globals in `.js` specs or custom browser globals.
+  Migration: add them to `languageOptions.globals`.
+- JS files no longer get `@typescript-eslint/*` rules (including
+  `ban-ts-comment`, `no-this-alias` and `triple-slash-reference`). They are
+  still parsed by `@typescript-eslint/parser`, so your own
+  `@typescript-eslint/*` rules set without `files` keep running on JS without
+  crashing. Core `no-unused-vars`, `no-unused-expressions`,
+  `no-array-constructor` and `no-empty-function` replace their
+  typescript-eslint versions; `no-unused-vars` is now `error` (was `warn`).
+  Migrations:
+  - rename `eslint-disable` comments for these four rules in JS files to the
+    core rule name (`--fix` removes the now-unused ones; they warn as unused
+    directives otherwise);
+  - options set on the typescript-eslint versions without `files` (for
+    example `no-unused-vars` `argsIgnorePattern`) no longer reach JS files:
+    set the same options on the core rule for JS files, or turn the core rule
+    off there if you re-enable the typescript-eslint one (otherwise each
+    finding is reported twice).
+- `ecmaVersion` is now `latest` (was 2020) for JS and TS files, and `.cjs`
+  files get CommonJS scoping (top-level declarations are module-local)
+  instead of being parsed as ES modules. No migration expected.
+- TS: `@typescript-eslint/no-empty-interface` is no longer set;
+  `@typescript-eslint/no-empty-object-type` (already on) covers it.
 
 ## Unreleased: independently installable custom rules
 

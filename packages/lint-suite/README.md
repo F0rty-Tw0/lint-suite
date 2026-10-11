@@ -135,7 +135,7 @@ export default [
 | Configuration     | Description                                                                                                            |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `base`            | Core JavaScript rules, formatting, and complexity limits                                                               |
-| `javascript`      | JavaScript-specific rules (`@eslint/js` + `typescript-eslint` recommended)                                             |
+| `javascript`      | JavaScript-specific rules (`@eslint/js` recommended)                                                                   |
 | `typescript`      | TypeScript strict typing, imports, and naming conventions                                                              |
 | `angular`         | Angular component best practices with Signal support                                                                   |
 | `angularTemplate` | HTML template rules with accessibility, performance, and `lint-suite-angular-template/no-unstyled-classes`             |
