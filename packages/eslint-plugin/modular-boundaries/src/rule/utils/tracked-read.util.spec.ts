@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { onTestFinished, test } from 'vitest';
 
 import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
-import { readTracked } from './tracked-read.util.ts';
+import { readTracked, readTrackedData } from './tracked-read.util.ts';
+
+import type { ConfigError } from '../common/modular-boundaries.type.ts';
 
 test('readTracked parses by file name and records the value', (): void => {
   const workspace = writeTempWorkspace({ 'moon.yml': 'tags: [a]\n' });
@@ -41,4 +43,26 @@ test('readTracked returns the same reference for an unchanged file', (): void =>
   const second = readTracked(new Map(), path);
 
   assert.equal(second, first);
+});
+
+test('readTrackedData returns parsed data and records parse errors', (): void => {
+  const workspace = writeTempWorkspace({
+    'moon.yml': '[1]\n',
+    'project.json': '{ broken'
+  });
+  const errors: ConfigError[] = [];
+  const readSet = new Map<string, unknown>();
+  const moon = readTrackedData(readSet, workspace.file('moon.yml'), errors);
+  const broken = workspace.file('project.json');
+  const missing = workspace.file('turbo.json');
+
+  onTestFinished(workspace.dispose);
+
+  assert.deepEqual(moon, [1]);
+  assert.equal(readTrackedData(readSet, broken, errors), undefined);
+  assert.equal(readTrackedData(readSet, missing, errors), undefined);
+  assert.deepEqual(
+    errors.map((error) => error.file),
+    [broken]
+  );
 });

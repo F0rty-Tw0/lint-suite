@@ -30,6 +30,24 @@ export const readTracked = (
   return value;
 };
 
+/** Parsed data of a config file: `undefined` when missing or malformed (a malformed file also adds a `ConfigError`). */
+export const readTrackedData = (
+  readSet: ReadSet,
+  path: string,
+  errors: ConfigError[]
+): unknown => {
+  const result = readTracked(readSet, path);
+
+  if (result === null) return undefined;
+  if (result.ok) return result.data;
+
+  const error: ConfigError = { file: path, message: result.message };
+
+  errors.push(error);
+
+  return undefined;
+};
+
 /**
  * Reads a config file as an object: `undefined` when missing or malformed (a
  * malformed file also adds a `ConfigError` to `errors`), `{}` for non-object content.
