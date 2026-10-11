@@ -1,3 +1,5 @@
+import type { TSESLint } from '@typescript-eslint/utils';
+
 export type ParseResult<T> =
   { ok: true; data: T } | { ok: false; message: string };
 
@@ -140,3 +142,5 @@ export type RuleOptions = {
 };
 
 export type Options = [RuleOptions];
+
+export type RuleContext = TSESLint.RuleContext<MessageIds, Options>;
