@@ -18,7 +18,15 @@ export const playwright = defineConfig([
       'playwright/prefer-comparison-matcher': 'error',
       // Test structure
       'playwright/prefer-hooks-on-top': 'error',
-      'playwright/require-top-level-describe': 'warn'
+      'playwright/require-top-level-describe': 'warn',
+      'playwright/no-export': 'error',
+      'playwright/no-test-return-statement': 'error',
+      'playwright/no-template-literal-title': 'error',
+      'playwright/prefer-ending-with-an-expect': 'error',
+      'playwright/require-annotation-reason': 'error',
+      // Timeouts
+      'playwright/no-action-timeout': 'error',
+      'playwright/no-magic-timeouts': 'error'
     }
   }
 ]);

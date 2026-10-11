@@ -33,6 +33,7 @@ export const stylelint: Config = {
           ignoreCustomProperties: ['^--mdc', '^--sys']
         },
         'no-descending-specificity': null,
+        'selector-no-unmatchable': true,
         // A stylesheet class no linked template uses is reported.
         // Bad: .ghost {} used by no template
         // Good: delete it, or use it in a template

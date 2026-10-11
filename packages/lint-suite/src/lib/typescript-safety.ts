@@ -95,6 +95,8 @@ export const typescriptSafety = defineConfig([
       '@typescript-eslint/no-unsafe-return': 'error',
       '@typescript-eslint/no-unsafe-argument': 'error',
       '@typescript-eslint/no-empty-object-type': 'error',
+      '@typescript-eslint/no-generated-empty-object-type': 'error', // v8.70: type operations resolving to {}
+      '@typescript-eslint/no-unsafe-enum-assignment': 'error', // v8.71: non-enum value where an enum is expected
       '@typescript-eslint/no-unsafe-function-type': 'error',
       '@typescript-eslint/no-wrapper-object-types': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',

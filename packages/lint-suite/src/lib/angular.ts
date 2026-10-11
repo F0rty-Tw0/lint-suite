@@ -46,6 +46,7 @@ export const angular = defineConfig([
       '@angular-eslint/prefer-output-emitter-ref': 'warn', // Modern output() function over @Output()
       '@angular-eslint/sort-lifecycle-methods': 'warn', // Consistent lifecycle method ordering
       '@angular-eslint/computed-must-return': 'error', // Catch silent computed() bugs missing a return
+      '@angular-eslint/reactive-context-must-read-signal': 'error', // v22.3: computed/linkedSignal/effect that reads no signal never re-runs
       '@angular-eslint/no-duplicates-in-metadata-arrays': 'error', // Catch duplicate imports/providers in @Component/@NgModule
       '@angular-eslint/no-lifecycle-call': 'error', // Forbid manual this.ngOnInit() calls
       '@angular-eslint/require-lifecycle-on-prototype': 'error', // Lifecycle hooks must be methods, not arrow-fn fields

@@ -1,3 +1,4 @@
+import modularBoundariesPlugin from '@lint-suite/eslint-plugin-modular-boundaries';
 import { defineConfig } from 'eslint/config';
 import boundariesPlugin from 'eslint-plugin-boundaries';
 
@@ -12,7 +13,8 @@ export const boundaries = defineConfig([
       '**/*.mts'
     ],
     plugins: {
-      boundaries: boundariesPlugin
+      boundaries: boundariesPlugin,
+      'modular-boundaries': modularBoundariesPlugin
     },
     settings: {
       'boundaries/elements': [
@@ -48,6 +50,20 @@ export const boundaries = defineConfig([
       }
     },
     rules: {
+      // Workspace projects tagged type:app are leaves: no lib or app imports
+      // them. The '*' entry keeps untagged projects free to import.
+      // Bad: libs/ui (type:lib) imports apps/web (type:app)
+      // Good: move the shared code from apps/web into a type:lib project
+      'modular-boundaries/modular-boundaries': [
+        'error',
+        {
+          depConstraints: [
+            { sourceTag: 'type:lib', notDependOnLibsWithTags: ['type:app'] },
+            { sourceTag: 'type:app', notDependOnLibsWithTags: ['type:app'] },
+            { sourceTag: '*', onlyDependOnLibsWithTags: ['*'] }
+          ]
+        }
+      ],
       ...boundariesPlugin.configs.recommended.rules,
       'boundaries/dependencies': [
         'error',
