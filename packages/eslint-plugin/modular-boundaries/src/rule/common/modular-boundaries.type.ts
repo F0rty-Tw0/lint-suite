@@ -35,6 +35,9 @@ export type Project = {
 
 export type ProjectRead = { project?: Project; errors: ConfigError[] };
 
+/** Projects left after dropping duplicates, plus one error per colliding pair. */
+export type CheckedProjects = { projects: Project[]; errors: ConfigError[] };
+
 /** `target` is absolute and may contain `*`. */
 export type PathAlias = { pattern: string; target: string };
 
