@@ -9,13 +9,23 @@ import type {
   ConfigError,
   MessageIds,
   Options,
-  RuleContext
+  Project,
+  RuleContext,
+  RuleOptions,
+  Target,
+  WorkspaceModel
 } from './common/modular-boundaries.type.ts';
 import { constraintsFor } from './load-constraints.ts';
+import { reachesSource, shortestProjectPath } from './project-graph.ts';
 import { resolveTarget } from './utils/resolve-target.util.ts';
 import { projectForFile, workspaceModelFor } from './workspace-model.ts';
 
 type EdgeVisitor = (node: TSESTree.Node, specifier: string) => void;
+
+type CycleCheck = {
+  readonly reachesSource?: () => boolean;
+  readonly cyclePath?: () => string[];
+};
 
 const createRule = ESLintUtils.RuleCreator(
   () =>
@@ -95,6 +105,33 @@ const isInside = (root: string, path: string): boolean => {
   return !isParent && !isAbsolute(fromRoot);
 };
 
+/** Spec § checks step 5: thunks so the project graph is built only when checkEdge reaches the cycle step. */
+const cycleCheckFor = (
+  model: WorkspaceModel,
+  options: RuleOptions,
+  source: Project,
+  target: Target
+): CycleCheck => {
+  const noCycleCheck: CycleCheck = {};
+  const isEnabled = options.checkCircularDependencies !== false;
+
+  if (!isEnabled || target.kind !== 'project') return noCycleCheck;
+  if (target.project === source) return noCycleCheck;
+
+  const ignored = options.ignoredCircularDependencies ?? [];
+  const cycleCheck: CycleCheck = {
+    reachesSource: (): boolean =>
+      reachesSource(model, ignored, target.project, source),
+    cyclePath: (): string[] => {
+      const path = shortestProjectPath(model, ignored, target.project, source);
+
+      return [source.id, ...path];
+    }
+  };
+
+  return cycleCheck;
+};
+
 export default createRule<Options, MessageIds>({
   name: 'modular-boundaries',
   meta,
@@ -131,7 +168,15 @@ export default createRule<Options, MessageIds>({
     const allow = options.allow ?? [];
     const checkSpecifier: EdgeVisitor = (node, specifier) => {
       const target = resolveTarget(specifier, filename, model, allow);
-      const edge = { source, target, specifier, constraints, options };
+      const cycleCheck = cycleCheckFor(model, options, source, target);
+      const edge = {
+        source,
+        target,
+        specifier,
+        constraints,
+        options,
+        ...cycleCheck
+      };
       const report = checkEdge(edge);
 
       if (report === undefined) return;
