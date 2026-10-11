@@ -210,6 +210,8 @@ A malformed workspace file, or two projects with the same id or package name, is
 
 Imports are resolved by: relative path; workspace package name; `compilerOptions.paths` in the root `tsconfig.base.json`, else `tsconfig.json`; otherwise an npm package by specifier shape. `node:` and built-in modules, `#` subpath imports, URL schemes and unresolved aliases are skipped.
 
+With `eslint --cache`, ESLint does not re-lint unchanged files, so a cycle or `workspaceConfigError` caused by editing one file is not reported in other, unchanged files until they are linted again. Nx's `enforce-module-boundaries` has the same limit.
+
 ## Pattern dialects
 
 Each pattern kind follows the tool whose config it comes from:
