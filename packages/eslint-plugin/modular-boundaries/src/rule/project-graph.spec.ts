@@ -102,6 +102,36 @@ test('shortest path from b back to a is b -> c -> a', (): void => {
   assert.deepEqual(path, ['@c/b', '@c/c', '@c/a']);
 });
 
+// p lists the long branch first, so a depth-first search would return p -> q -> r -> t.
+test('shortest path takes the shorter of two branches', (): void => {
+  const workspace = writeTempWorkspace({
+    'pnpm-workspace.yaml': 'packages: ["packages/*"]\n',
+    'packages/p/package.json': '{ "name": "@s/p" }',
+    'packages/p/src/index.ts': "import '@s/q';\nimport '@s/s';\n",
+    'packages/q/package.json': '{ "name": "@s/q" }',
+    'packages/q/src/index.ts': "import '@s/r';\n",
+    'packages/r/package.json': '{ "name": "@s/r" }',
+    'packages/r/src/index.ts': "import '@s/t';\n",
+    'packages/s/package.json': '{ "name": "@s/s" }',
+    'packages/s/src/index.ts': "import '@s/t';\n",
+    'packages/t/package.json': '{ "name": "@s/t" }'
+  });
+
+  onTestFinished(workspace.dispose);
+
+  const model = buildWorkspaceModel(workspace.directory);
+  const byId = (id: string): Project => {
+    const found = model.projects.find((candidate) => candidate.id === id);
+
+    assert.ok(found, `no project ${id}`);
+
+    return found;
+  };
+  const path = shortestProjectPath(model, [], byId('@s/p'), byId('@s/t'));
+
+  assert.deepEqual(path, ['@s/p', '@s/s', '@s/t']);
+});
+
 test('an ignored pair breaks the cycle in both directions', (): void => {
   const { model, project } = cycles();
   const a = project('@c/a');
