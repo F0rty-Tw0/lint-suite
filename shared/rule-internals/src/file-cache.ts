@@ -1,4 +1,5 @@
 import {
+  existsSync,
   mkdirSync,
   readFileSync,
   renameSync,
@@ -94,10 +95,20 @@ const load = <T>(cache: FileCache<T>): void => {
   }
 };
 
+const dropDeletedEntries = (cache: FileCache<unknown>): void => {
+  for (const path of cache.entries.keys()) {
+    const isPresent = existsSync(path);
+
+    if (!isPresent) cache.entries.delete(path);
+  }
+};
+
 const write = (cache: FileCache<unknown>): void => {
   const file = cacheFile(cache.name, cache.identity);
 
   if (file === null) return;
+
+  dropDeletedEntries(cache);
 
   try {
     mkdirSync(dirname(file), { recursive: true });
@@ -112,7 +123,11 @@ const write = (cache: FileCache<unknown>): void => {
   }
 };
 
-/** Writes every cache that parsed something this run; runs at process exit. */
+/**
+ * Writes every cache that parsed something this run, dropping entries whose
+ * file no longer exists; runs at process exit. Unread entries of existing
+ * files stay, so partial runs (`eslint --cache`, editors) keep the rest.
+ */
 export const flushFileCaches = (): void => {
   for (const cache of caches) {
     if (!cache.dirty) continue;

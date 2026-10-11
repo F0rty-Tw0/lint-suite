@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   rmSync,
   utimesSync,
   writeFileSync
@@ -50,6 +51,20 @@ const storedFiles = (): string[] => {
   if (!existsSync(cacheDirectory)) return [];
 
   return readdirSync(cacheDirectory).filter((entry) => entry.endsWith('.json'));
+};
+
+const storedPaths = (): string[] => {
+  const [name] = storedFiles();
+
+  if (name === undefined) return [];
+
+  const text = readFileSync(join(directory, 'cache', name), 'utf8');
+  const stored: unknown = JSON.parse(text);
+  const isRecord = typeof stored === 'object' && stored !== null;
+
+  if (!isRecord) return [];
+
+  return Object.keys(stored).sort();
 };
 
 beforeEach(() => {
@@ -116,6 +131,35 @@ test('survives a flush into a new cache of the same identity and name', () => {
 
   assert.equal(readCached(second, file, parse), 'ONE');
   assert.equal(parsed, 1);
+});
+
+test('drops the entry of a file deleted before the flush', () => {
+  const cache = freshCache();
+  const deleted = join(directory, 'deleted.txt');
+
+  writeFileSync(deleted, 'gone');
+  readCached(cache, file, parse);
+  readCached(cache, deleted, parse);
+  rmSync(deleted);
+  flushFileCaches();
+
+  assert.deepEqual(storedPaths(), [file]);
+});
+
+test('keeps stored entries of existing files that were not read this run', () => {
+  const first = freshCache();
+  const other = join(directory, 'other.txt');
+
+  writeFileSync(other, 'two');
+  readCached(first, file, parse);
+  flushFileCaches();
+
+  const second = createFileCache<string>(first.name, first.identity);
+
+  readCached(second, other, parse);
+  flushFileCaches();
+
+  assert.deepEqual(storedPaths(), [other, file].sort());
 });
 
 test('isolates two package identities using the same cache directory and name', () => {
