@@ -32,7 +32,7 @@ export const readWorkspaceProjects = (
   const readErrors = reads.flatMap((read) => read.errors);
   const projects = reads.flatMap(toProjects);
   const manifests = new Set(listing.manifests);
-  const checked = dropDuplicateProjects(projects, manifests);
+  const checked = dropDuplicateProjects(root, projects, manifests);
 
   errors.push(...discovered.errors, ...readErrors, ...checked.errors);
 

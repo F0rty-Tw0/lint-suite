@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 
 import { MANIFEST_NAMES } from '../common/modular-boundaries.const.ts';
 
@@ -64,6 +64,7 @@ const primaryManifest = (project: Project, manifests: Set<string>): string => {
 };
 
 const collisionError = (
+  root: string,
   collision: Collision,
   manifests: Set<string>
 ): ConfigError => {
@@ -72,10 +73,11 @@ const collisionError = (
   const isFirstLater = firstFile > secondFile;
   const later = isFirstLater ? firstFile : secondFile;
   const earlier = isFirstLater ? secondFile : firstFile;
+  const earlierPath = relative(root, earlier).split(sep).join('/');
   const clashes = collision.clashes.join(' and ');
   const error: ConfigError = {
     file: later,
-    message: `Duplicate ${clashes} (also in ${earlier}).`
+    message: `Duplicate ${clashes} (also in ${earlierPath}).`
   };
 
   return error;
@@ -84,8 +86,10 @@ const collisionError = (
 /**
  * Drops every project whose id or package name another project shares, with one
  * `ConfigError` per colliding pair on the later of the pair's primary manifests.
+ * The message names the earlier manifest relative to `root`, in POSIX form.
  */
 export const dropDuplicateProjects = (
+  root: string,
   projects: Project[],
   manifests: Set<string>
 ): CheckedProjects => {
@@ -106,7 +110,7 @@ export const dropDuplicateProjects = (
     return [collision.first, collision.second];
   };
   const toError = (collision: Collision): ConfigError => {
-    return collisionError(collision, manifests);
+    return collisionError(root, collision, manifests);
   };
   const dropped = new Set(colliding.flatMap(pairProjects));
   const kept = projects.filter((project) => !dropped.has(project));
