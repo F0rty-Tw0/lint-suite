@@ -3,3 +3,7 @@ projects:
     - 'packages/*'
   sources:
     app: 'apps/app'
+constraints:
+  tagRelationships:
+    next:
+      - 'react-ui'

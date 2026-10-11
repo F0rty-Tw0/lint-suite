@@ -5,6 +5,12 @@ export type ParseResult<T> =
 
 export type ConfigError = { file: string; message: string };
 
+/** Collects shape errors for one config `file` into `errors`. */
+export type ShapeReader = {
+  readonly file: string;
+  readonly errors: ConfigError[];
+};
+
 /** A parsed manifest object; `undefined` when the file is missing or malformed. */
 export type JsonObject = Record<string, unknown> | undefined;
 

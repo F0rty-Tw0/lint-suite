@@ -1,0 +1,4 @@
+{
+  "name": "@t/other",
+  "dependencies": { "@t/internal": "workspace:*" }
+}

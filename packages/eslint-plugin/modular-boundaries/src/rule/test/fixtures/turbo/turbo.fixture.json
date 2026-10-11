@@ -1,0 +1,9 @@
+{
+  "boundaries": {
+    "tags": {
+      "web": { "dependencies": { "deny": ["internal"] } },
+      "internal": { "dependents": { "allow": ["@t/admin"] } },
+      "leaf": { "dependencies": { "allow": [] } }
+    }
+  }
+}
