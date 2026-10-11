@@ -66,6 +66,17 @@ test('a nested package.json with workspaces hides its subtree', (): void => {
   assert.deepEqual(listing.manifests, [file('packages/a/package.json')]);
 });
 
+test('a nested root hides only its own subtree, not a prefix-named sibling', (): void => {
+  const { file, listing } = listed({
+    'pnpm-workspace.yaml': PNPM_MARKER,
+    'x/nx.json': '{}',
+    'x/libs/a/package.json': '{ "name": "a" }',
+    'x-y/package.json': '{ "name": "x-y" }'
+  });
+
+  assert.deepEqual(listing.manifests, [file('x-y/package.json')]);
+});
+
 test('a nested package turbo.json that extends the root is not a nested root', (): void => {
   const { file, listing } = listed({
     'pnpm-workspace.yaml': PNPM_MARKER,
