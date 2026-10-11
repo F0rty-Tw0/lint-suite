@@ -254,6 +254,8 @@ const runBenchmark = (): void => {
       `specifiers cache after warm:  ino ${after.ino} mtimeNs ${after.mtimeNs}`
     );
     console.log(`specifiers cache unchanged (0 parses): ${isUnchanged}`);
+
+    if (!isUnchanged) process.exitCode = 1;
   } finally {
     rmSync(root, { force: true, recursive: true });
     rmSync(cacheDirectory, { force: true, recursive: true });
