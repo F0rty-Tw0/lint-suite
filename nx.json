@@ -119,6 +119,7 @@
       "eslint-plugin-chain-receiver-is-name",
       "eslint-plugin-explicit-accessibility",
       "eslint-plugin-max-condition-operands",
+      "eslint-plugin-modular-boundaries",
       "eslint-plugin-no-call-in-condition",
       "eslint-plugin-no-grouped-condition",
       "eslint-plugin-no-inline-object-types",

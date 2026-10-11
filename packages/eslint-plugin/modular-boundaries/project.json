@@ -3,7 +3,6 @@
   "sourceRoot": "packages/eslint-plugin/modular-boundaries/src",
   "projectType": "library",
   "targets": {
-    "typecheck": {},
-    "build": { "executor": "nx:noop" }
+    "typecheck": {}
   }
 }
