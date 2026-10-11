@@ -51,6 +51,8 @@ catalogs:
     typescript: '>=6.0.3'
   vitest:
     '@vitest/eslint-plugin': '1.6.27'
+  yaml:
+    yaml: '2.9.0'
   dev:
     '@angular/common': '22.1.5'
     '@angular/core': '22.1.5'

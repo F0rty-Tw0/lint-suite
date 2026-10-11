@@ -1,0 +1,5 @@
+{
+  "name": "nx-root",
+  "private": true,
+  "dependencies": { "rxjs": "7.8.2" }
+}

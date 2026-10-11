@@ -1,0 +1,5 @@
+{
+  "name": "@ws/feature",
+  "tags": ["type:feature"],
+  "dependencies": { "@ws/data": "workspace:*", "@ws/ui": "workspace:*" }
+}
