@@ -1,5 +1,33 @@
 # Lint Suite Release Notes
 
+## Unreleased: drop @nx/eslint-plugin dependency
+
+`lint-suite` no longer depends on `@nx/eslint-plugin`, so installs no longer
+pull in `nx`, `@nx/*` and their Babel tree. The `javascript` and `typescript`
+presets now inline the same `@eslint/js` + `typescript-eslint` recommended
+rules and overrides. Breaking changes:
+
+- The `@nx` plugin is no longer registered, so `@nx/*` rules fail with
+  "Could not find plugin @nx". Migration: install `@nx/eslint-plugin` and add
+  `{ extends: [...configs['flat/base']] }` (with
+  `import { configs } from '@nx/eslint-plugin'`) and no `files` key.
+  `plugins: { '@nx': nxPlugin }` works at runtime but fails typecheck.
+- Composing `base`, `javascript` or `typescript` without `prettier` now reports
+  formatting-related rules (`@stylistic/*` plus core `curly`, `max-len` and
+  `no-unexpected-multiline`) that `eslint-config-prettier` used to turn off.
+  `recommended` is unaffected. Migration: append `prettier` to your config.
+- The default `parserOptions.tsconfigRootDir` for TS files is now
+  `process.cwd()` instead of the Nx workspace root, which was found by walking
+  up to `nx.json` (or the highest directory with `node_modules/nx`) or read
+  from `NX_WORKSPACE_ROOT_PATH`. Anyone who runs ESLint from a subdirectory of
+  their repo root, most commonly Nx lint targets with `cwd: {projectRoot}`,
+  now resolves tsconfig lookup and relative `project` or `allowDefaultProject`
+  paths from that subdirectory. `process.cwd()` is read once when the config
+  loads, so a long-lived ESLint process such as an editor server keeps its
+  first working directory. Migration: set
+  `parserOptions.tsconfigRootDir: import.meta.dirname` in your config, which
+  avoids both.
+
 ## Unreleased: independently installable custom rules
 
 - Extracted all 21 custom rules into `@lint-suite/eslint-plugin-*` and

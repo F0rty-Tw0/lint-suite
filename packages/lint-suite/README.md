@@ -135,7 +135,7 @@ export default [
 | Configuration     | Description                                                                                                            |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `base`            | Core JavaScript rules, formatting, and complexity limits                                                               |
-| `javascript`      | JavaScript-specific rules via `@nx/eslint-plugin`                                                                      |
+| `javascript`      | JavaScript-specific rules (`@eslint/js` + `typescript-eslint` recommended)                                             |
 | `typescript`      | TypeScript strict typing, imports, and naming conventions                                                              |
 | `angular`         | Angular component best practices with Signal support                                                                   |
 | `angularTemplate` | HTML template rules with accessibility, performance, and `lint-suite-angular-template/no-unstyled-classes`             |
@@ -706,12 +706,6 @@ export default prettier;
 The Prettier preset is published with `prettier` as a peer dependency. The Stylelint preset requires `stylelint` and the referenced shared configs/plugins, which ship as dependencies of this package.
 
 ## Available Rules (you can add more as you prefer)
-
-### nx/eslint-plugin
-
-- `@nx/enforce-module-boundaries`: Enforces module boundary restrictions
-- `@nx/dependency-checks`: Validates dependencies in workspace projects
-- ...
 
 ### @vitest/eslint-plugin
 

@@ -1,10 +1,8 @@
-import { configs } from '@nx/eslint-plugin';
 import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 import importPluginX from 'eslint-plugin-import-x';
 
 export const baseRecommended = defineConfig([
-  { extends: [...configs['flat/base']] },
   {
     files: [
       '**/*.js',
