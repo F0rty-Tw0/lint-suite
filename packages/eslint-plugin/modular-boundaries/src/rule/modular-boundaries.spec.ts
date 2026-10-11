@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import type { Linter, RuleTester } from 'eslint';
-import { afterAll, test } from 'vitest';
+import { afterAll, onTestFinished, test, vi } from 'vitest';
 
 import { copyFixtureWorkspace } from './test/utils/fixture-workspace.spec.util.ts';
 import {
@@ -296,6 +296,24 @@ test('reports only config errors for a file outside every project', (): void => 
 
   assert.equal(messages.length, 2);
   assert.equal(configErrors.length, 2);
+});
+
+// The cwd points at the broken workspace so a relative filename would land inside it: without the guard the
+// rule would report its two config errors.
+test('ignores a non-absolute filename', (): void => {
+  const cwd = vi.spyOn(process, 'cwd').mockReturnValue(broken.directory);
+  const options = { workspaceRoot: broken.directory };
+
+  onTestFinished(() => cwd.mockRestore());
+
+  const messages = lintWithRule(
+    broken.directory,
+    'packages/ok/src/a.ts',
+    importData,
+    options
+  );
+
+  assert.deepEqual(messages, []);
 });
 
 test('rejects an unknown option in the schema', (): void => {
