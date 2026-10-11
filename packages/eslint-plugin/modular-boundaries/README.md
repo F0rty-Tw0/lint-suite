@@ -87,7 +87,7 @@ Turborepo `dependencies.allow` / `deny` constrain the tags of a tagged project's
 }
 ```
 
-A moon tag relationship lets a project with the tag import only projects carrying at least one of the listed tags.
+A moon tag relationship lets a project with the tag import only projects carrying the same tag or at least one of the listed tags. An empty list allows every import, as in moon.
 
 ```yaml
 # .moon/workspace.yml
@@ -225,7 +225,7 @@ External patterns match the full specifier, so `@nestjs/*` matches `@nestjs/comm
 
 ## Differences from Nx
 
-- `notDependOnLibsWithTags` is checked on direct imports only. Nx also checks transitive dependencies.
+- `notDependOnLibsWithTags` is checked on direct imports only. Nx also checks transitive dependencies. The same holds for Turborepo `boundaries`, which Turborepo also applies to dependencies of dependencies.
 - `undeclaredDependency` does not exist in this Nx rule (Nx has it in the separate `@nx/dependency-checks` rule). Turn it off with `checkUndeclaredDependencies: false` for strict parity.
 - The project graph has import edges only. Nx also adds edges from `package.json` workspace dependencies and `implicitDependencies`. The graph also over-approximates imports: it reads specifiers with the TypeScript scanner, so it also sees the static prefix of `import('./x' + y)`, the argument of `foo.require('./x')`, and `declare module 'x'` names.
 - `ignoredCircularDependencies` removes the matching edges before the reachability check. Nx ignores a cycle when any consecutive pair on the shortest path matches.
