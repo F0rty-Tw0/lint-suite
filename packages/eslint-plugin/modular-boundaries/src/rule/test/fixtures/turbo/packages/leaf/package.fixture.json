@@ -1,0 +1,4 @@
+{
+  "name": "@t/leaf",
+  "dependencies": { "@t/admin": "workspace:*" }
+}

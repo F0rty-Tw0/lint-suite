@@ -8,6 +8,7 @@ import type {
   WorkspaceModel
 } from './common/modular-boundaries.type.ts';
 import { constraintsFor } from './load-constraints.ts';
+import { findConstraintViolation } from './utils/edge-constraints.util.ts';
 
 const projectWithTags = (id: string, tags: string[]): Project => {
   const project: Project = {
@@ -177,4 +178,113 @@ test('a rebuilt model gets a fresh ConstraintSet', (): void => {
 
   assert.notEqual(before, after);
   assert.deepEqual(after.constraints, before.constraints);
+});
+
+const configModel = (
+  rootTurbo: unknown,
+  moonWorkspace?: unknown
+): WorkspaceModel => {
+  const base = modelOf([web, api, bare]);
+  const configured: WorkspaceModel = { ...base, rootTurbo, moonWorkspace };
+
+  return configured;
+};
+
+const turboModel = (tags: unknown): WorkspaceModel => {
+  const boundaries = { tags };
+  const rootTurbo = { boundaries };
+
+  return configModel(rootTurbo);
+};
+
+test('turbo dependents.allow becomes a target-side onlyTags constraint', (): void => {
+  const dependents = { allow: ['scope:web'] };
+  const apiTag = { dependents };
+  const set = constraintsFor(turboModel({ 'scope:api': apiTag }), {});
+  const match = { anyOf: ['scope:api'] };
+  const expected = {
+    side: 'target',
+    match,
+    onlyTags: ['scope:web'],
+    matchesPackageName: true,
+    origin: 'turbo.json'
+  };
+
+  assert.deepEqual(set.constraints, [expected]);
+  assert.deepEqual(set.targetMatches.get(api), set.constraints);
+  assert.equal(set.sourceMatches.size, 0);
+});
+
+test('turbo lists match package names', (): void => {
+  const dependencies = { allow: ['@ws/api'] };
+  const webTag = { dependencies };
+  const set = constraintsFor(turboModel({ 'scope:web': webTag }), {});
+  const namedApi: Project = { ...api, packageName: '@ws/api' };
+  const allowed = findConstraintViolation(set, {
+    source: web,
+    target: namedApi
+  });
+  const denied = findConstraintViolation(set, { source: web, target: api });
+
+  assert.equal(allowed, undefined);
+  assert.equal(denied?.messageId, 'onlyTagsConstraintViolation');
+});
+
+test('turbo allow: [] reports every project dependency', (): void => {
+  const dependencies = { allow: [] };
+  const webTag = { dependencies };
+  const set = constraintsFor(turboModel({ 'scope:web': webTag }), {});
+  const report = findConstraintViolation(set, { source: web, target: bare });
+
+  assert.equal(report?.messageId, 'emptyOnlyTagsConstraintViolation');
+});
+
+test('translated constraints follow ESLint ones: turbo, then moon', (): void => {
+  const dependencies = { deny: ['scope:api'] };
+  const webTag = { dependencies };
+  const tags = { 'type:ui': webTag, 'scope:web': webTag };
+  const boundaries = { tags };
+  const tagRelationships = { 'scope:web': ['scope:api'] };
+  const constraints = { tagRelationships };
+  const both = configModel({ boundaries }, { constraints });
+  const entry: DepConstraint = { sourceTag: 'scope:web' };
+  const set = constraintsFor(both, { depConstraints: [entry] });
+  const origins = set.constraints.map((constraint) => constraint.origin);
+  const matches = set.constraints.map((constraint) => constraint.match.anyOf);
+
+  assert.deepEqual(origins, [
+    'eslint',
+    'turbo.json',
+    'turbo.json',
+    '.moon/workspace.yml'
+  ]);
+  assert.deepEqual(matches[1], ['type:ui']);
+  assert.deepEqual([...set.eslintSourceMatched], [web]);
+});
+
+test('configSources.turbo: false ignores root turbo.json boundaries', (): void => {
+  const dependencies = { deny: ['scope:api'] };
+  const webTag = { dependencies };
+  const configSources = { turbo: false };
+  const set = constraintsFor(turboModel({ 'scope:web': webTag }), {
+    configSources
+  });
+
+  assert.deepEqual(set.constraints, []);
+});
+
+test('a non-object dependencies entry yields a workspaceConfigError', (): void => {
+  const brokenTag = { dependencies: ['scope:api'] };
+  const dependents = { deny: 'scope:web' };
+  const apiTag = { dependents };
+  const dependencies = { deny: ['scope:api'] };
+  const webTag = { dependencies };
+  const tags = { broken: brokenTag, 'scope:api': apiTag, 'scope:web': webTag };
+  const set = constraintsFor(turboModel(tags), {});
+  const files = set.errors.map((error) => error.file);
+  const sides = set.constraints.map((constraint) => constraint.side);
+
+  assert.deepEqual(files, ['/ws/turbo.json', '/ws/turbo.json']);
+  assert.match(set.errors[0]?.message ?? '', /broken\.dependencies/);
+  assert.deepEqual(sides, ['source']);
 });

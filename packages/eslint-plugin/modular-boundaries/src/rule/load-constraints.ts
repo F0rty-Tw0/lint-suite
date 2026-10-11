@@ -1,4 +1,5 @@
 import type {
+  ConfigError,
   Constraint,
   ConstraintMatch,
   ConstraintSet,
@@ -7,6 +8,7 @@ import type {
   RuleOptions,
   WorkspaceModel
 } from './common/modular-boundaries.type.ts';
+import { configConstraints } from './utils/config-constraints.util.ts';
 import { hasTag } from './utils/tag-patterns.util.ts';
 
 const setsByModel = new WeakMap<WorkspaceModel, Map<string, ConstraintSet>>();
@@ -100,12 +102,16 @@ const eslintMatchedProjects = (
   return matched;
 };
 
+/** Spec § load-constraints merge order: ESLint, root `turbo.json`, `.moon/workspace.yml`. */
 const loadConstraints = (
   model: WorkspaceModel,
   options: RuleOptions
 ): ConstraintSet => {
   const depConstraints = options.depConstraints ?? [];
-  const constraints = depConstraints.map(translateEslintConstraint);
+  const eslintConstraints = depConstraints.map(translateEslintConstraint);
+  const errors: ConfigError[] = [];
+  const translated = configConstraints(model, options, errors);
+  const constraints = [...eslintConstraints, ...translated];
   const sourceMatches = matchesBySide(constraints, model.projects, 'source');
   const targetMatches = matchesBySide(constraints, model.projects, 'target');
   const eslintSourceMatched = eslintMatchedProjects(sourceMatches);
@@ -115,7 +121,7 @@ const loadConstraints = (
     targetMatches,
     eslintSourceMatched,
     hasEslintConstraints: depConstraints.length > 0,
-    errors: []
+    errors
   };
 
   return set;

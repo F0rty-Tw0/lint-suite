@@ -1,0 +1,4 @@
+{
+  "name": "@t/admin",
+  "dependencies": { "@t/internal": "workspace:*" }
+}
