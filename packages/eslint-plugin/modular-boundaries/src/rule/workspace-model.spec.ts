@@ -147,6 +147,37 @@ test('root turbo.json and .moon/workspace.yml data land on the model', (): void 
   assert.equal(model.rootTurbo, undefined);
 });
 
+test('root turbo.json and .moon/workspace.yml data are read from the workspace root', (): void => {
+  const workspace = tempWorkspace({
+    'nx.json': '{}',
+    'turbo.json': '{ "tasks": { "build": {} } }',
+    '.moon/workspace.yml': 'projects:\n  - libs/*\n'
+  });
+  const model = buildWorkspaceModel(workspace.directory);
+  const expectedTurbo = { tasks: { build: {} } };
+  const expectedMoon = { projects: ['libs/*'] };
+
+  assert.deepEqual(model.rootTurbo, expectedTurbo);
+  assert.deepEqual(model.moonWorkspace, expectedMoon);
+  assert.deepEqual(model.errors, []);
+});
+
+test('a malformed root turbo.json or .moon/workspace.yml is a config error naming it', (): void => {
+  const workspace = tempWorkspace({
+    'nx.json': '{}',
+    'turbo.json': '{ "tasks": ',
+    '.moon/workspace.yml': 'projects: [\n'
+  });
+  const model = buildWorkspaceModel(workspace.directory);
+  const files = model.errors.map((error) => error.file).toSorted();
+  const expected = [
+    workspace.file('.moon/workspace.yml'),
+    workspace.file('turbo.json')
+  ];
+
+  assert.deepEqual(files, expected);
+});
+
 test('model is reused within the staleness window', (): void => {
   useFakeClock();
 
