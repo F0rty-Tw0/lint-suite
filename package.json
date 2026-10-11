@@ -35,6 +35,6 @@
     "vitest": "catalog:dev",
     "yaml": "catalog:dev"
   },
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@12.11.2",
   "version": "2.1.0"
 }

@@ -17,7 +17,7 @@ A comprehensive collection of ESLint Flat configurations for modern web applicat
 - **Prettier**: Automatic disabling of formatting rules that conflict with Prettier (`eslint-config-prettier`)
 - **Prettier config**: Standalone formatting preset (subpath `lint-suite/prettier`) with the suite's house defaults and Angular/HTML overrides
 - **Stylelint**: Standalone SCSS/CSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement
-- **Architecture**: Module boundary enforcement with `eslint-plugin-boundaries`
+- **Architecture**: Folder layer boundaries with `eslint-plugin-boundaries`, and workspace project boundaries by tag with `@lint-suite/eslint-plugin-modular-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
 
 ## Installation
@@ -156,7 +156,7 @@ export default [
 | `playwright`      | Playwright e2e locator and matcher best practices                                                                      |
 | `json`            | JSON linting with comment support for tsconfig/vscode                                                                  |
 | `storybook`       | Storybook CSF enforcement                                                                                              |
-| `boundaries`      | Module boundary rules (feature, data-access, ui, etc.)                                                                 |
+| `boundaries`      | Folder layer rules (feature, data-access, ui, etc.) and workspace project rules by tag (`type:app` is a leaf)          |
 | `prettier`        | Disables rules that conflict with Prettier (use last)                                                                  |
 | **`recommended`** | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
 

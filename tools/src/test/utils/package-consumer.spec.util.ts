@@ -45,7 +45,7 @@ export const createPackageConsumer = async (): Promise<PackageConsumer> => {
   const manifest: ConsumerManifest = {
     dependencies,
     name: 'packed-consumer-regression',
-    packageManager: 'pnpm@11.25.0',
+    packageManager: 'pnpm@12.11.2',
     private: true,
     type: 'module'
   };

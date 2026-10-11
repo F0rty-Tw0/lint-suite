@@ -7,7 +7,7 @@ Thank you for your interest in contributing to Lint Suite! This document provide
 ### Prerequisites
 
 - Node.js 24 (CI pins its toolchain in `.github/workflows/ci.yml`)
-- pnpm 11.25.0, pinned by the root `packageManager` field
+- pnpm 12.11.2, pinned by the root `packageManager` field
 
 ### Setup
 

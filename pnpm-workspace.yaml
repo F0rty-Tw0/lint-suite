@@ -7,9 +7,9 @@ packages:
 
 catalogs:
   angular:
-    '@angular/compiler': '22.1.5'
-    angular-eslint: '^22.2.0'
-    globals: '17.12.0'
+    '@angular/compiler': '22.2.2'
+    angular-eslint: '^22.5.0'
+    globals: '17.13.0'
   base:
     '@stylistic/eslint-plugin': '5.10.0'
     eslint: '^10.9.1'
@@ -20,65 +20,65 @@ catalogs:
   javascript:
     '@eslint/js': '^10.0.1'
   json:
-    '@eslint/json': '^2.1.0'
+    '@eslint/json': '^2.1.1'
   playwright:
-    eslint-plugin-playwright: '2.11.0'
+    eslint-plugin-playwright: '2.12.1'
   prettier:
     eslint-config-prettier: '^10.1.8'
     prettier: '^3.9.6'
   rxjs:
     '@smarttools/eslint-plugin-rxjs': '1.0.22'
   storybook:
-    eslint-plugin-storybook: '10.6.0'
+    eslint-plugin-storybook: '10.6.1'
   styles:
-    postcss: '8.5.27'
+    postcss: '8.5.29'
     postcss-scss: '4.0.9'
     postcss-selector-parser: '7.1.6'
   stylelint:
-    stylelint: '17.14.1'
+    stylelint: '17.16.0'
     stylelint-config-recess-order: '7.8.0'
     stylelint-config-standard: '40.0.0'
     stylelint-config-standard-scss: '17.0.0'
-    stylelint-scss: '7.2.0'
+    stylelint-scss: '7.3.0'
     stylelint-selector-bem-pattern: '5.0.0'
   typescript:
-    '@typescript-eslint/utils': '8.69.0'
+    '@typescript-eslint/utils': '8.71.1'
     eslint-import-resolver-typescript: '4.4.5'
     typescript: '^6.0.3'
-    typescript-eslint: '8.69.0'
+    typescript-eslint: '8.71.1'
   typescript-compatibility:
     typescript: '>=6.0.3'
   vitest:
     '@vitest/eslint-plugin': '1.6.27'
   yaml:
-    yaml: '2.9.0'
+    yaml: '2.9.1'
   dev:
-    '@angular/common': '22.1.5'
-    '@angular/core': '22.1.5'
-    '@angular/forms': '22.1.5'
-    '@angular/platform-browser': '22.1.5'
+    '@angular/common': '22.2.2'
+    '@angular/core': '22.2.2'
+    '@angular/forms': '22.2.2'
+    '@angular/platform-browser': '22.2.2'
     '@eslint/js': '^10.0.1'
-    '@nx/devkit': '23.2.0'
-    '@nx/esbuild': '23.2.0'
-    '@nx/eslint': '23.2.0'
-    '@nx/eslint-plugin': '23.2.0'
-    '@nx/js': '23.2.0'
-    '@nx/vitest': '23.2.0'
-    '@types/node': '^26.4.1'
-    angular-eslint: '^22.2.0'
+    '@nx/devkit': '23.3.0'
+    '@nx/esbuild': '23.3.0'
+    '@nx/eslint': '23.3.0'
+    '@nx/eslint-plugin': '23.3.0'
+    '@nx/js': '23.3.0'
+    '@nx/vitest': '23.3.0'
+    '@types/node': '^26.6.5'
+    angular-eslint: '^22.5.0'
     esbuild: '^0.28.2'
-    eslint: '^10.9.1'
+    eslint: '^10.12.0'
     eslint-config-prettier: '10.1.8'
     jsonc-eslint-parser: '^3.3.0'
     # Nx 23.2 expects npm view's pre-v12 JSON object shape for publish retries.
     npm: '11.13.0'
-    nx: '23.2.0'
-    prettier: '^3.9.6'
+    nx: '23.3.0'
+    prettier: '^3.9.10'
     tslib: '^2.8.1'
     typescript: '6.0.3'
-    typescript-eslint: '8.69.0'
-    vitest: '^5.0.0'
-    yaml: '2.9.0'
+    typescript-eslint: '8.71.1'
+    vitest: '^5.0.3'
+    yaml: '2.9.1'
 
 catalogMode: strict
 catalogPrune: true
