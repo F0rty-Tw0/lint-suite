@@ -111,6 +111,22 @@ test('listing uses git when available and honours .gitignore', (): void => {
   assert.deepEqual(manifests, expected);
 });
 
+test('listing falls back to a walk when git lists nothing for a gitignored workspace', (): void => {
+  const workspace = writeTempWorkspace({
+    '.gitignore': 'ws/\n',
+    'ws/pnpm-workspace.yaml': PNPM_MARKER,
+    'ws/packages/a/package.json': '{ "name": "a" }'
+  });
+
+  onTestFinished(workspace.dispose);
+  initGit(workspace.directory);
+
+  const listing = listWorkspaceFiles(workspace.file('ws'), new Map());
+  const expected = [workspace.file('ws/packages/a/package.json')];
+
+  assert.deepEqual(listing.manifests, expected);
+});
+
 test('listing falls back to a walk outside git and skips node_modules', (): void => {
   const { file, listing } = listed({
     'pnpm-workspace.yaml': PNPM_MARKER,

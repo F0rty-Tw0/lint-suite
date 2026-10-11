@@ -43,8 +43,11 @@ const gitFiles = (root: string): string[] | undefined => {
   if (hasFailed) return undefined;
 
   const paths = result.stdout.split('\0');
+  const files = paths.filter((path) => path !== '');
 
-  return paths.filter((path) => path !== '');
+  if (files.length === 0) return undefined;
+
+  return files;
 };
 
 const isWalkedDirectory = (entry: Dirent): boolean => {
@@ -156,7 +159,7 @@ const splitListing = (root: string, files: string[]): WorkspaceListing => {
 
 /**
  * Lists the workspace's candidate files: `git ls-files` (walk fallback outside
- * git), minus `.nxignore` matches and nested workspace roots. Every path is
+ * git or when git lists nothing, e.g. a gitignored workspace), minus `.nxignore` matches and nested workspace roots. Every path is
  * `path.resolve(root, p)`, so it equals ESLint's native filename.
  */
 export const listWorkspaceFiles = (
