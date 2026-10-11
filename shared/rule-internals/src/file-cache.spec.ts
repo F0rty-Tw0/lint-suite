@@ -9,11 +9,17 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { threadId } from 'node:worker_threads';
 
 import { afterEach, beforeEach, test } from 'vitest';
 
 import type { FileCache, FileCacheIdentity } from './common/file-cache.type.ts';
-import { createFileCache, flushFileCaches, readCached } from './file-cache.ts';
+import {
+  createFileCache,
+  flushFileCaches,
+  readCached,
+  temporaryFileName
+} from './file-cache.ts';
 import { PACKAGE_IDENTITY } from './package-version.ts';
 
 const FIRST_IDENTITY: FileCacheIdentity = {
@@ -195,4 +201,10 @@ test('uses a deterministic source identity independent of the consumer cwd', () 
     packageName: '@lint-suite/rule-internals',
     packageVersion: 'source'
   });
+});
+
+test('temporaryFileName includes the process id and the worker thread id', () => {
+  const name = temporaryFileName('/cache/a.json');
+
+  assert.equal(name, `/cache/a.json.${process.pid}.${threadId}.tmp`);
 });
