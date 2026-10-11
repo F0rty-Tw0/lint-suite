@@ -1,0 +1,16 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "../../..",
+    "composite": false,
+    "declaration": true,
+    "declarationMap": false,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "*.config.ts"],
+  "exclude": ["**/fixtures/**"],
+  "nx": {
+    "addTypecheckTarget": false
+  }
+}

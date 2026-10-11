@@ -185,6 +185,10 @@ catalogs:
     '@vitest/eslint-plugin':
       specifier: 1.6.27
       version: 1.6.27
+  yaml:
+    yaml:
+      specifier: 2.9.0
+      version: 2.9.0
 
 importers:
 
@@ -345,6 +349,31 @@ importers:
         specifier: catalog:typescript-compatibility
         version: 6.0.3
     devDependencies:
+      typescript-eslint:
+        specifier: catalog:dev
+        version: 8.69.0(eslint@10.9.1(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+
+  packages/eslint-plugin/modular-boundaries:
+    dependencies:
+      '@typescript-eslint/utils':
+        specifier: catalog:typescript
+        version: 8.69.0(eslint@10.9.1(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+      eslint:
+        specifier: catalog:base
+        version: 10.9.1(jiti@2.7.0)(supports-color@10.2.2)
+      typescript:
+        specifier: catalog:typescript-compatibility
+        version: 6.0.3
+      yaml:
+        specifier: catalog:yaml
+        version: 2.9.0
+    devDependencies:
+      '@lint-suite/rule-internals':
+        specifier: workspace:*
+        version: link:../../../shared/rule-internals
+      '@lint-suite/rule-test-support':
+        specifier: workspace:*
+        version: link:../../../shared/rule-test-support
       typescript-eslint:
         specifier: catalog:dev
         version: 8.69.0(eslint@10.9.1(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
