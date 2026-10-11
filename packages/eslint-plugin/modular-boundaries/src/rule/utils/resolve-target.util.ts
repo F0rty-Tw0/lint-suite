@@ -97,7 +97,7 @@ const aliasPathFor = (
 
 /**
  * Classifies an import specifier of `sourceFile` as a workspace `project`, an
- * `npm` package, or `skip`, by the first matching step of Spec § resolve-target.
+ * `npm` package, or `skip`, by the first matching resolution step (README § Checks).
  * `allow` undefined skips the allow step (project-graph use).
  */
 export const resolveTarget = (

@@ -52,7 +52,7 @@ export default [
 ```
 
 Each ESLint package exports a default plugin containing exactly one rule and
-a named export for composition. The 18 TypeScript rules use camel-cased
+a named export for composition. The 19 TypeScript rules use camel-cased
 rule names ending in `Rule`, such as `arrowBodyFitsLineRule`; the Angular
 instance-field and template rules retain `rule`. Choose your own plugin namespace;
 the rule key below stays fixed. Packages do not enable rules or configure
@@ -66,6 +66,7 @@ equivalent umbrella rule unless you want duplicate reports.
 | [@lint-suite/eslint-plugin-chain-receiver-is-name](packages/eslint-plugin/chain-receiver-is-name/README.md)                       | `chain-receiver-is-name`       |
 | [@lint-suite/eslint-plugin-explicit-accessibility](packages/eslint-plugin/explicit-accessibility/README.md)                       | `explicit-accessibility`       |
 | [@lint-suite/eslint-plugin-max-condition-operands](packages/eslint-plugin/max-condition-operands/README.md)                       | `max-condition-operands`       |
+| [@lint-suite/eslint-plugin-modular-boundaries](packages/eslint-plugin/modular-boundaries/README.md)                               | `modular-boundaries`           |
 | [@lint-suite/eslint-plugin-no-call-in-condition](packages/eslint-plugin/no-call-in-condition/README.md)                           | `no-call-in-condition`         |
 | [@lint-suite/eslint-plugin-no-grouped-condition](packages/eslint-plugin/no-grouped-condition/README.md)                           | `no-grouped-condition`         |
 | [@lint-suite/eslint-plugin-no-inline-object-types](packages/eslint-plugin/no-inline-object-types/README.md)                       | `no-inline-object-types`       |
