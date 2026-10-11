@@ -107,11 +107,12 @@ export const moonConstraints = (
   const relationshipConstraints = ([tag, value]: TagEntry): Constraint[] => {
     const onlyTags = optionalTags(reader, value, `${path}.${tag}`);
 
-    if (!onlyTags) return [];
+    // Like moon: an empty list allows everything, and a dependency carrying the source tag itself is allowed.
+    if (!onlyTags || onlyTags.length === 0) return [];
 
     const constraint = tagConstraint('source', tag, '.moon/workspace.yml');
 
-    constraint.onlyTags = onlyTags;
+    constraint.onlyTags = [...onlyTags, tag];
 
     return [constraint];
   };

@@ -101,7 +101,15 @@ test('a non-object boundaries or tags yields one error', (): void => {
   assert.equal(errors.length, 2);
 });
 
-test('moon tagRelationships becomes source-side onlyTags', (): void => {
+test('an empty moon relationship list allows every dependency', (): void => {
+  const errors: ConfigError[] = [];
+  const workspace = moonWithRelationships({ next: [] });
+
+  assert.deepEqual(moonConstraints(workspace, MOON_FILE, errors), []);
+  assert.deepEqual(errors, []);
+});
+
+test('moon tagRelationships becomes source-side onlyTags that include the source tag', (): void => {
   const errors: ConfigError[] = [];
   const workspace = moonWithRelationships({ next: ['react-ui'] });
   const constraints = moonConstraints(workspace, MOON_FILE, errors);
@@ -109,7 +117,7 @@ test('moon tagRelationships becomes source-side onlyTags', (): void => {
   const expected = {
     side: 'source',
     match,
-    onlyTags: ['react-ui'],
+    onlyTags: ['react-ui', 'next'],
     matchesPackageName: false,
     origin: '.moon/workspace.yml'
   };
