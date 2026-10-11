@@ -51,8 +51,16 @@ const isWalkedDirectory = (entry: Dirent): boolean => {
   return entry.isDirectory() && !SKIPPED_DIRECTORIES.has(entry.name);
 };
 
+const readableEntries = (directory: string): Dirent[] => {
+  try {
+    return readdirSync(directory, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+};
+
 const walkFiles = (root: string, directory: string = root): string[] => {
-  const entries = readdirSync(directory, { withFileTypes: true });
+  const entries = readableEntries(directory);
   const files: string[] = [];
 
   for (const entry of entries) {

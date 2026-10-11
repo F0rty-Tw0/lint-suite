@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { chmodSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { onTestFinished, test } from 'vitest';
@@ -16,6 +16,7 @@ type ListedWorkspace = {
 };
 
 const PNPM_MARKER = 'packages:\n  - packages/*\n';
+const isRoot = process.getuid?.() === 0;
 
 const runGit = (directory: string, args: string[]): void => {
   const result = spawnSync('git', args, { cwd: directory, encoding: 'utf8' });
@@ -120,6 +121,27 @@ test('listing falls back to a walk outside git and skips node_modules', (): void
 
   assert.deepEqual(listing.manifests, [file('packages/a/package.json')]);
   assert.deepEqual(listing.sourceFiles, []);
+});
+
+test.skipIf(isRoot)('the walk skips a directory it cannot read', (): void => {
+  const { file, listing } = listed(
+    {
+      'pnpm-workspace.yaml': PNPM_MARKER,
+      'locked/package.json': '{ "name": "locked" }',
+      'packages/a/package.json': '{ "name": "a" }'
+    },
+    (directory): void => {
+      const locked = resolve(directory, 'locked');
+      const unlock = (): void => {
+        chmodSync(locked, 0o755);
+      };
+
+      chmodSync(locked, 0o000);
+      onTestFinished(unlock);
+    }
+  );
+
+  assert.deepEqual(listing.manifests, [file('packages/a/package.json')]);
 });
 
 test('listing splits manifests, package turbo files and source files', (): void => {
