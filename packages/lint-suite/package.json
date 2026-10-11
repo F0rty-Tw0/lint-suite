@@ -30,6 +30,7 @@
     "@lint-suite/eslint-plugin-chain-receiver-is-name": "workspace:*",
     "@lint-suite/eslint-plugin-explicit-accessibility": "workspace:*",
     "@lint-suite/eslint-plugin-max-condition-operands": "workspace:*",
+    "@lint-suite/eslint-plugin-modular-boundaries": "workspace:*",
     "@lint-suite/eslint-plugin-no-call-in-condition": "workspace:*",
     "@lint-suite/eslint-plugin-no-grouped-condition": "workspace:*",
     "@lint-suite/eslint-plugin-no-inline-object-types": "workspace:*",
@@ -98,6 +99,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "typescript": "catalog:typescript"
+    "jsonc-eslint-parser": "catalog:dev",
+    "typescript": "catalog:typescript",
+    "vitest": "catalog:dev"
   }
 }

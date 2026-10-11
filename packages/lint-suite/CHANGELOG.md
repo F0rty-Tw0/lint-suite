@@ -62,6 +62,37 @@
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **Workspace project boundaries**: `boundaries`, and so `recommended`, now
+  enables `modular-boundaries/modular-boundaries` from
+  `@lint-suite/eslint-plugin-modular-boundaries`. Projects tagged `type:lib`
+  or `type:app` cannot import a project tagged `type:app`; untagged projects
+  are unconstrained. The rule's default cycle and undeclared-dependency checks
+  are on. See `RELEASE_NOTES.md` for migration.
+- **`@nx/eslint-plugin` dropped**: the `@nx` plugin is no longer registered,
+  and the `javascript` and `typescript` presets are rebuilt on `@eslint/js`
+  and `typescript-eslint` recommended. See `RELEASE_NOTES.md` for the full
+  list and migrations.
+
+### Dependencies
+
+- `angular-eslint` 22.5.0, `typescript-eslint` 8.71.1, `globals` 17.13.0,
+  `@eslint/json` 2.1.1, `eslint-plugin-playwright` 2.12.1,
+  `eslint-plugin-storybook` 10.6.1, `stylelint` 17.16.0, `stylelint-scss`
+  7.3.0. The ESLint peer range stays `^10.9.1`.
+- New upstream rules enabled at `error`: typescript-eslint
+  `no-generated-empty-object-type` and `no-unsafe-enum-assignment`; Angular
+  `reactive-context-must-read-signal` and template `prefer-style-binding`;
+  Playwright `no-export`, `no-test-return-statement`,
+  `no-template-literal-title`, `prefer-ending-with-an-expect`,
+  `require-annotation-reason`, `no-action-timeout` and `no-magic-timeouts`;
+  Stylelint `selector-no-unmatchable`.
+- `playwright` now warns on `playwright/no-identical-title`, added to
+  `eslint-plugin-playwright`'s `flat/recommended` in 2.12.
+
+## [2.1.1] - 2026-09-11
+
 ### Features
 
 - All 21 custom rules are independently installable as scoped ESLint and

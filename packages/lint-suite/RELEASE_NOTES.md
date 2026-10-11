@@ -1,6 +1,62 @@
 # Lint Suite Release Notes
 
-## Unreleased: drop @nx/eslint-plugin dependency
+## Unreleased
+
+### Workspace project boundaries
+
+The `boundaries` config, and so `recommended`, now enables
+`modular-boundaries/modular-boundaries` from
+`@lint-suite/eslint-plugin-modular-boundaries`. It reads pnpm, npm, Nx,
+Turborepo and moon workspace files and checks imports between workspace
+projects. Outside a workspace it does nothing. Breaking changes:
+
+- A project tagged `type:lib` or `type:app` that imports a project tagged
+  `type:app` is reported (`notTagsConstraintViolation`). Apps are leaves:
+  move code another project needs into a `type:lib` project. Untagged
+  projects are unconstrained. Tags come from `project.json` `tags`,
+  `package.json` `nx.tags`, or a top-level `package.json` `tags` array.
+- An import that closes a cycle between workspace projects is reported
+  (`noCircularDependencies`).
+- In a project with its own `package.json`, an npm or workspace package that
+  the manifest does not declare is reported (`undeclaredDependency`). This
+  includes tooling installed only at the workspace root, such as `vitest`
+  imported from a package's spec files. Migration: declare it in that
+  package's `devDependencies`, or set `checkUndeclaredDependencies: false`.
+- A relative import into another project, or a project importing itself by
+  package name or path alias, is reported.
+
+To change the constraints or turn a check off, set the rule again in a later
+config entry. ESLint replaces the options rather than merging them, so repeat
+the `depConstraints` you want to keep:
+
+```js
+import { recommended } from 'lint-suite/eslint';
+
+export default [
+  ...recommended,
+  {
+    rules: {
+      'modular-boundaries/modular-boundaries': [
+        'error',
+        {
+          depConstraints: [
+            { sourceTag: 'type:lib', notDependOnLibsWithTags: ['type:app'] },
+            { sourceTag: 'type:app', notDependOnLibsWithTags: ['type:app'] },
+            { sourceTag: '*', onlyDependOnLibsWithTags: ['*'] }
+          ],
+          checkUndeclaredDependencies: false
+        }
+      ]
+    }
+  }
+];
+```
+
+Do not register `@lint-suite/eslint-plugin-modular-boundaries` under the
+`modular-boundaries` key yourself alongside the umbrella; reconfigure the
+umbrella's rule as above.
+
+### Drop @nx/eslint-plugin dependency
 
 `lint-suite` no longer depends on `@nx/eslint-plugin`, so installs no longer
 pull in `nx`, `@nx/*` and their Babel tree. The `javascript` and `typescript`
@@ -55,7 +111,47 @@ configs. Breaking changes:
 - TS: `@typescript-eslint/no-empty-interface` is no longer set;
   `@typescript-eslint/no-empty-object-type` (already on) covers it.
 
-## Unreleased: independently installable custom rules
+### Dependency updates
+
+- `angular-eslint` 22.5.0, `typescript-eslint` 8.71.1, `globals` 17.13.0,
+  `@eslint/json` 2.1.1, `eslint-plugin-playwright` 2.12.1,
+  `eslint-plugin-storybook` 10.6.1, `stylelint` 17.16.0 and `stylelint-scss`
+  7.3.0.
+- `playwright`: `playwright/no-identical-title` now warns, from
+  `eslint-plugin-playwright` 2.12's `flat/recommended`. Duplicate test or
+  describe titles in one file are reported; `--max-warnings=0` gates fail.
+- New upstream rules enabled at `error` (breaking: new findings):
+  - `typescript`: `@typescript-eslint/no-generated-empty-object-type` and
+    `@typescript-eslint/no-unsafe-enum-assignment` (both type-aware).
+  - `angular`: `@angular-eslint/reactive-context-must-read-signal`.
+    `computed()`, `linkedSignal()` or `effect()` that reads no signal.
+  - `angularTemplate`: `@angular-eslint/template/prefer-style-binding`.
+    `[style]` instead of `ngStyle`.
+  - `playwright`: `no-export`, `no-test-return-statement`,
+    `no-template-literal-title`, `prefer-ending-with-an-expect`,
+    `require-annotation-reason`, `no-action-timeout` and
+    `no-magic-timeouts`.
+  - `lint-suite/stylelint`: `selector-no-unmatchable`.
+- The ESLint peer range stays `^10.9.1`. TypeScript stays on 6.x:
+  `typescript-eslint` and Angular do not support TypeScript 7 yet.
+
+## v2.2.0: unread Angular inputs, outputs, and queries
+
+- **Breaking:** `lint-suite-angular/no-unused-instance-fields` now reports
+  unread inputs, outputs, and queries: signal `input()`, `input.required()`,
+  `model()`, `output()`, `viewChild()`, `viewChildren()`, `contentChild()`,
+  `contentChildren()`, and decorated `@Input()`, `@ViewChild()`,
+  `@ViewChildren()`, `@ContentChild()`, `@ContentChildren()` fields, plus
+  `@Output()` fields initialized with `new EventEmitter()`. A field counts as
+  unused when its class, template, and host metadata never read it; parent
+  bindings do not count. `outputFromObservable()` fields, `@Output()` fields
+  backed by other observables, decorated setters, and inputs of classes that
+  declare `ngOnChanges` stay exempt.
+- New `allowRxjsInteropFields` option allows unread fields holding
+  `@angular/core/rxjs-interop` calls (`toSignal`, `toObservable`,
+  `outputToObservable`, `rxResource`).
+
+## v2.1.1: independently installable custom rules
 
 - Extracted all 21 custom rules into `@lint-suite/eslint-plugin-*` and
   `@lint-suite/stylelint-no-unused-classes` packages. Each can be installed

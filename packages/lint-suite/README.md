@@ -24,7 +24,7 @@ The suite includes custom rules for TypeScript code structure, unused exports, u
 - **Prettier**: Automatic disabling of formatting rules that conflict with Prettier (`eslint-config-prettier`)
 - **Prettier config**: Standalone formatting preset (subpath `lint-suite/prettier`) with the suite's house defaults and Angular/HTML overrides
 - **Stylelint**: Standalone SCSS/CSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement and `lint-suite/no-unused-classes`
-- **Architecture**: Module boundary enforcement with `eslint-plugin-boundaries`
+- **Architecture**: Folder layer boundaries with `eslint-plugin-boundaries`, and workspace project boundaries by tag with `@lint-suite/eslint-plugin-modular-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
 
 ## Installation
@@ -35,7 +35,7 @@ pnpm add -D lint-suite
 
 ## Standalone custom rules
 
-All 21 custom rules also have independently versioned scoped packages.
+All 22 custom rules also have independently versioned scoped packages.
 Installing one does not install this umbrella or its unrelated presets.
 For example:
 
@@ -64,9 +64,7 @@ remains `no-unused-instance-fields`. The Stylelint package is
 `@lint-suite/stylelint-no-unused-classes`, with rule ID
 `lint-suite/no-unused-classes`.
 
-No migration is needed for existing umbrella users: its three entrypoints,
-presets, rule IDs, severities, and options are unchanged. Avoid enabling a
-standalone rule alongside the corresponding umbrella rule.
+Avoid enabling a standalone rule alongside the corresponding umbrella rule.
 
 ## Dependencies
 
@@ -144,7 +142,7 @@ export default [
 | `playwright`      | Playwright e2e locator and matcher best practices                                                                      |
 | `json`            | JSON linting with comment support for tsconfig/vscode                                                                  |
 | `storybook`       | Storybook CSF enforcement                                                                                              |
-| `boundaries`      | Module boundary rules (feature, data-access, ui, etc.)                                                                 |
+| `boundaries`      | Folder layer rules (feature, data-access, ui, etc.) and workspace project rules by tag (`type:app` is a leaf)          |
 | `prettier`        | Disables rules that conflict with Prettier (use last)                                                                  |
 | **`recommended`** | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
 
@@ -193,6 +191,58 @@ export default [
   ...prettier
 ];
 ```
+
+### Workspace project boundaries
+
+The `boundaries` config enables `modular-boundaries/modular-boundaries` from
+[`@lint-suite/eslint-plugin-modular-boundaries`](https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/modular-boundaries#readme).
+It reads pnpm, npm, Nx, Turborepo and moon workspace files and checks imports
+between workspace projects. Outside a workspace it does nothing.
+
+The preset's constraints make `type:app` projects leaves: a project tagged
+`type:lib` or `type:app` cannot import a project tagged `type:app`. Untagged
+projects are unconstrained. Tag a project in `project.json` `tags`,
+`package.json` `nx.tags`, or a top-level `package.json` `tags` array:
+
+```json
+{ "name": "@acme/web", "tags": ["type:app"] }
+```
+
+The rule's default checks also run: cycles between projects, relative imports
+into another project, self-imports by package name, and packages a project's
+own `package.json` does not declare. That last check includes tooling
+installed only at the workspace root, such as `vitest` imported from a
+package's specs; declare it in the package's `devDependencies`, or set
+`checkUndeclaredDependencies: false`.
+
+To change the options, set the rule again in a later entry. ESLint replaces
+options rather than merging them, so repeat the `depConstraints` you keep:
+
+```js
+import { recommended } from 'lint-suite/eslint';
+
+export default [
+  ...recommended,
+  {
+    rules: {
+      'modular-boundaries/modular-boundaries': [
+        'error',
+        {
+          depConstraints: [
+            { sourceTag: 'type:lib', notDependOnLibsWithTags: ['type:app'] },
+            { sourceTag: 'type:app', notDependOnLibsWithTags: ['type:app'] },
+            { sourceTag: '*', onlyDependOnLibsWithTags: ['*'] }
+          ],
+          checkUndeclaredDependencies: false
+        }
+      ]
+    }
+  }
+];
+```
+
+With `eslint --cache`, a cycle created by editing one file is not reported in
+other, unchanged files until they are linted again.
 
 ### Unused Angular instance fields
 
@@ -769,6 +819,7 @@ The Prettier preset is published with `prettier` as a peer dependency. The Style
 - `plugin/selector-bem-pattern`: enforces BEM selectors, treats `*.component.scss`/`*.component.css` as implicit components, ignores `--mdc`/`--sys` custom properties
 - `lint-suite/no-unused-classes`: reports a class selector no template of the component uses (see [No unused classes](#no-unused-classes))
 - `no-descending-specificity`: disabled
+- `selector-no-unmatchable`: reports selectors that can never match, such as a pseudo-element inside `:is()`
 
 ### prettier (format config)
 
