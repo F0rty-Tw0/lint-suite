@@ -20,7 +20,13 @@ import type {
   WorkspaceModel
 } from './common/modular-boundaries.type.ts';
 
+type RootLookup = {
+  readonly root: string | undefined;
+  readonly checkedAt: number;
+};
+
 const models = new Map<string, WorkspaceModel>();
+const rootLookups = new Map<string, RootLookup>();
 
 const uniqueErrors = (errors: ConfigError[]): ConfigError[] => {
   const byKey = new Map<string, ConfigError>();
@@ -100,6 +106,22 @@ export const validateModel = (model: WorkspaceModel): WorkspaceModel => {
   return model;
 };
 
+const workspaceRootOf = (directory: string): string | undefined => {
+  const now = Date.now();
+  const cached = rootLookups.get(directory);
+  const isFresh =
+    cached !== undefined && now - cached.checkedAt <= STALE_AFTER_MS;
+
+  if (isFresh) return cached.root;
+
+  const root = findWorkspaceRoot(directory, new Map());
+  const lookup: RootLookup = { root, checkedAt: now };
+
+  rootLookups.set(directory, lookup);
+
+  return root;
+};
+
 const existingDirectory = (path: string): string | undefined => {
   const directory = resolve(path);
   const stats = statSync(directory, { throwIfNoEntry: false });
@@ -123,7 +145,7 @@ export const workspaceModelFor = (
   const directory = dirname(filename);
   const root =
     workspaceRootOption === undefined
-      ? findWorkspaceRoot(directory, new Map())
+      ? workspaceRootOf(directory)
       : existingDirectory(workspaceRootOption);
 
   if (root === undefined) return undefined;

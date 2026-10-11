@@ -218,6 +218,26 @@ test('after the window with no change the same model is returned and lastValidat
   assert.deepEqual(second.listing, listing);
 });
 
+test('the workspace root of a directory is reused within the window and re-found after it', (): void => {
+  useFakeClock();
+
+  const workspace = tempWorkspace({ 'nx.json': '{}', 'libs/a/src/x.ts': '' });
+  const file = workspace.file('libs/a/src/x.ts');
+  const first = workspaceModelFor(file);
+
+  writeFileSync(workspace.file('libs/a/nx.json'), '{}');
+
+  const within = workspaceModelFor(file);
+
+  vi.advanceTimersByTime(PAST_WINDOW_MS);
+
+  const after = workspaceModelFor(file);
+
+  assert.equal(first?.root, workspace.directory);
+  assert.equal(within?.root, workspace.directory);
+  assert.equal(after?.root, workspace.file('libs/a'));
+});
+
 test('the workspaceRoot option wins and may be relative to the cwd', (): void => {
   const workspace = fixture('nx');
   const outside = tempWorkspace({ 'x.ts': '' });
