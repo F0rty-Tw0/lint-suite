@@ -104,7 +104,7 @@ const violationOf = (
   return tagReport('notTagsConstraintViolation', constraint, edge, notTags);
 };
 
-/** Spec § checks step 7: first failing matched constraint, in merge order. */
+/** README § Checks, step 7: first failing matched constraint, in merge order. */
 export const findConstraintViolation = (
   constraints: ConstraintSet,
   edge: Edge

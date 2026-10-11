@@ -139,7 +139,7 @@ const checkProjectEdge = (
   return report;
 };
 
-/** Spec § checks steps 1–7: at most one report per edge, earliest step wins. */
+/** README § Checks, steps 1–7: at most one report per edge, earliest step wins. */
 export const checkEdge = (input: CheckEdgeInput): EdgeReport | undefined => {
   const { target } = input;
 

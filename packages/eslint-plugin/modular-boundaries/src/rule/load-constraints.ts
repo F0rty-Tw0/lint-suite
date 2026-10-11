@@ -102,7 +102,7 @@ const eslintMatchedProjects = (
   return matched;
 };
 
-/** Spec § load-constraints merge order: ESLint, root `turbo.json`, `.moon/workspace.yml`. */
+/** Merge order: ESLint, root `turbo.json`, `.moon/workspace.yml`. */
 const loadConstraints = (
   model: WorkspaceModel,
   options: RuleOptions

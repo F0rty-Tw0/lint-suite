@@ -59,7 +59,7 @@ const turboRuleConstraints = (
   return constraints;
 };
 
-/** Spec § load-constraints: root `turbo.json` `boundaries.tags`, in key order. */
+/** Root `turbo.json` `boundaries.tags`, in key order. */
 export const turboConstraints = (
   data: unknown,
   file: string,
@@ -88,7 +88,7 @@ export const turboConstraints = (
   return Object.entries(tags).flatMap(tagConstraints);
 };
 
-/** Spec § load-constraints: `.moon/workspace.yml` `constraints.tagRelationships`, in key order. */
+/** `.moon/workspace.yml` `constraints.tagRelationships`, in key order. */
 export const moonConstraints = (
   data: unknown,
   file: string,

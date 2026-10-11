@@ -26,7 +26,7 @@ const isBannedBy = (constraint: Constraint, specifier: string): boolean => {
   return !matchesExternal(allowedExternal, specifier);
 };
 
-/** Spec § checks step 3, against the full import specifier. */
+/** README § Checks, step 3, against the full import specifier. */
 export const bannedExternalReport = (
   matched: Constraint[],
   source: Project,
@@ -56,7 +56,7 @@ export const typesPackageName = (name: string): string => {
   return `@types/${flattened}`;
 };
 
-/** Spec § checks step 4: neither `name` nor its `@types/` name is declared. */
+/** README § Checks, step 4: neither `name` nor its `@types/` name is declared. */
 export const undeclaredDependencyReport = (
   source: Project,
   name: string

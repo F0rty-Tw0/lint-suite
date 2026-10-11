@@ -48,7 +48,7 @@ const specifierOf = (node: TSESTree.Node): string | undefined => {
   return node.quasis[0]?.value.cooked ?? undefined;
 };
 
-/** Spec § resolve-target: the AST nodes whose specifier is one import edge. */
+/** The AST nodes whose specifier is one import edge. */
 const importEdgeListeners = (visit: EdgeVisitor): TSESLint.RuleListener => {
   const visitSource = (node: TSESTree.Node | null): void => {
     if (node === null) return;
@@ -105,7 +105,7 @@ const isInside = (root: string, path: string): boolean => {
   return !isParent && !isAbsolute(fromRoot);
 };
 
-/** Spec § checks step 5: thunks so the project graph is built only when checkEdge reaches the cycle step. */
+/** README § Checks, step 5: thunks so the project graph is built only when checkEdge reaches the cycle step. */
 const cycleCheckFor = (
   model: WorkspaceModel,
   options: RuleOptions,
