@@ -7,6 +7,7 @@ import {
   writeFileSync
 } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { threadId } from 'node:worker_threads';
 
 import type {
   CachedFile,
@@ -103,6 +104,10 @@ const dropDeletedEntries = (cache: FileCache<unknown>): void => {
   }
 };
 
+/** Per process and worker thread, so concurrent `--concurrency` workers never share a temp file. */
+export const temporaryFileName = (file: string): string =>
+  `${file}.${process.pid}.${threadId}.tmp`;
+
 const write = (cache: FileCache<unknown>): void => {
   const file = cacheFile(cache.name, cache.identity);
 
@@ -113,7 +118,7 @@ const write = (cache: FileCache<unknown>): void => {
   try {
     mkdirSync(dirname(file), { recursive: true });
 
-    const temporary = `${file}.${process.pid}.tmp`;
+    const temporary = temporaryFileName(file);
     const stored = Object.fromEntries(cache.entries);
 
     writeFileSync(temporary, JSON.stringify(stored));
