@@ -113,13 +113,18 @@ export const consumerDependencies = (
   const lintSuite = packages['lint-suite'];
   const eslintPlugin =
     packages['@lint-suite/eslint-plugin-no-unstyled-classes'];
+  const boundariesPlugin =
+    packages['@lint-suite/eslint-plugin-modular-boundaries'];
   const stylelintPlugin = packages['@lint-suite/stylelint-no-unused-classes'];
+  const missingPackage =
+    !lintSuite || !eslintPlugin || !boundariesPlugin || !stylelintPlugin;
 
-  if (!lintSuite || !eslintPlugin || !stylelintPlugin) {
+  if (missingPackage) {
     throw new Error('Expected packed public packages required by the consumer');
   }
 
   const dependencies: Record<string, string> = {
+    '@lint-suite/eslint-plugin-modular-boundaries': boundariesPlugin.archive,
     '@lint-suite/eslint-plugin-no-unstyled-classes': eslintPlugin.archive,
     '@lint-suite/stylelint-no-unused-classes': stylelintPlugin.archive,
     '@types/node': hostVersion('@types/node'),
