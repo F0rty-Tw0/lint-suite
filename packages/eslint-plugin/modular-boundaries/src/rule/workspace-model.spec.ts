@@ -227,6 +227,15 @@ test('the workspaceRoot option wins and may be relative to the cwd', (): void =>
   assert.equal(model?.root, workspace.directory);
 });
 
+test('a workspaceRoot option that is not an existing directory gives no model', (): void => {
+  const workspace = tempWorkspace({ 'nx.json': '{}', 'x.ts': '' });
+  const file = workspace.file('x.ts');
+  const missing = workspace.file('missing');
+
+  assert.equal(workspaceModelFor(file, missing), undefined);
+  assert.equal(workspaceModelFor(file, file), undefined);
+});
+
 test('a file outside any workspace has no model', (): void => {
   const outside = tempWorkspace({ 'x.ts': '' });
 

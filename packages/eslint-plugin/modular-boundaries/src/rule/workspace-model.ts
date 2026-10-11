@@ -1,3 +1,4 @@
+import { statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
@@ -99,10 +100,21 @@ export const validateModel = (model: WorkspaceModel): WorkspaceModel => {
   return model;
 };
 
+const existingDirectory = (path: string): string | undefined => {
+  const directory = resolve(path);
+  const stats = statSync(directory, { throwIfNoEntry: false });
+  const isDirectory = stats?.isDirectory() === true;
+
+  if (!isDirectory) return undefined;
+
+  return directory;
+};
+
 /**
  * The model for the workspace holding `filename`: `workspaceRootOption`
- * (resolved against the cwd) or the nearest marked ancestor. Cached by root and
- * revalidated once `STALE_AFTER_MS` has passed.
+ * (resolved against the cwd; no model when it is not an existing directory) or
+ * the nearest marked ancestor. Cached by root and revalidated once
+ * `STALE_AFTER_MS` has passed.
  */
 export const workspaceModelFor = (
   filename: string,
@@ -112,7 +124,7 @@ export const workspaceModelFor = (
   const root =
     workspaceRootOption === undefined
       ? findWorkspaceRoot(directory, new Map())
-      : resolve(workspaceRootOption);
+      : existingDirectory(workspaceRootOption);
 
   if (root === undefined) return undefined;
 
