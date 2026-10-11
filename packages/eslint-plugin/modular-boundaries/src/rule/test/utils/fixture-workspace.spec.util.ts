@@ -12,11 +12,7 @@ import { dirname, join } from 'node:path';
 
 import type { Dirent } from 'node:fs';
 
-type FixtureWorkspace = {
-  readonly directory: string;
-  readonly file: (path: string) => string;
-  readonly dispose: () => void;
-};
+import type { FixtureWorkspace } from '../common/fixture-workspace.type.ts';
 
 const FIXTURE_INFIX = '.fixture.';
 

@@ -1,6 +1,7 @@
 import { basename, dirname, join, resolve } from 'node:path';
 
 import { ROOT_MARKERS } from '../common/modular-boundaries.const.ts';
+import { isRecord } from './guards.util.ts';
 import { readTracked } from './tracked-read.util.ts';
 
 import type {
@@ -10,10 +11,6 @@ import type {
 
 const MOON_DIRECTORY = '.moon';
 const MOON_WORKSPACE = 'workspace.yml';
-
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
 
 const hasWorkspaces = (data: unknown): boolean => {
   if (!isRecord(data)) return false;

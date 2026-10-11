@@ -3,6 +3,9 @@ export type ParseResult<T> =
 
 export type ConfigError = { file: string; message: string };
 
+/** A parsed manifest object; `undefined` when the file is missing or malformed. */
+export type JsonObject = Record<string, unknown> | undefined;
+
 export type Parser<T> = (text: string, path: string) => ParseResult<T>;
 
 /** Path → value reference returned by `readCached` (null if missing). `parserFor(path)` picks the parser. */
@@ -16,6 +19,11 @@ export type WorkspaceListing = {
 
 export type DiscoveredRoot = { root: string; moonId?: string };
 
+export type DiscoveredRoots = {
+  roots: DiscoveredRoot[];
+  errors: ConfigError[];
+};
+
 export type Project = {
   id: string;
   root: string;
@@ -24,6 +32,8 @@ export type Project = {
   declaredDependencies: string[];
   hasOwnPackageJson: boolean;
 };
+
+export type ProjectRead = { project?: Project; errors: ConfigError[] };
 
 /** `target` is absolute and may contain `*`. */
 export type PathAlias = { pattern: string; target: string };

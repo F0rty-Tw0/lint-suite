@@ -1,0 +1,5 @@
+{
+  "nx": { "name": "shell-pkg", "tags": ["type:app"] },
+  "keywords": ["ui"],
+  "tags": ["owner:core"]
+}

@@ -8,6 +8,7 @@ import {
   MANIFEST_NAMES,
   SOURCE_EXTENSIONS
 } from '../common/modular-boundaries.const.ts';
+import { isStringArray } from './guards.util.ts';
 import { readTracked } from './tracked-read.util.ts';
 import { isMarkerFile, markedDirectory } from './workspace-root.util.ts';
 
@@ -65,12 +66,6 @@ const walkFiles = (root: string, directory: string = root): string[] => {
   }
 
   return files;
-};
-
-const isStringArray = (value: unknown): value is string[] => {
-  return (
-    Array.isArray(value) && value.every((item) => typeof item === 'string')
-  );
 };
 
 const ignorePatterns = (line: string): string[] => {
