@@ -25,7 +25,7 @@ const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
 
 const createRule = ESLintUtils.RuleCreator(
   () =>
-    'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/arrow-body-fits-line'
+    'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/arrow-fits-line'
 );
 
 const isMultiLine = (body: TSESTree.Expression): boolean =>

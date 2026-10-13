@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-no-inline-object-types
+# @lint-suite/eslint-no-inline-object-types
 
 An ESLint rule for TypeScript that keeps object type literals in named type aliases. It prevents inline object types in parameters, properties, generic arguments, and other nested positions while allowing a type alias's direct object body.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-inline-object-types eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-no-inline-object-types eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-inline-object-types eslint@^10.9.1 type
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-no-inline-object-types';
+import plugin from '@lint-suite/eslint-no-inline-object-types';
 import tseslint from 'typescript-eslint';
 
 export default [

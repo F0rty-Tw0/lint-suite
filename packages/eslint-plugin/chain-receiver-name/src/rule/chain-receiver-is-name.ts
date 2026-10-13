@@ -27,7 +27,7 @@ const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
 
 const createRule = ESLintUtils.RuleCreator(
   () =>
-    'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/chain-receiver-is-name#readme'
+    'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/chain-receiver-name#readme'
 );
 
 const UNNAMED_RECEIVER_TYPES = new Set([

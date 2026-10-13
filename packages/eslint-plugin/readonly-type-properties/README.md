@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-readonly-type-properties
+# @lint-suite/eslint-readonly-type-properties
 
 An ESLint rule for TypeScript type and interface property signatures. It requires `readonly` on primitive-valued properties and writes readonly array syntax as mutable `T[]`, so a type's property mutability is explicit without redundant array immutability.
 
@@ -7,22 +7,24 @@ An ESLint rule for TypeScript type and interface property signatures. It require
 Requires Node.js 24+, ESLint `^10.9.1`, and TypeScript `>=6.0.3`.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-readonly-type-properties eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-readonly-type-properties eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 The plugin does not configure a TypeScript parser. Use `typescript-eslint` for TypeScript files:
 
 ```js
 // eslint.config.js
-import readonlyTypeProperties from '@lint-suite/eslint-plugin-readonly-type-properties';
+import readonlyTypeProperties from '@lint-suite/eslint-readonly-type-properties';
 import tseslint from 'typescript-eslint';
 
-export default [{
-  files: ['**/*.ts'],
-  languageOptions: { parser: tseslint.parser },
-  plugins: { readonlyTypeProperties },
-  rules: { 'readonlyTypeProperties/readonly-type-properties': 'error' }
-}];
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { readonlyTypeProperties },
+    rules: { 'readonlyTypeProperties/readonly-type-properties': 'error' }
+  }
+];
 ```
 
 ## Options
@@ -50,7 +52,9 @@ type User = { readonly name: string; readonly active: boolean };
 #### 2. Readonly optional property
 
 ```ts
-interface Settings { readonly theme?: string }
+interface Settings {
+  readonly theme?: string;
+}
 ```
 
 #### 3. Readonly literal union
@@ -84,7 +88,9 @@ Add `readonly` before `name`.
 #### 2. Mutable interface number property
 
 ```ts
-interface Counter { count: number }
+interface Counter {
+  count: number;
+}
 ```
 
 Add `readonly` before `count`.

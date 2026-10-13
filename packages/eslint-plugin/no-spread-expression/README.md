@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-no-spread-expression
+# @lint-suite/eslint-no-spread-expression
 
 This ESLint rule for TypeScript requires each JavaScript or TypeScript spread argument to be a named value or member access, not an inline expression. Use it to make arrays, object merges, and variadic calls show where their spread data came from.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-spread-expression eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-no-spread-expression eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-spread-expression eslint@^10.9.1 typesc
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-no-spread-expression';
+import plugin from '@lint-suite/eslint-no-spread-expression';
 import tseslint from 'typescript-eslint';
 
 export default [

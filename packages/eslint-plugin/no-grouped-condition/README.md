@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-no-grouped-condition
+# @lint-suite/eslint-no-grouped-condition
 
 This ESLint rule for TypeScript prevents mixed `&&` and `||` groups from obscuring an `if` decision or a `const` condition. Use it to give a meaningful name to the grouped part of a complex logical expression.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-grouped-condition eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-no-grouped-condition eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-grouped-condition eslint@^10.9.1 typesc
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-no-grouped-condition';
+import plugin from '@lint-suite/eslint-no-grouped-condition';
 import tseslint from 'typescript-eslint';
 
 export default [
@@ -43,7 +43,8 @@ Each snippet is checked by `no-grouped-condition` alone with its default configu
 #### 1. Keep an all-AND condition flat
 
 ```ts
-if (isReady && hasAccess && isVisible) {}
+if (isReady && hasAccess && isVisible) {
+}
 ```
 
 All logical operators are the same.
@@ -51,7 +52,8 @@ All logical operators are the same.
 #### 2. Keep an all-OR condition flat
 
 ```ts
-if (isAdmin || isOwner || isSupport) {}
+if (isAdmin || isOwner || isSupport) {
+}
 ```
 
 An ungrouped same-operator sequence is allowed.
@@ -59,7 +61,8 @@ An ungrouped same-operator sequence is allowed.
 #### 3. Nest the same operator
 
 ```ts
-if ((isReady && hasAccess) && isVisible) {}
+if (isReady && hasAccess && isVisible) {
+}
 ```
 
 Same-operator nesting is not reported.
@@ -68,7 +71,8 @@ Same-operator nesting is not reported.
 
 ```ts
 const isPrivileged = isAdmin || isOwner;
-if (isReady && isPrivileged) {}
+if (isReady && isPrivileged) {
+}
 ```
 
 The mixed decision is split into named values.

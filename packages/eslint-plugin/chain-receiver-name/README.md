@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-chain-receiver-is-name
+# @lint-suite/eslint-chain-receiver-name
 
 This ESLint plugin makes TypeScript and JavaScript member access easier to read by requiring an inline expression receiver to be extracted to a name before accessing a property or starting a chain. It targets direct receivers whose value is computed inline, while preserving ordinary names, calls, and `this` access.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-chain-receiver-is-name eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-chain-receiver-name eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-chain-receiver-is-name eslint@^10.9.1 type
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-chain-receiver-is-name';
+import plugin from '@lint-suite/eslint-chain-receiver-name';
 import tseslint from 'typescript-eslint';
 
 export default [

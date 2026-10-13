@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-no-inline-return-object
+# @lint-suite/eslint-no-inline-return-object
 
 An ESLint rule for JavaScript and TypeScript that requires directly returned object literals to be named first. It makes returned values easier to inspect and reuse by reporting object literals in `return` statements and expression-bodied arrow functions.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-inline-return-object eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-no-inline-return-object eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-inline-return-object eslint@^10.9.1 typ
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-no-inline-return-object';
+import plugin from '@lint-suite/eslint-no-inline-return-object';
 import tseslint from 'typescript-eslint';
 
 export default [

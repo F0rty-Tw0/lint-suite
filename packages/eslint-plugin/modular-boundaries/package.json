@@ -1,5 +1,5 @@
 {
-  "name": "@lint-suite/eslint-plugin-modular-boundaries",
+  "name": "@lint-suite/eslint-modular-boundaries",
   "version": "1.0.0",
   "description": "Enforce module boundaries between workspace projects by tag, without depending on Nx",
   "type": "module",
@@ -42,7 +42,7 @@
     "@lint-suite/rule-test-support": "workspace:*"
   },
   "nx": {
-    "name": "eslint-plugin-modular-boundaries",
+    "name": "eslint-modular-boundaries",
     "sourceRoot": "packages/eslint-plugin/modular-boundaries/src",
     "projectType": "library",
     "targets": {

@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-ternary-branch-shape
+# @lint-suite/eslint-ternary-branch-shape
 
 This ESLint rule for TypeScript keeps JavaScript and TypeScript ternaries readable by requiring each branch to be a name, literal, template literal, unary literal, or plain member access. Use it when a ternary would otherwise combine selection with computation.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-ternary-branch-shape eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-ternary-branch-shape eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-ternary-branch-shape eslint@^10.9.1 typesc
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-ternary-branch-shape';
+import plugin from '@lint-suite/eslint-ternary-branch-shape';
 import tseslint from 'typescript-eslint';
 
 export default [

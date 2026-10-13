@@ -116,10 +116,10 @@ Custom rules live in separate packages, not in the umbrella's source tree:
    declarations. Check the tarball for source, fixture, private-package, or
    workspace/catalog protocol leakage.
 
-For example, after building `eslint-plugin-arrow-body-fits-line`:
+For example, after building `eslint-arrow-fits-line`:
 
 ```sh
-pnpm --dir dist/packages/eslint-plugin/arrow-body-fits-line pack --pack-destination <temporary-directory>
+pnpm --dir dist/packages/eslint-plugin/arrow-fits-line pack --pack-destination <temporary-directory>
 ```
 
 Workspace build/typecheck/lint/test discovery covers all public packages and

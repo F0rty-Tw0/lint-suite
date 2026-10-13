@@ -1,13 +1,13 @@
-# @lint-suite/eslint-plugin-no-unused-exports
+# @lint-suite/eslint-no-unused-exports
 
-`@lint-suite/eslint-plugin-no-unused-exports` is an ESLint rule for TypeScript projects that finds exported names and export-only modules with no importing project file. It uses the TypeScript program, so it is intended for project-wide API cleanup rather than isolated-file linting.
+`@lint-suite/eslint-no-unused-exports` is an ESLint rule for TypeScript projects that finds exported names and export-only modules with no importing project file. It uses the TypeScript program, so it is intended for project-wide API cleanup rather than isolated-file linting.
 
 ## Install
 
 Requires Node.js 24+, ESLint ^10.9.1, and TypeScript 6.0.3+.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-unused-exports eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-no-unused-exports eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 This rule needs type-aware `typescript-eslint` parsing and a real `tsconfig.json`. Installing the plugin does not configure a parser or TypeScript project.
@@ -22,7 +22,7 @@ This rule needs type-aware `typescript-eslint` parsing and a real `tsconfig.json
 
 ```js
 // eslint.config.js
-import noUnusedExports from '@lint-suite/eslint-plugin-no-unused-exports';
+import noUnusedExports from '@lint-suite/eslint-no-unused-exports';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config({
@@ -42,11 +42,21 @@ export default tseslint.config({
 
 ```js
 [
-  '**/main.ts', '**/main.*.ts', '**/public-api.ts', '**/index.ts',
-  '**/*.config.ts', '**/*.config.mts', '**/*.config.cts', '**/*.spec.ts',
-  '**/*.spec.util.ts', '**/*.stub.ts', '**/*.mock.ts', '**/*.d.ts',
-  '**/*.stories.ts', '**/environment*.ts'
-]
+  '**/main.ts',
+  '**/main.*.ts',
+  '**/public-api.ts',
+  '**/index.ts',
+  '**/*.config.ts',
+  '**/*.config.mts',
+  '**/*.config.cts',
+  '**/*.spec.ts',
+  '**/*.spec.util.ts',
+  '**/*.stub.ts',
+  '**/*.mock.ts',
+  '**/*.d.ts',
+  '**/*.stories.ts',
+  '**/environment*.ts'
+];
 ```
 
 ```js

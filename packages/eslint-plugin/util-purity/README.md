@@ -1,28 +1,30 @@
-# @lint-suite/eslint-plugin-util-purity
+# @lint-suite/eslint-util-purity
 
-`@lint-suite/eslint-plugin-util-purity` is an ESLint rule for TypeScript utility modules. In production `utils/*.util.ts` files, it prevents I/O, ambient browser or Node state, nondeterminism, side-effecting calls, and module-level mutable state. Files below `test/` and `testing/` are excluded.
+`@lint-suite/eslint-util-purity` is an ESLint rule for TypeScript utility modules. In production `utils/*.util.ts` files, it prevents I/O, ambient browser or Node state, nondeterminism, side-effecting calls, and module-level mutable state. Files below `test/` and `testing/` are excluded.
 
 ## Install
 
 Requires Node.js 24+, ESLint ^10.9.1, and TypeScript 6.0.3+.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-util-purity eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-util-purity eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 The plugin does not configure a TypeScript parser. Use `typescript-eslint` for TypeScript files:
 
 ```js
 // eslint.config.js
-import utilPurity from '@lint-suite/eslint-plugin-util-purity';
+import utilPurity from '@lint-suite/eslint-util-purity';
 import tseslint from 'typescript-eslint';
 
-export default [{
-  files: ['**/*.ts'],
-  languageOptions: { parser: tseslint.parser },
-  plugins: { utilPurity },
-  rules: { 'utilPurity/util-purity': 'error' }
-}];
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { utilPurity },
+    rules: { 'utilPurity/util-purity': 'error' }
+  }
+];
 ```
 
 ## Options
@@ -31,11 +33,25 @@ export default [{
 
 ```js
 [
-  'node:fs', 'fs', 'node:fs/promises', 'fs/promises',
-  'node:child_process', 'child_process', 'node:os', 'os',
-  'node:process', 'process', 'node:http', 'http', 'node:https', 'https',
-  'node:net', 'net', 'node:worker_threads', 'worker_threads'
-]
+  'node:fs',
+  'fs',
+  'node:fs/promises',
+  'fs/promises',
+  'node:child_process',
+  'child_process',
+  'node:os',
+  'os',
+  'node:process',
+  'process',
+  'node:http',
+  'http',
+  'node:https',
+  'https',
+  'node:net',
+  'net',
+  'node:worker_threads',
+  'worker_threads'
+];
 ```
 
 ```js

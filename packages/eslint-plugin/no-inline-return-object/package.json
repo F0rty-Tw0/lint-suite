@@ -1,6 +1,6 @@
 {
-  "name": "@lint-suite/eslint-plugin-no-inline-return-object",
-  "version": "1.1.0",
+  "name": "@lint-suite/eslint-no-inline-return-object",
+  "version": "1.0.0",
   "description": "Require returned object literals to be named first",
   "type": "module",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "@lint-suite/rule-internals": "workspace:*"
   },
   "nx": {
-    "name": "eslint-plugin-no-inline-return-object",
+    "name": "eslint-no-inline-return-object",
     "sourceRoot": "packages/eslint-plugin/no-inline-return-object/src",
     "projectType": "library",
     "targets": {

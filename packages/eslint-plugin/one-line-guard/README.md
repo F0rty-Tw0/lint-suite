@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-one-line-guard
+# @lint-suite/eslint-one-line-guard
 
 This ESLint plugin keeps compact TypeScript and JavaScript guard clauses visible by requiring a braced `if` with one `return`, `throw`, `continue`, or `break` to use an unbraced one-line form when it fits. It leaves guards with an `else`, comments, additional statements, or multi-line syntax unchanged.
 
@@ -7,22 +7,24 @@ This ESLint plugin keeps compact TypeScript and JavaScript guard clauses visible
 Requires Node.js 24+, ESLint `^10.9.1`, and TypeScript `>=6.0.3`.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-one-line-guard eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-one-line-guard eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 The plugin does not configure a TypeScript parser. Use `typescript-eslint` for TypeScript files:
 
 ```js
 // eslint.config.js
-import oneLineGuard from '@lint-suite/eslint-plugin-one-line-guard';
+import oneLineGuard from '@lint-suite/eslint-one-line-guard';
 import tseslint from 'typescript-eslint';
 
-export default [{
-  files: ['**/*.ts'],
-  languageOptions: { parser: tseslint.parser },
-  plugins: { oneLineGuard },
-  rules: { 'oneLineGuard/one-line-guard': 'error' }
-}];
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { oneLineGuard },
+    rules: { 'oneLineGuard/one-line-guard': 'error' }
+  }
+];
 ```
 
 ## Options

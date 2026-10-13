@@ -24,7 +24,7 @@ The suite includes custom rules for TypeScript code structure, unused exports, u
 - **Prettier**: Automatic disabling of formatting rules that conflict with Prettier (`eslint-config-prettier`)
 - **Prettier config**: Standalone formatting preset (subpath `lint-suite/prettier`) with the suite's house defaults and Angular/HTML overrides
 - **Stylelint**: Standalone SCSS/CSS preset (subpath `lint-suite/stylelint`) with standard + recess-order + BEM selector enforcement and `lint-suite/no-unused-classes`
-- **Architecture**: Folder layer boundaries with `eslint-plugin-boundaries`, and workspace project boundaries by tag with `@lint-suite/eslint-plugin-modular-boundaries`
+- **Architecture**: Folder layer boundaries with `eslint-plugin-boundaries`, and workspace project boundaries by tag with `@lint-suite/eslint-modular-boundaries`
 - **Additional Support**: JSON (with comment support for tsconfig), Storybook CSF enforcement
 
 ## Installation
@@ -40,11 +40,11 @@ Installing one does not install this umbrella or its unrelated presets.
 For example:
 
 ```bash
-pnpm add -D @lint-suite/eslint-plugin-arrow-body-fits-line eslint typescript typescript-eslint
+pnpm add -D @lint-suite/eslint-arrow-fits-line eslint typescript typescript-eslint
 ```
 
 ```js
-import arrow from '@lint-suite/eslint-plugin-arrow-body-fits-line';
+import arrow from '@lint-suite/eslint-arrow-fits-line';
 import tseslint from 'typescript-eslint';
 
 export default [
@@ -59,7 +59,7 @@ export default [
 
 The [package catalog](https://github.com/F0rty-Tw0/lint-suite#standalone-custom-rules)
 lists every package and its rule key. The Angular instance-field package is
-`@lint-suite/eslint-plugin-no-unused-angular-instance-fields`; its rule key
+`@lint-suite/eslint-no-unused-angular-fields`; its rule key
 remains `no-unused-instance-fields`. The Stylelint package is
 `@lint-suite/stylelint-no-unused-classes`, with rule ID
 `lint-suite/no-unused-classes`.
@@ -195,7 +195,7 @@ export default [
 ### Workspace project boundaries
 
 The `boundaries` config enables `modular-boundaries/modular-boundaries` from
-[`@lint-suite/eslint-plugin-modular-boundaries`](https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/modular-boundaries#readme).
+[`@lint-suite/eslint-modular-boundaries`](https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/modular-boundaries#readme).
 It reads pnpm, npm, Nx, Turborepo and moon workspace files and checks imports
 between workspace projects. Outside a workspace it does nothing.
 

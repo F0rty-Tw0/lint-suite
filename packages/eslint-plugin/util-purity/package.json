@@ -1,6 +1,6 @@
 {
-  "name": "@lint-suite/eslint-plugin-util-purity",
-  "version": "1.1.0",
+  "name": "@lint-suite/eslint-util-purity",
+  "version": "1.0.0",
   "description": "Disallow impure operations in utility modules",
   "type": "module",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "typescript-eslint": "catalog:dev"
   },
   "nx": {
-    "name": "eslint-plugin-util-purity",
+    "name": "eslint-util-purity",
     "sourceRoot": "packages/eslint-plugin/util-purity/src",
     "projectType": "library",
     "targets": {

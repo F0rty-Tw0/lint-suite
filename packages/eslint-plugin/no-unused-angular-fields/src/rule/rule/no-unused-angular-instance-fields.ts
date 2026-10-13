@@ -86,7 +86,7 @@ const defaultOptions: Options = [ruleDefaults];
 
 const createRule = ESLintUtils.RuleCreator(
   () =>
-    'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/no-unused-angular-instance-fields#readme'
+    'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/no-unused-angular-fields#readme'
 );
 
 const projectParserServices = (

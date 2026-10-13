@@ -1,28 +1,30 @@
-# @lint-suite/eslint-plugin-test-file-shape
+# @lint-suite/eslint-test-file-shape
 
-`@lint-suite/eslint-plugin-test-file-shape` is an ESLint rule for TypeScript test support. It keeps stubs, mocks, fixtures, and test utilities in predictable paths, and enforces typed `UPPER_SNAKE_CASE_STUB` exports and camel-case mock factories ending in `Mock`.
+`@lint-suite/eslint-test-file-shape` is an ESLint rule for TypeScript test support. It keeps stubs, mocks, fixtures, and test utilities in predictable paths, and enforces typed `UPPER_SNAKE_CASE_STUB` exports and camel-case mock factories ending in `Mock`.
 
 ## Install
 
 Requires Node.js 24+, ESLint ^10.9.1, and TypeScript 6.0.3+.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-test-file-shape eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-test-file-shape eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 The plugin does not configure a TypeScript parser. Use `typescript-eslint` for TypeScript files:
 
 ```js
 // eslint.config.js
-import testFileShape from '@lint-suite/eslint-plugin-test-file-shape';
+import testFileShape from '@lint-suite/eslint-test-file-shape';
 import tseslint from 'typescript-eslint';
 
-export default [{
-  files: ['**/*.ts'],
-  languageOptions: { parser: tseslint.parser },
-  plugins: { testFileShape },
-  rules: { 'testFileShape/test-file-shape': 'error' }
-}];
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { testFileShape },
+    rules: { 'testFileShape/test-file-shape': 'error' }
+  }
+];
 ```
 
 ## Options

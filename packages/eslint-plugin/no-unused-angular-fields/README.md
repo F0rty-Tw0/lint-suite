@@ -1,6 +1,6 @@
-# @lint-suite/eslint-plugin-no-unused-angular-instance-fields
+# @lint-suite/eslint-no-unused-angular-fields
 
-`@lint-suite/eslint-plugin-no-unused-angular-instance-fields` is an ESLint rule for Angular and TypeScript that reports unread component and directive instance fields and methods. Project analysis recognizes reads from TypeScript, Angular templates, and component or directive host metadata.
+`@lint-suite/eslint-no-unused-angular-fields` is an ESLint rule for Angular and TypeScript that reports unread component and directive instance fields and methods. Project analysis recognizes reads from TypeScript, Angular templates, and component or directive host metadata.
 
 ## Requirements
 
@@ -13,14 +13,14 @@
 ## Install
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-unused-angular-instance-fields eslint typescript typescript-eslint
+pnpm add -D @lint-suite/eslint-no-unused-angular-fields eslint typescript typescript-eslint
 ```
 
 ## Configure
 
 ```js
 // eslint.config.js
-import angularInstanceFields from '@lint-suite/eslint-plugin-no-unused-angular-instance-fields';
+import angularInstanceFields from '@lint-suite/eslint-no-unused-angular-fields';
 import tseslint from 'typescript-eslint';
 
 export default [
@@ -85,7 +85,9 @@ import { Component } from '@angular/core';
 @Component({ template: '{{ label() }}' })
 class CardComponent {
   readonly title = 'Card';
-  label(): string { return this.title; }
+  label(): string {
+    return this.title;
+  }
 }
 ```
 
@@ -117,8 +119,9 @@ class CardComponent {
 // card.component.ts — project mode
 import { Component } from '@angular/core';
 @Component({ templateUrl: './card.component.html' })
-class CardComponent { readonly title = 'Card'; }
-
+class CardComponent {
+  readonly title = 'Card';
+}
 ```
 
 ```html
@@ -134,7 +137,9 @@ import { Component } from '@angular/core';
 @Component({ template: '' })
 class CardComponent {
   readonly title = 'Card';
-  read(key: string): unknown { return this[key]; }
+  read(key: string): unknown {
+    return this[key];
+  }
 }
 ```
 
@@ -146,7 +151,9 @@ class CardComponent {
 // card.component.ts — local mode
 import { Component } from '@angular/core';
 @Component({ template: '' })
-class CardComponent { readonly unused = 'remove me'; }
+class CardComponent {
+  readonly unused = 'remove me';
+}
 ```
 
 #### 2. Unread component method
@@ -155,7 +162,9 @@ class CardComponent { readonly unused = 'remove me'; }
 // card.component.ts — local mode
 import { Component } from '@angular/core';
 @Component({ template: '' })
-class CardComponent { refresh(): void {} }
+class CardComponent {
+  refresh(): void {}
+}
 ```
 
 #### 3. Unread injected field
@@ -165,7 +174,9 @@ class CardComponent { refresh(): void {} }
 import { Component, inject } from '@angular/core';
 class CardService {}
 @Component({ template: '' })
-class CardComponent { private readonly service = inject(CardService); }
+class CardComponent {
+  private readonly service = inject(CardService);
+}
 ```
 
 #### 4. Unread directive field
@@ -174,7 +185,9 @@ class CardComponent { private readonly service = inject(CardService); }
 // state.directive.ts — local mode
 import { Directive } from '@angular/core';
 @Directive({ selector: '[appState]' })
-class StateDirective { private readonly state = 'idle'; }
+class StateDirective {
+  private readonly state = 'idle';
+}
 ```
 
 #### 5. Unread signal input
@@ -183,7 +196,9 @@ class StateDirective { private readonly state = 'idle'; }
 // card.component.ts — local mode
 import { Component, input } from '@angular/core';
 @Component({ template: '' })
-class CardComponent { readonly title = input(''); }
+class CardComponent {
+  readonly title = input('');
+}
 ```
 
 #### 6. Field no project file reads
@@ -192,8 +207,9 @@ class CardComponent { readonly title = input(''); }
 // card.component.ts — project mode
 import { Component } from '@angular/core';
 @Component({ templateUrl: './card.component.html' })
-class CardComponent { readonly hidden = 'remove me'; }
-
+class CardComponent {
+  readonly hidden = 'remove me';
+}
 ```
 
 ```html

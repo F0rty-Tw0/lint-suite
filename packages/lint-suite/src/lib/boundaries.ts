@@ -1,4 +1,4 @@
-import modularBoundariesPlugin from '@lint-suite/eslint-plugin-modular-boundaries';
+import modularBoundariesPlugin from '@lint-suite/eslint-modular-boundaries';
 import { defineConfig } from 'eslint/config';
 import boundariesPlugin from 'eslint-plugin-boundaries';
 

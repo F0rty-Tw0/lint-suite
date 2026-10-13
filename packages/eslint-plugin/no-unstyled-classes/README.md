@@ -1,6 +1,6 @@
-# @lint-suite/eslint-plugin-no-unstyled-classes
+# @lint-suite/eslint-no-unstyled-classes
 
-`@lint-suite/eslint-plugin-no-unstyled-classes` is an ESLint rule for Angular HTML templates. It reports static template class names that no component, linked, or configured global CSS/SCSS stylesheet selects, helping keep Angular and CSS styling contracts aligned.
+`@lint-suite/eslint-no-unstyled-classes` is an ESLint rule for Angular HTML templates. It reports static template class names that no component, linked, or configured global CSS/SCSS stylesheet selects, helping keep Angular and CSS styling contracts aligned.
 
 ## Requirements
 
@@ -15,7 +15,7 @@ The package is ESM-only.
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-unstyled-classes eslint @angular-eslint/template-parser typescript
+pnpm add -D @lint-suite/eslint-no-unstyled-classes eslint @angular-eslint/template-parser typescript
 ```
 
 ## Configuration
@@ -23,7 +23,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-unstyled-classes eslint @angular-eslint
 ```js
 // eslint.config.mjs
 import * as templateParser from '@angular-eslint/template-parser';
-import noUnstyledClasses from '@lint-suite/eslint-plugin-no-unstyled-classes';
+import noUnstyledClasses from '@lint-suite/eslint-no-unstyled-classes';
 
 export default [
   {
@@ -81,7 +81,8 @@ Each fixture is checked by this rule alone. Every filename comment identifies a 
 
 ```scss
 // card.component.scss
-.card {}
+.card {
+}
 ```
 
 #### 2. Default framework-prefix exemption
@@ -93,7 +94,8 @@ Each fixture is checked by this rule alone. Every filename comment identifies a 
 
 ```scss
 // hooks.component.scss
-.other {}
+.other {
+}
 ```
 
 #### 3. Class selected by a component `styleUrl`
@@ -101,7 +103,10 @@ Each fixture is checked by this rule alone. Every filename comment identifies a 
 ```ts
 // card.component.ts
 import { Component } from '@angular/core';
-@Component({ templateUrl: './card.component.html', styleUrl: './card.component.scss' })
+@Component({
+  templateUrl: './card.component.html',
+  styleUrl: './card.component.scss'
+})
 export class CardComponent {}
 ```
 
@@ -112,7 +117,8 @@ export class CardComponent {}
 
 ```scss
 // card.component.scss
-.card {}
+.card {
+}
 ```
 
 #### 4. Class selected by inline component styles
@@ -133,7 +139,9 @@ export class BannerComponent {}
 
 ```js
 // Non-default rule option
-{ globalStyles: ['src/styles.scss'] }
+{
+  globalStyles: ['src/styles.scss'];
+}
 ```
 
 ```html
@@ -143,7 +151,8 @@ export class BannerComponent {}
 
 ```scss
 // src/styles.scss
-.app-shell {}
+.app-shell {
+}
 ```
 
 #### 6. Template without a readable stylesheet
@@ -166,7 +175,8 @@ No sibling stylesheet, component metadata, or linked stylesheet is present, so t
 
 ```scss
 // card.component.scss
-.card {}
+.card {
+}
 ```
 
 `missing` is reported.
@@ -180,7 +190,8 @@ No sibling stylesheet, component metadata, or linked stylesheet is present, so t
 
 ```scss
 // card.component.scss
-.card {}
+.card {
+}
 ```
 
 `selected` is reported.
@@ -189,13 +200,14 @@ No sibling stylesheet, component metadata, or linked stylesheet is present, so t
 
 ```html
 <!-- page.html -->
-<link rel="stylesheet" href="./page.css">
+<link rel="stylesheet" href="./page.css" />
 <main class="missing"></main>
 ```
 
 ```css
 /* page.css */
-.page {}
+.page {
+}
 ```
 
 `missing` is reported.
@@ -205,7 +217,10 @@ No sibling stylesheet, component metadata, or linked stylesheet is present, so t
 ```ts
 // hero.component.ts
 import { Component } from '@angular/core';
-@Component({ templateUrl: './hero.component.html', styleUrls: ['./hero.component.scss'] })
+@Component({
+  templateUrl: './hero.component.html',
+  styleUrls: ['./hero.component.scss']
+})
 export class HeroComponent {}
 ```
 
@@ -216,7 +231,8 @@ export class HeroComponent {}
 
 ```scss
 // hero.component.scss
-.hero {}
+.hero {
+}
 ```
 
 `missing` is reported.
@@ -230,12 +246,14 @@ export class HeroComponent {}
 
 ```scss
 // src/app.component.scss
-.app-content {}
+.app-content {
+}
 ```
 
 ```scss
 // src/styles.scss (not configured)
-.app-shell {}
+.app-shell {
+}
 ```
 
 With default options, `app-shell` is reported because the global stylesheet is not part of this template's styles.

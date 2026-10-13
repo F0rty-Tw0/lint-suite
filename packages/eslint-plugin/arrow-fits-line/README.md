@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-arrow-body-fits-line
+# @lint-suite/eslint-arrow-fits-line
 
 This ESLint plugin keeps TypeScript and JavaScript expression-bodied arrow functions readable by requiring the expression body itself to occupy one physical source line. It reports multi-line non-object expression bodies and fixes them by adding a block with an explicit `return`; it does not impose a maximum line width.
 
@@ -7,17 +7,19 @@ This ESLint plugin keeps TypeScript and JavaScript expression-bodied arrow funct
 Requires Node.js 24, ESLint `^10.9.1`, and TypeScript `>=6.0.3` (required by typescript-eslint's runtime utilities).
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-arrow-body-fits-line eslint typescript
+pnpm add -D @lint-suite/eslint-arrow-fits-line eslint typescript
 ```
 
 ```js
 // eslint.config.js
-import arrowBody from '@lint-suite/eslint-plugin-arrow-body-fits-line';
+import arrowBody from '@lint-suite/eslint-arrow-fits-line';
 
-export default [{
-  plugins: { arrowBody },
-  rules: { 'arrowBody/arrow-body-fits-line': 'error' }
-}];
+export default [
+  {
+    plugins: { arrowBody },
+    rules: { 'arrowBody/arrow-body-fits-line': 'error' }
+  }
+];
 ```
 
 For TypeScript syntax, configure a TypeScript parser such as `typescript-eslint` separately. This rule does not require type services. Installing this plugin does not configure a parser.

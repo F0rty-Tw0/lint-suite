@@ -1,4 +1,4 @@
-import lintSuiteAngularTemplatePlugin from '@lint-suite/eslint-plugin-no-unstyled-classes';
+import lintSuiteAngularTemplatePlugin from '@lint-suite/eslint-no-unstyled-classes';
 import { configs } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 

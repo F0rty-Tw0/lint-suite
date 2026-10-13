@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-explicit-accessibility
+# @lint-suite/eslint-explicit-accessibility
 
 This ESLint plugin requires TypeScript class members to state `public`, `private`, or `protected` explicitly. It makes an Angular or TypeScript class API visible at the declaration site and checks only supported class-member syntax, not JavaScript object literals.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-explicit-accessibility eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-explicit-accessibility eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-explicit-accessibility eslint@^10.9.1 type
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-explicit-accessibility';
+import plugin from '@lint-suite/eslint-explicit-accessibility';
 import tseslint from 'typescript-eslint';
 
 export default [

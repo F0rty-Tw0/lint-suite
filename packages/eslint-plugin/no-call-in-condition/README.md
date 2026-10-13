@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-no-call-in-condition
+# @lint-suite/eslint-no-call-in-condition
 
 This ESLint rule for TypeScript keeps `if` decisions readable by requiring non-predicate calls to be named before they participate in a condition. Use it when a validation, lookup, or calculation would otherwise be hidden inside control flow.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-call-in-condition eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-no-call-in-condition eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-call-in-condition eslint@^10.9.1 typesc
 The plugin does not configure a parser. This flat config parses the TypeScript examples below. It does not enable parser services; add your project service configuration only when you want TypeScript checker-based predicate detection.
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-no-call-in-condition';
+import plugin from '@lint-suite/eslint-no-call-in-condition';
 import tseslint from 'typescript-eslint';
 
 export default [
@@ -52,7 +52,8 @@ Each snippet is checked by `no-call-in-condition` alone, using the default confi
 
 ```ts
 const validationResult = validate(order);
-if (validationResult) {}
+if (validationResult) {
+}
 ```
 
 The call already has a name before the `if`.
@@ -60,7 +61,8 @@ The call already has a name before the `if`.
 #### 2. Combine names and comparisons
 
 ```ts
-if (isReady && count > 2) {}
+if (isReady && count > 2) {
+}
 ```
 
 No call expression decides this condition.
@@ -68,7 +70,8 @@ No call expression decides this condition.
 #### 3. Call a default-name predicate
 
 ```ts
-if (isAvailable(item)) {}
+if (isAvailable(item)) {
+}
 ```
 
 `isAvailable` matches the default `allowPredicates` pattern.
@@ -88,7 +91,8 @@ Zero-argument, non-computed `this.member()` calls are exempt.
 #### 5. Use a custom predicate-name pattern
 
 ```ts
-if (canPublish(article)) {}
+if (canPublish(article)) {
+}
 ```
 
 This is valid only with `allowPredicates: ['^can[A-Z]']`.

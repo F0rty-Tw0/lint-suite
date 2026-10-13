@@ -1,6 +1,6 @@
 {
-  "name": "@lint-suite/eslint-plugin-max-condition-operands",
-  "version": "1.1.0",
+  "name": "@lint-suite/eslint-max-condition-operands",
+  "version": "1.0.0",
   "description": "Limit operands in if statement conditions",
   "type": "module",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "typescript-eslint": "catalog:dev"
   },
   "nx": {
-    "name": "eslint-plugin-max-condition-operands",
+    "name": "eslint-max-condition-operands",
     "sourceRoot": "packages/eslint-plugin/max-condition-operands/src",
     "projectType": "library",
     "targets": {

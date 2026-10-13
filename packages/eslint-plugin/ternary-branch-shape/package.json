@@ -1,6 +1,6 @@
 {
-  "name": "@lint-suite/eslint-plugin-ternary-branch-shape",
-  "version": "1.1.0",
+  "name": "@lint-suite/eslint-ternary-branch-shape",
+  "version": "1.0.0",
   "description": "Require ternary branches to use simple expressions",
   "type": "module",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "typescript-eslint": "catalog:dev"
   },
   "nx": {
-    "name": "eslint-plugin-ternary-branch-shape",
+    "name": "eslint-ternary-branch-shape",
     "sourceRoot": "packages/eslint-plugin/ternary-branch-shape/src",
     "projectType": "library",
     "targets": {

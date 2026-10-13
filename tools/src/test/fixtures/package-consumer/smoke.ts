@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import modularBoundaries from '@lint-suite/eslint-plugin-modular-boundaries';
+import modularBoundaries from '@lint-suite/eslint-modular-boundaries';
 import { Linter } from 'eslint';
 import engine from 'stylelint';
 import { stylelint } from 'lint-suite/stylelint';

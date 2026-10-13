@@ -1,6 +1,6 @@
 {
-  "name": "@lint-suite/eslint-plugin-explicit-accessibility",
-  "version": "1.1.0",
+  "name": "@lint-suite/eslint-explicit-accessibility",
+  "version": "1.0.0",
   "description": "Require TypeScript class members to declare accessibility",
   "type": "module",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "typescript-eslint": "catalog:dev"
   },
   "nx": {
-    "name": "eslint-plugin-explicit-accessibility",
+    "name": "eslint-explicit-accessibility",
     "sourceRoot": "packages/eslint-plugin/explicit-accessibility/src",
     "projectType": "library",
     "targets": {

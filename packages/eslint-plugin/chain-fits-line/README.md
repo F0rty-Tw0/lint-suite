@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-chain-fits-line
+# @lint-suite/eslint-chain-fits-line
 
 This ESLint plugin keeps TypeScript and JavaScript member-call chains compact by requiring every call property in a chain to remain on one physical source line. It helps make long fluent chains explicit: keep the chain together or name an intermediate result.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-chain-fits-line eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-chain-fits-line eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-chain-fits-line eslint@^10.9.1 typescript@
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-chain-fits-line';
+import plugin from '@lint-suite/eslint-chain-fits-line';
 import tseslint from 'typescript-eslint';
 
 export default [

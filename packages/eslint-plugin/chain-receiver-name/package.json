@@ -1,13 +1,13 @@
 {
-  "name": "@lint-suite/eslint-plugin-arrow-body-fits-line",
-  "version": "1.1.0",
-  "description": "Require expression-bodied arrow functions to fit on one line",
+  "name": "@lint-suite/eslint-chain-receiver-name",
+  "version": "1.0.0",
+  "description": "Require call chains to start from a named receiver",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
-    "directory": "packages/eslint-plugin/arrow-body-fits-line"
+    "directory": "packages/eslint-plugin/chain-receiver-name"
   },
   "exports": {
     ".": {
@@ -36,11 +36,12 @@
     "typescript": "catalog:typescript-compatibility"
   },
   "devDependencies": {
-    "typescript-eslint": "catalog:dev"
+    "typescript-eslint": "catalog:dev",
+    "@lint-suite/rule-internals": "workspace:*"
   },
   "nx": {
-    "name": "eslint-plugin-arrow-body-fits-line",
-    "sourceRoot": "packages/eslint-plugin/arrow-body-fits-line/src",
+    "name": "eslint-chain-receiver-name",
+    "sourceRoot": "packages/eslint-plugin/chain-receiver-name/src",
     "projectType": "library",
     "targets": {
       "typecheck": {}

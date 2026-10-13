@@ -425,7 +425,7 @@ importers:
         specifier: catalog:dev
         version: 2.9.1
 
-  packages/eslint-plugin/arrow-body-fits-line:
+  packages/eslint-plugin/arrow-fits-line:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -457,7 +457,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/chain-receiver-is-name:
+  packages/eslint-plugin/chain-receiver-name:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -678,7 +678,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-unused-angular-instance-fields:
+  packages/eslint-plugin/no-unused-angular-fields:
     dependencies:
       '@angular/compiler':
         specifier: catalog:angular
@@ -829,67 +829,67 @@ importers:
       '@eslint/json':
         specifier: catalog:json
         version: 2.1.1
-      '@lint-suite/eslint-plugin-arrow-body-fits-line':
+      '@lint-suite/eslint-arrow-fits-line':
         specifier: workspace:*
-        version: link:../eslint-plugin/arrow-body-fits-line
-      '@lint-suite/eslint-plugin-chain-fits-line':
+        version: link:../eslint-plugin/arrow-fits-line
+      '@lint-suite/eslint-chain-fits-line':
         specifier: workspace:*
         version: link:../eslint-plugin/chain-fits-line
-      '@lint-suite/eslint-plugin-chain-receiver-is-name':
+      '@lint-suite/eslint-chain-receiver-name':
         specifier: workspace:*
-        version: link:../eslint-plugin/chain-receiver-is-name
-      '@lint-suite/eslint-plugin-explicit-accessibility':
+        version: link:../eslint-plugin/chain-receiver-name
+      '@lint-suite/eslint-explicit-accessibility':
         specifier: workspace:*
         version: link:../eslint-plugin/explicit-accessibility
-      '@lint-suite/eslint-plugin-max-condition-operands':
+      '@lint-suite/eslint-max-condition-operands':
         specifier: workspace:*
         version: link:../eslint-plugin/max-condition-operands
-      '@lint-suite/eslint-plugin-modular-boundaries':
+      '@lint-suite/eslint-modular-boundaries':
         specifier: workspace:*
         version: link:../eslint-plugin/modular-boundaries
-      '@lint-suite/eslint-plugin-no-call-in-condition':
+      '@lint-suite/eslint-no-call-in-condition':
         specifier: workspace:*
         version: link:../eslint-plugin/no-call-in-condition
-      '@lint-suite/eslint-plugin-no-grouped-condition':
+      '@lint-suite/eslint-no-grouped-condition':
         specifier: workspace:*
         version: link:../eslint-plugin/no-grouped-condition
-      '@lint-suite/eslint-plugin-no-inline-object-types':
+      '@lint-suite/eslint-no-inline-object-types':
         specifier: workspace:*
         version: link:../eslint-plugin/no-inline-object-types
-      '@lint-suite/eslint-plugin-no-inline-return-object':
+      '@lint-suite/eslint-no-inline-return-object':
         specifier: workspace:*
         version: link:../eslint-plugin/no-inline-return-object
-      '@lint-suite/eslint-plugin-no-nested-object-value':
+      '@lint-suite/eslint-no-nested-object-value':
         specifier: workspace:*
         version: link:../eslint-plugin/no-nested-object-value
-      '@lint-suite/eslint-plugin-no-spread-expression':
+      '@lint-suite/eslint-no-spread-expression':
         specifier: workspace:*
         version: link:../eslint-plugin/no-spread-expression
-      '@lint-suite/eslint-plugin-no-unstyled-classes':
+      '@lint-suite/eslint-no-unstyled-classes':
         specifier: workspace:*
         version: link:../eslint-plugin/no-unstyled-classes
-      '@lint-suite/eslint-plugin-no-unused-angular-instance-fields':
+      '@lint-suite/eslint-no-unused-angular-fields':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-unused-angular-instance-fields
-      '@lint-suite/eslint-plugin-no-unused-exports':
+        version: link:../eslint-plugin/no-unused-angular-fields
+      '@lint-suite/eslint-no-unused-exports':
         specifier: workspace:*
         version: link:../eslint-plugin/no-unused-exports
-      '@lint-suite/eslint-plugin-one-line-guard':
+      '@lint-suite/eslint-one-line-guard':
         specifier: workspace:*
         version: link:../eslint-plugin/one-line-guard
-      '@lint-suite/eslint-plugin-readonly-type-properties':
+      '@lint-suite/eslint-readonly-type-properties':
         specifier: workspace:*
         version: link:../eslint-plugin/readonly-type-properties
-      '@lint-suite/eslint-plugin-ternary-branch-shape':
+      '@lint-suite/eslint-ternary-branch-shape':
         specifier: workspace:*
         version: link:../eslint-plugin/ternary-branch-shape
-      '@lint-suite/eslint-plugin-test-file-shape':
+      '@lint-suite/eslint-test-file-shape':
         specifier: workspace:*
         version: link:../eslint-plugin/test-file-shape
-      '@lint-suite/eslint-plugin-type-placement':
+      '@lint-suite/eslint-type-placement':
         specifier: workspace:*
         version: link:../eslint-plugin/type-placement
-      '@lint-suite/eslint-plugin-util-purity':
+      '@lint-suite/eslint-util-purity':
         specifier: workspace:*
         version: link:../eslint-plugin/util-purity
       '@lint-suite/stylelint-no-unused-classes':

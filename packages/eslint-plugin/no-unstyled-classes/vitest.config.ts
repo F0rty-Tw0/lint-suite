@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     root: import.meta.dirname,
-    name: 'eslint-plugin-no-unstyled-classes',
+    name: 'eslint-no-unstyled-classes',
     watch: false,
     include: ['src/**/*.spec.ts'],
     exclude: ['**/fixtures/**']

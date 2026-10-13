@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-max-condition-operands
+# @lint-suite/eslint-max-condition-operands
 
 This ESLint rule for TypeScript limits the number of logical operands in an `if` condition. Use it to keep authorization, state, and eligibility decisions small enough to name or review easily.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-max-condition-operands eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-max-condition-operands eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-max-condition-operands eslint@^10.9.1 type
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-max-condition-operands';
+import plugin from '@lint-suite/eslint-max-condition-operands';
 import tseslint from 'typescript-eslint';
 
 export default [
@@ -49,7 +49,8 @@ Each snippet is checked by `max-condition-operands` alone, using the default `ma
 #### 1. Use one operand
 
 ```ts
-if (isReady) {}
+if (isReady) {
+}
 ```
 
 A non-logical condition counts as one operand.
@@ -57,7 +58,8 @@ A non-logical condition counts as one operand.
 #### 2. Use two operands
 
 ```ts
-if (isReady && hasAccess) {}
+if (isReady && hasAccess) {
+}
 ```
 
 Two operands are within the default maximum.
@@ -65,7 +67,8 @@ Two operands are within the default maximum.
 #### 3. Use three operands
 
 ```ts
-if (isReady && hasAccess && isVisible) {}
+if (isReady && hasAccess && isVisible) {
+}
 ```
 
 Three is the default limit.

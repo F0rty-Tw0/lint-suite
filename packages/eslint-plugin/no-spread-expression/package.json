@@ -1,6 +1,6 @@
 {
-  "name": "@lint-suite/eslint-plugin-no-spread-expression",
-  "version": "1.1.0",
+  "name": "@lint-suite/eslint-no-spread-expression",
+  "version": "1.0.0",
   "description": "Require spread arguments to be names or member access",
   "type": "module",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "@lint-suite/rule-internals": "workspace:*"
   },
   "nx": {
-    "name": "eslint-plugin-no-spread-expression",
+    "name": "eslint-no-spread-expression",
     "sourceRoot": "packages/eslint-plugin/no-spread-expression/src",
     "projectType": "library",
     "targets": {

@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-type-placement
+# @lint-suite/eslint-type-placement
 
 An ESLint rule for TypeScript and Angular-style feature code that enforces predictable locations for exported types, constants, and internal type-only imports. It keeps shared exported types in `common/*.type.ts`, limits `*.type.ts` and `*.const.ts` exports, and ensures internal `import type` declarations target type-oriented modules.
 
@@ -7,22 +7,24 @@ An ESLint rule for TypeScript and Angular-style feature code that enforces predi
 Requires Node.js 24+, ESLint `^10.9.1`, and TypeScript `>=6.0.3`.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-type-placement eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-type-placement eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 The plugin does not configure a TypeScript parser. Use `typescript-eslint` for TypeScript files:
 
 ```js
 // eslint.config.js
-import typePlacement from '@lint-suite/eslint-plugin-type-placement';
+import typePlacement from '@lint-suite/eslint-type-placement';
 import tseslint from 'typescript-eslint';
 
-export default [{
-  files: ['**/*.ts'],
-  languageOptions: { parser: tseslint.parser },
-  plugins: { typePlacement },
-  rules: { 'typePlacement/type-placement': 'error' }
-}];
+export default [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    plugins: { typePlacement },
+    rules: { 'typePlacement/type-placement': 'error' }
+  }
+];
 ```
 
 ## Options
@@ -64,7 +66,9 @@ export type Order = { readonly id: string };
 
 ```ts
 // Filename: src/orders/test/common/order.type.ts
-export interface Order { readonly id: string }
+export interface Order {
+  readonly id: string;
+}
 ```
 
 #### 3. Const-only export in a const file

@@ -1,20 +1,20 @@
-# @lint-suite/eslint-plugin-modular-boundaries
+# @lint-suite/eslint-modular-boundaries
 
-`@lint-suite/eslint-plugin-modular-boundaries` is an ESLint rule that enforces dependency constraints between workspace projects by tag, without depending on Nx. It reads pnpm, npm, Turborepo, Nx and moon workspace files, and follows the semantics of Nx's `enforce-module-boundaries` rule except where [Differences from Nx](#differences-from-nx) says otherwise.
+`@lint-suite/eslint-modular-boundaries` is an ESLint rule that enforces dependency constraints between workspace projects by tag, without depending on Nx. It reads pnpm, npm, Turborepo, Nx and moon workspace files, and follows the semantics of Nx's `enforce-module-boundaries` rule except where [Differences from Nx](#differences-from-nx) says otherwise.
 
 ## Install
 
 Requires Node.js 24+, ESLint ^10.9.1, and TypeScript 6.0.3+.
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-modular-boundaries eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
+pnpm add -D @lint-suite/eslint-modular-boundaries eslint@^10.9.1 typescript@">=6.0.3" typescript-eslint
 ```
 
 The rule needs a TypeScript-aware parser for `.ts` files but no type information. Installing the plugin does not configure a parser.
 
 ```js
 // eslint.config.js
-import modularBoundaries from '@lint-suite/eslint-plugin-modular-boundaries';
+import modularBoundaries from '@lint-suite/eslint-modular-boundaries';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config({
@@ -43,15 +43,15 @@ A project's id is, first present: `project.json` `name`; `package.json` `nx.name
 
 A project's tags are the union of:
 
-| File (in project root) | Field |
-| --- | --- |
-| `project.json` | `tags` |
-| `package.json` | `nx.tags` |
-| `package.json` | top-level `tags` (this rule's own convention for plain workspaces) |
-| `package.json` | implicit `npm:private` when `private` is true, else `npm:public` |
-| `package.json` | implicit `npm:<keyword>` for each entry in `keywords` |
-| `turbo.json` | `tags` |
-| `moon.yml` | `tags` |
+| File (in project root) | Field                                                              |
+| ---------------------- | ------------------------------------------------------------------ |
+| `project.json`         | `tags`                                                             |
+| `package.json`         | `nx.tags`                                                          |
+| `package.json`         | top-level `tags` (this rule's own convention for plain workspaces) |
+| `package.json`         | implicit `npm:private` when `private` is true, else `npm:public`   |
+| `package.json`         | implicit `npm:<keyword>` for each entry in `keywords`              |
+| `turbo.json`           | `tags`                                                             |
+| `moon.yml`             | `tags`                                                             |
 
 For example, in a plain pnpm workspace:
 
@@ -99,15 +99,15 @@ constraints:
 
 ## Options
 
-| Option | Type | Default |
-| --- | --- | --- |
-| `allow` | `string[]` | `[]` |
-| `depConstraints` | `DepConstraint[]` | `[]` |
-| `ignoredCircularDependencies` | `[string, string][]` | `[]` |
-| `checkCircularDependencies` | `boolean` | `true` |
-| `checkUndeclaredDependencies` | `boolean` | `true` |
-| `configSources` | `{ turbo?: boolean; moon?: boolean }` | both `true` |
-| `workspaceRoot` | `string`, absolute or relative to `process.cwd()` | found by search |
+| Option                        | Type                                              | Default         |
+| ----------------------------- | ------------------------------------------------- | --------------- |
+| `allow`                       | `string[]`                                        | `[]`            |
+| `depConstraints`              | `DepConstraint[]`                                 | `[]`            |
+| `ignoredCircularDependencies` | `[string, string][]`                              | `[]`            |
+| `checkCircularDependencies`   | `boolean`                                         | `true`          |
+| `checkUndeclaredDependencies` | `boolean`                                         | `true`          |
+| `configSources`               | `{ turbo?: boolean; moon?: boolean }`             | both `true`     |
+| `workspaceRoot`               | `string`, absolute or relative to `process.cwd()` | found by search |
 
 Unknown options, including the Nx options this rule does not support (`enforceBuildableLibDependency`, `banTransitiveDependencies` and others), are an ESLint configuration error.
 
@@ -196,15 +196,15 @@ Turn off constraints read from `turbo.json` or `.moon/workspace.yml`.
 
 Each import gets at most one report. The checks run in this order and stop at the first report:
 
-| # | Reports when | `messageId` |
-| --- | --- | --- |
-| 1 | a relative or absolute import lands in another project | `noRelativeOrAbsoluteImportsAcrossLibraries` |
-| 2 | a project imports itself by package name or path alias | `noSelfCircularDependencies` |
-| 3 | an npm import is banned, or not allowed, by a matching constraint | `bannedExternalImportsViolation` |
-| 4 | an npm package, or a workspace package imported by name from a project with its own `package.json`, is not declared there (nor its `@types/` package); projects without a `package.json` use the root one | `undeclaredDependency` |
-| 5 | the imported project can reach the importing project in the project graph | `noCircularDependencies` |
-| 6 | `depConstraints` is non-empty and none of its entries matches the importing project | `projectWithoutTagsCannotHaveDependencies` |
-| 7 | a matching constraint fails | `onlyTagsConstraintViolation`, `emptyOnlyTagsConstraintViolation`, `notTagsConstraintViolation` |
+| #   | Reports when                                                                                                                                                                                              | `messageId`                                                                                     |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 1   | a relative or absolute import lands in another project                                                                                                                                                    | `noRelativeOrAbsoluteImportsAcrossLibraries`                                                    |
+| 2   | a project imports itself by package name or path alias                                                                                                                                                    | `noSelfCircularDependencies`                                                                    |
+| 3   | an npm import is banned, or not allowed, by a matching constraint                                                                                                                                         | `bannedExternalImportsViolation`                                                                |
+| 4   | an npm package, or a workspace package imported by name from a project with its own `package.json`, is not declared there (nor its `@types/` package); projects without a `package.json` use the root one | `undeclaredDependency`                                                                          |
+| 5   | the imported project can reach the importing project in the project graph                                                                                                                                 | `noCircularDependencies`                                                                        |
+| 6   | `depConstraints` is non-empty and none of its entries matches the importing project                                                                                                                       | `projectWithoutTagsCannotHaveDependencies`                                                      |
+| 7   | a matching constraint fails                                                                                                                                                                               | `onlyTagsConstraintViolation`, `emptyOnlyTagsConstraintViolation`, `notTagsConstraintViolation` |
 
 A malformed workspace file, or two projects with the same id or package name, is reported as `workspaceConfigError` on line 1 of every linted file in the workspace.
 
@@ -216,12 +216,12 @@ With `eslint --cache`, ESLint does not re-lint unchanged files, so a cycle or `w
 
 Each pattern kind follows the tool whose config it comes from:
 
-| Used for | Dialect |
-| --- | --- |
-| Workspace globs (pnpm, npm, moon), `.nxignore` lines | `*` is one path segment, `**` any depth, `{a,b}` alternatives; in workspace globs a leading `!` excludes |
-| Tags in `sourceTag`, `allSourceTags`, `onlyDependOnLibsWithTags`, `notDependOnLibsWithTags` | Nx `hasTag`: `*` matches any project, including an untagged one; `/.../` is a regular expression; a pattern containing `*` is a wildcard; anything else is exact |
-| `bannedExternalImports`, `allowedExternalImports`, `ignoredCircularDependencies` | Nx `mapGlobToRegExp`: `*` is any text and the rest is a regular expression, unescaped, so `.` matches any character |
-| `allow` | Nx `matchImportWithWildcard`: a `/**` suffix is a prefix match, a `/*` suffix is one more segment, an inner `/**/` matches prefix and suffix, anything else is a regular expression |
+| Used for                                                                                    | Dialect                                                                                                                                                                             |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Workspace globs (pnpm, npm, moon), `.nxignore` lines                                        | `*` is one path segment, `**` any depth, `{a,b}` alternatives; in workspace globs a leading `!` excludes                                                                            |
+| Tags in `sourceTag`, `allSourceTags`, `onlyDependOnLibsWithTags`, `notDependOnLibsWithTags` | Nx `hasTag`: `*` matches any project, including an untagged one; `/.../` is a regular expression; a pattern containing `*` is a wildcard; anything else is exact                    |
+| `bannedExternalImports`, `allowedExternalImports`, `ignoredCircularDependencies`            | Nx `mapGlobToRegExp`: `*` is any text and the rest is a regular expression, unescaped, so `.` matches any character                                                                 |
+| `allow`                                                                                     | Nx `matchImportWithWildcard`: a `/**` suffix is a prefix match, a `/*` suffix is one more segment, an inner `/**/` matches prefix and suffix, anything else is a regular expression |
 
 External patterns match the full specifier, so `@nestjs/*` matches `@nestjs/common/testing`.
 

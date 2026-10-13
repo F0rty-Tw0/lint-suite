@@ -1,4 +1,4 @@
-import noUnusedAngularInstanceFieldPlugin from '@lint-suite/eslint-plugin-no-unused-angular-instance-fields';
+import noUnusedAngularInstanceFieldPlugin from '@lint-suite/eslint-no-unused-angular-fields';
 import { configs, processInlineTemplates } from 'angular-eslint';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';

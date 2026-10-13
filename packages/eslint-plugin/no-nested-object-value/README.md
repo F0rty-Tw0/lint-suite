@@ -1,4 +1,4 @@
-# @lint-suite/eslint-plugin-no-nested-object-value
+# @lint-suite/eslint-no-nested-object-value
 
 An ESLint rule for JavaScript and TypeScript object literals that requires complex property values to be named before use. It reports non-empty nested objects, arrays containing object literals, conditional expressions, and chained calls, helping configuration and data objects keep their top-level values readable.
 
@@ -9,7 +9,7 @@ Requires ESLint `^10.9.1` and TypeScript `>=6.0.3`. The package is built and tes
 ## Installation
 
 ```sh
-pnpm add -D @lint-suite/eslint-plugin-no-nested-object-value eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
+pnpm add -D @lint-suite/eslint-no-nested-object-value eslint@^10.9.1 typescript@^6.0.3 typescript-eslint@^8.69.0
 ```
 
 ## Configuration
@@ -17,7 +17,7 @@ pnpm add -D @lint-suite/eslint-plugin-no-nested-object-value eslint@^10.9.1 type
 The plugin does not configure a parser. This flat config parses the TypeScript examples below:
 
 ```js
-import plugin from '@lint-suite/eslint-plugin-no-nested-object-value';
+import plugin from '@lint-suite/eslint-no-nested-object-value';
 import tseslint from 'typescript-eslint';
 
 export default [
@@ -35,7 +35,7 @@ export default [
 `configFiles` defaults to:
 
 ```js
-['**/*.config.{ts,js,mjs,cjs}', '**/eslint.config.*', '**/*.schema.ts']
+['**/*.config.{ts,js,mjs,cjs}', '**/eslint.config.*', '**/*.schema.ts'];
 ```
 
 Files matching one of these globs are exempt. Replace the list to use different filename exemptions:
