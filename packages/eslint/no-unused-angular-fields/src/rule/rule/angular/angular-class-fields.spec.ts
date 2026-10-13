@@ -14,7 +14,7 @@ import {
   ruleTester
 } from '../../test/utils/rule-under-test.spec.util.ts';
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
-import type { ReportUnusedMembersOptions } from '../common/no-unused-angular-instance-fields.type.ts';
+import type { ReportUnusedMembersOptions } from '../common/no-unused-instance-fields.type.ts';
 
 const isImportDeclaration = (
   node: TSESTree.ProgramStatement

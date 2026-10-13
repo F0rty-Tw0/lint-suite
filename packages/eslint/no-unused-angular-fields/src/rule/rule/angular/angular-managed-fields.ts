@@ -5,7 +5,7 @@ import type {
   AngularImport,
   AngularImports,
   InstanceField
-} from '../common/no-unused-angular-instance-fields.type.ts';
+} from '../common/no-unused-instance-fields.type.ts';
 
 const managedApis: ReadonlySet<string> = new Set(['outputFromObservable']);
 
