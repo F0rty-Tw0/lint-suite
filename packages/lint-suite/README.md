@@ -195,7 +195,7 @@ export default [
 ### Workspace project boundaries
 
 The `boundaries` config enables `modular-boundaries/modular-boundaries` from
-[`@lint-suite/eslint-modular-boundaries`](https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint-plugin/modular-boundaries#readme).
+[`@lint-suite/eslint-modular-boundaries`](https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint/modular-boundaries#readme).
 It reads pnpm, npm, Nx, Turborepo and moon workspace files and checks imports
 between workspace projects. Outside a workspace it does nothing.
 

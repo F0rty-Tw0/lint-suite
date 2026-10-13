@@ -59,30 +59,30 @@ the rule key below stays fixed. Packages do not enable rules or configure
 parsers automatically. Do not enable a standalone rule alongside its
 equivalent umbrella rule unless you want duplicate reports.
 
-| Package                                                                                                  | Rule key                       |
-| -------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| [@lint-suite/eslint-arrow-fits-line](packages/eslint-plugin/arrow-fits-line/README.md)                   | `arrow-body-fits-line`         |
-| [@lint-suite/eslint-chain-fits-line](packages/eslint-plugin/chain-fits-line/README.md)                   | `chain-fits-line`              |
-| [@lint-suite/eslint-chain-receiver-name](packages/eslint-plugin/chain-receiver-name/README.md)           | `chain-receiver-is-name`       |
-| [@lint-suite/eslint-explicit-accessibility](packages/eslint-plugin/explicit-accessibility/README.md)     | `explicit-accessibility`       |
-| [@lint-suite/eslint-max-condition-operands](packages/eslint-plugin/max-condition-operands/README.md)     | `max-condition-operands`       |
-| [@lint-suite/eslint-modular-boundaries](packages/eslint-plugin/modular-boundaries/README.md)             | `modular-boundaries`           |
-| [@lint-suite/eslint-no-call-in-condition](packages/eslint-plugin/no-call-in-condition/README.md)         | `no-call-in-condition`         |
-| [@lint-suite/eslint-no-grouped-condition](packages/eslint-plugin/no-grouped-condition/README.md)         | `no-grouped-condition`         |
-| [@lint-suite/eslint-no-inline-object-types](packages/eslint-plugin/no-inline-object-types/README.md)     | `no-inline-object-types`       |
-| [@lint-suite/eslint-no-inline-return-object](packages/eslint-plugin/no-inline-return-object/README.md)   | `no-inline-return-object`      |
-| [@lint-suite/eslint-no-nested-object-value](packages/eslint-plugin/no-nested-object-value/README.md)     | `no-nested-object-value`       |
-| [@lint-suite/eslint-no-spread-expression](packages/eslint-plugin/no-spread-expression/README.md)         | `no-spread-expression`         |
-| [@lint-suite/eslint-no-unused-exports](packages/eslint-plugin/no-unused-exports/README.md)               | `no-unused-exports`            |
-| [@lint-suite/eslint-one-line-guard](packages/eslint-plugin/one-line-guard/README.md)                     | `one-line-guard`               |
-| [@lint-suite/eslint-readonly-type-properties](packages/eslint-plugin/readonly-type-properties/README.md) | `readonly-type-properties`     |
-| [@lint-suite/eslint-ternary-branch-shape](packages/eslint-plugin/ternary-branch-shape/README.md)         | `ternary-branch-shape`         |
-| [@lint-suite/eslint-test-file-shape](packages/eslint-plugin/test-file-shape/README.md)                   | `test-file-shape`              |
-| [@lint-suite/eslint-type-placement](packages/eslint-plugin/type-placement/README.md)                     | `type-placement`               |
-| [@lint-suite/eslint-util-purity](packages/eslint-plugin/util-purity/README.md)                           | `util-purity`                  |
-| [@lint-suite/eslint-no-unused-angular-fields](packages/eslint-plugin/no-unused-angular-fields/README.md) | `no-unused-instance-fields`    |
-| [@lint-suite/eslint-no-unstyled-classes](packages/eslint-plugin/no-unstyled-classes/README.md)           | `no-unstyled-classes`          |
-| [@lint-suite/stylelint-no-unused-classes](packages/stylelint/no-unused-classes/README.md)                | `lint-suite/no-unused-classes` |
+| Package                                                                                           | Rule key                       |
+| ------------------------------------------------------------------------------------------------- | ------------------------------ |
+| [@lint-suite/eslint-arrow-fits-line](packages/eslint/arrow-fits-line/README.md)                   | `arrow-body-fits-line`         |
+| [@lint-suite/eslint-chain-fits-line](packages/eslint/chain-fits-line/README.md)                   | `chain-fits-line`              |
+| [@lint-suite/eslint-chain-receiver-name](packages/eslint/chain-receiver-name/README.md)           | `chain-receiver-is-name`       |
+| [@lint-suite/eslint-explicit-accessibility](packages/eslint/explicit-accessibility/README.md)     | `explicit-accessibility`       |
+| [@lint-suite/eslint-max-condition-operands](packages/eslint/max-condition-operands/README.md)     | `max-condition-operands`       |
+| [@lint-suite/eslint-modular-boundaries](packages/eslint/modular-boundaries/README.md)             | `modular-boundaries`           |
+| [@lint-suite/eslint-no-call-in-condition](packages/eslint/no-call-in-condition/README.md)         | `no-call-in-condition`         |
+| [@lint-suite/eslint-no-grouped-condition](packages/eslint/no-grouped-condition/README.md)         | `no-grouped-condition`         |
+| [@lint-suite/eslint-no-inline-object-types](packages/eslint/no-inline-object-types/README.md)     | `no-inline-object-types`       |
+| [@lint-suite/eslint-no-inline-return-object](packages/eslint/no-inline-return-object/README.md)   | `no-inline-return-object`      |
+| [@lint-suite/eslint-no-nested-object-value](packages/eslint/no-nested-object-value/README.md)     | `no-nested-object-value`       |
+| [@lint-suite/eslint-no-spread-expression](packages/eslint/no-spread-expression/README.md)         | `no-spread-expression`         |
+| [@lint-suite/eslint-no-unused-exports](packages/eslint/no-unused-exports/README.md)               | `no-unused-exports`            |
+| [@lint-suite/eslint-one-line-guard](packages/eslint/one-line-guard/README.md)                     | `one-line-guard`               |
+| [@lint-suite/eslint-readonly-type-properties](packages/eslint/readonly-type-properties/README.md) | `readonly-type-properties`     |
+| [@lint-suite/eslint-ternary-branch-shape](packages/eslint/ternary-branch-shape/README.md)         | `ternary-branch-shape`         |
+| [@lint-suite/eslint-test-file-shape](packages/eslint/test-file-shape/README.md)                   | `test-file-shape`              |
+| [@lint-suite/eslint-type-placement](packages/eslint/type-placement/README.md)                     | `type-placement`               |
+| [@lint-suite/eslint-util-purity](packages/eslint/util-purity/README.md)                           | `util-purity`                  |
+| [@lint-suite/eslint-no-unused-angular-fields](packages/eslint/no-unused-angular-fields/README.md) | `no-unused-instance-fields`    |
+| [@lint-suite/eslint-no-unstyled-classes](packages/eslint/no-unstyled-classes/README.md)           | `no-unstyled-classes`          |
+| [@lint-suite/stylelint-no-unused-classes](packages/stylelint/no-unused-classes/README.md)         | `lint-suite/no-unused-classes` |
 
 The unused-exports and Angular instance-field rules need a configured
 TypeScript project for project analysis. The template and Stylelint rules

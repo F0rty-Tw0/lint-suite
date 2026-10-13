@@ -84,7 +84,7 @@ The separate `workspaceConfig` adds Nx boundary checks for the umbrella.
 
 Custom rules live in separate packages, not in the umbrella's source tree:
 
-- ESLint: `packages/eslint-plugin/<rule-name>`, named
+- ESLint: `packages/eslint/<rule-name>`, named
   `@lint-suite/eslint-plugin-<rule-name>`.
 - Stylelint: `packages/stylelint/<rule-name>`, named
   `@lint-suite/stylelint-<rule-name>`.
@@ -119,7 +119,7 @@ Custom rules live in separate packages, not in the umbrella's source tree:
 For example, after building `eslint-arrow-fits-line`:
 
 ```sh
-pnpm --dir dist/packages/eslint-plugin/arrow-fits-line pack --pack-destination <temporary-directory>
+pnpm --dir dist/packages/eslint/arrow-fits-line pack --pack-destination <temporary-directory>
 ```
 
 Workspace build/typecheck/lint/test discovery covers all public packages and

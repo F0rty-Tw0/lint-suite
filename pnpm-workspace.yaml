@@ -1,6 +1,6 @@
 packages:
   - 'packages/lint-suite'
-  - 'packages/eslint-plugin/*'
+  - 'packages/eslint/*'
   - 'packages/stylelint/*'
   - 'shared/*'
   - 'tools'

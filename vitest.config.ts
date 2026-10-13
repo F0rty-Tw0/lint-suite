@@ -5,7 +5,7 @@ export default defineConfig({
     watch: false,
     projects: [
       'packages/lint-suite/vitest.config.ts',
-      'packages/eslint-plugin/*/vitest.config.ts',
+      'packages/eslint/*/vitest.config.ts',
       'packages/stylelint/*/vitest.config.ts',
       'shared/*/vitest.config.ts',
       'tools/vitest.config.ts'

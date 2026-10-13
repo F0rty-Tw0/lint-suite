@@ -425,7 +425,7 @@ importers:
         specifier: catalog:dev
         version: 2.9.1
 
-  packages/eslint-plugin/arrow-fits-line:
+  packages/eslint/arrow-fits-line:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -441,7 +441,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/chain-fits-line:
+  packages/eslint/chain-fits-line:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -457,7 +457,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/chain-receiver-name:
+  packages/eslint/chain-receiver-name:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -476,7 +476,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/explicit-accessibility:
+  packages/eslint/explicit-accessibility:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -492,7 +492,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/max-condition-operands:
+  packages/eslint/max-condition-operands:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -508,7 +508,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/modular-boundaries:
+  packages/eslint/modular-boundaries:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -533,7 +533,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-call-in-condition:
+  packages/eslint/no-call-in-condition:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -555,7 +555,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-grouped-condition:
+  packages/eslint/no-grouped-condition:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -571,7 +571,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-inline-object-types:
+  packages/eslint/no-inline-object-types:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -587,26 +587,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-inline-return-object:
-    dependencies:
-      '@typescript-eslint/utils':
-        specifier: catalog:typescript
-        version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
-      eslint:
-        specifier: catalog:base
-        version: 10.12.0(jiti@2.7.0)(supports-color@10.2.2)
-      typescript:
-        specifier: catalog:typescript-compatibility
-        version: 6.0.3
-    devDependencies:
-      '@lint-suite/rule-internals':
-        specifier: workspace:*
-        version: link:../../../shared/rule-internals
-      typescript-eslint:
-        specifier: catalog:dev
-        version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
-
-  packages/eslint-plugin/no-nested-object-value:
+  packages/eslint/no-inline-return-object:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -625,7 +606,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-spread-expression:
+  packages/eslint/no-nested-object-value:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -644,7 +625,26 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-unstyled-classes:
+  packages/eslint/no-spread-expression:
+    dependencies:
+      '@typescript-eslint/utils':
+        specifier: catalog:typescript
+        version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+      eslint:
+        specifier: catalog:base
+        version: 10.12.0(jiti@2.7.0)(supports-color@10.2.2)
+      typescript:
+        specifier: catalog:typescript-compatibility
+        version: 6.0.3
+    devDependencies:
+      '@lint-suite/rule-internals':
+        specifier: workspace:*
+        version: link:../../../shared/rule-internals
+      typescript-eslint:
+        specifier: catalog:dev
+        version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
+
+  packages/eslint/no-unstyled-classes:
     dependencies:
       '@angular/compiler':
         specifier: catalog:angular
@@ -678,7 +678,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-unused-angular-fields:
+  packages/eslint/no-unused-angular-fields:
     dependencies:
       '@angular/compiler':
         specifier: catalog:angular
@@ -700,7 +700,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/no-unused-exports:
+  packages/eslint/no-unused-exports:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -722,7 +722,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/one-line-guard:
+  packages/eslint/one-line-guard:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -738,7 +738,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/readonly-type-properties:
+  packages/eslint/readonly-type-properties:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -754,7 +754,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/ternary-branch-shape:
+  packages/eslint/ternary-branch-shape:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -770,7 +770,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/test-file-shape:
+  packages/eslint/test-file-shape:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -786,7 +786,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/type-placement:
+  packages/eslint/type-placement:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -805,7 +805,7 @@ importers:
         specifier: catalog:dev
         version: 8.71.1(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
 
-  packages/eslint-plugin/util-purity:
+  packages/eslint/util-purity:
     dependencies:
       '@typescript-eslint/utils':
         specifier: catalog:typescript
@@ -831,67 +831,67 @@ importers:
         version: 2.1.1
       '@lint-suite/eslint-arrow-fits-line':
         specifier: workspace:*
-        version: link:../eslint-plugin/arrow-fits-line
+        version: link:../eslint/arrow-fits-line
       '@lint-suite/eslint-chain-fits-line':
         specifier: workspace:*
-        version: link:../eslint-plugin/chain-fits-line
+        version: link:../eslint/chain-fits-line
       '@lint-suite/eslint-chain-receiver-name':
         specifier: workspace:*
-        version: link:../eslint-plugin/chain-receiver-name
+        version: link:../eslint/chain-receiver-name
       '@lint-suite/eslint-explicit-accessibility':
         specifier: workspace:*
-        version: link:../eslint-plugin/explicit-accessibility
+        version: link:../eslint/explicit-accessibility
       '@lint-suite/eslint-max-condition-operands':
         specifier: workspace:*
-        version: link:../eslint-plugin/max-condition-operands
+        version: link:../eslint/max-condition-operands
       '@lint-suite/eslint-modular-boundaries':
         specifier: workspace:*
-        version: link:../eslint-plugin/modular-boundaries
+        version: link:../eslint/modular-boundaries
       '@lint-suite/eslint-no-call-in-condition':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-call-in-condition
+        version: link:../eslint/no-call-in-condition
       '@lint-suite/eslint-no-grouped-condition':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-grouped-condition
+        version: link:../eslint/no-grouped-condition
       '@lint-suite/eslint-no-inline-object-types':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-inline-object-types
+        version: link:../eslint/no-inline-object-types
       '@lint-suite/eslint-no-inline-return-object':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-inline-return-object
+        version: link:../eslint/no-inline-return-object
       '@lint-suite/eslint-no-nested-object-value':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-nested-object-value
+        version: link:../eslint/no-nested-object-value
       '@lint-suite/eslint-no-spread-expression':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-spread-expression
+        version: link:../eslint/no-spread-expression
       '@lint-suite/eslint-no-unstyled-classes':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-unstyled-classes
+        version: link:../eslint/no-unstyled-classes
       '@lint-suite/eslint-no-unused-angular-fields':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-unused-angular-fields
+        version: link:../eslint/no-unused-angular-fields
       '@lint-suite/eslint-no-unused-exports':
         specifier: workspace:*
-        version: link:../eslint-plugin/no-unused-exports
+        version: link:../eslint/no-unused-exports
       '@lint-suite/eslint-one-line-guard':
         specifier: workspace:*
-        version: link:../eslint-plugin/one-line-guard
+        version: link:../eslint/one-line-guard
       '@lint-suite/eslint-readonly-type-properties':
         specifier: workspace:*
-        version: link:../eslint-plugin/readonly-type-properties
+        version: link:../eslint/readonly-type-properties
       '@lint-suite/eslint-ternary-branch-shape':
         specifier: workspace:*
-        version: link:../eslint-plugin/ternary-branch-shape
+        version: link:../eslint/ternary-branch-shape
       '@lint-suite/eslint-test-file-shape':
         specifier: workspace:*
-        version: link:../eslint-plugin/test-file-shape
+        version: link:../eslint/test-file-shape
       '@lint-suite/eslint-type-placement':
         specifier: workspace:*
-        version: link:../eslint-plugin/type-placement
+        version: link:../eslint/type-placement
       '@lint-suite/eslint-util-purity':
         specifier: workspace:*
-        version: link:../eslint-plugin/util-purity
+        version: link:../eslint/util-purity
       '@lint-suite/stylelint-no-unused-classes':
         specifier: workspace:*
         version: link:../stylelint/no-unused-classes

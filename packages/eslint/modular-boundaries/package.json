@@ -1,0 +1,52 @@
+{
+  "name": "@lint-suite/eslint-modular-boundaries",
+  "version": "1.0.0",
+  "description": "Enforce module boundaries between workspace projects by tag, without depending on Nx",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/eslint/modular-boundaries"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "rule/**/*.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "catalog:typescript",
+    "yaml": "catalog:yaml"
+  },
+  "peerDependencies": {
+    "eslint": "catalog:base",
+    "typescript": "catalog:typescript-compatibility"
+  },
+  "devDependencies": {
+    "typescript-eslint": "catalog:dev",
+    "@lint-suite/rule-internals": "workspace:*",
+    "@lint-suite/rule-test-support": "workspace:*"
+  },
+  "nx": {
+    "name": "eslint-modular-boundaries",
+    "sourceRoot": "packages/eslint/modular-boundaries/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
+  }
+}
