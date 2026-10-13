@@ -10,7 +10,7 @@ import { describe, test, vi } from 'vitest';
 
 import plugin from '../../../index.ts';
 
-const pluginRule = plugin.rules?.['no-unused-instance-fields'];
+const pluginRule = plugin.rules?.['no-unused-angular-fields'];
 
 assert.ok(pluginRule);
 
@@ -35,7 +35,7 @@ RuleTester.describe = describe;
 RuleTester.it = test;
 RuleTester.itOnly = test.only;
 
-export const ruleName = 'no-unused-instance-fields/no-unused-instance-fields';
+export const ruleName = 'no-unused-angular-fields/no-unused-angular-fields';
 
 export const ruleTester = new RuleTester({
   languageOptions: LINTER_LANGUAGE_OPTIONS_STUB
@@ -81,7 +81,7 @@ export const lintConfig = ({
     ...LINTER_CONFIG_STUB.languageOptions,
     ...directoryOptions
   };
-  const plugins = { 'no-unused-instance-fields': plugin };
+  const plugins = { 'no-unused-angular-fields': plugin };
   const ruleOptions = ruleOptionsFor(analysis, options);
   const ruleEntry: Linter.RuleEntry = ['error', ruleOptions];
   const rules: Linter.RulesRecord = { [ruleName]: ruleEntry };

@@ -1,14 +1,14 @@
 import type { ESLint } from 'eslint';
 
 import manifest from '../package.json' with { type: 'json' };
-import noUnusedInstanceFieldsRule from './rule/rule/no-unused-instance-fields.ts';
+import noUnusedAngularFieldsRule from './rule/rule/no-unused-angular-fields.ts';
 
 const meta = { name: manifest.name, version: manifest.version };
-const rules = { 'no-unused-instance-fields': noUnusedInstanceFieldsRule };
+const rules = { 'no-unused-angular-fields': noUnusedAngularFieldsRule };
 const plugin: ESLint.Plugin = { meta };
 
 Object.assign(plugin, { rules });
 
-export { noUnusedInstanceFieldsRule };
+export { noUnusedAngularFieldsRule };
 
 export default plugin;

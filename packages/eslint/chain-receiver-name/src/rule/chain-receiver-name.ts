@@ -79,7 +79,7 @@ const suggestionOf = (
 };
 
 export default createRule<Options, MessageIds>({
-  name: 'chain-receiver-is-name',
+  name: 'chain-receiver-name',
   meta,
   defaultOptions: [],
   create(context) {

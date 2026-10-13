@@ -52,15 +52,14 @@ export default [
     files: ['**/*.ts'],
     languageOptions: { parser: tseslint.parser },
     plugins: { arrow },
-    rules: { 'arrow/arrow-body-fits-line': 'error' }
+    rules: { 'arrow/arrow-fits-line': 'error' }
   }
 ];
 ```
 
 The [package catalog](https://github.com/F0rty-Tw0/lint-suite#standalone-custom-rules)
-lists every package and its rule key. The Angular instance-field package is
-`@lint-suite/eslint-no-unused-angular-fields`; its rule key
-remains `no-unused-instance-fields`. The Stylelint package is
+lists every package and its rule key. Each ESLint rule key matches its
+package name without the `@lint-suite/eslint-` prefix. The Stylelint package is
 `@lint-suite/stylelint-no-unused-classes`, with rule ID
 `lint-suite/no-unused-classes`.
 
@@ -147,7 +146,7 @@ export default [
 | **`recommended`** | **Baseline only: `base` + `javascript` + `typescript` + `json` + `boundaries` + `prettier` — compose the rest on top** |
 
 **Angular project analysis:** The `angular` preset enables `projectService:
-true` and project analysis for `lint-suite-angular/no-unused-instance-fields`.
+true` and project analysis for `lint-suite-angular/no-unused-angular-fields`.
 It counts exact reads in the configured TypeScript/Angular Program, including
 external parent templates/TypeScript, subclasses, and Angular interface
 implementations; code outside that Program is unknowable. Project mode also
@@ -246,7 +245,7 @@ other, unchanged files until they are linted again.
 
 ### Unused Angular instance fields
 
-The `angular` config enables `lint-suite-angular/no-unused-instance-fields`.
+The `angular` config enables `lint-suite-angular/no-unused-angular-fields`.
 Project analysis is the default and recognizes reads from other TypeScript
 files and Angular templates. It requires parser services with type information:
 
@@ -260,7 +259,7 @@ files and Angular templates. It requires parser services with type information:
     }
   },
   rules: {
-    'lint-suite-angular/no-unused-instance-fields': [
+    'lint-suite-angular/no-unused-angular-fields': [
       'error',
       {
         analysis: 'project',
@@ -573,9 +572,9 @@ offers an IDE suggestion with a placeholder name instead of an auto-fix.
 | `local/max-condition-operands`  | An `if` condition with more than `max` (default 3) operands joined by `&&` / `\|\|`.                                                                                                                                                                                                                                                                                                                         | none                                               |
 | `local/no-grouped-condition`    | A parenthesised group with a different operator inside an `if` condition or a boolean `const` (`a && (b \|\| c)`).                                                                                                                                                                                                                                                                                           | Suggestion: hoist the group                        |
 | `local/ternary-branch-shape`    | A ternary branch that is not a name, literal, template literal, or plain member access.                                                                                                                                                                                                                                                                                                                      | none                                               |
-| `local/chain-receiver-is-name`  | A member chain starting on an inline expression: `(a ?? b).x`, `{...}.x`, `[...].x`, `(await p).x`.                                                                                                                                                                                                                                                                                                          | Suggestion: name the receiver                      |
+| `local/chain-receiver-name`     | A member chain starting on an inline expression: `(a ?? b).x`, `{...}.x`, `[...].x`, `(await p).x`.                                                                                                                                                                                                                                                                                                          | Suggestion: name the receiver                      |
 | `local/chain-fits-line`         | A chain of two or more calls whose `.method(` parts sit on different lines. A multi-line callback argument does not count.                                                                                                                                                                                                                                                                                   | none                                               |
-| `local/arrow-body-fits-line`    | An expression-bodied arrow whose body wraps onto more lines.                                                                                                                                                                                                                                                                                                                                                 | Fix: block body with `return`                      |
+| `local/arrow-fits-line`         | An expression-bodied arrow whose body wraps onto more lines.                                                                                                                                                                                                                                                                                                                                                 | Fix: block body with `return`                      |
 | `local/no-nested-object-value`  | A property value that is a non-empty object literal, an array holding object literals, a ternary, or a call chain. Decorator arguments (`@Component({...})`) and files matching `configFiles` (default `**/*.config.*`, `**/eslint.config.*`, `**/*.schema.ts`) are exempt.                                                                                                                                  | Suggestion: hoist to a `const`                     |
 | `local/no-spread-expression`    | `...(expr)` where the argument is not a name or member access.                                                                                                                                                                                                                                                                                                                                               | Suggestion: hoist to a `const`                     |
 | `local/no-inline-return-object` | `return {...}` and `=> ({...})`.                                                                                                                                                                                                                                                                                                                                                                             | Suggestion: `const result = {...}; return result;` |

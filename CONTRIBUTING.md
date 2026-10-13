@@ -93,7 +93,7 @@ Custom rules live in separate packages, not in the umbrella's source tree:
 
 1. Follow the nearest existing single-rule package's manifest, `src/index.ts`,
    project targets, and compiler/test configuration. Export one default plugin
-   and, for ESLint, a descriptive named export such as `arrowBodyFitsLineRule`;
+   and, for ESLint, a descriptive named export such as `arrowFitsLineRule`;
    do not expose internal constants or helpers.
 2. Keep the rule's implementation, options/types, fixtures, and behavioral
    tests together. Use its public plugin in tests rather than importing the

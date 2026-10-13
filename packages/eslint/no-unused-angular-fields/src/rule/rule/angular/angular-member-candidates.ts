@@ -12,7 +12,7 @@ import type {
   InstanceField,
   InstanceMethod,
   MemberCandidate
-} from '../common/no-unused-instance-fields.type.ts';
+} from '../common/no-unused-angular-fields.type.ts';
 
 const lifecycleHooks: ReadonlySet<string> = new Set([
   'ngOnChanges',

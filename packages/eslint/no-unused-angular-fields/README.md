@@ -31,10 +31,10 @@ export default [
       parserOptions: { projectService: true }
     },
     plugins: {
-      'no-unused-instance-fields': angularInstanceFields
+      'no-unused-angular-fields': angularInstanceFields
     },
     rules: {
-      'no-unused-instance-fields/no-unused-instance-fields': 'error'
+      'no-unused-angular-fields/no-unused-angular-fields': 'error'
     }
   }
 ];
@@ -64,7 +64,7 @@ Inputs, outputs, and queries (signal `viewChild()`, `contentChildren()`, and sim
 
 ```js
 rules: {
-  'no-unused-instance-fields/no-unused-instance-fields': [
+  'no-unused-angular-fields/no-unused-angular-fields': [
     'error',
     { analysis: 'local', allowEffectFields: true }
   ]

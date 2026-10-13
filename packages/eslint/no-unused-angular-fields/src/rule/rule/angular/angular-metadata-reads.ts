@@ -8,7 +8,7 @@ import {
   externalTemplateReads,
   templateReads
 } from './angular-template-parsing.ts';
-import type { MetadataReadsOptions } from '../common/no-unused-instance-fields.type.ts';
+import type { MetadataReadsOptions } from '../common/no-unused-angular-fields.type.ts';
 
 const addReads = (target: Set<string>, source: Set<string> | null): boolean => {
   if (!source) return false;

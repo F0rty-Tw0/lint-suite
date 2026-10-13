@@ -17,7 +17,7 @@ import arrowBody from '@lint-suite/eslint-arrow-fits-line';
 export default [
   {
     plugins: { arrowBody },
-    rules: { 'arrowBody/arrow-body-fits-line': 'error' }
+    rules: { 'arrowBody/arrow-fits-line': 'error' }
   }
 ];
 ```
@@ -123,4 +123,4 @@ const message = () => format(
 );
 ```
 
-The default export is an ESLint plugin; the named `arrowBodyFitsLineRule` export is intended for composed rule registries. Versions are released independently from other `@lint-suite` packages.
+The default export is an ESLint plugin; the named `arrowFitsLineRule` export is intended for composed rule registries. Versions are released independently from other `@lint-suite` packages.

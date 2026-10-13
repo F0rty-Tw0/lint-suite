@@ -7,7 +7,7 @@ import {
   ruleTester
 } from '../../test/utils/rule-under-test.spec.util.ts';
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
-import type { RuleOptions } from '../common/no-unused-instance-fields.type.ts';
+import type { RuleOptions } from '../common/no-unused-angular-fields.type.ts';
 
 const effectFieldsAllowed: RuleOptions = {
   analysis: 'local',

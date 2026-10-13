@@ -24,8 +24,8 @@ export default [
   {
     files: ['**/*.ts'],
     languageOptions: { parser: tseslint.parser },
-    plugins: { 'chain-receiver-is-name': plugin },
-    rules: { 'chain-receiver-is-name/chain-receiver-is-name': 'error' }
+    plugins: { 'chain-receiver-name': plugin },
+    rules: { 'chain-receiver-name/chain-receiver-name': 'error' }
   }
 ];
 ```

@@ -46,24 +46,25 @@ export default [
     files: ['**/*.ts'],
     languageOptions: { parser: tseslint.parser },
     plugins: { arrow },
-    rules: { 'arrow/arrow-body-fits-line': 'error' }
+    rules: { 'arrow/arrow-fits-line': 'error' }
   }
 ];
 ```
 
 Each ESLint package exports a default plugin containing exactly one rule and
-a named export for composition. The 19 TypeScript rules use camel-cased
-rule names ending in `Rule`, such as `arrowBodyFitsLineRule`; the Angular
-instance-field and template rules retain `rule`. Choose your own plugin namespace;
-the rule key below stays fixed. Packages do not enable rules or configure
+a named export for composition. The TypeScript and Angular rules use
+camel-cased rule names ending in `Rule`, such as `arrowFitsLineRule`; the
+template rule `no-unstyled-classes` exports `rule`. Choose your own plugin
+namespace; the rule key below stays fixed and matches the package name without
+the `@lint-suite/eslint-` prefix. Packages do not enable rules or configure
 parsers automatically. Do not enable a standalone rule alongside its
 equivalent umbrella rule unless you want duplicate reports.
 
 | Package                                                                                           | Rule key                       |
 | ------------------------------------------------------------------------------------------------- | ------------------------------ |
-| [@lint-suite/eslint-arrow-fits-line](packages/eslint/arrow-fits-line/README.md)                   | `arrow-body-fits-line`         |
+| [@lint-suite/eslint-arrow-fits-line](packages/eslint/arrow-fits-line/README.md)                   | `arrow-fits-line`              |
 | [@lint-suite/eslint-chain-fits-line](packages/eslint/chain-fits-line/README.md)                   | `chain-fits-line`              |
-| [@lint-suite/eslint-chain-receiver-name](packages/eslint/chain-receiver-name/README.md)           | `chain-receiver-is-name`       |
+| [@lint-suite/eslint-chain-receiver-name](packages/eslint/chain-receiver-name/README.md)           | `chain-receiver-name`          |
 | [@lint-suite/eslint-explicit-accessibility](packages/eslint/explicit-accessibility/README.md)     | `explicit-accessibility`       |
 | [@lint-suite/eslint-max-condition-operands](packages/eslint/max-condition-operands/README.md)     | `max-condition-operands`       |
 | [@lint-suite/eslint-modular-boundaries](packages/eslint/modular-boundaries/README.md)             | `modular-boundaries`           |
@@ -80,7 +81,7 @@ equivalent umbrella rule unless you want duplicate reports.
 | [@lint-suite/eslint-test-file-shape](packages/eslint/test-file-shape/README.md)                   | `test-file-shape`              |
 | [@lint-suite/eslint-type-placement](packages/eslint/type-placement/README.md)                     | `type-placement`               |
 | [@lint-suite/eslint-util-purity](packages/eslint/util-purity/README.md)                           | `util-purity`                  |
-| [@lint-suite/eslint-no-unused-angular-fields](packages/eslint/no-unused-angular-fields/README.md) | `no-unused-instance-fields`    |
+| [@lint-suite/eslint-no-unused-angular-fields](packages/eslint/no-unused-angular-fields/README.md) | `no-unused-angular-fields`     |
 | [@lint-suite/eslint-no-unstyled-classes](packages/eslint/no-unstyled-classes/README.md)           | `no-unstyled-classes`          |
 | [@lint-suite/stylelint-no-unused-classes](packages/stylelint/no-unused-classes/README.md)         | `lint-suite/no-unused-classes` |
 

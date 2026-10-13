@@ -18,7 +18,7 @@ import type {
   MetadataReadsOptions,
   ReportContext,
   ReportUnusedMembersOptions
-} from '../common/no-unused-instance-fields.type.ts';
+} from '../common/no-unused-angular-fields.type.ts';
 
 type ClassReportOptions = {
   readonly localTemplates: boolean;

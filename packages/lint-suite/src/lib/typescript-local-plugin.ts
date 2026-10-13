@@ -1,6 +1,6 @@
-import { arrowBodyFitsLineRule } from '@lint-suite/eslint-arrow-fits-line';
+import { arrowFitsLineRule } from '@lint-suite/eslint-arrow-fits-line';
 import { chainFitsLineRule } from '@lint-suite/eslint-chain-fits-line';
-import { chainReceiverIsNameRule } from '@lint-suite/eslint-chain-receiver-name';
+import { chainReceiverNameRule } from '@lint-suite/eslint-chain-receiver-name';
 import { explicitAccessibilityRule } from '@lint-suite/eslint-explicit-accessibility';
 import { maxConditionOperandsRule } from '@lint-suite/eslint-max-condition-operands';
 import { noCallInConditionRule } from '@lint-suite/eslint-no-call-in-condition';
@@ -20,9 +20,9 @@ import type { CompatiblePlugin } from 'typescript-eslint';
 
 const meta = { name: 'local' };
 const rules = {
-  'arrow-body-fits-line': arrowBodyFitsLineRule,
+  'arrow-fits-line': arrowFitsLineRule,
   'chain-fits-line': chainFitsLineRule,
-  'chain-receiver-is-name': chainReceiverIsNameRule,
+  'chain-receiver-name': chainReceiverNameRule,
   'explicit-accessibility': explicitAccessibilityRule,
   'max-condition-operands': maxConditionOperandsRule,
   'no-call-in-condition': noCallInConditionRule,

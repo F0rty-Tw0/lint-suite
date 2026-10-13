@@ -11,7 +11,7 @@ import type {
   AngularClassNode,
   ClassEntry,
   DynamicClasses
-} from '../common/no-unused-instance-fields.type.ts';
+} from '../common/no-unused-angular-fields.type.ts';
 
 type DestructuringNode =
   TSESTree.AssignmentExpression | TSESTree.VariableDeclarator;

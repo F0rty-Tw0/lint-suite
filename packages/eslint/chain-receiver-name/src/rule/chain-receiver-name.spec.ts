@@ -7,7 +7,7 @@ import { describe, test } from 'vitest';
 
 import plugin from '../index.ts';
 
-const rule = plugin.rules?.['chain-receiver-is-name'];
+const rule = plugin.rules?.['chain-receiver-name'];
 
 assert.ok(rule);
 
@@ -99,7 +99,7 @@ const invalid: RuleTester.InvalidTestCase[] = [
   }
 ];
 
-ruleTester.run('chain-receiver-is-name/chain-receiver-is-name', rule, {
+ruleTester.run('chain-receiver-name/chain-receiver-name', rule, {
   valid,
   invalid
 });

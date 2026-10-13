@@ -30,7 +30,7 @@ export const angular = defineConfig([
       // are dead.
       // Bad: private unused = 1; read nowhere
       // Good: delete it, or read it in the template
-      'lint-suite-angular/no-unused-instance-fields': [
+      'lint-suite-angular/no-unused-angular-fields': [
         'error',
         { analysis: 'project' }
       ],

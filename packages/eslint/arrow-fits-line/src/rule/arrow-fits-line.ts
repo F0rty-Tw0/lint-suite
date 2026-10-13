@@ -64,7 +64,7 @@ const replacementRange = (
 };
 
 export default createRule<Options, MessageIds>({
-  name: 'arrow-body-fits-line',
+  name: 'arrow-fits-line',
   meta,
   defaultOptions: [],
   create(context) {

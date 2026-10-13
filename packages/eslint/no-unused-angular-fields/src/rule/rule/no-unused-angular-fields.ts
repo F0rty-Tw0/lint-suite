@@ -16,7 +16,7 @@ import type {
   ReportUnusedMembersOptions,
   RuleContext,
   RuleOptions
-} from './common/no-unused-instance-fields.type.ts';
+} from './common/no-unused-angular-fields.type.ts';
 import { classReadVisitor } from './typescript/typescript-class-read-visitor.ts';
 import type { ProjectUsageIndex } from '../project-usage/common/project-index.type.ts';
 import {
@@ -124,7 +124,7 @@ const projectMemberUsedFor = (
 };
 
 export default createRule<Options, MessageIds>({
-  name: 'no-unused-instance-fields',
+  name: 'no-unused-angular-fields',
   meta,
   defaultOptions,
   create(context, [options]): TSESLint.RuleListener {

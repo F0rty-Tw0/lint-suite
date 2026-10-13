@@ -10,13 +10,13 @@ export const typescriptSafety = defineConfig([
     rules: {
       // Expression arrow whose body wraps gets a block body. Fixes.
       // Bad: (x) => a &&  b on two lines   Good: (x) => { return a && b; }
-      'local/arrow-body-fits-line': 'error',
+      'local/arrow-fits-line': 'error',
       // Two or more calls in one chain stay on one line.
       // Bad: a .b() .c() over three lines   Good: const b = a.b(); b.c();
       'local/chain-fits-line': 'error',
       // A member chain starts on a name, never on an inline expression.
       // Bad: (a ?? b).c   Good: const ab = a ?? b; ab.c
-      'local/chain-receiver-is-name': 'error',
+      'local/chain-receiver-name': 'error',
       // Every class member states public, private, or protected. Fixes.
       // Bad: field = 1;   Good: private field = 1;
       'local/explicit-accessibility': 'error',

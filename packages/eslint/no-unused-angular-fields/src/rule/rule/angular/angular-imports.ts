@@ -5,7 +5,7 @@ import type {
   AngularClassNode,
   AngularImport,
   AngularImports
-} from '../common/no-unused-instance-fields.type.ts';
+} from '../common/no-unused-angular-fields.type.ts';
 
 const calleeRoot = (
   node: TSESTree.Expression

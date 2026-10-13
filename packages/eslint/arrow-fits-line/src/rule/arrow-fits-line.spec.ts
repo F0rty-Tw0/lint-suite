@@ -7,7 +7,7 @@ import { describe, test } from 'vitest';
 
 import plugin from '../index.ts';
 
-const rule = plugin.rules?.['arrow-body-fits-line'];
+const rule = plugin.rules?.['arrow-fits-line'];
 
 assert.ok(rule);
 
@@ -57,4 +57,4 @@ const invalid: RuleTester.InvalidTestCase[] = [
   }
 ];
 
-ruleTester.run('local/arrow-body-fits-line', rule, { valid, invalid });
+ruleTester.run('local/arrow-fits-line', rule, { valid, invalid });
