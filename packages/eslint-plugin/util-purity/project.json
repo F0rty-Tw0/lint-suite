@@ -1,8 +1,0 @@
-{
-  "name": "eslint-plugin-util-purity",
-  "sourceRoot": "packages/eslint-plugin/util-purity/src",
-  "projectType": "library",
-  "targets": {
-    "typecheck": {}
-  }
-}

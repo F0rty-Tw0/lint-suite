@@ -42,7 +42,8 @@ configuration lives in `nx.json` under `targetDefaults`. The defaults use
 `packages/**`, leaving the private helpers' and tools' inferred builds intact.
 
 Only `"typecheck": {}` needs an empty declaration in each public package's
-`project.json`; Nx infers the other targets and applies the shared defaults.
+`package.json` `nx` field; Nx infers the other targets and applies the shared
+defaults.
 Add project-level configuration only for actual overrides. The umbrella retains
 its build executor to override its inferred npm script and its lint command
 to enable the `development` export condition.

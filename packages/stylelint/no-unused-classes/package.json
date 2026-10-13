@@ -40,5 +40,13 @@
   "devDependencies": {
     "@lint-suite/rule-internals": "workspace:*",
     "postcss-scss": "catalog:styles"
+  },
+  "nx": {
+    "name": "stylelint-no-unused-classes",
+    "sourceRoot": "packages/stylelint/no-unused-classes/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
   }
 }

@@ -1,8 +1,0 @@
-{
-  "name": "eslint-plugin-no-nested-object-value",
-  "sourceRoot": "packages/eslint-plugin/no-nested-object-value/src",
-  "projectType": "library",
-  "targets": {
-    "typecheck": {}
-  }
-}

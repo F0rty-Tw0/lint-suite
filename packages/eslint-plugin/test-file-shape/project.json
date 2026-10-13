@@ -1,8 +1,0 @@
-{
-  "name": "eslint-plugin-test-file-shape",
-  "sourceRoot": "packages/eslint-plugin/test-file-shape/src",
-  "projectType": "library",
-  "targets": {
-    "typecheck": {}
-  }
-}

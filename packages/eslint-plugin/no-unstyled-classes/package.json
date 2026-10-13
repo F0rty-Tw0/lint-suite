@@ -43,5 +43,13 @@
     "@lint-suite/rule-internals": "workspace:*",
     "angular-eslint": "catalog:dev",
     "typescript-eslint": "catalog:dev"
+  },
+  "nx": {
+    "name": "eslint-plugin-no-unstyled-classes",
+    "sourceRoot": "packages/eslint-plugin/no-unstyled-classes/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
   }
 }

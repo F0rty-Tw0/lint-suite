@@ -38,5 +38,13 @@
   "devDependencies": {
     "typescript-eslint": "catalog:dev",
     "@lint-suite/rule-internals": "workspace:*"
+  },
+  "nx": {
+    "name": "eslint-plugin-no-nested-object-value",
+    "sourceRoot": "packages/eslint-plugin/no-nested-object-value/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
   }
 }

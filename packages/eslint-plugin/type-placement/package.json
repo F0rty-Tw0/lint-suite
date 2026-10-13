@@ -38,5 +38,13 @@
   "devDependencies": {
     "typescript-eslint": "catalog:dev",
     "@lint-suite/rule-internals": "workspace:*"
+  },
+  "nx": {
+    "name": "eslint-plugin-type-placement",
+    "sourceRoot": "packages/eslint-plugin/type-placement/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
   }
 }

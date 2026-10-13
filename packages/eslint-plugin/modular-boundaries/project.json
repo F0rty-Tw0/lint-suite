@@ -1,8 +1,0 @@
-{
-  "name": "eslint-plugin-modular-boundaries",
-  "sourceRoot": "packages/eslint-plugin/modular-boundaries/src",
-  "projectType": "library",
-  "targets": {
-    "typecheck": {}
-  }
-}

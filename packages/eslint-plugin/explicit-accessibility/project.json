@@ -1,8 +1,0 @@
-{
-  "name": "eslint-plugin-explicit-accessibility",
-  "sourceRoot": "packages/eslint-plugin/explicit-accessibility/src",
-  "projectType": "library",
-  "targets": {
-    "typecheck": {}
-  }
-}

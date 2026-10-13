@@ -38,5 +38,13 @@
   "devDependencies": {
     "typescript-eslint": "catalog:dev",
     "@lint-suite/rule-internals": "workspace:*"
+  },
+  "nx": {
+    "name": "eslint-plugin-no-inline-return-object",
+    "sourceRoot": "packages/eslint-plugin/no-inline-return-object/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
   }
 }

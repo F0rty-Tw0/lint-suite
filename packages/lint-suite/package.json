@@ -102,5 +102,21 @@
     "jsonc-eslint-parser": "catalog:dev",
     "typescript": "catalog:typescript",
     "vitest": "catalog:dev"
+  },
+  "nx": {
+    "name": "lint-suite",
+    "sourceRoot": "packages/lint-suite/src",
+    "projectType": "library",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands"
+      },
+      "typecheck": {},
+      "lint": {
+        "options": {
+          "command": "node --conditions=development ../../node_modules/eslint/bin/eslint.js . --max-warnings=0"
+        }
+      }
+    }
   }
 }

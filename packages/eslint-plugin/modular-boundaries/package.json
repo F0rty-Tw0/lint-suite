@@ -40,5 +40,13 @@
     "typescript-eslint": "catalog:dev",
     "@lint-suite/rule-internals": "workspace:*",
     "@lint-suite/rule-test-support": "workspace:*"
+  },
+  "nx": {
+    "name": "eslint-plugin-modular-boundaries",
+    "sourceRoot": "packages/eslint-plugin/modular-boundaries/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
   }
 }
