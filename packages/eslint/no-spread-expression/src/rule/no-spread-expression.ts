@@ -1,8 +1,8 @@
-import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
-import type { TSESLint } from '@typescript-eslint/utils';
-
 import { enclosingStatement } from '@lint-suite/rule-internals/utils/enclosing-statement.util.ts';
 import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
+import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
+import type { TSESLint } from '@typescript-eslint/utils';
 
 type Options = [];
 type MessageIds = 'spreadExpression';
@@ -51,10 +51,11 @@ export default createRule<Options, MessageIds>({
         const statement = enclosingStatement(node);
         const indent = indentOf(statement, sourceCode);
         const argumentText = sourceCode.getText(node.argument);
+        const lineBreak = lineBreakOf(sourceCode.text);
         const fix: TSESLint.ReportFixFunction = (fixer) => {
           const declaration = fixer.insertTextBefore(
             statement,
-            `const spread = ${argumentText};\n${indent}`
+            `const spread = ${argumentText};${lineBreak}${indent}`
           );
           const replaced = fixer.replaceText(node.argument, 'spread');
           const fixes = [declaration, replaced];
