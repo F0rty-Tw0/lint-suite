@@ -56,6 +56,14 @@ export const calleeName = (callee: TSESTree.Node): string | undefined => {
   return property.name;
 };
 
+const isTracedInit = (init: TSESTree.Expression): boolean => {
+  if (init.type === TSESTree.AST_NODE_TYPES.CallExpression) return false;
+
+  if (init.type !== TSESTree.AST_NODE_TYPES.LogicalExpression) return true;
+
+  return init.operator !== '??';
+};
+
 export const constFeed = (
   identifier: TSESTree.Identifier,
   scope: TSESLint.Scope.Scope
@@ -86,7 +94,9 @@ export const constFeed = (
 
   if (!init) return undefined;
 
-  if (init.type === TSESTree.AST_NODE_TYPES.CallExpression) return undefined;
+  const isTraced = isTracedInit(init);
+
+  if (!isTraced) return undefined;
 
   const feed: ConstFeed = { init, statement: declaration };
 

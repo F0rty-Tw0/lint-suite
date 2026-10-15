@@ -93,6 +93,16 @@ test('skips a const that already holds a bare call', () => {
   assert.equal(feedInitType(code), undefined);
 });
 
+test('skips a const that holds a nullish fallback value', () => {
+  const lines = [
+    "const severity = printed.get(name) ?? 'absent';",
+    'if (severity !== expected) {}'
+  ];
+  const code = lines.join('\n');
+
+  assert.equal(feedInitType(code), undefined);
+});
+
 test('skips a let binding and an unresolved identifier', () => {
   const lines = ['let isNamed = check(entry) && other;', 'if (isNamed) {}'];
   const code = lines.join('\n');

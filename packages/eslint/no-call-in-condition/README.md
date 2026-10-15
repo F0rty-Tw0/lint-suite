@@ -145,4 +145,4 @@ if (active) {}
 
 The rule follows a directly referenced `const` initializer and reports `validate`.
 
-The rule checks calls in `if` tests and in a non-call `const` initializer when that constant is referenced directly by an `if` test. It does not trace a bare call initializer, so `const result = validate(order); if (result) {}` is valid: the call result is already named. It does not inspect `while` conditions.
+The rule checks calls in `if` tests and in a non-call `const` initializer when that constant is referenced directly by an `if` test. It does not trace a bare call initializer, so `const result = validate(order); if (result) {}` is valid: the call result is already named. It does not trace a `??` fallback initializer either, so `const label = labels.get(id) ?? 'none'; if (label !== expected) {}` is valid: the constant names a value, not a condition. It does not inspect `while` conditions.
