@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./utils/*.ts": "./src/utils/*.ts",
-    "./common/*.ts": "./src/common/*.ts",
-    "./stubs/*.ts": "./src/stubs/*.ts",
+    "./utils/*.ts": "./src/test/utils/*.ts",
+    "./common/*.ts": "./src/test/common/*.ts",
+    "./stubs/*.ts": "./src/test/stubs/*.ts",
     "./*.ts": "./src/*.ts"
   },
   "devDependencies": {
+    "vitest": "catalog:dev",
     "@typescript-eslint/utils": "catalog:typescript",
     "eslint": "catalog:dev",
     "typescript-eslint": "catalog:dev"
