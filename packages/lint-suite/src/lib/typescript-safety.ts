@@ -49,7 +49,7 @@ export const typescriptSafety = defineConfig([
       // Bad: braced three-line if (x) { return; }   Good: if (x) return;
       'local/one-line-guard': ['error', { maxLineLength: MAX_LINE_LENGTH }],
       // Type properties are readonly; arrays stay T[], never readonly T[].
-      // Fixes.
+      // Suggestions only: an autofix could break assignments in other files.
       // Bad: { id: string; items: readonly T[] }
       // Good: { readonly id: string; readonly items: T[] }
       'local/readonly-type-properties': 'error',
