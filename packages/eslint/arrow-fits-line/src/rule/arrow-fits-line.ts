@@ -1,3 +1,4 @@
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
 import { ASTUtils, ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { JSONSchema, TSESLint } from '@typescript-eslint/utils';
 
@@ -41,10 +42,14 @@ const arrowIndent = (
   return leadingWhitespace ? leadingWhitespace[0] : '';
 };
 
-const wrappedBody = (indent: string, bodyText: string): string => {
+const wrappedBody = (
+  indent: string,
+  bodyText: string,
+  lineBreak: string
+): string => {
   const innerIndent = `${indent}  `;
 
-  return `{\n${innerIndent}return ${bodyText};\n${indent}}`;
+  return `{${lineBreak}${innerIndent}return ${bodyText};${lineBreak}${indent}}`;
 };
 
 const replacementRange = (
@@ -86,8 +91,10 @@ export default createRule<Options, MessageIds>({
         const indent = arrowIndent(node, sourceCode);
         const bodyText = sourceCode.getText(node.body);
         const range = replacementRange(node, sourceCode);
+        const lineBreak = lineBreakOf(sourceCode.text);
+        const replacement = wrappedBody(indent, bodyText, lineBreak);
         const fix: TSESLint.ReportFixFunction = (fixer) =>
-          fixer.replaceTextRange(range, wrappedBody(indent, bodyText));
+          fixer.replaceTextRange(range, replacement);
         const report: TSESLint.ReportDescriptor<MessageIds> = {
           node,
           messageId: 'arrowBodyWrapped',
