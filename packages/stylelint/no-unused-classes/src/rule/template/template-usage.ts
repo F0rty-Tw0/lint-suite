@@ -11,6 +11,7 @@ import type {
   TmplAstElement,
   TmplAstTemplate
 } from '@angular/compiler';
+
 import type {
   ClassAttributeHost,
   ClassMatcher

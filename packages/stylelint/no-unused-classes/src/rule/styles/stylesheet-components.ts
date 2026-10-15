@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-import { componentMetadata } from '@lint-suite/rule-internals/component-metadata.ts';
 import type { ComponentDescriptor } from '@lint-suite/rule-internals/common/class-usage.type.ts';
+import { componentMetadata } from '@lint-suite/rule-internals/component-metadata.ts';
 
 import { linkedTemplates } from './linked-templates.ts';
 import type { TemplateSource } from '../common/no-unused-classes.type.ts';
