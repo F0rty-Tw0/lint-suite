@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
 import { RuleTester } from 'eslint';
 import type { Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
@@ -116,6 +116,12 @@ const namedConstLines = [
   'if (isNamed) {}'
 ];
 const namedConstCode = namedConstLines.join('\n');
+const fallbackConstLines = [
+  "const severity = printed.get(name) ?? 'absent';",
+  '',
+  'if (severity !== expected) {}'
+];
+const fallbackConstCode = fallbackConstLines.join('\n');
 
 const valid: RuleTester.ValidTestCase[] = [
   {
@@ -150,6 +156,10 @@ const valid: RuleTester.ValidTestCase[] = [
   {
     name: 'accepts a const that already holds a bare call',
     code: namedConstCode
+  },
+  {
+    name: 'accepts a nullish-fallback const compared in an if',
+    code: fallbackConstCode
   }
 ];
 
@@ -210,6 +220,15 @@ const invalid: RuleTester.InvalidTestCase[] = [
     )
   },
   {
+    name: 'hoists with the CRLF line break of a CRLF file',
+    code: `a();\r\nif (validate(order)) {}`,
+    errors: hoisted(
+      'validate',
+      'validateResult',
+      `a();\r\nconst validateResult = validate(order);\r\nif (validateResult) {}`
+    )
+  },
+  {
     name: 'reports without a suggestion when the callee has no name',
     code: `if (guards["check"](order)) {}`,
     errors: namelessError
@@ -226,9 +245,11 @@ ruleTester.run('no-call-in-condition/no-call-in-condition', rule, {
   invalid
 });
 
-const memberCallOutput = fixtureCode('member-call.ts').replace(
+const memberCallCode = fixtureCode('member-call.ts');
+const memberCallBreak = lineBreakOf(memberCallCode);
+const memberCallOutput = memberCallCode.replace(
   '  if (helpers.compute(value)) return',
-  '  const computeResult = helpers.compute(value);\n  if (computeResult) return'
+  `  const computeResult = helpers.compute(value);${memberCallBreak}  if (computeResult) return`
 );
 
 const typedValid: RuleTester.ValidTestCase[] = [
@@ -242,7 +263,7 @@ const typedValid: RuleTester.ValidTestCase[] = [
 const typedInvalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'reports a member call the checker cannot exempt',
-    code: fixtureCode('member-call.ts'),
+    code: memberCallCode,
     filename: join(fixtures, 'member-call.ts'),
     errors: hoisted('helpers.compute', 'computeResult', memberCallOutput)
   }

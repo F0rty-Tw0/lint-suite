@@ -1,3 +1,5 @@
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
+import { toRegExp } from '@lint-suite/rule-internals/utils/to-regexp.util.ts';
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type {
   ParserServicesWithTypeInformation,
@@ -21,7 +23,6 @@ import {
   conditionParts,
   constFeed
 } from './utils/condition-calls.util.ts';
-import { toRegExp } from '@lint-suite/rule-internals/utils/to-regexp.util.ts';
 
 type HoistTarget = TSESTree.IfStatement | TSESTree.VariableDeclaration;
 type Suggestions = TSESLint.SuggestionReportDescriptor<MessageIds>[];
@@ -78,7 +79,8 @@ const suggestionsOf = (
   const constName = `${name}Result`;
   const callText = sourceCode.getText(call);
   const indent = statementIndent(statement, sourceCode);
-  const declaration = `const ${constName} = ${callText};\n${indent}`;
+  const lineBreak = lineBreakOf(sourceCode.text);
+  const declaration = `const ${constName} = ${callText};${lineBreak}${indent}`;
   const fix: TSESLint.ReportFixFunction = (fixer) => {
     const hoisted = fixer.insertTextBefore(statement, declaration);
     const replaced = fixer.replaceText(call, constName);

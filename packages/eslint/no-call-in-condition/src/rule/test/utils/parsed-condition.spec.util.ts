@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
 
+import { isProgram } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 import { TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 import tseslint from 'typescript-eslint';
-
-import { isProgram } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 
 type ParsedCondition = {
   readonly condition: TSESTree.Expression;
