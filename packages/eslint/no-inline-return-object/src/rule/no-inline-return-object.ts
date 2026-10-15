@@ -1,7 +1,7 @@
+import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
-
-import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
 
 type Options = [];
 type MessageIds = 'inlineReturnObject';
@@ -49,10 +49,11 @@ const returnSuggestion = (
 ): TSESLint.SuggestionReportDescriptor<MessageIds> => {
   const indent = indentOf(node, sourceCode);
   const objectText = sourceCode.getText(objectExpression);
+  const lineBreak = lineBreakOf(sourceCode.text);
   const fix: TSESLint.ReportFixFunction = (fixer) => {
     const declaration = fixer.insertTextBefore(
       node,
-      `const result = ${objectText};\n\n${indent}`
+      `const result = ${objectText};${lineBreak}${lineBreak}${indent}`
     );
     const replaced = fixer.replaceText(objectExpression, 'result');
     const fixes = [declaration, replaced];
@@ -75,7 +76,8 @@ const arrowSuggestion = (
   const indent = indentOf(node, sourceCode);
   const bodyIndent = `${indent}  `;
   const objectText = sourceCode.getText(objectExpression);
-  const replacement = `{\n${bodyIndent}const result = ${objectText};\n\n${bodyIndent}return result;\n${indent}}`;
+  const lineBreak = lineBreakOf(sourceCode.text);
+  const replacement = `{${lineBreak}${bodyIndent}const result = ${objectText};${lineBreak}${lineBreak}${bodyIndent}return result;${lineBreak}${indent}}`;
   const range = wrappingRange(objectExpression, sourceCode);
   const fix: TSESLint.ReportFixFunction = (fixer) =>
     fixer.replaceTextRange(range, replacement);

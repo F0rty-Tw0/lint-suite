@@ -86,6 +86,22 @@ const nestedArrowIndentErrors: RuleTester.TestCaseError[] = [
   { ...inlineReturnObjectError, suggestions: [nestedArrowIndentSuggestion] }
 ];
 
+const crlfReturnSuggestion: RuleTester.SuggestionOutput = {
+  messageId: 'inlineReturnObject',
+  output: `function f() {\r\n  const result = { a: 1 };\r\n\r\n  return result;\r\n}`
+};
+const crlfReturnErrors: RuleTester.TestCaseError[] = [
+  { ...inlineReturnObjectError, suggestions: [crlfReturnSuggestion] }
+];
+
+const crlfArrowSuggestion: RuleTester.SuggestionOutput = {
+  messageId: 'inlineReturnObject',
+  output: `a();\r\nconst f = () => {\r\n  const result = { a: 1 };\r\n\r\n  return result;\r\n};`
+};
+const crlfArrowErrors: RuleTester.TestCaseError[] = [
+  { ...inlineReturnObjectError, suggestions: [crlfArrowSuggestion] }
+];
+
 const invalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'hoists a returned object literal',
@@ -116,6 +132,18 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: `class C {\n  method() {\n    const f = () => ({ a: 1 });\n  }\n}`,
     output: null,
     errors: nestedArrowIndentErrors
+  },
+  {
+    name: 'hoists a returned object with the CRLF line break of a CRLF file',
+    code: `function f() {\r\n  return { a: 1 };\r\n}`,
+    output: null,
+    errors: crlfReturnErrors
+  },
+  {
+    name: 'wraps an arrow body with the CRLF line break of a CRLF file',
+    code: `a();\r\nconst f = () => ({ a: 1 });`,
+    output: null,
+    errors: crlfArrowErrors
   }
 ];
 
