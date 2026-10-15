@@ -6,6 +6,7 @@ import {
   statSync,
   writeFileSync
 } from 'node:fs';
+import type { BigIntStats } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { threadId } from 'node:worker_threads';
 
@@ -15,12 +16,14 @@ import type {
   FileCacheIdentity
 } from './common/file-cache.type.ts';
 import { PACKAGE_IDENTITY } from './package-version.ts';
+import { storedEntries } from './utils/stored-entries.util.ts';
 
 type FileParser<T> = (text: string, path: string) => T;
 
 const CACHE_FORMAT_VERSION = 1;
 
-const caches = new Set<FileCache<unknown>>();
+const loadedCaches = new WeakSet<FileCache<unknown>>();
+const dirtyCaches = new Set<FileCache<unknown>>();
 
 let isFlushRegistered = false;
 
@@ -56,32 +59,8 @@ const cacheFile = (
   );
 };
 
-const isCachedFile = <T>(value: unknown): value is CachedFile<T> => {
-  const isObject = typeof value === 'object' && value !== null;
-
-  if (!isObject) return false;
-
-  const hasVersion = 'version' in value && typeof value.version === 'string';
-
-  return hasVersion && 'value' in value;
-};
-
-const storedEntries = <T>(text: string): Map<string, CachedFile<T>> => {
-  const entries = new Map<string, CachedFile<T>>();
-  const parsed: unknown = JSON.parse(text);
-  const isRecord = typeof parsed === 'object' && parsed !== null;
-
-  if (!isRecord) return entries;
-
-  for (const [path, entry] of Object.entries(parsed)) {
-    if (isCachedFile<T>(entry)) entries.set(path, entry);
-  }
-
-  return entries;
-};
-
 const load = <T>(cache: FileCache<T>): void => {
-  cache.loaded = true;
+  loadedCaches.add(cache);
 
   const file = cacheFile(cache.name, cache.identity);
 
@@ -134,12 +113,9 @@ const write = (cache: FileCache<unknown>): void => {
  * files stay, so partial runs (`eslint --cache`, editors) keep the rest.
  */
 export const flushFileCaches = (): void => {
-  for (const cache of caches) {
-    if (!cache.dirty) continue;
+  for (const cache of dirtyCaches) write(cache);
 
-    write(cache);
-    cache.dirty = false;
-  }
+  dirtyCaches.clear();
 };
 
 const registerFlush = (): void => {
@@ -159,44 +135,59 @@ export const createFileCache = <T>(
   name: string,
   identity: FileCacheIdentity = PACKAGE_IDENTITY
 ): FileCache<T> => {
-  const cache: FileCache<T> = {
-    name,
-    identity,
-    entries: new Map(),
-    loaded: false,
-    dirty: false
-  };
+  const cache: FileCache<T> = { name, identity, entries: new Map() };
 
-  caches.add(cache);
   registerFlush();
 
   return cache;
 };
 
+const statOrNull = (path: string): BigIntStats | null => {
+  try {
+    return statSync(path, { bigint: true });
+  } catch {
+    return null;
+  }
+};
+
+const textOrNull = (path: string): string | null => {
+  try {
+    return readFileSync(path, 'utf8');
+  } catch {
+    return null;
+  }
+};
+
+/** `null` when the file cannot be stat'ed or read; an error `parse` throws propagates. */
 export const readCached = <T>(
   cache: FileCache<T>,
   path: string,
   parse: FileParser<T>
 ): T | null => {
-  if (!cache.loaded) load(cache);
+  const isLoaded = loadedCaches.has(cache);
 
-  try {
-    const stats = statSync(path, { bigint: true });
-    const version =
-      `${cache.identity.packageName}:${cache.identity.packageVersion}:` +
-      `${stats.mtimeNs}:${stats.size}`;
-    const cached = cache.entries.get(path);
+  if (!isLoaded) load(cache);
 
-    if (cached?.version === version) return cached.value;
+  const stats = statOrNull(path);
 
-    const value = parse(readFileSync(path, 'utf8'), path);
-    const fresh: CachedFile<T> = { value, version };
+  if (stats === null) return null;
 
-    cache.entries.set(path, fresh);
-    cache.dirty = true;
+  const version =
+    `${cache.identity.packageName}:${cache.identity.packageVersion}:` +
+    `${stats.mtimeNs}:${stats.size}`;
+  const cached = cache.entries.get(path);
 
-    return value;
-  } catch {
-    return null;
-  }
+  if (cached?.version === version) return cached.value;
+
+  const text = textOrNull(path);
+
+  if (text === null) return null;
+
+  const value = parse(text, path);
+  const fresh: CachedFile<T> = { value, version };
+
+  cache.entries.set(path, fresh);
+  dirtyCaches.add(cache);
+
+  return value;
 };

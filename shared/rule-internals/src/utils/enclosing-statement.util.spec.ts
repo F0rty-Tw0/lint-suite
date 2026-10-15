@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 
+import { programOf } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 import { TSESLint } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 import tseslint from 'typescript-eslint';
 import { test } from 'vitest';
 
 import { enclosingStatement } from './enclosing-statement.util.ts';
-import { programOf } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 
 type Captured = {
   readonly declarations: TSESTree.VariableDeclaration[];

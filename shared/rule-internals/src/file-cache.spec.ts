@@ -3,8 +3,8 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
   readFileSync,
+  readdirSync,
   rmSync,
   utimesSync,
   writeFileSync
@@ -49,10 +49,20 @@ const freshCache = (): FileCache<string> => {
 
 const storedFiles = (): string[] => {
   const cacheDirectory = join(directory, 'cache');
+  const hasCacheDirectory = existsSync(cacheDirectory);
 
-  if (!existsSync(cacheDirectory)) return [];
+  if (!hasCacheDirectory) return [];
 
   return readdirSync(cacheDirectory).filter((entry) => entry.endsWith('.json'));
+};
+
+const storedKeys = (text: string): string[] => {
+  const stored: unknown = JSON.parse(text);
+  const isRecord = typeof stored === 'object' && stored !== null;
+
+  if (!isRecord) return [];
+
+  return Object.keys(stored).sort();
 };
 
 const storedPaths = (): string[] => {
@@ -61,12 +71,8 @@ const storedPaths = (): string[] => {
   if (name === undefined) return [];
 
   const text = readFileSync(join(directory, 'cache', name), 'utf8');
-  const stored: unknown = JSON.parse(text);
-  const isRecord = typeof stored === 'object' && stored !== null;
 
-  if (!isRecord) return [];
-
-  return Object.keys(stored).sort();
+  return storedKeys(text);
 };
 
 beforeEach(() => {
@@ -121,6 +127,23 @@ test('reads null for a file that cannot be opened', () => {
   assert.equal(parsed, 0);
 });
 
+test('reads null for a path that exists but is not a readable file', () => {
+  const cache = freshCache();
+
+  assert.equal(readCached(cache, directory, parse), null);
+  assert.equal(parsed, 0);
+});
+
+test('propagates an error the parser throws instead of reading null', () => {
+  const cache = freshCache();
+  const failingParse = (): string => {
+    throw new Error('parser failed');
+  };
+  const read = (): string | null => readCached(cache, file, failingParse);
+
+  assert.throws(read, /parser failed/);
+});
+
 test('survives a flush into a new cache of the same identity and name', () => {
   const first = freshCache();
 
@@ -161,7 +184,10 @@ test('keeps stored entries of existing files that were not read this run', () =>
   readCached(second, other, parse);
   flushFileCaches();
 
-  assert.deepEqual(storedPaths(), [other, file].sort());
+  const writtenPaths = [other, file];
+  const expectedPaths = writtenPaths.toSorted();
+
+  assert.deepEqual(storedPaths(), expectedPaths);
 });
 
 test('isolates two package identities using the same cache directory and name', () => {
