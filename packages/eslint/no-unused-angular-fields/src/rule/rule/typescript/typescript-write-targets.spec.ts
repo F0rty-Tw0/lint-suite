@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -9,7 +10,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsCompoundAssignmentRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read by a compound assignment operator',
   code: component(
     `private count = 0; public bump(): void { this.count += 1; }`,
@@ -20,7 +21,7 @@ const acceptsCompoundAssignmentRead: RuleTester.ValidTestCase = {
 const errors = [unusedFieldError('value')];
 
 const reportsPlainWrite: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count a TypeScript write as a read',
   code: component(
     `private value = ''; public update(): void { this.value = 'written'; }`,
@@ -30,7 +31,7 @@ const reportsPlainWrite: RuleTester.InvalidTestCase = {
 };
 
 const reportsDeletedField: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count a delete target as a read',
   code: component(
     `private value?: string; public drop(): void { delete this.value; }`,
@@ -40,7 +41,7 @@ const reportsDeletedField: RuleTester.InvalidTestCase = {
 };
 
 const reportsObjectDestructuringWrite: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count an object-destructuring assignment as a component field read',
   code: component(
     `private value = ''; public update(source: { value: string }): void { ({ value: this.value } = source); }`,
@@ -50,7 +51,7 @@ const reportsObjectDestructuringWrite: RuleTester.InvalidTestCase = {
 };
 
 const reportsLoopTargetWrite: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count a for-of loop target as a component field read',
   code: component(
     `private value = ''; public fill(source: string[]): void { for (this.value of source) {} }`,

@@ -81,12 +81,9 @@ export const addAngularImport = (
   node: TSESTree.ImportDeclaration,
   imports: AngularImports
 ): void => {
-  if (
-    !angularImportSources.has(node.source.value) ||
-    node.importKind === 'type'
-  ) {
-    return;
-  }
+  const isAngularSource = angularImportSources.has(node.source.value);
+
+  if (!isAngularSource || node.importKind === 'type') return;
 
   for (const specifier of node.specifiers) {
     if (specifier.type === TSESTree.AST_NODE_TYPES.ImportNamespaceSpecifier) {

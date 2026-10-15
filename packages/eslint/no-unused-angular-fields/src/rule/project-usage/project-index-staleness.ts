@@ -154,9 +154,9 @@ export const dropStaleTemplateEntries = (
   force: boolean
 ): void => {
   const now = performance.now();
-  const sinceLastCheck = now - index.templateCheckedAt;
-  const isThrottled =
-    !force && sinceLastCheck < index.templateCheckDuration * 100;
+  const { checkedAt, duration } = index.templateCheck;
+  const sinceLastCheck = now - checkedAt;
+  const isThrottled = !force && sinceLastCheck < duration * 100;
 
   if (isThrottled) return;
 
@@ -167,6 +167,7 @@ export const dropStaleTemplateEntries = (
 
   dropEntries(index, isStale);
 
-  index.templateCheckedAt = now;
-  index.templateCheckDuration = performance.now() - now;
+  const checkDuration = performance.now() - now;
+
+  index.templateCheck = { checkedAt: now, duration: checkDuration };
 };

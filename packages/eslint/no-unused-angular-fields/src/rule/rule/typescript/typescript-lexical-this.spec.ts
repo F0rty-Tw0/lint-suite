@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -9,7 +10,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsArrowFunctionThisRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read through lexical this in an arrow function',
   code: component(
     `private value = ''; public read(): string { const nested = (): string => this.value; return nested(); }`,
@@ -20,7 +21,7 @@ const acceptsArrowFunctionThisRead: RuleTester.ValidTestCase = {
 const errors = [unusedFieldError('value')];
 
 const reportsNestedFunctionThisRead: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count this inside a nested normal function as a component field read',
   code: component(
     `private value = ''; public read(): string { function nested(): string { return this.value; } return nested(); }`,
@@ -30,7 +31,7 @@ const reportsNestedFunctionThisRead: RuleTester.InvalidTestCase = {
 };
 
 const reportsStaticBlockThisRead: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count this inside a static block as a component field read',
   code: component(
     `private value = ''; static { const local: unknown = this.value; void local; }`,

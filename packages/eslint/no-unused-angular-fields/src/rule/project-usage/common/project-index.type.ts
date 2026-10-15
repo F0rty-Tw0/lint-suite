@@ -45,17 +45,25 @@ export type FileClasses = {
 
 export type CurrentSourceFiles = ReadonlySet<SourceFile>;
 
+export type DirectiveState = {
+  readonly directives: DirectiveIndex;
+  readonly shape: string;
+};
+
+export type TemplateCheck = {
+  readonly checkedAt: number;
+  readonly duration: number;
+};
+
 export type ProjectIndex = {
   readonly candidateNames: Set<string>;
   readonly classes: Map<string, FileClasses>;
   readonly declarationCounts: Map<Node, number>;
-  directives: DirectiveIndex;
-  directiveShape: string;
+  directiveState: DirectiveState;
   readonly entries: Map<string, FileEntry>;
   readonly fallbackNameCounts: Map<string, number>;
   program: Program | null;
-  templateCheckDuration: number;
-  templateCheckedAt: number;
+  templateCheck: TemplateCheck;
 };
 
 export type LazyChecker = () => TypeChecker;

@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -9,7 +10,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsHostActionEventReceiverRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts this.$event in a host action as a component field read',
   code: component(`private $event = undefined;`, {
     metadata: `template: '', host: { '(click)': 'this.$event' }`
@@ -17,7 +18,7 @@ const acceptsHostActionEventReceiverRead: RuleTester.ValidTestCase = {
 };
 
 const acceptsHostActionNestedWriteReceiver: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a host action whose nested write reads the component receiver',
   code: component(`protected state = { value: false };`, {
     metadata: `template: '', host: { '(click)': 'state.value = true' }`
@@ -25,7 +26,7 @@ const acceptsHostActionNestedWriteReceiver: RuleTester.ValidTestCase = {
 };
 
 const reportsHostActionWriteOnlyField: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count a host action write as a component field read',
   code: component(`private value = false;`, {
     metadata: `template: '', host: { '(click)': 'value = true' }`
@@ -34,7 +35,7 @@ const reportsHostActionWriteOnlyField: RuleTester.InvalidTestCase = {
 };
 
 const reportsFieldShadowedByTemplateLocal: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count an Angular template local as a component field read',
   code: component(`private item = ''; protected items = input<string[]>([]);`, {
     metadata: "template: '@for (item of items; track item) { {{ item }} }'",
@@ -44,7 +45,7 @@ const reportsFieldShadowedByTemplateLocal: RuleTester.InvalidTestCase = {
 };
 
 const reportsFieldShadowedByHostActionEvent: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count an Angular host action event local as a component field read',
   code: component(`private $event = undefined;`, {
     metadata: `template: '', host: { '(click)': '$event.stopPropagation()' }`

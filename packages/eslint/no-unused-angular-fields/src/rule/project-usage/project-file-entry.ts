@@ -32,7 +32,7 @@ const collectFileReads = (
       allNames: index.candidateNames,
       checker,
       classes,
-      directives: index.directives,
+      directives: index.directiveState.directives,
       sink
     });
   } catch (error) {

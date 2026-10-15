@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -9,7 +10,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsComputedMetadataKey: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'bails out of metadata holding a computed key',
   code: component(`private unused = '';`, {
     metadata: `['tem' + 'plate']: ''`
@@ -19,7 +20,7 @@ const acceptsComputedMetadataKey: RuleTester.ValidTestCase = {
 const errors = [unusedFieldError('unused')];
 
 const readsTemplateUnderQuotedKey: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reads a template declared under a quoted metadata key',
   code: component(`private used = ''; private unused = '';`, {
     metadata: `'template': '{{ used }}'`
@@ -28,7 +29,7 @@ const readsTemplateUnderQuotedKey: RuleTester.InvalidTestCase = {
 };
 
 const readsTemplateLiteralTemplate: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reads a template declared as a template literal',
   code: component(`private used = ''; private unused = '';`, {
     metadata: 'template: `{{ used }}`'

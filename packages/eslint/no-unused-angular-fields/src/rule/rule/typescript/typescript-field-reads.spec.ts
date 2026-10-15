@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -9,7 +10,7 @@ import {
 import { unusedFieldError } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const acceptsNonNullThisReceiver: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read through a non-null this receiver',
   code: component(
     `private value = 'used'; public read(): string { return this!.value; }`,
@@ -18,7 +19,7 @@ const acceptsNonNullThisReceiver: RuleTester.ValidTestCase = {
 };
 
 const acceptsObjectDestructuringRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read through object destructuring from this',
   code: component(
     `private value = 'used'; public read(): string { const { value } = this; return value; }`,
@@ -29,7 +30,7 @@ const acceptsObjectDestructuringRead: RuleTester.ValidTestCase = {
 const errors = [unusedFieldError('value')];
 
 const reportsForeignObjectRead: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'does not count a foreign object member read as a component field read',
   code: component(
     `private value = ''; public read(other: { value: string }): string { return other.value; }`,

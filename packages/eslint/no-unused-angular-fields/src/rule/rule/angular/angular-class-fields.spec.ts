@@ -7,6 +7,7 @@ import { test } from 'vitest';
 
 import { reportUnusedMembers } from './angular-class-fields.ts';
 import { addAngularImport } from './angular-imports.ts';
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -76,7 +77,7 @@ test('resolves inline template reads before project member lookup', () => {
 });
 
 const skipsDynamicallyIndexedClasses: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'skips classes the read visitor marked as dynamically indexed',
   code: component(
     `private value = ''; public read(key: string): unknown { return this[key]; }`
@@ -84,7 +85,7 @@ const skipsDynamicallyIndexedClasses: RuleTester.ValidTestCase = {
 };
 
 const reportsBothDemonstrationFields: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports both demonstration component fields',
   code: `import { Component, inject } from '@angular/core'; class IconService {}
         @Component({ template: '' }) class AboutComponent {
@@ -94,7 +95,7 @@ const reportsBothDemonstrationFields: RuleTester.InvalidTestCase = {
 };
 
 const reportsEveryAngularClassInFile: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports members of every Angular class in one file',
   code: `import { Component, Directive } from '@angular/core';
         @Component({ template: '' }) class FirstComponent { private first = ''; }

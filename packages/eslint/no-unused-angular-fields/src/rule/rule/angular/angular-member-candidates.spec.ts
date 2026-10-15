@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -12,7 +13,7 @@ import {
 } from '../../test/utils/unused-member-error.spec.util.ts';
 
 const ignoresExportedDirectiveMethods: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'conservatively ignores externally exposed directive methods',
   code: component(`public externallyReadable(): void {}`, {
     metadata: `selector: '[example]', exportAs: 'example'`,
@@ -22,7 +23,7 @@ const ignoresExportedDirectiveMethods: RuleTester.ValidTestCase = {
 };
 
 const exemptsNonConcreteMethodKinds: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts lifecycle and non-concrete method kinds',
   code: `import { Component, Input } from '@angular/core';
         @Component({ template: '' }) class TestComponent {
@@ -41,7 +42,7 @@ const exemptsNonConcreteMethodKinds: RuleTester.ValidTestCase = {
 };
 
 const exemptsNonConcreteFields: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts static and non-concrete fields',
   code: `
         import { Component } from '@angular/core';
@@ -54,14 +55,14 @@ const exemptsNonConcreteFields: RuleTester.ValidTestCase = {
 };
 
 const ignoresExportedDirectiveFields: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'conservatively ignores externally exposed directive fields',
   code: `import { Directive } from '@angular/core'; @Directive({ selector: '[example]', exportAs: 'example' })
         class TestDirective { public externallyReadable = 'used'; }`
 };
 
 const ignoresAbstractNonPrivateMembers: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'conservatively ignores non-private members of abstract components',
   code: component(
     `protected forSubclass = 'used elsewhere'; helper(): void {}`,
@@ -75,7 +76,7 @@ const ignoresAbstractNonPrivateMembers: RuleTester.ValidTestCase = {
 };
 
 const exemptsImplementedFormsMethods: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts Angular forms interface methods declared via implements',
   code: component(
     `writeValue(value: unknown): void {}
@@ -92,7 +93,7 @@ const exemptsImplementedFormsMethods: RuleTester.ValidTestCase = {
 };
 
 const exemptsDecoratedInputsWithNgOnChanges: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts unread decorated inputs of a class declaring ngOnChanges',
   code: component(`@Input() name = ''; ngOnChanges(): void {}`, {
     metadata: "template: ''",
@@ -101,7 +102,7 @@ const exemptsDecoratedInputsWithNgOnChanges: RuleTester.ValidTestCase = {
 };
 
 const exemptsNonEventEmitterOutput: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts an unread decorated output not initialized with an Angular EventEmitter',
   code: `import { Component, Output } from '@angular/core';
         class EventEmitter {}
@@ -113,7 +114,7 @@ const exemptsNonEventEmitterOutput: RuleTester.ValidTestCase = {
 };
 
 const exemptsBindingDecoratorMixedWithOthers: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts an unread input that also carries another decorator',
   code: component(`@HostBinding('class.on') @Input() on = false;`, {
     metadata: "template: ''",
@@ -122,7 +123,7 @@ const exemptsBindingDecoratorMixedWithOthers: RuleTester.ValidTestCase = {
 };
 
 const exemptsNonAngularInputDecorator: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts fields decorated with a same-named non-Angular Input',
   code: `import { Component } from '@angular/core';
         const Input = (): PropertyDecorator => () => undefined;
@@ -132,7 +133,7 @@ const exemptsNonAngularInputDecorator: RuleTester.ValidTestCase = {
 };
 
 const exemptsDecoratedInputAccessor: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts decorated input setters',
   code: component(`@Input() set name(value: string) {}`, {
     metadata: "template: ''",
@@ -141,7 +142,7 @@ const exemptsDecoratedInputAccessor: RuleTester.ValidTestCase = {
 };
 
 const exemptsDecoratedQueryAccessor: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'exempts decorated query setters',
   code: component(`@ViewChild('box') set box(value: unknown) {}`, {
     metadata: "template: ''",
@@ -150,7 +151,7 @@ const exemptsDecoratedQueryAccessor: RuleTester.ValidTestCase = {
 };
 
 const reportsUnreadDecoratedBindings: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports unread decorated inputs and EventEmitter outputs',
   code: `import * as ng from '@angular/core';
         import { Component, EventEmitter as Emitter, Input as In, Output } from '@angular/core';
@@ -167,7 +168,7 @@ const reportsUnreadDecoratedBindings: RuleTester.InvalidTestCase = {
 };
 
 const reportsUnreadDecoratedQueries: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports unread decorated query fields',
   code: `import * as ng from '@angular/core';
         import { Component, ContentChild, ContentChildren, ViewChild as Child } from '@angular/core';
@@ -184,7 +185,7 @@ const reportsUnreadDecoratedQueries: RuleTester.InvalidTestCase = {
 };
 
 const reportsDecoratedOutputWithNgOnChanges: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports an unread decorated output of a class declaring ngOnChanges',
   code: component(
     `@Output() changed = new EventEmitter<string>(); ngOnChanges(): void {}`,
@@ -194,14 +195,14 @@ const reportsDecoratedOutputWithNgOnChanges: RuleTester.InvalidTestCase = {
 };
 
 const reportsUnreadPublicComponentMethod: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports an unread public component method',
   code: component(`public unusedMethod(): void {}`),
   errors: [unusedMethodError('unusedMethod')]
 };
 
 const reportsPrivateDirectiveField: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports a private unused directive field',
   code: `import { Directive } from '@angular/core'; @Directive({ selector: '[example]' })
         class TestDirective { private internalOnly = 'unused'; }`,
@@ -209,7 +210,7 @@ const reportsPrivateDirectiveField: RuleTester.InvalidTestCase = {
 };
 
 const reportsPrivateDirectiveMethod: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports a private unused directive method',
   code: component(`private internalOnly(): void {}`, {
     metadata: `selector: '[example]'`,
@@ -220,7 +221,7 @@ const reportsPrivateDirectiveMethod: RuleTester.InvalidTestCase = {
 };
 
 const reportsAbstractPrivateMembers: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports private unused members of abstract components',
   code: component(`private internal = 'unused'; private helper(): void {}`, {
     metadata: "template: ''",
@@ -232,7 +233,7 @@ const reportsAbstractPrivateMembers: RuleTester.InvalidTestCase = {
 };
 
 const reportsValidateWithoutFormsInterface: RuleTester.InvalidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'reports an unread validate method when no forms interface is implemented',
   code: component(`validate(): null { return null; }`),
   errors: [unusedMethodError('validate')]

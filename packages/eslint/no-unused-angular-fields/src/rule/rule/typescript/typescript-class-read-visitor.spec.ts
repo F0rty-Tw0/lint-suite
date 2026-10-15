@@ -1,5 +1,6 @@
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import {
   rule,
@@ -8,7 +9,7 @@ import {
 } from '../../test/utils/rule-under-test.spec.util.ts';
 
 const acceptsClassTypeScriptRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read by class TypeScript',
   code: component(
     `private value = 'used'; public read(): string { return this.value; }`,
@@ -17,7 +18,7 @@ const acceptsClassTypeScriptRead: RuleTester.ValidTestCase = {
 };
 
 const acceptsMethodTypeScriptRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a method read by TypeScript',
   code: component(`private used(): void {} ngOnInit(): void { this.used(); }`)
 };

@@ -2,6 +2,7 @@ import { join } from 'node:path';
 
 import type { RuleTester } from 'eslint';
 
+import { LOCAL_ANALYSIS_OPTIONS_STUB } from '../../test/stubs/local-analysis-options.stub.ts';
 import { component } from '../../test/utils/component-source.spec.util.ts';
 import { fixtureDirectory } from '../../test/utils/fixture-project.spec.util.ts';
 import {
@@ -16,7 +17,7 @@ const externalComponentFilename = join(
 );
 
 const acceptsInlineTemplateFieldRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read by an inline template',
   code: component(`protected fromTemplate = 'used';`, {
     metadata: `template: '{{ fromTemplate }}'`
@@ -24,7 +25,7 @@ const acceptsInlineTemplateFieldRead: RuleTester.ValidTestCase = {
 };
 
 const acceptsExternalTemplateFieldRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a field read by an external template',
   filename: externalComponentFilename,
   code: component(`protected fromTemplate = 'used';`, {
@@ -33,7 +34,7 @@ const acceptsExternalTemplateFieldRead: RuleTester.ValidTestCase = {
 };
 
 const acceptsHostExpressionFieldReads: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts fields read by host property and event expressions',
   code: component(
     `protected title = 'used'; protected callback = () => undefined;`,
@@ -44,7 +45,7 @@ const acceptsHostExpressionFieldReads: RuleTester.ValidTestCase = {
 };
 
 const acceptsInlineTemplateMethodRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a method read by an inline template',
   code: component(`private fromTemplate(): string { return 'used'; }`, {
     metadata: `template: '{{ fromTemplate() }}'`
@@ -52,7 +53,7 @@ const acceptsInlineTemplateMethodRead: RuleTester.ValidTestCase = {
 };
 
 const acceptsHostExpressionMethodRead: RuleTester.ValidTestCase = {
-  options: [{ analysis: 'local' }],
+  options: LOCAL_ANALYSIS_OPTIONS_STUB,
   name: 'accepts a method read by a host expression',
   code: component(`protected onClick(): void {}`, {
     metadata: `template: '', host: { '(click)': 'onClick()' }`
