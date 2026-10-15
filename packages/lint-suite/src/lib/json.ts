@@ -9,5 +9,18 @@ export const json = defineConfig([
     files: ['**/*.json'],
     language: 'json/json',
     extends: [jsonPlugin.configs.recommended]
+  },
+  {
+    files: [
+      '**/tsconfig*.json',
+      '**/jsconfig*.json',
+      '**/.vscode/*.json',
+      '**/.devcontainer.json',
+      '**/.devcontainer/**/devcontainer.json',
+      '**/angular.json',
+      '**/.oxlintrc.json'
+    ],
+    language: 'json/jsonc',
+    languageOptions: { allowTrailingCommas: true }
   }
 ]);
