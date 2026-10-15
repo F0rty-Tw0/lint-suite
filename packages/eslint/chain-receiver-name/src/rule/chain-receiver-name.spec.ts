@@ -96,6 +96,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: '`${a}`.length;',
     output: null,
     errors: [errorWithFix('const value = `${a}`;\nvalue.length;')]
+  },
+  {
+    name: 'hoists with the CRLF line break of a CRLF file',
+    code: `a();\r\n(a || b).c;`,
+    output: null,
+    errors: [errorWithFix(`a();\r\nconst value = a || b;\r\n(value).c;`)]
   }
 ];
 
