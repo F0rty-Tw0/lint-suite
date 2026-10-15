@@ -2,37 +2,32 @@ import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 
 import {
+  AMBIENT_REFERENCE_NAMES,
   AMBIENT_SELECTOR,
   CALL_SELECTOR,
   MODULE_LET_SELECTOR,
+  MODULE_SOURCE_SELECTOR,
   MODULE_STATE_SELECTOR,
+  NEW_DATE_SELECTOR,
   NONDETERMINISTIC_SELECTOR,
   defaultOptions,
   meta
 } from './common/util-purity.const.ts';
-import type { MessageIds, Options } from './common/util-purity.type.ts';
+import type {
+  MessageIds,
+  ModuleSourceNode,
+  Options
+} from './common/util-purity.type.ts';
+import { ambientAliases } from './utils/ambient-alias.util.ts';
+import { runtimeModuleSource } from './utils/module-source.util.ts';
+import { isProductionUtilFile } from './utils/util-file.util.ts';
 
 type RuleContext = TSESLint.RuleContext<MessageIds, Options>;
-
-const UTIL_FILE = /\/utils\/[^/]+\.util\.ts$/;
-const TEST_SEGMENT = '/test/';
-const TESTING_SEGMENT = '/testing/';
 
 const createRule = ESLintUtils.RuleCreator(
   () =>
     'https://github.com/F0rty-Tw0/lint-suite/tree/master/packages/eslint/util-purity#readme'
 );
-
-const isUtilFile = (filename: string): boolean => {
-  const isUtilPath = UTIL_FILE.test(filename);
-
-  if (!isUtilPath) return false;
-
-  const isUnderTest =
-    filename.includes(TEST_SEGMENT) || filename.includes(TESTING_SEGMENT);
-
-  return !isUnderTest;
-};
 
 const identifierName = (
   node: TSESTree.Expression | TSESTree.PrivateIdentifier
@@ -110,17 +105,32 @@ const reportCall = (
   report(context, node, 'impureCall', { name });
 };
 
-const handleImport = (
+const reportSource = (
   context: Readonly<RuleContext>,
-  node: TSESTree.ImportDeclaration,
+  node: ModuleSourceNode,
   banned: Set<string>
 ): void => {
-  const { source } = node;
-  const isBanned = banned.has(source.value);
+  const source = runtimeModuleSource(node);
+
+  if (source === undefined) return;
+
+  const isBanned = banned.has(source);
 
   if (!isBanned) return;
 
-  report(context, node, 'impureImport', { source: source.value });
+  report(context, node, 'impureImport', { source });
+};
+
+const reportAliases = (
+  context: Readonly<RuleContext>,
+  program: TSESTree.Program
+): void => {
+  const scope = context.sourceCode.getScope(program);
+  const aliases = ambientAliases(scope, AMBIENT_REFERENCE_NAMES);
+
+  for (const alias of aliases) {
+    report(context, alias, 'ambientAccess', { name: alias.name });
+  }
 };
 
 export default createRule<Options, MessageIds>({
@@ -128,8 +138,7 @@ export default createRule<Options, MessageIds>({
   meta,
   defaultOptions,
   create(context, [{ bannedModules }]) {
-    const filename = context.filename.replaceAll('\\', '/');
-    const isUtil = isUtilFile(filename);
+    const isUtil = isProductionUtilFile(context.filename);
 
     if (!isUtil) {
       const noListeners: TSESLint.RuleListener = {};
@@ -140,8 +149,11 @@ export default createRule<Options, MessageIds>({
     const banned = new Set(bannedModules);
 
     const listeners: TSESLint.RuleListener = {
-      ImportDeclaration(node): void {
-        handleImport(context, node, banned);
+      Program(node): void {
+        reportAliases(context, node);
+      },
+      [MODULE_SOURCE_SELECTOR](node: ModuleSourceNode): void {
+        reportSource(context, node, banned);
       },
       [MODULE_LET_SELECTOR](node: TSESTree.VariableDeclaration): void {
         report(context, node, 'moduleLet', undefined);
@@ -154,6 +166,9 @@ export default createRule<Options, MessageIds>({
       },
       [NONDETERMINISTIC_SELECTOR](node: TSESTree.MemberExpression): void {
         reportNondeterministic(context, node);
+      },
+      [NEW_DATE_SELECTOR](node: TSESTree.NewExpression): void {
+        report(context, node, 'nondeterministic', { name: 'new Date()' });
       },
       [CALL_SELECTOR](node: TSESTree.CallExpression): void {
         reportCall(context, node);
