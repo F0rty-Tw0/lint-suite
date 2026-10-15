@@ -34,24 +34,29 @@ const isMemberCall = (node: TSESTree.Node): node is MemberCall => {
   return node.callee.type === TSESTree.AST_NODE_TYPES.MemberExpression;
 };
 
+const spineReceiver = (node: TSESTree.Node): TSESTree.Node | undefined => {
+  if (isMemberCall(node)) return node.callee.object;
+
+  if (node.type === TSESTree.AST_NODE_TYPES.MemberExpression) {
+    return node.object;
+  }
+
+  return undefined;
+};
+
 const spinePropertyLines = (node: MemberCall): number[] => {
   const lines = [node.callee.property.loc.start.line];
-  let current: TSESTree.Node = node.callee.object;
+  let current: TSESTree.Node | undefined = node.callee.object;
 
-  while (true) {
+  while (current) {
     if (isMemberCall(current)) {
       lines.push(current.callee.property.loc.start.line);
-      current = current.callee.object;
-      continue;
     }
 
-    if (current.type === TSESTree.AST_NODE_TYPES.MemberExpression) {
-      current = current.object;
-      continue;
-    }
-
-    return lines;
+    current = spineReceiver(current);
   }
+
+  return lines;
 };
 
 export default createRule<Options, MessageIds>({
