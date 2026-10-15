@@ -115,6 +115,15 @@ const hoistsChainedCallErrors: RuleTester.TestCaseError[] = [
   { ...hoistsChainedCallBaseError, suggestions: [hoistsChainedCallSuggestion] }
 ];
 
+const crlfObjectSuggestion: RuleTester.SuggestionOutput = {
+  messageId: 'nestedValue',
+  data: hoistsObjectData,
+  output: `x();\r\nconst a = { b: 1 };\r\nconst o = { a: a };`
+};
+const crlfObjectErrors: RuleTester.TestCaseError[] = [
+  { ...hoistsObjectBaseError, suggestions: [crlfObjectSuggestion] }
+];
+
 const noSuggestions: RuleTester.SuggestionOutput[] = [];
 const computedKeyBaseError = nestedValueError('computedKey');
 const computedKeyErrors: RuleTester.TestCaseError[] = [
@@ -150,6 +159,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: `const o = { a: foo().bar() };`,
     output: null,
     errors: hoistsChainedCallErrors
+  },
+  {
+    name: 'hoists with the CRLF line break of a CRLF file',
+    code: `x();\r\nconst o = { a: { b: 1 } };`,
+    output: null,
+    errors: crlfObjectErrors
   },
   {
     name: 'reports without a suggestion for a computed key',
