@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 
+import { programOf } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 import { test } from 'vitest';
 
 import { exportNodes } from './export-nodes.util.ts';
-import { programOf } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 
 const namesOf = (code: string): string[] => {
   const nodes = exportNodes(programOf(code));

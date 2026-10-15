@@ -1,11 +1,11 @@
+import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
+import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
 import { ESLintUtils } from '@typescript-eslint/utils';
 import type {
   ParserServicesWithTypeInformation,
   TSESLint
 } from '@typescript-eslint/utils';
 
-import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
-import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
 import { defaultOptions, meta } from './common/no-unused-exports.const.ts';
 import type {
   MessageIds,
