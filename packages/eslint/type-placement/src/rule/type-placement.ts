@@ -1,9 +1,9 @@
+import { toRegExp } from '@lint-suite/rule-internals/utils/to-regexp.util.ts';
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 
 import { defaultOptions, meta } from './common/type-placement.const.ts';
 import type { MessageIds, Options } from './common/type-placement.type.ts';
-import { toRegExp } from '@lint-suite/rule-internals/utils/to-regexp.util.ts';
 
 type RuleContext = TSESLint.RuleContext<MessageIds, Options>;
 
