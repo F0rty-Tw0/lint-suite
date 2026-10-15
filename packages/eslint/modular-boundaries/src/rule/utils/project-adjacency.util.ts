@@ -1,14 +1,19 @@
 import { mapGlobToRegExp } from './tag-patterns.util.ts';
-
 import type { Project } from '../common/modular-boundaries.type.ts';
 
+type PatternPair = [RegExp, RegExp];
+
+const compiledPair = ([first, second]: [string, string]): PatternPair => {
+  const pair: PatternPair = [mapGlobToRegExp(first), mapGlobToRegExp(second)];
+
+  return pair;
+};
+
 const matchesPair = (
-  [first, second]: [string, string],
+  [firstPattern, secondPattern]: PatternPair,
   a: Project,
   b: Project
 ): boolean => {
-  const firstPattern = mapGlobToRegExp(first);
-  const secondPattern = mapGlobToRegExp(second);
   const isForward = firstPattern.test(a.id) && secondPattern.test(b.id);
   const isBackward = firstPattern.test(b.id) && secondPattern.test(a.id);
 
@@ -21,12 +26,14 @@ export const prunedAdjacency = (
   ignored: [string, string][]
 ): Map<Project, Set<Project>> => {
   const pruned = new Map<Project, Set<Project>>();
+  const pairs = ignored.map(compiledPair);
 
   for (const [source, targets] of adjacency) {
     const isKept = (target: Project): boolean => {
-      return !ignored.some((pair) => matchesPair(pair, source, target));
+      return !pairs.some((pair) => matchesPair(pair, source, target));
     };
-    const kept = [...targets].filter(isKept);
+    const targetList = [...targets];
+    const kept = targetList.filter(isKept);
 
     pruned.set(source, new Set(kept));
   }
@@ -68,7 +75,9 @@ export const breadthFirstParents = (
     const neighbours = adjacency.get(current) ?? [];
 
     for (const neighbour of neighbours) {
-      if (parents.has(neighbour)) continue;
+      const isReached = parents.has(neighbour);
+
+      if (isReached) continue;
 
       parents.set(neighbour, current);
       queue.push(neighbour);
@@ -84,7 +93,9 @@ export const pathBetween = (
   from: Project,
   to: Project
 ): string[] => {
-  if (!parents.has(to)) return [];
+  const isReached = parents.has(to);
+
+  if (!isReached) return [];
 
   const path = [to.id];
   let current = to;

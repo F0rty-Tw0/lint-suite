@@ -3,10 +3,26 @@ import assert from 'node:assert/strict';
 import { test } from 'vitest';
 
 import {
-  hasTag,
+  compiledPatterns,
+  globRegExpIn,
+  importMatcher,
   mapGlobToRegExp,
-  matchImportWithWildcard
+  tagMatcher,
+  tagMatcherIn
 } from './tag-patterns.util.ts';
+import { constraintStub } from '../test/utils/check-edge.spec.util.ts';
+
+const hasTag = (tags: string[], pattern: string): boolean => {
+  const matches = tagMatcher(pattern);
+
+  return matches(tags);
+};
+
+const matchImport = (pattern: string, specifier: string): boolean => {
+  const matches = importMatcher(pattern);
+
+  return matches(specifier);
+};
 
 test('mapGlobToRegExp bans nested subpaths of a scope', (): void => {
   assert.ok(mapGlobToRegExp('@nestjs/*').test('@nestjs/common/testing'));
@@ -29,8 +45,13 @@ test('mapGlobToRegExp keeps unescaped regex characters', (): void => {
   assert.ok(mapGlobToRegExp('a.b').test('axb'));
 });
 
-test('mapGlobToRegExp memoizes compiled patterns', (): void => {
-  assert.equal(mapGlobToRegExp('@scope/**'), mapGlobToRegExp('@scope/**'));
+test('mapGlobToRegExp compiles a pattern to the same matches each time', (): void => {
+  const first = mapGlobToRegExp('@scope/**');
+  const second = mapGlobToRegExp('@scope/**');
+
+  assert.equal(first.source, second.source);
+  assert.ok(first.test('@scope/a/b') && second.test('@scope/a/b'));
+  assert.ok(!first.test('@other/a') && !second.test('@other/a'));
 });
 
 test('hasTag: * matches an untagged project', (): void => {
@@ -62,33 +83,61 @@ test('hasTag: * glob like scope:* matches by prefix', (): void => {
   assert.ok(!hasTag([], 'scope:*'));
 });
 
-test('matchImportWithWildcard accepts this repo allow regex', (): void => {
+test('importMatcher accepts this repo allow regex', (): void => {
   assert.ok(
-    matchImportWithWildcard(
+    matchImport(
       '^.*/eslint\\.config(\\.base)?\\.[cm]?[jt]s$',
       '../../eslint.config.base.ts'
     )
   );
 });
 
-test('matchImportWithWildcard /* allows one more segment only', (): void => {
-  assert.ok(matchImportWithWildcard('@a/b/*', '@a/b/c'));
-  assert.ok(!matchImportWithWildcard('@a/b/*', '@a/b/c/d'));
+test('importMatcher /* allows one more segment only', (): void => {
+  assert.ok(matchImport('@a/b/*', '@a/b/c'));
+  assert.ok(!matchImport('@a/b/*', '@a/b/c/d'));
 });
 
-test('matchImportWithWildcard /** is a prefix match', (): void => {
-  assert.ok(matchImportWithWildcard('@a/b/**', '@a/b/c/d'));
-  assert.ok(matchImportWithWildcard('@a/b/**', '@a/b/'));
-  assert.ok(!matchImportWithWildcard('@a/b/**', '@a/bc'));
+test('importMatcher /** is a prefix match', (): void => {
+  assert.ok(matchImport('@a/b/**', '@a/b/c/d'));
+  assert.ok(matchImport('@a/b/**', '@a/b/'));
+  assert.ok(!matchImport('@a/b/**', '@a/bc'));
 });
 
-test('matchImportWithWildcard inner /**/ is prefix plus suffix', (): void => {
-  assert.ok(matchImportWithWildcard('@a/**/testing', '@a/b/c/testing'));
-  assert.ok(!matchImportWithWildcard('@a/**/testing', '@a/b/c/core'));
-  assert.ok(!matchImportWithWildcard('@a/**/testing', '@x/b/testing'));
+test('importMatcher inner /**/ is prefix plus suffix', (): void => {
+  assert.ok(matchImport('@a/**/testing', '@a/b/c/testing'));
+  assert.ok(!matchImport('@a/**/testing', '@a/b/c/core'));
+  assert.ok(!matchImport('@a/**/testing', '@x/b/testing'));
 });
 
-test('matchImportWithWildcard falls back to an unanchored regex', (): void => {
-  assert.ok(matchImportWithWildcard('lodash', 'lodash-es'));
-  assert.ok(!matchImportWithWildcard('^lodash$', 'lodash-es'));
+test('importMatcher falls back to an unanchored regex', (): void => {
+  assert.ok(matchImport('lodash', 'lodash-es'));
+  assert.ok(!matchImport('^lodash$', 'lodash-es'));
+});
+
+test('compiledPatterns keys every tag and external pattern', (): void => {
+  const match = { anyOf: ['scope:*'], allOf: ['type:ui'] };
+  const constraint = constraintStub({
+    match,
+    onlyTags: ['/^lib/'],
+    notTags: ['legacy'],
+    allowedExternal: ['lodash*'],
+    bannedExternal: ['@nestjs/*']
+  });
+  const patterns = compiledPatterns([constraint]);
+  const tagKeys = Array.from(patterns.tags.keys());
+  const globKeys = Array.from(patterns.globs.keys());
+
+  assert.deepEqual(tagKeys, ['scope:*', 'type:ui', '/^lib/', 'legacy']);
+  assert.deepEqual(globKeys, ['lodash*', '@nestjs/*']);
+});
+
+test('compiled lookups match like freshly compiled patterns', (): void => {
+  const constraint = constraintStub({ onlyTags: ['scope:*'] });
+  const patterns = compiledPatterns([constraint]);
+  const compiled = tagMatcherIn(patterns, 'scope:*');
+  const uncompiled = tagMatcherIn(patterns, 'type:*');
+
+  assert.ok(compiled(['scope:web']) && !compiled(['type:ui']));
+  assert.ok(uncompiled(['type:ui']) && !uncompiled(['scope:web']));
+  assert.ok(globRegExpIn(patterns, 'lodash*').test('lodash-es'));
 });

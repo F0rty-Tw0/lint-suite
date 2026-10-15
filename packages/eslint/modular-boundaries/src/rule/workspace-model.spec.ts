@@ -4,6 +4,8 @@ import { dirname, relative } from 'node:path';
 
 import { onTestFinished, test, vi } from 'vitest';
 
+import type { PathAlias } from './common/modular-boundaries.type.ts';
+import type { FixtureWorkspace } from './test/common/fixture-workspace.type.ts';
 import {
   copyFixtureWorkspace,
   writeTempWorkspace
@@ -13,9 +15,6 @@ import {
   projectForFile,
   workspaceModelFor
 } from './workspace-model.ts';
-
-import type { PathAlias } from './common/modular-boundaries.type.ts';
-import type { FixtureWorkspace } from './test/common/fixture-workspace.type.ts';
 
 const PAST_WINDOW_MS = 10_001;
 
@@ -154,7 +153,8 @@ test('root turbo.json and .moon/workspace.yml data are read from the workspace r
     '.moon/workspace.yml': 'projects:\n  - libs/*\n'
   });
   const model = buildWorkspaceModel(workspace.directory);
-  const expectedTurbo = { tasks: { build: {} } };
+  const tasks = { build: {} };
+  const expectedTurbo = { tasks };
   const expectedMoon = { projects: ['libs/*'] };
 
   assert.deepEqual(model.rootTurbo, expectedTurbo);
@@ -227,7 +227,7 @@ test('after the window an added package rebuilds the model', (): void => {
   assert.ok(second?.projectByPackageName.get('added'));
 });
 
-test('after the window with no change the same model is returned and lastValidatedAt advances', (): void => {
+test('after the window with no change the same model is returned and validation advances', (): void => {
   useFakeClock();
 
   const workspace = fixture('nx');
@@ -236,7 +236,7 @@ test('after the window with no change the same model is returned and lastValidat
 
   assert.ok(first);
 
-  const { lastValidatedAt, listing } = first;
+  const { validation, listing } = first;
 
   vi.advanceTimersByTime(PAST_WINDOW_MS);
 
@@ -244,7 +244,7 @@ test('after the window with no change the same model is returned and lastValidat
 
   assert.ok(second);
   assert.equal(second, first);
-  assert.equal(second.lastValidatedAt, lastValidatedAt + PAST_WINDOW_MS);
+  assert.equal(second.validation.at, validation.at + PAST_WINDOW_MS);
   assert.notEqual(second.listing, listing);
   assert.deepEqual(second.listing, listing);
 });
@@ -264,9 +264,10 @@ test('the workspace root of a directory is reused within the window and re-found
 
   const after = workspaceModelFor(file);
 
-  assert.equal(first?.root, workspace.directory);
-  assert.equal(within?.root, workspace.directory);
-  assert.equal(after?.root, workspace.file('libs/a'));
+  assert.ok(first && within && after);
+  assert.equal(first.root, workspace.directory);
+  assert.equal(within.root, workspace.directory);
+  assert.equal(after.root, workspace.file('libs/a'));
 });
 
 test('the workspaceRoot option wins and may be relative to the cwd', (): void => {

@@ -1,15 +1,14 @@
 import { builtinModules } from 'node:module';
-import { dirname, resolve } from 'node:path';
-
-import { projectForFile } from '../workspace-model.ts';
-import { matchImportWithWildcard } from './tag-patterns.util.ts';
+import { dirname, isAbsolute, resolve } from 'node:path';
 
 import type {
   PathAlias,
   Project,
+  SpecifierMatcher,
   Target,
   WorkspaceModel
 } from '../common/modular-boundaries.type.ts';
+import { projectForFile } from '../workspace-model.ts';
 
 type AliasMatch = { readonly prefixLength: number; readonly path: string };
 
@@ -17,10 +16,11 @@ const SKIP: Target = { kind: 'skip' };
 const URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 const NPM_SPECIFIER = /^(@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*(\/.*)?$/i;
 
-const isAllowed = (specifier: string, allow: string[] | undefined): boolean => {
-  const matches = (pattern: string): boolean => {
-    return matchImportWithWildcard(pattern, specifier);
-  };
+const isAllowed = (
+  specifier: string,
+  allow: SpecifierMatcher[] | undefined
+): boolean => {
+  const matches = (matcher: SpecifierMatcher): boolean => matcher(specifier);
 
   return allow?.some(matches) ?? false;
 };
@@ -95,6 +95,26 @@ const aliasPathFor = (
   return best?.path;
 };
 
+const isPathSpecifier = (specifier: string): boolean => {
+  const isRelative = specifier.startsWith('.');
+  const isAbsolutePath = isAbsolute(specifier);
+
+  return isRelative || isAbsolutePath;
+};
+
+const isIgnoredSpecifier = (
+  specifier: string,
+  allow: SpecifierMatcher[] | undefined,
+  isPath: boolean
+): boolean => {
+  const isAllowedSpecifier = isAllowed(specifier, allow);
+  const isBuiltin = isNodeBuiltin(specifier);
+  const isSubpathImport = specifier.startsWith('#');
+  const hasScheme = !isPath && URL_SCHEME.test(specifier);
+
+  return isAllowedSpecifier || isBuiltin || isSubpathImport || hasScheme;
+};
+
 /**
  * Classifies an import specifier of `sourceFile` as a workspace `project`, an
  * `npm` package, or `skip`, by the first matching resolution step (README § Checks).
@@ -104,18 +124,12 @@ export const resolveTarget = (
   specifier: string,
   sourceFile: string,
   model: WorkspaceModel,
-  allow: string[] | undefined
+  allow: SpecifierMatcher[] | undefined
 ): Target => {
-  const isAllowedSpecifier = isAllowed(specifier, allow);
-  const isBuiltin = isNodeBuiltin(specifier);
-  const isSubpathImport = specifier.startsWith('#');
-  const hasScheme = URL_SCHEME.test(specifier);
-  const isIgnored =
-    isAllowedSpecifier || isBuiltin || isSubpathImport || hasScheme;
+  const isPath = isPathSpecifier(specifier);
+  const isIgnored = isIgnoredSpecifier(specifier, allow, isPath);
 
   if (isIgnored) return SKIP;
-
-  const isPath = specifier.startsWith('.') || specifier.startsWith('/');
 
   if (isPath) {
     const path = resolve(dirname(sourceFile), specifier);

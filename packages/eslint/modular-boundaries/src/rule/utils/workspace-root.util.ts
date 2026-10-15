@@ -1,9 +1,8 @@
 import { basename, dirname, join, resolve } from 'node:path';
 
-import { ROOT_MARKERS } from '../common/modular-boundaries.const.ts';
 import { isRecord } from './guards.util.ts';
 import { readTracked } from './tracked-read.util.ts';
-
+import { ROOT_MARKERS } from '../common/modular-boundaries.const.ts';
 import type {
   ParseResult,
   ReadSet
@@ -19,6 +18,7 @@ const hasWorkspaces = (data: unknown): boolean => {
   const isList = Array.isArray(workspaces);
 
   if (isList) return true;
+
   if (!isRecord(workspaces)) return false;
 
   const { packages } = workspaces;
@@ -37,6 +37,7 @@ const isMarkerContent = (
   result: ParseResult<unknown>
 ): boolean => {
   if (name === 'package.json') return result.ok && hasWorkspaces(result.data);
+
   if (name === 'turbo.json') return result.ok && isRootTurbo(result.data);
 
   return true;

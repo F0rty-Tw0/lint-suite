@@ -1,9 +1,12 @@
-import type { TSESLint } from '@typescript-eslint/utils';
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
-export type ParseResult<T> =
-  { ok: true; data: T } | { ok: false; message: string };
+type ParseSuccess<T> = { readonly ok: true; data: T };
 
-export type ConfigError = { file: string; message: string };
+type ParseFailure = { readonly ok: false; readonly message: string };
+
+export type ParseResult<T> = ParseSuccess<T> | ParseFailure;
+
+export type ConfigError = { readonly file: string; readonly message: string };
 
 /** Collects shape errors for one config `file` into `errors`. */
 export type ShapeReader = {
@@ -25,7 +28,10 @@ export type WorkspaceListing = {
   sourceFiles: string[];
 };
 
-export type DiscoveredRoot = { root: string; moonId?: string };
+export type DiscoveredRoot = {
+  readonly root: string;
+  readonly moonId?: string;
+};
 
 export type DiscoveredRoots = {
   roots: DiscoveredRoot[];
@@ -33,12 +39,12 @@ export type DiscoveredRoots = {
 };
 
 export type Project = {
-  id: string;
-  root: string;
-  packageName?: string;
+  readonly id: string;
+  readonly root: string;
+  readonly packageName?: string;
   tags: string[];
   declaredDependencies: string[];
-  hasOwnPackageJson: boolean;
+  readonly hasOwnPackageJson: boolean;
 };
 
 export type ProjectRead = { project?: Project; errors: ConfigError[] };
@@ -47,10 +53,13 @@ export type ProjectRead = { project?: Project; errors: ConfigError[] };
 export type CheckedProjects = { projects: Project[]; errors: ConfigError[] };
 
 /** `target` is absolute and may contain `*`. */
-export type PathAlias = { pattern: string; target: string };
+export type PathAlias = { readonly pattern: string; readonly target: string };
+
+/** When a model or graph was last checked against disk; replaced, never mutated. */
+export type Validation = { readonly at: number };
 
 export type WorkspaceModel = {
-  root: string;
+  readonly root: string;
   projects: Project[];
   projectByRoot: Map<string, Project>;
   projectByPackageName: Map<string, Project>;
@@ -60,20 +69,30 @@ export type WorkspaceModel = {
   listing: WorkspaceListing;
   errors: ConfigError[];
   readSet: ReadSet;
-  lastValidatedAt: number;
+  validation: Validation;
 };
 
 export type ConstraintMatch = { anyOf?: string[]; allOf?: string[] };
 
 export type Constraint = {
-  side: 'source' | 'target';
+  readonly side: 'source' | 'target';
   match: ConstraintMatch;
   onlyTags?: string[];
   notTags?: string[];
   allowedExternal?: string[];
   bannedExternal?: string[];
-  matchesPackageName: boolean;
-  origin: 'eslint' | 'turbo.json' | '.moon/workspace.yml';
+  readonly matchesPackageName: boolean;
+  readonly origin: 'eslint' | 'turbo.json' | '.moon/workspace.yml';
+};
+
+export type TagMatcher = (tags: string[]) => boolean;
+
+export type SpecifierMatcher = (specifier: string) => boolean;
+
+/** Compiled tag and external-import patterns, keyed by pattern text. */
+export type CompiledPatterns = {
+  readonly tags: Map<string, TagMatcher>;
+  readonly globs: Map<string, RegExp>;
 };
 
 /** Match maps keep merge order per project. */
@@ -82,18 +101,27 @@ export type ConstraintSet = {
   sourceMatches: Map<Project, Constraint[]>;
   targetMatches: Map<Project, Constraint[]>;
   eslintSourceMatched: Set<Project>;
-  hasEslintConstraints: boolean;
+  readonly hasEslintConstraints: boolean;
   errors: ConfigError[];
+  readonly patterns: CompiledPatterns;
+  readonly allow: SpecifierMatcher[];
 };
 
-export type Target =
-  | { kind: 'skip' }
-  | { kind: 'npm'; name: string; specifier: string }
-  | {
-      kind: 'project';
-      project: Project;
-      via: 'relative' | 'package' | 'alias';
-    };
+type SkipTarget = { readonly kind: 'skip' };
+
+export type NpmTarget = {
+  readonly kind: 'npm';
+  readonly name: string;
+  readonly specifier: string;
+};
+
+export type ProjectTarget = {
+  readonly kind: 'project';
+  project: Project;
+  readonly via: 'relative' | 'package' | 'alias';
+};
+
+export type Target = SkipTarget | NpmTarget | ProjectTarget;
 
 export type MessageIds =
   | 'noRelativeOrAbsoluteImportsAcrossLibraries'
@@ -117,7 +145,7 @@ export type RawGraph = {
   adjacency: Map<Project, Set<Project>>;
   sourceFiles: string[];
   specifierRefs: Map<string, unknown>;
-  validatedAt: number;
+  validation: Validation;
 };
 
 type DepConstraintRules = {
@@ -127,26 +155,30 @@ type DepConstraintRules = {
   bannedExternalImports?: string[];
 };
 
-type SourceTagConstraint = DepConstraintRules & { sourceTag: string };
+type SourceTagField = { readonly sourceTag: string };
 
-type AllSourceTagsConstraint = DepConstraintRules & {
-  allSourceTags: string[];
-};
+type AllSourceTagsField = { allSourceTags: string[] };
+
+type SourceTagConstraint = DepConstraintRules & SourceTagField;
+
+type AllSourceTagsConstraint = DepConstraintRules & AllSourceTagsField;
 
 export type DepConstraint = SourceTagConstraint | AllSourceTagsConstraint;
 
-export type ConfigSources = { turbo?: boolean; moon?: boolean };
+type ConfigSources = { readonly turbo?: boolean; readonly moon?: boolean };
 
 export type RuleOptions = {
   allow?: string[];
   depConstraints?: DepConstraint[];
   ignoredCircularDependencies?: [string, string][];
-  checkCircularDependencies?: boolean;
-  checkUndeclaredDependencies?: boolean;
+  readonly checkCircularDependencies?: boolean;
+  readonly checkUndeclaredDependencies?: boolean;
   configSources?: ConfigSources;
-  workspaceRoot?: string;
+  readonly workspaceRoot?: string;
 };
 
 export type Options = [RuleOptions];
 
 export type RuleContext = TSESLint.RuleContext<MessageIds, Options>;
+
+export type EdgeVisitor = (node: TSESTree.Node, specifier: string) => void;

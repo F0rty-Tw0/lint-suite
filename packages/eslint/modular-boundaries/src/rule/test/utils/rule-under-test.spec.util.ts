@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 
+import { LINTER_LANGUAGE_OPTIONS_STUB } from '@lint-suite/rule-test-support/stubs/linter-config.stub.ts';
 import { Linter, RuleTester } from 'eslint';
 import type { ESLint } from 'eslint';
 import { describe, test } from 'vitest';
 
 import plugin from '../../../index.ts';
-import { LINTER_LANGUAGE_OPTIONS_STUB } from '@lint-suite/rule-test-support/stubs/linter-config.stub.ts';
-
 import type {
   DepConstraint,
   RuleOptions

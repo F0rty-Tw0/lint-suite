@@ -2,14 +2,13 @@ import assert from 'node:assert/strict';
 
 import { onTestFinished, test } from 'vitest';
 
-import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 import { readPathAliases } from './path-aliases.util.ts';
-
 import type {
   ConfigError,
   PathAlias
 } from '../common/modular-boundaries.type.ts';
 import type { FixtureWorkspace } from '../test/common/fixture-workspace.type.ts';
+import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 
 const tempWorkspace = (files: Record<string, string>): FixtureWorkspace => {
   const workspace = writeTempWorkspace(files);

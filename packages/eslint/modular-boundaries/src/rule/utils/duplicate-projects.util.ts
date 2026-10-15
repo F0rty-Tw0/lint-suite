@@ -1,7 +1,7 @@
-import { join, relative, sep } from 'node:path';
+import { join, relative } from 'node:path';
 
+import { toPosixPath } from './posix-path.util.ts';
 import { MANIFEST_NAMES } from '../common/modular-boundaries.const.ts';
-
 import type {
   CheckedProjects,
   ConfigError,
@@ -70,10 +70,13 @@ const collisionError = (
 ): ConfigError => {
   const firstFile = primaryManifest(collision.first, manifests);
   const secondFile = primaryManifest(collision.second, manifests);
-  const isFirstLater = firstFile > secondFile;
+  const firstPosix = toPosixPath(firstFile);
+  const secondPosix = toPosixPath(secondFile);
+  const isFirstLater = firstPosix > secondPosix;
   const later = isFirstLater ? firstFile : secondFile;
   const earlier = isFirstLater ? secondFile : firstFile;
-  const earlierPath = relative(root, earlier).split(sep).join('/');
+  const earlierRelative = relative(root, earlier);
+  const earlierPath = toPosixPath(earlierRelative);
   const clashes = collision.clashes.join(' and ');
   const error: ConfigError = {
     file: later,
@@ -105,7 +108,8 @@ export const dropDuplicateProjects = (
     addCollisions(collisions, group, `package name '${name}'`);
   }
 
-  const colliding = [...collisions.values()];
+  const collisionValues = collisions.values();
+  const colliding = [...collisionValues];
   const pairProjects = (collision: Collision): Project[] => {
     return [collision.first, collision.second];
   };

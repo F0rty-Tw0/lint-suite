@@ -6,9 +6,9 @@ import {
 } from 'typescript';
 import { parse } from 'yaml';
 
-import type { Parser, ParseResult } from '../common/modular-boundaries.type.ts';
+import type { ParseResult, Parser } from '../common/modular-boundaries.type.ts';
 
-const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
+const YAML_EXTENSIONS = ['.yml', '.yaml'];
 const LEADING_BOM = /^\uFEFF/u;
 
 const errorMessage = (error: unknown): string => {
@@ -44,7 +44,8 @@ export const parseJson: Parser<unknown> = (text) => {
 };
 
 export const parseJsonc: Parser<unknown> = (text, path) => {
-  const parsed = parseConfigFileTextToJson(path, text);
+  const posixPath = path.replaceAll('\\', '/');
+  const parsed = parseConfigFileTextToJson(posixPath, text);
 
   if (parsed.error) {
     const messageText = parsed.error.messageText;
@@ -86,9 +87,10 @@ export const parserFor = (path: string): Parser<unknown> => {
   const extension = extname(name);
 
   if (name === 'package.json') return parseJson;
+
   if (name === '.nxignore') return parseLines;
 
-  const isYaml = YAML_EXTENSIONS.has(extension);
+  const isYaml = YAML_EXTENSIONS.includes(extension);
 
   if (isYaml) return parseYaml;
 

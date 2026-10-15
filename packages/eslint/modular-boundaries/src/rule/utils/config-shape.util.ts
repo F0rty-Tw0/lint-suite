@@ -1,3 +1,4 @@
+import { isRecord, isStringArray } from './guards.util.ts';
 import type {
   ConfigError,
   Constraint,
@@ -5,8 +6,6 @@ import type {
   JsonObject,
   ShapeReader
 } from '../common/modular-boundaries.type.ts';
-
-import { isRecord, isStringArray } from './guards.util.ts';
 
 const reportShape = (
   reader: ShapeReader,
@@ -26,6 +25,7 @@ export const optionalRecord = (
   path: string
 ): JsonObject => {
   if (value === undefined) return undefined;
+
   if (isRecord(value)) return value;
 
   reportShape(reader, path, 'an object');
@@ -40,6 +40,7 @@ export const optionalTags = (
   path: string
 ): string[] | undefined => {
   if (value === undefined) return undefined;
+
   if (isStringArray(value)) return value;
 
   reportShape(reader, path, 'an array of strings');

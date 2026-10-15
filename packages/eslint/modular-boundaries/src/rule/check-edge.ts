@@ -1,11 +1,12 @@
 import type {
   ConstraintSet,
   EdgeReport,
+  NpmTarget,
   Project,
+  ProjectTarget,
   RuleOptions,
   Target
 } from './common/modular-boundaries.type.ts';
-
 import { findConstraintViolation } from './utils/edge-constraints.util.ts';
 import {
   bannedExternalReport,
@@ -15,16 +16,12 @@ import {
 type CheckEdgeInput = {
   source: Project;
   target: Target;
-  specifier: string;
+  readonly specifier: string;
   constraints: ConstraintSet;
   options: RuleOptions;
   reachesSource?: () => boolean;
   cyclePath?: () => string[];
 };
-
-type NpmTarget = Extract<Target, { kind: 'npm' }>;
-
-type ProjectTarget = Extract<Target, { kind: 'project' }>;
 
 const undeclaredReport = (
   input: CheckEdgeInput,
@@ -41,7 +38,8 @@ const checkNpmEdge = (
 ): EdgeReport | undefined => {
   const { source, constraints, specifier } = input;
   const matched = constraints.sourceMatches.get(source) ?? [];
-  const banned = bannedExternalReport(matched, source, specifier);
+  const { patterns } = constraints;
+  const banned = bannedExternalReport(matched, source, specifier, patterns);
 
   if (banned) return banned;
 
@@ -53,8 +51,11 @@ const circularReport = (
   target: Project
 ): EdgeReport | undefined => {
   const { source, options, reachesSource, cyclePath } = input;
-  const isEnabled = options.checkCircularDependencies !== false;
-  const reaches = isEnabled && reachesSource !== undefined && reachesSource();
+  const isDisabled = options.checkCircularDependencies === false;
+
+  if (isDisabled) return undefined;
+
+  const reaches = reachesSource?.();
 
   if (!reaches) return undefined;
 
@@ -92,9 +93,8 @@ const crossProjectReport = (
 
   if (circular) return circular;
 
-  const isUntagged =
-    constraints.hasEslintConstraints &&
-    !constraints.eslintSourceMatched.has(source);
+  const isMatched = constraints.eslintSourceMatched.has(source);
+  const isUntagged = constraints.hasEslintConstraints && !isMatched;
   const edge = { source, target: project };
 
   if (!isUntagged) return findConstraintViolation(constraints, edge);
@@ -144,6 +144,7 @@ export const checkEdge = (input: CheckEdgeInput): EdgeReport | undefined => {
   const { target } = input;
 
   if (target.kind === 'skip') return undefined;
+
   if (target.kind === 'npm') return checkNpmEdge(input, target);
 
   return checkProjectEdge(input, target);

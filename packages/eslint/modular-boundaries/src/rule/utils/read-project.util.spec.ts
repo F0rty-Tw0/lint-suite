@@ -2,18 +2,17 @@ import assert from 'node:assert/strict';
 
 import { onTestFinished, test } from 'vitest';
 
-import {
-  copyFixtureWorkspace,
-  writeTempWorkspace
-} from '../test/utils/fixture-workspace.spec.util.ts';
 import { readProject } from './read-project.util.ts';
-
 import type {
   DiscoveredRoot,
   Project,
   ProjectRead
 } from '../common/modular-boundaries.type.ts';
 import type { FixtureWorkspace } from '../test/common/fixture-workspace.type.ts';
+import {
+  copyFixtureWorkspace,
+  writeTempWorkspace
+} from '../test/utils/fixture-workspace.spec.util.ts';
 
 const fixture = (name: string): FixtureWorkspace => {
   const workspace = copyFixtureWorkspace(name);
@@ -31,15 +30,23 @@ const tempWorkspace = (files: Record<string, string>): FixtureWorkspace => {
   return workspace;
 };
 
+const discoveredRoot = (root: string, moonId?: string): DiscoveredRoot => {
+  const plain: DiscoveredRoot = { root };
+
+  if (moonId === undefined) return plain;
+
+  const withMoonId: DiscoveredRoot = { root, moonId };
+
+  return withMoonId;
+};
+
 const readAt = (
   workspace: FixtureWorkspace,
   path: string,
   moonId?: string
 ): ProjectRead => {
   const root = workspace.file(path);
-  const discovered: DiscoveredRoot = { root };
-
-  if (moonId !== undefined) discovered.moonId = moonId;
+  const discovered = discoveredRoot(root, moonId);
 
   return readProject(workspace.directory, discovered, new Map());
 };
@@ -117,14 +124,20 @@ test('a project without package.json declares the root package.json dependencies
 });
 
 test('own package.json dependency fields are the declared dependencies', (): void => {
+  const dependencies = { b: '1' };
+  const devDependencies = { c: '1' };
+  const peerDependencies = { b: '1', d: '1' };
+  const optionalDependencies = { e: '1' };
+  const manifest = {
+    dependencies,
+    devDependencies,
+    peerDependencies,
+    optionalDependencies
+  };
+  const manifestText = JSON.stringify(manifest);
   const workspace = tempWorkspace({
     'package.json': '{ "dependencies": { "root-only": "1" } }',
-    'packages/a/package.json': JSON.stringify({
-      dependencies: { b: '1' },
-      devDependencies: { c: '1' },
-      peerDependencies: { b: '1', d: '1' },
-      optionalDependencies: { e: '1' }
-    })
+    'packages/a/package.json': manifestText
   });
   const a = projectAt(workspace, 'packages/a');
 

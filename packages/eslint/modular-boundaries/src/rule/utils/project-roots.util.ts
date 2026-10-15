@@ -8,7 +8,6 @@ import {
   normalizeEntry,
   toRoot
 } from './workspace-globs.util.ts';
-
 import type {
   ConfigError,
   DiscoveredRoot,
@@ -29,6 +28,7 @@ const npmWorkspaceGlobs = (packageJson: Record<string, unknown>): string[] => {
   const { workspaces } = packageJson;
 
   if (isStringArray(workspaces)) return workspaces;
+
   if (!isRecord(workspaces)) return [];
 
   const { packages } = workspaces;
@@ -67,6 +67,7 @@ const moonRoots = (
   if (isStringArray(projects)) {
     return globRoots(root, moonDirectories, projects);
   }
+
   if (!isRecord(projects)) return [];
 
   const { globs, sources } = projects;
@@ -75,8 +76,10 @@ const moonRoots = (
 
   if (!hasGlobs && !hasSources) return sourceRoots(root, projects);
 
-  const globEntries = hasGlobs ? globs : [];
-  const sourceEntries = hasSources ? sources : {};
+  const noGlobs: string[] = [];
+  const noSources: Record<string, unknown> = {};
+  const globEntries = hasGlobs ? globs : noGlobs;
+  const sourceEntries = hasSources ? sources : noSources;
   const globbed = globRoots(root, moonDirectories, globEntries);
   const sourced = sourceRoots(root, sourceEntries);
 
@@ -95,7 +98,8 @@ const readWorkspaceGlobs = (
   const packageJson = readTrackedRecord(readSet, packagePath, errors) ?? {};
   const moon = readTrackedRecord(readSet, moonPath, errors) ?? {};
   const { packages } = pnpm;
-  const pnpmGlobs = isStringArray(packages) ? packages : [];
+  const noPackages: string[] = [];
+  const pnpmGlobs = isStringArray(packages) ? packages : noPackages;
   const npmGlobs = npmWorkspaceGlobs(packageJson);
   const globs: WorkspaceGlobs = {
     pnpmGlobs,
@@ -116,7 +120,8 @@ const mergeRoots = (roots: DiscoveredRoot[]): DiscoveredRoot[] => {
     byRoot.set(discovered.root, merged);
   }
 
-  const merged = [...byRoot.values()];
+  const mergedValues = byRoot.values();
+  const merged = [...mergedValues];
 
   return merged.toSorted((a, b) => (a.root < b.root ? -1 : 1));
 };

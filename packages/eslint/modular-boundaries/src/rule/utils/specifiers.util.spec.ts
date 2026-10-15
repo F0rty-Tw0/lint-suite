@@ -11,11 +11,12 @@ test('extractSpecifiers returns require and dynamic import specifiers', (): void
 });
 
 test('extractSpecifiers returns static import, type import and re-export specifiers', (): void => {
-  const text = [
+  const lines = [
     "import x from 'a';",
     "import type { T } from 'b';",
     "export * from 'c';"
-  ].join('\n');
+  ];
+  const text = lines.join('\n');
   const specifiers = extractSpecifiers(text);
 
   assert.deepEqual(specifiers.toSorted(), ['a', 'b', 'c']);

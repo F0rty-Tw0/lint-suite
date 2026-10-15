@@ -1,5 +1,11 @@
 import { join } from 'node:path';
 
+import {
+  optionalRecord,
+  optionalTags,
+  tagConstraint
+} from './config-shape.util.ts';
+import { isRecord } from './guards.util.ts';
 import type {
   ConfigError,
   Constraint,
@@ -7,13 +13,6 @@ import type {
   ShapeReader,
   WorkspaceModel
 } from '../common/modular-boundaries.type.ts';
-
-import {
-  optionalRecord,
-  optionalTags,
-  tagConstraint
-} from './config-shape.util.ts';
-import { isRecord } from './guards.util.ts';
 
 type TurboRules = {
   readonly key: 'dependencies' | 'dependents';

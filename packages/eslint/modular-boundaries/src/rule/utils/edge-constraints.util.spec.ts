@@ -2,20 +2,19 @@ import assert from 'node:assert/strict';
 
 import { test } from 'vitest';
 
+import { findConstraintViolation } from './edge-constraints.util.ts';
 import type {
   Constraint,
   ConstraintSet,
   EdgeReport,
   Project
 } from '../common/modular-boundaries.type.ts';
-
 import {
   constraintSetStub,
   constraintStub,
   projectStub,
   sourceConstraintSetStub
 } from '../test/utils/check-edge.spec.util.ts';
-import { findConstraintViolation } from './edge-constraints.util.ts';
 
 const app = projectStub('app', { tags: ['type:app'] });
 const lib = projectStub('lib', { tags: ['type:ui'] });
@@ -47,9 +46,10 @@ test('onlyTags passes when the target carries one of the tags', (): void => {
 });
 
 test('onlyTags [] reports only when the target has tags (Nx)', (): void => {
+  const data = { source: 'app', target: 'lib', origin: 'eslint' };
   const expected: EdgeReport = {
     messageId: 'emptyOnlyTagsConstraintViolation',
-    data: { source: 'app', target: 'lib', origin: 'eslint' }
+    data
   };
 
   assert.deepEqual(violation({ onlyTags: [] }, lib), expected);
@@ -64,16 +64,17 @@ test('turbo-origin onlyTags [] reports even for an untagged target', (): void =>
 
 test('notTags reports notTagsConstraintViolation', (): void => {
   const notTags = ['type:ui', 'type:data'];
+  const data = {
+    source: 'app',
+    target: 'lib',
+    side: 'target',
+    project: 'lib',
+    tags: "'type:ui', 'type:data'",
+    origin: 'eslint'
+  };
   const expected: EdgeReport = {
     messageId: 'notTagsConstraintViolation',
-    data: {
-      source: 'app',
-      target: 'lib',
-      side: 'target',
-      project: 'lib',
-      tags: "'type:ui', 'type:data'",
-      origin: 'eslint'
-    }
+    data
   };
 
   assert.deepEqual(violation({ notTags }, lib), expected);
@@ -94,16 +95,17 @@ test('target-side constraint checks the source project', (): void => {
     source: app,
     target: lib
   });
+  const data = {
+    source: 'app',
+    target: 'lib',
+    side: 'source',
+    project: 'app',
+    tags: "'type:feature'",
+    origin: 'turbo.json'
+  };
   const expected: EdgeReport = {
     messageId: 'onlyTagsConstraintViolation',
-    data: {
-      source: 'app',
-      target: 'lib',
-      side: 'source',
-      project: 'app',
-      tags: "'type:feature'",
-      origin: 'turbo.json'
-    }
+    data
   };
 
   assert.deepEqual(report, expected);

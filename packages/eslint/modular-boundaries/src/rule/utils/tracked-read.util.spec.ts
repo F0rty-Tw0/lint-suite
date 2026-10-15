@@ -2,10 +2,9 @@ import assert from 'node:assert/strict';
 
 import { onTestFinished, test } from 'vitest';
 
-import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 import { readTracked, readTrackedData } from './tracked-read.util.ts';
-
 import type { ConfigError } from '../common/modular-boundaries.type.ts';
+import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 
 test('readTracked parses by file name and records the value', (): void => {
   const workspace = writeTempWorkspace({ 'moon.yml': 'tags: [a]\n' });
@@ -15,8 +14,9 @@ test('readTracked parses by file name and records the value', (): void => {
   onTestFinished(workspace.dispose);
 
   const value = readTracked(readSet, path);
+  const data = { tags: ['a'] };
 
-  assert.deepEqual(value, { ok: true, data: { tags: ['a'] } });
+  assert.deepEqual(value, { ok: true, data });
   assert.equal(readSet.get(path), value);
 });
 

@@ -2,15 +2,14 @@ import assert from 'node:assert/strict';
 
 import { test } from 'vitest';
 
-import type {
-  ConfigError,
-  Constraint
-} from '../common/modular-boundaries.type.ts';
-
 import {
   moonConstraints,
   turboConstraints
 } from './config-constraints.util.ts';
+import type {
+  ConfigError,
+  Constraint
+} from '../common/modular-boundaries.type.ts';
 
 const TURBO_FILE = '/ws/turbo.json';
 const MOON_FILE = '/ws/.moon/workspace.yml';

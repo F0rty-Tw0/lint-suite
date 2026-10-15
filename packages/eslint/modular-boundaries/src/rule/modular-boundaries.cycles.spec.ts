@@ -1,6 +1,7 @@
 import type { RuleTester } from 'eslint';
 import { afterAll } from 'vitest';
 
+import type { RuleOptions } from './common/modular-boundaries.type.ts';
 import { IMPORT_B } from './test/common/modular-boundaries.const.ts';
 import { copyFixtureWorkspace } from './test/utils/fixture-workspace.spec.util.ts';
 import {
@@ -10,8 +11,6 @@ import {
   ruleTester,
   validCase
 } from './test/utils/rule-under-test.spec.util.ts';
-
-import type { RuleOptions } from './common/modular-boundaries.type.ts';
 
 const cycles = copyFixtureWorkspace('cycles');
 

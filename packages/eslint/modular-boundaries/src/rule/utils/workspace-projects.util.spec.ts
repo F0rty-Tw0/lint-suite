@@ -2,15 +2,14 @@ import assert from 'node:assert/strict';
 
 import { onTestFinished, test } from 'vitest';
 
-import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
-import { listWorkspaceFiles } from './workspace-listing.util.ts';
+import { listWorkspaceFiles } from '../workspace-listing.ts';
 import {
   packageNameIndex,
   projectRootIndex,
   readWorkspaceProjects
 } from './workspace-projects.util.ts';
-
 import type { ConfigError } from '../common/modular-boundaries.type.ts';
+import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 
 test('projects are indexed by root and by package name when they have one', (): void => {
   const workspace = writeTempWorkspace({
@@ -37,6 +36,8 @@ test('projects are indexed by root and by package name when they have one', (): 
   const files = errors.map((error) => error.file);
 
   assert.equal(byRoot.get(workspace.file('libs/a'))?.id, 'a');
-  assert.deepEqual([...byName.keys()], ['@acme/b']);
+  const names = byName.keys();
+
+  assert.deepEqual([...names], ['@acme/b']);
   assert.deepEqual(files, [workspace.file('libs/c/project.json')]);
 });

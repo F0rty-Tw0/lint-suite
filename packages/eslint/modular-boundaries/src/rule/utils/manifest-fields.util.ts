@@ -1,5 +1,4 @@
 import { isRecord, isStringArray } from './guards.util.ts';
-
 import type { JsonObject } from '../common/modular-boundaries.type.ts';
 
 const field = (record: JsonObject, key: string): unknown => {
@@ -19,8 +18,9 @@ export const stringField = (
 
 export const stringArrayField = (record: JsonObject, key: string): string[] => {
   const value = field(record, key);
+  const none: string[] = [];
 
-  return isStringArray(value) ? value : [];
+  return isStringArray(value) ? value : none;
 };
 
 export const recordField = (record: JsonObject, key: string): JsonObject => {

@@ -1,24 +1,22 @@
 import { spawnSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { basename, extname, join, relative, resolve, sep } from 'node:path';
 
+import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
 import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
 
 import {
   MANIFEST_NAMES,
   SOURCE_EXTENSIONS
-} from '../common/modular-boundaries.const.ts';
-import { isStringArray } from './guards.util.ts';
-import { readTracked } from './tracked-read.util.ts';
-import { isMarkerFile, markedDirectory } from './workspace-root.util.ts';
-
-import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
-import type { Dirent } from 'node:fs';
-
+} from './common/modular-boundaries.const.ts';
 import type {
   ReadSet,
   WorkspaceListing
-} from '../common/modular-boundaries.type.ts';
+} from './common/modular-boundaries.type.ts';
+import { isStringArray } from './utils/guards.util.ts';
+import { readTracked } from './utils/tracked-read.util.ts';
+import { isMarkerFile, markedDirectory } from './utils/workspace-root.util.ts';
 
 const GIT_LIST_ARGS = [
   'ls-files',
@@ -69,11 +67,17 @@ const walkFiles = (root: string, directory: string = root): string[] => {
   for (const entry of entries) {
     const path = join(directory, entry.name);
 
-    if (entry.isFile()) files.push(relative(root, path));
+    const isFile = entry.isFile();
+
+    if (isFile) files.push(relative(root, path));
 
     const isWalked = isWalkedDirectory(entry);
 
-    if (isWalked) files.push(...walkFiles(root, path));
+    if (!isWalked) continue;
+
+    const nestedFiles = walkFiles(root, path);
+
+    files.push(...nestedFiles);
   }
 
   return files;
@@ -91,7 +95,8 @@ const nxIgnoreMatcher = (
 ): GlobMatcher | undefined => {
   const result = readTracked(readSet, join(root, '.nxignore'));
 
-  if (result === null || !result.ok) return undefined;
+  if (!result?.ok) return undefined;
+
   if (!isStringArray(result.data)) return undefined;
 
   const patterns = result.data.flatMap(ignorePatterns);
@@ -150,7 +155,9 @@ const splitListing = (root: string, files: string[]): WorkspaceListing => {
     const isSourceFile = SOURCE_EXTENSIONS.includes(extension);
 
     if (isManifest) listing.manifests.push(file);
+
     if (isPackageTurbo) listing.packageTurboFiles.push(file);
+
     if (isSourceFile) listing.sourceFiles.push(file);
   }
 

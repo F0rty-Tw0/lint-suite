@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
 
 import { test } from 'vitest';
 
@@ -24,6 +25,7 @@ const projectWithTags = (id: string, tags: string[]): Project => {
 
 const modelOf = (projects: Project[]): WorkspaceModel => {
   const listing = { manifests: [], packageTurboFiles: [], sourceFiles: [] };
+  const validation = { at: 0 };
   const model: WorkspaceModel = {
     root: '/ws',
     projects,
@@ -33,7 +35,7 @@ const modelOf = (projects: Project[]): WorkspaceModel => {
     listing,
     errors: [],
     readSet: new Map(),
-    lastValidatedAt: 0
+    validation
   };
 
   return model;
@@ -110,9 +112,10 @@ test('absent onlyDependOnLibsWithTags stays undefined', (): void => {
   const set = constraintsFor(model, { depConstraints });
   const [absent, present] = set.constraints;
 
-  assert.equal(absent?.onlyTags, undefined);
-  assert.ok(absent !== undefined && !('onlyTags' in absent));
-  assert.deepEqual(present?.onlyTags, []);
+  assert.ok(absent && present);
+  assert.equal(absent.onlyTags, undefined);
+  assert.ok(!('onlyTags' in absent));
+  assert.deepEqual(present.onlyTags, []);
 });
 
 test('sourceMatches keeps merge order', (): void => {
@@ -122,8 +125,14 @@ test('sourceMatches keeps merge order', (): void => {
   const depConstraints = [byType, byScope, byAll];
   const set = constraintsFor(model, { depConstraints });
 
-  assert.deepEqual(set.sourceMatches.get(web), set.constraints);
-  assert.equal(set.sourceMatches.get(web)?.[0]?.match.anyOf?.[0], 'type:ui');
+  const matched = set.sourceMatches.get(web);
+
+  assert.deepEqual(matched, set.constraints);
+  assert.ok(matched);
+
+  const [first] = matched;
+
+  assert.equal(first?.match.anyOf?.[0], 'type:ui');
 });
 
 test('ESLint constraints produce no target matches or errors', (): void => {
@@ -284,7 +293,9 @@ test('a non-object dependencies entry yields a workspaceConfigError', (): void =
   const files = set.errors.map((error) => error.file);
   const sides = set.constraints.map((constraint) => constraint.side);
 
-  assert.deepEqual(files, ['/ws/turbo.json', '/ws/turbo.json']);
+  const turboJson = join('/ws', 'turbo.json');
+
+  assert.deepEqual(files, [turboJson, turboJson]);
   assert.match(set.errors[0]?.message ?? '', /broken\.dependencies/);
   assert.deepEqual(sides, ['source']);
 });
