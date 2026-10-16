@@ -47,7 +47,7 @@
         },
         "executor": "nx:run-commands",
         "cache": true,
-        "inputs": ["default", "^default"],
+        "inputs": ["default", "^default", "lintConfig"],
         "options": {
           "command": "tsc -p {projectRoot}/tsconfig.json --noEmit"
         }
