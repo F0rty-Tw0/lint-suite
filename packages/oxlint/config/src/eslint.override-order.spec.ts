@@ -49,7 +49,7 @@ describe('FEATURE: oxlintOverlap override order', () => {
         ['scripts/keep/**', '**/*.cts'],
         ['scripts/keep/**', '**/*.mts']
       ];
-      const scriptsIgnores = [...MINIFIED_GLOBS, 'scripts/**'];
+      const scriptsIgnores = ['scripts/**', ...MINIFIED_GLOBS];
       const expected = [
         {
           files: OXLINT_GLOBS,
@@ -86,7 +86,7 @@ describe('FEATURE: oxlintOverlap override order', () => {
     const config: OxlintConfig = { overrides: [tsOn, specOff] };
 
     it('WHEN it is overlapped THEN its block ignores the later override files', () => {
-      const specIgnores = [...MINIFIED_GLOBS, '**/*.spec.ts'];
+      const specIgnores = ['**/*.spec.ts', ...MINIFIED_GLOBS];
       const expected = [
         {
           files: ['**/*.ts'],

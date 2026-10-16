@@ -135,8 +135,8 @@ describe('FEATURE: oxlintOverlap', () => {
       const varOff = { 'no-var': 'off' };
       const consoleOff = { 'no-console': 'off', 'no-debugger': 'off' };
       const eqeqeqOff = { eqeqeq: 'off' };
-      const specIgnores = [...MINIFIED_GLOBS, '**/*.spec.ts'];
-      const scriptsIgnores = [...MINIFIED_GLOBS, 'scripts/**'];
+      const specIgnores = ['**/*.spec.ts', ...MINIFIED_GLOBS];
+      const scriptsIgnores = ['scripts/**', ...MINIFIED_GLOBS];
       const expected = [
         { files: OXLINT_GLOBS, ignores: MINIFIED_GLOBS, rules: varOff },
         { files: OXLINT_GLOBS, ignores: specIgnores, rules: consoleOff },

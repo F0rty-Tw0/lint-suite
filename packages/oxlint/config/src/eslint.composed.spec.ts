@@ -27,7 +27,8 @@ const KEPT_SAMPLES: string[] = [
   'generated/a.ts',
   'vendor/a.min.js',
   'src/a-min.ts',
-  'src/a_min.ts'
+  'src/a_min.ts',
+  'vendor/keep.min.js'
 ];
 
 const consoleOff: DummyRuleMap = { 'eslint/no-console': 'off' };
@@ -54,6 +55,10 @@ const scopedUserConfig: OxlintConfig = {
   overrides: [scriptsAliasOff]
 };
 
+const reincludedMinifiedConfig: OxlintConfig = {
+  ignorePatterns: ['vendor/**', '!vendor/keep.min.js']
+};
+
 const userOverridePass: ParityPass = {
   title: 'user: recommended + a scripts/** override turning no-console off',
   eslint: eslintRecommended,
@@ -69,11 +74,19 @@ const scopedUserPass: ParityPass = {
   typeAware: false
 };
 
+const reincludedMinifiedPass: ParityPass = {
+  title: 'user: recommended + ignorePatterns that re-include a minified file',
+  eslint: eslintRecommended,
+  oxlint: defineLintSuiteConfig(recommended, reincludedMinifiedConfig),
+  typeAware: false
+};
+
 const parityPassList = parityPasses();
 const KEPT_PASSES: ParityPass[] = [
   ...parityPassList,
   userOverridePass,
-  scopedUserPass
+  scopedUserPass,
+  reincludedMinifiedPass
 ];
 
 const ANGULAR_PASS_TITLE = 'pass 3: recommended + angular';

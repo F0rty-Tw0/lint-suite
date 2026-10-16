@@ -81,7 +81,7 @@ How the blocks are scoped:
 - Rule keys are read as oxlint reads them: `@typescript-eslint/x`, `import-x/x`, `react-hooks/x` and the other aliases oxlint accepts count as the rule they stand for, and `typescript/default-param-last` turns off `eslint/default-param-last`.
 - A built-in rule counts only when oxlint runs its plugin: `eslint` always, plus every `plugins` list in your config and its `extends` (a config without `plugins` means `unicorn`, `typescript`, `oxc`). An override's own `plugins` count only for that override's rules and files, as in oxlint. Exception: when `import` is enabled only inside an override, oxlint builds no module graph, so `import/default`, `export`, `named`, `namespace`, `no-cycle`, `no-named-as-default`, `no-named-as-default-member` and `no-self-import` do not run there, and ESLint keeps them on.
 - Files matched by the root `ignorePatterns` are ignored by every block, so ESLint keeps every rule on for them.
-- oxlint never lints minified files, even when you pass them by path: any file whose name contains `.min.`, `-min.` or `_min.`, such as `vendor/lib.min.js` or `src/a-min.ts`. Every block ignores them, so ESLint keeps every rule on for them.
+- oxlint never lints minified files, even when you pass them by path: any file whose name contains `.min.`, `-min.` or `_min.`, such as `vendor/lib.min.js` or `src/a-min.ts`. The match is case-sensitive and looks at the file name only, so `a.MIN.js` and `a.min/b.js` are linted. Every block ignores minified files, even ones a negated `ignorePatterns` entry re-includes, so ESLint keeps every rule on for them.
 
 Limits:
 

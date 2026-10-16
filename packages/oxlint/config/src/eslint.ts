@@ -137,7 +137,7 @@ const toBlocks = (
 ): Linter.Config[] => {
   const toBlock = (group: OffGroup): Linter.Config => {
     const rules = toOffRules(group.names);
-    const ignores = [...pathIgnores, ...group.ignores];
+    const ignores = [...pathIgnores, ...group.ignores, ...MINIFIED_FILES];
     const block: Linter.Config = { files, ignores, rules };
 
     return block;
@@ -158,8 +158,7 @@ export const oxlintOverlap = (config: OxlintConfig): Linter.Config[] => {
   const topRules = topLevelRules(config);
   const baseRules = runnableRules(topRules, plugins);
   const ignorePatterns = config.ignorePatterns ?? [];
-  const patternIgnores = toEslintIgnores(ignorePatterns);
-  const pathIgnores = [...MINIFIED_FILES, ...patternIgnores];
+  const pathIgnores = toEslintIgnores(ignorePatterns);
   const baseLayer: OverlapLayer = {
     files: OXLINT_FILES,
     blockFiles: OXLINT_FILES,

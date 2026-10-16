@@ -196,7 +196,7 @@ describe('FEATURE: oxlintOverlap follows how oxlint resolves rule keys, plugins 
       const blocks = oxlintOverlap(scopedAliasOffConfig);
 
       const selfImportOff = { 'import-x/no-self-import': 'off' };
-      const ignores = [...MINIFIED_GLOBS, 'scripts/**'];
+      const ignores = ['scripts/**', ...MINIFIED_GLOBS];
       const expected = [{ files: OXLINT_GLOBS, ignores, rules: selfImportOff }];
 
       expect(blocks).toEqual(expected);
