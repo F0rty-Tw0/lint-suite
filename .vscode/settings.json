@@ -11,6 +11,7 @@
     "source.fixAll.stylelint": "explicit"
   },
   "eslint.enable": true,
+  "eslint.execArgv": ["--conditions=development"],
   "eslint.format.enable": true,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
