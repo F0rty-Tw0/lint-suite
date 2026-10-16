@@ -79,14 +79,17 @@
   "exports": {
     "./package.json": "./package.json",
     "./eslint": {
+      "development": "./src/eslint.ts",
       "types": "./eslint.d.ts",
       "default": "./eslint.js"
     },
     "./stylelint": {
+      "development": "./src/stylelint.ts",
       "types": "./stylelint.d.ts",
       "default": "./stylelint.js"
     },
     "./prettier": {
+      "development": "./src/prettier.ts",
       "types": "./prettier.d.ts",
       "default": "./prettier.js"
     }
@@ -111,12 +114,7 @@
       "build": {
         "executor": "nx:run-commands"
       },
-      "typecheck": {},
-      "lint": {
-        "options": {
-          "command": "node --conditions=development ../../node_modules/eslint/bin/eslint.js . --max-warnings=0"
-        }
-      }
+      "typecheck": {}
     }
   }
 }

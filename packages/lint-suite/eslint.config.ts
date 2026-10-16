@@ -1,32 +1,7 @@
-import { defineConfig, globalIgnores } from 'eslint/config';
-import {
-  createTypeScriptImportResolver,
-  defaultConditionNames
-} from 'eslint-import-resolver-typescript';
+import { defineConfig } from 'eslint/config';
 import * as jsoncParser from 'jsonc-eslint-parser';
 
-import { workspaceConfig } from '../../eslint.config.base.ts';
-import { base } from './src/lib/base.ts';
-import { boundaries } from './src/lib/boundaries.ts';
-import { javascript } from './src/lib/javascript.ts';
-import { prettier } from './src/lib/prettier.ts';
-import { typescript } from './src/lib/typescript.ts';
-
-const packageEntryPoints = [
-  '**/src/*.ts',
-  '**/main.ts',
-  '**/main.*.ts',
-  '**/public-api.ts',
-  '**/index.ts',
-  '**/*.config.{ts,mts,cts}',
-  '**/*.spec.ts',
-  '**/*.spec.util.ts',
-  '**/*.stub.ts',
-  '**/*.mock.ts',
-  '**/*.d.ts',
-  '**/*.stories.ts',
-  '**/environment*.ts'
-];
+import { dogfoodConfig } from '../../eslint.config.dogfood.ts';
 
 // String-located presets, fixture frameworks, test runners, and the public parser peer.
 const ignoredDependencies = [
@@ -46,37 +21,12 @@ const dependencyChecksOptions = {
 };
 
 const config = defineConfig(
-  base,
-  javascript,
-  typescript,
-  boundaries,
-  prettier,
-  workspaceConfig,
-  globalIgnores(['**/fixtures/**'], 'lint-suite/fixtures'),
+  dogfoodConfig,
   {
-    name: 'lint-suite/prettier-width',
-    files: ['**/*.ts'],
-    languageOptions: {
-      parserOptions: {
-        tsconfigRootDir: import.meta.dirname
-      }
-    },
-    settings: {
-      'import-x/resolver-next': [
-        createTypeScriptImportResolver({
-          alwaysTryTypes: true,
-          conditionNames: ['development', ...defaultConditionNames]
-        })
-      ]
-    },
-    rules: {
-      'local/one-line-guard': ['error', { maxLineLength: 80 }],
-      'local/no-unused-exports': ['error', { entryPoints: packageEntryPoints }]
-    }
-  },
-  {
+    // Preset files are rule tables; naming every option literal would scatter each table across constants.
     name: 'lint-suite/preset-files',
     files: ['src/*.ts', 'src/lib/*.ts', 'eslint.config.ts'],
+    ignores: ['**/*.spec.ts'],
     rules: {
       'local/no-nested-object-value': 'off'
     }
