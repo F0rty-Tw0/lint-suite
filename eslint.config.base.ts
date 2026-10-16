@@ -31,7 +31,9 @@ export const workspaceConfig = defineConfig([
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: ['^.*/eslint\\.config(\\.base)?\\.[cm]?[jt]s$'],
+          allow: ['^.*/eslint\\.config(\\.base|\\.dogfood)?\\.[cm]?[jt]s$'],
+          // The lazy-load check is for Angular bundles; rule-internals is only dynamic in a vi.resetModules spec.
+          checkDynamicDependenciesExceptions: ['@lint-suite/rule-internals/**'],
           depConstraints: [
             {
               sourceTag: '*',

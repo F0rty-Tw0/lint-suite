@@ -25,6 +25,7 @@
     "esbuild": "catalog:dev",
     "eslint": "catalog:dev",
     "eslint-config-prettier": "catalog:dev",
+    "eslint-import-resolver-typescript": "catalog:typescript",
     "jsonc-eslint-parser": "catalog:dev",
     "npm": "catalog:dev",
     "nx": "catalog:dev",
