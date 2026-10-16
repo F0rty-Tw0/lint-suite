@@ -60,7 +60,7 @@ rules: {
 }
 ```
 
-A configured `bannedModules` array replaces the default. A banned module is reported however it is reached: `import`, `export ... from`, `export * from`, `import x = require(...)`, and `import('...')` with a string literal. Type-only forms are allowed because they emit no runtime code: `import type`, `export type`, `export type *`, `import type x = require(...)`, and an import or re-export whose every specifier is marked `type`. File naming is required: only production paths matching `utils/<name>.util.ts` are checked. A `.spec.util.ts` file is excluded only when it is below `test/` or `testing/`.
+A configured `bannedModules` array replaces the default. A banned module is reported however it is reached: `import`, `export ... from`, `export * from`, `import x = require(...)`, and `import('...')` with a string literal. Type-only declarations are allowed because they emit no runtime code: `import type`, `export type`, `export type *`, and `import type x = require(...)`. An import or re-export whose every specifier is marked inline `type` (`import { type X } from '...'`) is still reported: under `verbatimModuleSyntax` it compiles to `import {} from '...'`, which loads the module. File naming is required: only production paths matching `utils/<name>.util.ts` are checked. A `.spec.util.ts` file is excluded only when it is below `test/` or `testing/`.
 
 ## Examples
 

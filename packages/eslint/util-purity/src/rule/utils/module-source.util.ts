@@ -6,49 +6,14 @@ type ModuleReference = TSESTree.TSImportEqualsDeclaration['moduleReference'];
 
 const { AST_NODE_TYPES } = TSESTree;
 
-const isTypeImportSpecifier = (specifier: TSESTree.ImportClause): boolean => {
-  if (specifier.type !== AST_NODE_TYPES.ImportSpecifier) return false;
-
-  return specifier.importKind === 'type';
-};
-
-const isTypeExportSpecifier = (specifier: TSESTree.ExportSpecifier): boolean =>
-  specifier.exportKind === 'type';
-
-const isTypeOnlyImport = (node: TSESTree.ImportDeclaration): boolean => {
-  if (node.importKind === 'type') return true;
-
-  const { specifiers } = node;
-
-  if (specifiers.length === 0) return false;
-
-  const allTypes = specifiers.every(isTypeImportSpecifier);
-
-  return allTypes;
-};
-
-const isTypeOnlyExport = (node: TSESTree.ExportNamedDeclaration): boolean => {
-  if (node.exportKind === 'type') return true;
-
-  const { specifiers } = node;
-
-  if (specifiers.length === 0) return false;
-
-  const allTypes = specifiers.every(isTypeExportSpecifier);
-
-  return allTypes;
-};
-
 const isTypeOnly = (node: ModuleSourceNode): boolean => {
   switch (node.type) {
     case AST_NODE_TYPES.ImportDeclaration:
-      return isTypeOnlyImport(node);
-    case AST_NODE_TYPES.ExportNamedDeclaration:
-      return isTypeOnlyExport(node);
-    case AST_NODE_TYPES.ExportAllDeclaration:
-      return node.exportKind === 'type';
     case AST_NODE_TYPES.TSImportEqualsDeclaration:
       return node.importKind === 'type';
+    case AST_NODE_TYPES.ExportNamedDeclaration:
+    case AST_NODE_TYPES.ExportAllDeclaration:
+      return node.exportKind === 'type';
     case AST_NODE_TYPES.ImportExpression:
       return false;
   }

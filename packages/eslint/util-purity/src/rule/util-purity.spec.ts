@@ -110,19 +110,9 @@ const valid: RuleTester.ValidTestCase[] = [
     code: `import type { Stats } from 'node:fs';`
   },
   {
-    name: 'allows an import whose every specifier is type-only',
-    filename: UTIL_FILE,
-    code: `import { type Stats, type Dirent } from 'node:fs';`
-  },
-  {
     name: 'allows a type-only re-export from a banned module',
     filename: UTIL_FILE,
     code: `export type { Stats } from 'node:fs';`
-  },
-  {
-    name: 'allows a re-export whose every specifier is type-only',
-    filename: UTIL_FILE,
-    code: `export { type Stats } from 'node:fs';`
   },
   {
     name: 'allows a type-only star re-export from a banned module',
@@ -225,6 +215,18 @@ const invalid: RuleTester.InvalidTestCase[] = [
     name: 'reports a re-export mixing type and value specifiers',
     filename: UTIL_FILE,
     code: `export { type Stats, readFileSync } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports an import whose every specifier is inline type-only',
+    filename: UTIL_FILE,
+    code: `import { type Stats, type Dirent } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a re-export whose every specifier is inline type-only',
+    filename: UTIL_FILE,
+    code: `export { type Stats } from 'node:fs';`,
     errors: [nodeFsImportError]
   },
   {
