@@ -12,7 +12,10 @@ const NEEDS_PARENS = new Set([
   TSESTree.AST_NODE_TYPES.TSUnionType,
   TSESTree.AST_NODE_TYPES.TSIntersectionType,
   TSESTree.AST_NODE_TYPES.TSFunctionType,
-  TSESTree.AST_NODE_TYPES.TSConditionalType
+  TSESTree.AST_NODE_TYPES.TSConditionalType,
+  TSESTree.AST_NODE_TYPES.TSConstructorType,
+  TSESTree.AST_NODE_TYPES.TSInferType,
+  TSESTree.AST_NODE_TYPES.TSTypeOperator
 ]);
 
 const arrayTypeText = (

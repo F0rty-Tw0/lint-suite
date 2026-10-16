@@ -38,6 +38,29 @@ const invalid: RuleTester.InvalidTestCase[] = [
     errors: [readonlyArray('(A | B)[]', `type A = (A | B)[];`)]
   },
   {
+    name: 'suggests a parenthesised keyof array for ReadonlyArray<keyof T>',
+    code: `type A<T> = ReadonlyArray<keyof T>;`,
+    output: null,
+    errors: [readonlyArray('(keyof T)[]', `type A<T> = (keyof T)[];`)]
+  },
+  {
+    name: 'suggests a parenthesised constructor array for ReadonlyArray<new () => T>',
+    code: `type A<T> = ReadonlyArray<new () => T>;`,
+    output: null,
+    errors: [readonlyArray('(new () => T)[]', `type A<T> = (new () => T)[];`)]
+  },
+  {
+    name: 'suggests a parenthesised infer array for ReadonlyArray<infer U>',
+    code: `type A<T> = T extends ReadonlyArray<infer U> ? U : never;`,
+    output: null,
+    errors: [
+      readonlyArray(
+        '(infer U)[]',
+        `type A<T> = T extends (infer U)[] ? U : never;`
+      )
+    ]
+  },
+  {
     name: 'does not autofix a readonly array that holds a frozen value, so --fix keeps it compiling',
     code: `const a: readonly number[] = Object.freeze([1]);`,
     output: null,

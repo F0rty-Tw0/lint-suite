@@ -61,6 +61,12 @@ describe('FEATURE: runtimeModuleSource', () => {
       assert.equal(source, 'fs');
     });
 
+    test('WHEN every specifier is inline type-only THEN returns its source', () => {
+      const source = sourceOf(`import { type A } from 'fs';`);
+
+      assert.equal(source, 'fs');
+    });
+
     test('WHEN it is a require import-equals THEN returns its source', () => {
       const source = sourceOf(`import fs = require('fs');`);
 
@@ -86,17 +92,17 @@ describe('FEATURE: runtimeModuleSource', () => {
 
       assert.equal(source, 'fs');
     });
+
+    test('WHEN every specifier is inline type-only THEN returns its source', () => {
+      const source = sourceOf(`export { type A } from 'fs';`);
+
+      assert.equal(source, 'fs');
+    });
   });
 
   describe('GIVEN a type-only import', () => {
     test('WHEN it uses import type THEN returns undefined', () => {
       const source = sourceOf(`import type { A } from 'fs';`);
-
-      assert.equal(source, undefined);
-    });
-
-    test('WHEN every specifier is type-only THEN returns undefined', () => {
-      const source = sourceOf(`import { type A } from 'fs';`);
 
       assert.equal(source, undefined);
     });
@@ -111,12 +117,6 @@ describe('FEATURE: runtimeModuleSource', () => {
   describe('GIVEN a type-only re-export', () => {
     test('WHEN it uses export type THEN returns undefined', () => {
       const source = sourceOf(`export type { A } from 'fs';`);
-
-      assert.equal(source, undefined);
-    });
-
-    test('WHEN every specifier is type-only THEN returns undefined', () => {
-      const source = sourceOf(`export { type A } from 'fs';`);
 
       assert.equal(source, undefined);
     });
