@@ -1,0 +1,96 @@
+{
+  "name": "@lint-suite/oxlint-config",
+  "version": "1.0.0",
+  "description": "Oxlint configuration presets mirroring the lint-suite ESLint presets",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F0rty-Tw0/lint-suite.git",
+    "directory": "packages/oxlint/config"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./local-plugin": {
+      "development": "./src/local-plugin.ts",
+      "types": "./local-plugin.d.ts",
+      "default": "./local-plugin.js"
+    },
+    "./eslint": {
+      "development": "./src/eslint.ts",
+      "types": "./eslint.d.ts",
+      "default": "./eslint.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@lint-suite/eslint-arrow-fits-line": "workspace:*",
+    "@lint-suite/eslint-chain-fits-line": "workspace:*",
+    "@lint-suite/eslint-chain-receiver-name": "workspace:*",
+    "@lint-suite/eslint-explicit-accessibility": "workspace:*",
+    "@lint-suite/eslint-max-condition-operands": "workspace:*",
+    "@lint-suite/eslint-no-call-in-condition": "workspace:*",
+    "@lint-suite/eslint-no-grouped-condition": "workspace:*",
+    "@lint-suite/eslint-no-inline-object-types": "workspace:*",
+    "@lint-suite/eslint-no-inline-return-object": "workspace:*",
+    "@lint-suite/eslint-no-nested-object-value": "workspace:*",
+    "@lint-suite/eslint-no-spread-expression": "workspace:*",
+    "@lint-suite/eslint-one-line-guard": "workspace:*",
+    "@lint-suite/eslint-readonly-type-properties": "workspace:*",
+    "@lint-suite/eslint-ternary-branch-shape": "workspace:*",
+    "@lint-suite/eslint-test-file-shape": "workspace:*",
+    "@lint-suite/eslint-type-placement": "workspace:*",
+    "@lint-suite/eslint-util-purity": "workspace:*",
+    "@lint-suite/eslint-modular-boundaries": "workspace:*",
+    "@lint-suite/eslint-no-unused-angular-fields": "workspace:*",
+    "@angular-eslint/eslint-plugin": "catalog:angular",
+    "@smarttools/eslint-plugin-rxjs": "catalog:rxjs",
+    "eslint-plugin-boundaries": "catalog:boundaries",
+    "eslint-import-resolver-typescript": "catalog:typescript",
+    "globals": "catalog:angular",
+    "@stylistic/eslint-plugin": "catalog:base",
+    "eslint-plugin-playwright": "catalog:playwright",
+    "eslint-plugin-storybook": "catalog:storybook",
+    "oxlint-plugin-eslint": "catalog:oxlint"
+  },
+  "peerDependencies": {
+    "oxlint": "catalog:oxlint-compatibility",
+    "oxlint-tsgolint": "catalog:oxlint-compatibility",
+    "typescript": "catalog:typescript-compatibility",
+    "eslint": "catalog:base"
+  },
+  "peerDependenciesMeta": {
+    "oxlint-tsgolint": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "oxlint": "catalog:oxlint",
+    "lint-suite": "workspace:*",
+    "eslint": "catalog:dev",
+    "typescript-eslint": "catalog:dev",
+    "vitest": "catalog:dev"
+  },
+  "nx": {
+    "name": "oxlint-config",
+    "sourceRoot": "packages/oxlint/config/src",
+    "projectType": "library",
+    "targets": {
+      "typecheck": {}
+    }
+  }
+}
