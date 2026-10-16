@@ -67,6 +67,14 @@ export const dogfoodConfig = defineConfig(
       '@typescript-eslint/no-unsafe-unary-minus': 'error',
       '@typescript-eslint/prefer-promise-reject-errors': 'error'
     }
+  },
+  {
+    name: 'dogfood/type-checked-source',
+    files: ['**/*.ts'],
+    ignores: ['**/*.spec.ts', '**/*.spec.util.ts', '**/test/**'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'error'
+    }
   }
 );
 
