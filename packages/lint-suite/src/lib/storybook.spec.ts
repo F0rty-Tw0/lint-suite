@@ -10,7 +10,13 @@ const eslint = new ESLint({
 
 describe('FEATURE: storybook preset', () => {
   describe('GIVEN the Storybook main config file', () => {
-    it.each(['.storybook/main.ts', '.storybook/main.js'])(
+    it.each([
+      '.storybook/main.ts',
+      '.storybook/main.js',
+      '.storybook/main.cts',
+      'apps/web/.storybook/main.ts',
+      'libs/ui/.storybook/main.mts'
+    ])(
       'WHEN the config for %s is calculated THEN storybook/no-uninstalled-addons is an error',
       async (filePath) => {
         const config: unknown = await eslint.calculateConfigForFile(filePath);
