@@ -8,6 +8,13 @@
       "!{projectRoot}/**/*.spec.ts",
       "!{projectRoot}/**/test/**"
     ],
+    "lintConfig": [
+      "{workspaceRoot}/eslint.config.base.ts",
+      "{workspaceRoot}/eslint.config.dogfood.ts",
+      "{workspaceRoot}/packages/lint-suite/src/**/*.ts",
+      "{workspaceRoot}/packages/eslint/*/src/**/*.ts",
+      "{workspaceRoot}/shared/*/src/**/*.ts"
+    ],
     "sharedGlobals": [
       "{workspaceRoot}/tsconfig.base.json",
       "{workspaceRoot}/pnpm-workspace.yaml",
@@ -49,14 +56,17 @@
     "lint": [
       {
         "filter": {
-          "projects": ["packages/**"]
+          "projects": ["packages/**", "shared/**"]
         },
         "executor": "nx:run-commands",
         "cache": true,
-        "inputs": ["default", "^default"],
+        "inputs": ["default", "^default", "lintConfig"],
         "options": {
           "command": "eslint . --max-warnings=0",
-          "cwd": "{projectRoot}"
+          "cwd": "{projectRoot}",
+          "env": {
+            "NODE_OPTIONS": "--conditions=development"
+          }
         }
       }
     ],
