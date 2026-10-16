@@ -9,6 +9,9 @@
     "./*.ts": "./src/*.ts"
   },
   "devDependencies": {
+    "eslint": "catalog:dev",
+    "typescript-eslint": "catalog:dev",
+    "vitest": "catalog:dev",
     "@typescript-eslint/utils": "catalog:typescript",
     "@angular/compiler": "catalog:angular",
     "typescript": "catalog:typescript",

@@ -38,6 +38,7 @@
     "typescript": "catalog:typescript-compatibility"
   },
   "devDependencies": {
+    "vitest": "catalog:dev",
     "@lint-suite/rule-test-support": "workspace:*",
     "typescript-eslint": "catalog:dev"
   },

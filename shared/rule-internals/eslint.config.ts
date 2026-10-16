@@ -1,7 +1,7 @@
 import { defineConfig } from 'eslint/config';
 
-import { typescriptConfig } from '../../eslint.config.base.ts';
+import { sharedPackageConfig } from '../../eslint.config.dogfood.ts';
 
-const config = defineConfig(typescriptConfig);
+const config = defineConfig(sharedPackageConfig);
 
 export default config;
