@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import modularBoundaries from '@lint-suite/eslint-modular-boundaries';
+import { oxlintOverlap } from '@lint-suite/oxlint-config/eslint';
+import localPlugin from '@lint-suite/oxlint-config/local-plugin';
 import { Linter } from 'eslint';
 import engine from 'stylelint';
 import { stylelint } from 'lint-suite/stylelint';
@@ -74,4 +76,16 @@ const crossProject = boundaries.filter(
 assert.equal(crossProject.length, 1);
 console.log(
   'PASS: packed modular-boundaries plugin resolves yaml and typescript and reports a cross-project relative import'
+);
+
+assert.equal(localPlugin.meta?.name, 'local');
+console.log(
+  'PASS: packed oxlint local plugin loads without a runtime failure and names itself local'
+);
+
+const overlap = oxlintOverlap({ rules: { 'eslint/no-console': 'error' } });
+const overlapRules = overlap.flatMap((block) => Object.keys(block.rules ?? {}));
+assert.deepEqual(overlapRules, ['no-console']);
+console.log(
+  'PASS: packed oxlint ESLint overlap turns the oxlint-enabled rule off in ESLint'
 );

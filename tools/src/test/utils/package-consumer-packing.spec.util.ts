@@ -42,8 +42,15 @@ export const runPnpm = (cwd: string, pnpmArguments: string[]): string => {
   );
 };
 
-const hostVersion = (name: string): string => {
-  const manifestPath = requireHost.resolve(`${name}/package.json`);
+const requireOxlint = createRequire(
+  new URL('../../../../packages/oxlint/config/package.json', import.meta.url)
+);
+
+const hostVersion = (
+  name: string,
+  resolver: NodeJS.Require = requireHost
+): string => {
+  const manifestPath = resolver.resolve(`${name}/package.json`);
   const manifest = readJsonFile<PackageManifest>(manifestPath);
 
   return manifest.version;
@@ -114,8 +121,13 @@ export const consumerDependencies = (
   const eslintPlugin = packages['@lint-suite/eslint-no-unstyled-classes'];
   const boundariesPlugin = packages['@lint-suite/eslint-modular-boundaries'];
   const stylelintPlugin = packages['@lint-suite/stylelint-no-unused-classes'];
+  const oxlintConfig = packages['@lint-suite/oxlint-config'];
   const missingPackage =
-    !lintSuite || !eslintPlugin || !boundariesPlugin || !stylelintPlugin;
+    !lintSuite ||
+    !eslintPlugin ||
+    !boundariesPlugin ||
+    !stylelintPlugin ||
+    !oxlintConfig;
 
   if (missingPackage) {
     throw new Error('Expected packed public packages required by the consumer');
@@ -124,10 +136,12 @@ export const consumerDependencies = (
   const dependencies: Record<string, string> = {
     '@lint-suite/eslint-modular-boundaries': boundariesPlugin.archive,
     '@lint-suite/eslint-no-unstyled-classes': eslintPlugin.archive,
+    '@lint-suite/oxlint-config': oxlintConfig.archive,
     '@lint-suite/stylelint-no-unused-classes': stylelintPlugin.archive,
     '@types/node': hostVersion('@types/node'),
     eslint: hostVersion('eslint'),
     'lint-suite': lintSuite.archive,
+    oxlint: hostVersion('oxlint', requireOxlint),
     prettier: hostVersion('prettier'),
     stylelint: hostVersion('stylelint'),
     typescript: hostVersion('typescript')

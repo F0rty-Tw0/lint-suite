@@ -1,6 +1,12 @@
 import template, {
   noUnstyledClassesRule
 } from '@lint-suite/eslint-no-unstyled-classes';
+import {
+  defineLintSuiteConfig,
+  recommended as oxlintRecommended
+} from '@lint-suite/oxlint-config';
+import { oxlintOverlap } from '@lint-suite/oxlint-config/eslint';
+import localPlugin from '@lint-suite/oxlint-config/local-plugin';
 import stylePlugin from '@lint-suite/stylelint-no-unused-classes';
 import { recommended } from 'lint-suite/eslint';
 import { prettier } from 'lint-suite/prettier';
@@ -10,5 +16,9 @@ void template;
 void noUnstyledClassesRule;
 void stylePlugin;
 void recommended;
+void oxlintRecommended;
+void defineLintSuiteConfig;
+void localPlugin;
+void oxlintOverlap;
 void prettier;
 void stylelint;
