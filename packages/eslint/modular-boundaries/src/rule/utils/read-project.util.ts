@@ -136,10 +136,6 @@ const declaredDependencies = (
   return dependencyNames(rootPackageJson);
 };
 
-/**
- * Reads one project's manifests. A malformed manifest adds a `ConfigError` and is
- * read as absent; the root is no project when no manifest parsed and no moon id names it.
- */
 const withPackageName = (
   project: Project,
   packageName: string | undefined
@@ -151,6 +147,10 @@ const withPackageName = (
   return named;
 };
 
+/**
+ * Reads one project's manifests. A malformed manifest adds a `ConfigError` and is
+ * read as absent; the root is no project when no manifest parsed and no moon id names it.
+ */
 export const readProject = (
   workspaceRoot: string,
   discovered: DiscoveredRoot,
