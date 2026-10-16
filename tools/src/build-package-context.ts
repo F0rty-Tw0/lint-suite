@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { createProjectGraphAsync, readJsonFile } from '@nx/devkit';
 import type { NxJsonConfiguration } from '@nx/devkit';
-import { resolve } from 'node:path';
 
 import type {
   BuildPackageContext,
@@ -18,6 +20,38 @@ const releaseProjectNames = (configuration: NxJsonConfiguration): string[] => {
   }
 
   return projects;
+};
+
+const subpathEntryName = (subpath: string): string => {
+  if (subpath === '.') return 'index';
+
+  return subpath.slice('./'.length);
+};
+
+const isEntrySubpath = (subpath: string): boolean => {
+  return subpath !== './package.json';
+};
+
+export const entryNamesFromExports = (
+  exports: Readonly<Record<string, unknown>>
+): string[] => {
+  const keys = Object.keys(exports);
+  const subpaths = keys.filter(isEntrySubpath);
+  const entryNames = subpaths.map(subpathEntryName);
+
+  return entryNames;
+};
+
+export const packageAssets = (packageRoot: string): string[] => {
+  const assets = ['README.md', 'LICENSE', 'CHANGELOG.md'];
+  const missingPath = resolve(packageRoot, 'MISSING.md');
+  const hasMissing = existsSync(missingPath);
+
+  if (hasMissing) {
+    assets.push('MISSING.md');
+  }
+
+  return assets;
 };
 
 export const buildPackageContext = async (
@@ -59,14 +93,19 @@ export const buildPackageContext = async (
   }
 
   const isUmbrella = manifest.name === 'lint-suite';
-  const entryNames = isUmbrella
-    ? ['eslint', 'stylelint', 'prettier']
-    : ['index'];
+
+  if (!manifest.exports) {
+    throw new Error(`Package has no exports: ${manifest.name}`);
+  }
+
+  const entryNames = entryNamesFromExports(manifest.exports);
+  const assets = packageAssets(packageRoot);
   const sourceRoot = resolve(packageRoot, 'src');
   const entryPoints = entryNames.map((entryName): string =>
     resolve(sourceRoot, `${entryName}.ts`)
   );
   const context: BuildPackageContext = {
+    assets,
     entryPoints,
     isUmbrella,
     manifest,
