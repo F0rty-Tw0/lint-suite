@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   JS_PLUGIN_ERROR,
+  MINIFIED_GUARD_FILE,
   ONE_LINE_GUARD_RULE,
   SMOKE_ACCEPTED_STATUSES,
   SMOKE_CONFIG,
@@ -67,6 +68,17 @@ describe('FEATURE: oxlint smoke run over the fixture workspace', () => {
       const trigger: SmokeTrigger = {
         rule: ONE_LINE_GUARD_RULE,
         file: SUPPRESSED_GUARD_FILE
+      };
+
+      const reported = isReported(diagnostics, trigger);
+
+      expect(reported).toBe(false);
+    });
+
+    it('WHEN the same violation sits in a .min.ts file THEN oxlint skips the file and does not report it', () => {
+      const trigger: SmokeTrigger = {
+        rule: ONE_LINE_GUARD_RULE,
+        file: MINIFIED_GUARD_FILE
       };
 
       const reported = isReported(diagnostics, trigger);

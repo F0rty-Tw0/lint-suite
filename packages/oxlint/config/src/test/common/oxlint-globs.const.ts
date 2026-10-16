@@ -8,3 +8,9 @@ export const OXLINT_GLOBS: string[] = [
   '**/*.cts',
   '**/*.mts'
 ];
+
+export const MINIFIED_GLOBS: string[] = [
+  '**/*.min.*',
+  '**/*-min.*',
+  '**/*_min.*'
+];

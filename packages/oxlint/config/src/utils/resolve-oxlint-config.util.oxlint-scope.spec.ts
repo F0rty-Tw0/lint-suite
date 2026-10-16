@@ -1,7 +1,10 @@
 import type { DummyRuleMap, OxlintConfig, OxlintOverride } from 'oxlint';
 import { describe, expect, it } from 'vitest';
 
-import { resolveOxlintConfig } from './resolve-oxlint-config.util.ts';
+import {
+  lintsFile,
+  resolveOxlintConfig
+} from './resolve-oxlint-config.util.ts';
 import type { ResolvedOxlintConfig } from '../common/oxlint-config.type.ts';
 
 const EMPTY_RESOLVED: ResolvedOxlintConfig = {
@@ -70,6 +73,26 @@ const SCRIPTS_RULES: Record<string, unknown> = {
 };
 
 describe('FEATURE: resolve oxlint config the way oxlint scopes rules', () => {
+  describe('GIVEN file names oxlint 1.88 treats as minified when probed', () => {
+    it.each(['a.min.js', 'a-min.ts', 'a_min.mts', 'a.min.spec.ts', '-min.cjs'])(
+      'WHEN the file is %s THEN it is not linted',
+      (fileName) => {
+        const linted = lintsFile(`src/${fileName}`);
+
+        expect(linted).toBe(false);
+      }
+    );
+
+    it.each(['a.mini.js', 'a.MIN.js', 'min.js', 'b-min-c.ts', 'a.min/b.js'])(
+      'WHEN the file is %s THEN it is linted',
+      (fileName) => {
+        const linted = lintsFile(`src/${fileName}`);
+
+        expect(linted).toBe(true);
+      }
+    );
+  });
+
   describe('GIVEN root ignorePatterns, an aliased override key and a rule of a plugin that is not enabled', () => {
     it('WHEN the file matches an ignore pattern THEN everything is empty', () => {
       const resolved = resolveOxlintConfig(root, 'generated/a.ts');

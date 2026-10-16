@@ -81,10 +81,13 @@ How the blocks are scoped:
 - Rule keys are read as oxlint reads them: `@typescript-eslint/x`, `import-x/x`, `react-hooks/x` and the other aliases oxlint accepts count as the rule they stand for, and `typescript/default-param-last` turns off `eslint/default-param-last`.
 - A built-in rule counts only when oxlint runs its plugin: `eslint` always, plus every `plugins` list in your config and its `extends` (a config without `plugins` means `unicorn`, `typescript`, `oxc`). An override's own `plugins` count only for that override's rules and files, as in oxlint. Exception: when `import` is enabled only inside an override, oxlint builds no module graph, so `import/default`, `export`, `named`, `namespace`, `no-cycle`, `no-named-as-default`, `no-named-as-default-member` and `no-self-import` do not run there, and ESLint keeps them on.
 - Files matched by the root `ignorePatterns` are ignored by every block, so ESLint keeps every rule on for them.
+- oxlint never lints minified files, even when you pass them by path: any file whose name contains `.min.`, `-min.` or `_min.`, such as `vendor/lib.min.js` or `src/a-min.ts`. Every block ignores them, so ESLint keeps every rule on for them.
 
 Limits:
 
 - oxlint also skips files in `.gitignore`; `oxlintOverlap` does not read it. If ESLint should skip them too, add `includeIgnoreFile` from `@eslint/compat` to your ESLint config.
+- oxlint also skips the paths listed in `.eslintignore` (it reads that file by default); `oxlintOverlap` does not read it either. ESLint flat config ignores `.eslintignore`, so the rules turned off there run in neither tool. Add those paths to your ESLint `ignores` too, or remove them from `.eslintignore`.
+- Rule options set in the ESLint config are not carried over. `oxlintOverlap` turns the ESLint rule off, so an option override, such as `maxLineLength` for `local/one-line-guard`, must be repeated in the oxlint config. Otherwise oxlint runs the rule with the preset's options.
 - oxlint lints the `<script>` blocks of `.vue`, `.svelte` and `.astro` files, but `oxlintOverlap` leaves those files to ESLint with every rule on.
 - A bare glob (no `/`) in an oxlint override is emitted as `**/<pattern>`, because oxlint matches it at any depth and ESLint only at the top level.
 - `excludeFiles` is not supported and throws.

@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  minifiedFileGlobs,
   oxlintFileGlobs,
   toEslintFiles,
   toOxlintScopedFiles
 } from './eslint-files.util.ts';
-import { OXLINT_GLOBS } from '../test/common/oxlint-globs.const.ts';
+import {
+  MINIFIED_GLOBS,
+  OXLINT_GLOBS
+} from '../test/common/oxlint-globs.const.ts';
 
 describe('FEATURE: toEslintFiles', () => {
   describe('GIVEN patterns', () => {
@@ -35,6 +39,16 @@ describe('FEATURE: oxlintFileGlobs', () => {
       const globs = oxlintFileGlobs();
 
       expect(globs).toEqual(OXLINT_GLOBS);
+    });
+  });
+});
+
+describe('FEATURE: minifiedFileGlobs', () => {
+  describe('GIVEN the minified file name markers oxlint skips', () => {
+    it('WHEN they are read as globs THEN each matches a file name holding its marker at any depth', () => {
+      const globs = minifiedFileGlobs();
+
+      expect(globs).toEqual(MINIFIED_GLOBS);
     });
   });
 });

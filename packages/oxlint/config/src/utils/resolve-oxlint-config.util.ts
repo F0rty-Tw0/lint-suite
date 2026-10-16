@@ -1,4 +1,4 @@
-import { extname } from 'node:path';
+import { basename, extname } from 'node:path';
 
 import type { ExternalPluginEntry, OxlintConfig, OxlintOverride } from 'oxlint';
 
@@ -11,7 +11,10 @@ import {
 } from './oxlint-plugins.util.ts';
 import { assertPrefixedRuleKeys, canonicalRules } from './rule-key.util.ts';
 import type { ResolvedOxlintConfig } from '../common/oxlint-config.type.ts';
-import { OXLINT_EXTENSIONS } from '../common/oxlint-files.const.ts';
+import {
+  MINIFIED_MARKERS,
+  OXLINT_EXTENSIONS
+} from '../common/oxlint-files.const.ts';
 
 const EMPTY_RESOLVED: ResolvedOxlintConfig = {
   rules: {},
@@ -89,8 +92,12 @@ export const orderedOverrides = (config: OxlintConfig): OxlintOverride[] => {
 
 export const lintsFile = (filePath: string): boolean => {
   const extension = extname(filePath);
+  const fileName = basename(filePath);
+  const isMarkedBy = (marker: string): boolean => fileName.includes(marker);
+  const isOxlintType = OXLINT_EXTENSIONS.includes(extension);
+  const isMinified = MINIFIED_MARKERS.some(isMarkedBy);
 
-  return OXLINT_EXTENSIONS.includes(extension);
+  return isOxlintType && !isMinified;
 };
 
 /** The rules, plugins, settings and globals of `config` plus its `matching` overrides, in order. */

@@ -3,6 +3,7 @@ import type { OxlintConfig, OxlintOverride } from 'oxlint';
 
 import type { EslintFilePattern } from './common/eslint-files.type.ts';
 import {
+  minifiedFileGlobs,
   oxlintFileGlobs,
   toEslintFiles,
   toOxlintScopedFiles
@@ -36,6 +37,8 @@ type OffGroup = {
 };
 
 const OXLINT_FILES: string[] = oxlintFileGlobs();
+
+const MINIFIED_FILES: string[] = minifiedFileGlobs();
 
 const NO_NAMES: ReadonlySet<string> = new Set();
 
@@ -134,12 +137,8 @@ const toBlocks = (
 ): Linter.Config[] => {
   const toBlock = (group: OffGroup): Linter.Config => {
     const rules = toOffRules(group.names);
-    const block: Linter.Config = { files, rules };
     const ignores = [...pathIgnores, ...group.ignores];
-
-    if (ignores.length > 0) {
-      block.ignores = ignores;
-    }
+    const block: Linter.Config = { files, ignores, rules };
 
     return block;
   };
@@ -159,7 +158,8 @@ export const oxlintOverlap = (config: OxlintConfig): Linter.Config[] => {
   const topRules = topLevelRules(config);
   const baseRules = runnableRules(topRules, plugins);
   const ignorePatterns = config.ignorePatterns ?? [];
-  const pathIgnores = toEslintIgnores(ignorePatterns);
+  const patternIgnores = toEslintIgnores(ignorePatterns);
+  const pathIgnores = [...MINIFIED_FILES, ...patternIgnores];
   const baseLayer: OverlapLayer = {
     files: OXLINT_FILES,
     blockFiles: OXLINT_FILES,

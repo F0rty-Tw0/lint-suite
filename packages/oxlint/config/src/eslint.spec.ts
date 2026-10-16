@@ -3,7 +3,10 @@ import type { DummyRuleMap, OxlintConfig, OxlintOverride } from 'oxlint';
 import { describe, expect, it } from 'vitest';
 
 import { oxlintOverlap } from './eslint.ts';
-import { OXLINT_GLOBS } from './test/common/oxlint-globs.const.ts';
+import {
+  MINIFIED_GLOBS,
+  OXLINT_GLOBS
+} from './test/common/oxlint-globs.const.ts';
 import { eslintConfigFor } from './test/utils/eslint-sample-config.spec.util.ts';
 import {
   consoleSeverity,
@@ -31,7 +34,9 @@ describe('FEATURE: oxlintOverlap', () => {
         '@typescript-eslint/no-explicit-any': 'off',
         'local/one-line-guard': 'off'
       };
-      const expected = [{ files: OXLINT_GLOBS, rules: offRules }];
+      const expected = [
+        { files: OXLINT_GLOBS, ignores: MINIFIED_GLOBS, rules: offRules }
+      ];
 
       const blocks = oxlintOverlap(config);
 
@@ -71,7 +76,8 @@ describe('FEATURE: oxlintOverlap', () => {
 
     it('WHEN it is overlapped THEN the only block has the override files and turns it off', () => {
       const offRules = { 'no-console': 'off', 'no-debugger': 'off' };
-      const expected = [{ files: ['src/**/*.spec.ts'], rules: offRules }];
+      const files = ['src/**/*.spec.ts'];
+      const expected = [{ files, ignores: MINIFIED_GLOBS, rules: offRules }];
 
       const blocks = oxlintOverlap(config);
 
@@ -93,7 +99,8 @@ describe('FEATURE: oxlintOverlap', () => {
 
     it('WHEN it is overlapped THEN the override block holds only the override-only rule', () => {
       const offRules = { 'no-debugger': 'off' };
-      const expected = { files: ['**/*.ts'], rules: offRules };
+      const files = ['**/*.ts'];
+      const expected = { files, ignores: MINIFIED_GLOBS, rules: offRules };
 
       const [, scoped] = oxlintOverlap(config);
 
@@ -128,10 +135,12 @@ describe('FEATURE: oxlintOverlap', () => {
       const varOff = { 'no-var': 'off' };
       const consoleOff = { 'no-console': 'off', 'no-debugger': 'off' };
       const eqeqeqOff = { eqeqeq: 'off' };
+      const specIgnores = [...MINIFIED_GLOBS, '**/*.spec.ts'];
+      const scriptsIgnores = [...MINIFIED_GLOBS, 'scripts/**'];
       const expected = [
-        { files: OXLINT_GLOBS, rules: varOff },
-        { files: OXLINT_GLOBS, ignores: ['**/*.spec.ts'], rules: consoleOff },
-        { files: OXLINT_GLOBS, ignores: ['scripts/**'], rules: eqeqeqOff }
+        { files: OXLINT_GLOBS, ignores: MINIFIED_GLOBS, rules: varOff },
+        { files: OXLINT_GLOBS, ignores: specIgnores, rules: consoleOff },
+        { files: OXLINT_GLOBS, ignores: scriptsIgnores, rules: eqeqeqOff }
       ];
 
       const blocks = oxlintOverlap(config);
@@ -142,7 +151,10 @@ describe('FEATURE: oxlintOverlap', () => {
     it.each([
       ['src/a.ts', 'off'],
       ['src/a.spec.ts', 'error'],
-      ['a.spec.ts', 'error']
+      ['a.spec.ts', 'error'],
+      ['src/a.min.ts', 'error'],
+      ['src/a-min.ts', 'error'],
+      ['src/a_min.ts', 'error']
     ])(
       'WHEN ESLint evaluates %s THEN no-console is %s',
       async (sample, severity) => {

@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest';
 
 import { oxlintOverlap } from './eslint.ts';
 import { CONSOLE_ON } from './test/common/overlap.const.ts';
-import { OXLINT_GLOBS } from './test/common/oxlint-globs.const.ts';
+import {
+  MINIFIED_GLOBS,
+  OXLINT_GLOBS
+} from './test/common/oxlint-globs.const.ts';
 import { eslintConfigFor } from './test/utils/eslint-sample-config.spec.util.ts';
 import { consoleSeverity } from './test/utils/overlap.spec.util.ts';
 import { normalizeSeverity } from './utils/rule-name.util.ts';
@@ -46,13 +49,14 @@ describe('FEATURE: oxlintOverlap override order', () => {
         ['scripts/keep/**', '**/*.cts'],
         ['scripts/keep/**', '**/*.mts']
       ];
+      const scriptsIgnores = [...MINIFIED_GLOBS, 'scripts/**'];
       const expected = [
         {
           files: OXLINT_GLOBS,
-          ignores: ['scripts/**'],
+          ignores: scriptsIgnores,
           rules: ESLINT_CONSOLE_OFF
         },
-        { files: keepFiles, rules: ESLINT_CONSOLE_OFF }
+        { files: keepFiles, ignores: MINIFIED_GLOBS, rules: ESLINT_CONSOLE_OFF }
       ];
 
       const blocks = oxlintOverlap(config);
@@ -82,10 +86,11 @@ describe('FEATURE: oxlintOverlap override order', () => {
     const config: OxlintConfig = { overrides: [tsOn, specOff] };
 
     it('WHEN it is overlapped THEN its block ignores the later override files', () => {
+      const specIgnores = [...MINIFIED_GLOBS, '**/*.spec.ts'];
       const expected = [
         {
           files: ['**/*.ts'],
-          ignores: ['**/*.spec.ts'],
+          ignores: specIgnores,
           rules: ESLINT_CONSOLE_OFF
         }
       ];
@@ -123,9 +128,13 @@ describe('FEATURE: oxlintOverlap override order', () => {
       const eqeqeqOff = { eqeqeq: 'off' };
       const varOff = { 'no-var': 'off' };
       const expected = [
-        { files: OXLINT_GLOBS, rules: ESLINT_CONSOLE_OFF },
-        { files: ['**/*.js'], rules: eqeqeqOff },
-        { files: ['**/*.ts'], rules: varOff }
+        {
+          files: OXLINT_GLOBS,
+          ignores: MINIFIED_GLOBS,
+          rules: ESLINT_CONSOLE_OFF
+        },
+        { files: ['**/*.js'], ignores: MINIFIED_GLOBS, rules: eqeqeqOff },
+        { files: ['**/*.ts'], ignores: MINIFIED_GLOBS, rules: varOff }
       ];
 
       const blocks = oxlintOverlap(child);

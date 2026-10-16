@@ -24,7 +24,10 @@ const OVERLAP_SAMPLES: string[] = [...PARITY_SAMPLES, 'src/a.component.ts'];
 const KEPT_SAMPLES: string[] = [
   ...OVERLAP_SAMPLES,
   'scripts/a.ts',
-  'generated/a.ts'
+  'generated/a.ts',
+  'vendor/a.min.js',
+  'src/a-min.ts',
+  'src/a_min.ts'
 ];
 
 const consoleOff: DummyRuleMap = { 'eslint/no-console': 'off' };

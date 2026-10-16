@@ -8,3 +8,5 @@ export const OXLINT_EXTENSIONS: string[] = [
   '.cts',
   '.mts'
 ];
+
+export const MINIFIED_MARKERS: string[] = ['.min.', '-min.', '_min.'];

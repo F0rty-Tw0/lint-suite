@@ -3,7 +3,10 @@ import type { DummyRuleMap, OxlintConfig, OxlintOverride } from 'oxlint';
 import { describe, expect, it } from 'vitest';
 
 import { oxlintOverlap } from './eslint.ts';
-import { OXLINT_GLOBS } from './test/common/oxlint-globs.const.ts';
+import {
+  MINIFIED_GLOBS,
+  OXLINT_GLOBS
+} from './test/common/oxlint-globs.const.ts';
 import { eslintConfigFor } from './test/utils/eslint-sample-config.spec.util.ts';
 import { overlapOffNames } from './test/utils/overlap.spec.util.ts';
 import { defineLintSuiteConfig } from './utils/define-lint-suite-config.util.ts';
@@ -154,6 +157,7 @@ const scriptsBlockRules: Linter.RulesRecord = {
 
 const scriptsBlock: Linter.Config = {
   files: scriptsFiles,
+  ignores: MINIFIED_GLOBS,
   rules: scriptsBlockRules
 };
 
@@ -192,9 +196,8 @@ describe('FEATURE: oxlintOverlap follows how oxlint resolves rule keys, plugins 
       const blocks = oxlintOverlap(scopedAliasOffConfig);
 
       const selfImportOff = { 'import-x/no-self-import': 'off' };
-      const expected = [
-        { files: OXLINT_GLOBS, ignores: ['scripts/**'], rules: selfImportOff }
-      ];
+      const ignores = [...MINIFIED_GLOBS, 'scripts/**'];
+      const expected = [{ files: OXLINT_GLOBS, ignores, rules: selfImportOff }];
 
       expect(blocks).toEqual(expected);
     });

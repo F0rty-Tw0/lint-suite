@@ -15,6 +15,9 @@ const GUARD_FILE = 'apps/shell/src/local-one-line-guard.ts';
 export const SUPPRESSED_GUARD_FILE =
   'apps/shell/src/suppressed-one-line-guard.ts';
 
+export const MINIFIED_GUARD_FILE =
+  'apps/shell/src/minified-one-line-guard.min.ts';
+
 export const SMOKE_TRIGGERS: SmokeTrigger[] = [
   { rule: ONE_LINE_GUARD_RULE, file: GUARD_FILE },
   {

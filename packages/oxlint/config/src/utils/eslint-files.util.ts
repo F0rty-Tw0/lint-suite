@@ -1,5 +1,8 @@
 import type { EslintFilePattern } from '../common/eslint-files.type.ts';
-import { OXLINT_EXTENSIONS } from '../common/oxlint-files.const.ts';
+import {
+  MINIFIED_MARKERS,
+  OXLINT_EXTENSIONS
+} from '../common/oxlint-files.const.ts';
 
 const toEslintGlob = (pattern: string): string => {
   const hasSlash = pattern.includes('/');
@@ -10,6 +13,8 @@ const toEslintGlob = (pattern: string): string => {
 };
 
 const toExtensionGlob = (extension: string): string => `**/*${extension}`;
+
+const toMarkerGlob = (marker: string): string => `**/*${marker}*`;
 
 const endsWithOxlintExtension = (glob: string): boolean => {
   const isSuffix = (extension: string): boolean => glob.endsWith(extension);
@@ -23,6 +28,10 @@ export const toEslintFiles = (files: string[]): string[] => {
 
 export const oxlintFileGlobs = (): string[] => {
   return OXLINT_EXTENSIONS.map(toExtensionGlob);
+};
+
+export const minifiedFileGlobs = (): string[] => {
+  return MINIFIED_MARKERS.map(toMarkerGlob);
 };
 
 const toOxlintScopedPatterns = (glob: string): EslintFilePattern[] => {
