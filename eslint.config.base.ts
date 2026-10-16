@@ -30,7 +30,8 @@ export const workspaceConfig = defineConfig([
       '@nx/enforce-module-boundaries': [
         'error',
         {
-          enforceBuildableLibDependency: true,
+          // The shared/* packages are source-only and bundled into every package build.
+          enforceBuildableLibDependency: false,
           allow: ['^.*/eslint\\.config(\\.base|\\.dogfood)?\\.[cm]?[jt]s$'],
           // The lazy-load check is for Angular bundles; rule-internals is only dynamic in a vi.resetModules spec.
           checkDynamicDependenciesExceptions: ['@lint-suite/rule-internals/**'],
