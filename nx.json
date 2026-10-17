@@ -146,6 +146,7 @@
       "eslint-no-unused-angular-fields",
       "eslint-no-unstyled-classes",
       "stylelint-no-unused-classes",
+      "oxlint-config",
       "lint-suite"
     ],
     "projectsRelationship": "independent",

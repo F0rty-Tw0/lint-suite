@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, relative, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 
 import ts from 'typescript';
 
@@ -11,6 +11,7 @@ import {
   declarationPath,
   rewrittenDeclaration
 } from './build-package-declaration-path.ts';
+import { ownPrivateSources } from './build-package-private-sources.ts';
 
 const umbrellaPaths = (context: BuildPackageContext): ts.MapLike<string[]> => {
   const dependencies: PackageDependencyMap = {
@@ -84,17 +85,11 @@ export const emitPackageDeclarations = async (
   );
   const roots = [...context.entryPoints, ...ambientDeclarations];
   const resolvedProgram = ts.createProgram(roots, options);
-  const isPrivateSource = (source: ts.SourceFile): boolean => {
-    const privatePath = relative(context.privateRoot, source.fileName);
-    const isWithinPrivateRoot =
-      !privatePath.startsWith('..') && !isAbsolute(privatePath);
-
-    return isWithinPrivateRoot && !source.isDeclarationFile;
-  };
-  const sharedSources = resolvedProgram
-    .getSourceFiles()
-    .filter(isPrivateSource);
-  const sources = sharedSources.map((source): string => source.fileName);
+  const sources = ownPrivateSources(
+    resolvedProgram,
+    context.sourceRoot,
+    context.privateRoot
+  );
   const program =
     sources.length === 0
       ? resolvedProgram

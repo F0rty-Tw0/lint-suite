@@ -96,13 +96,7 @@ const publishedManifest = (
     manifest.exports = exports;
   }
 
-  manifest.files = [
-    '**/*.js',
-    '**/*.d.ts',
-    'README.md',
-    'LICENSE',
-    'CHANGELOG.md'
-  ];
+  manifest.files = ['**/*.js', '**/*.d.ts', ...context.assets];
 
   return manifest;
 };
@@ -123,7 +117,7 @@ export const writePublishedManifest = async (
 
   await writeFile(resolve(context.outputRoot, 'package.json'), text);
 
-  for (const asset of ['README.md', 'LICENSE', 'CHANGELOG.md']) {
+  for (const asset of context.assets) {
     const sourcePath = resolve(context.packageRoot, asset);
     const targetPath = resolve(context.outputRoot, asset);
 

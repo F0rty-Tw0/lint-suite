@@ -28,6 +28,7 @@ export type PackageManifest = {
 export type PackageRootsByName = Record<string, string>;
 
 export type BuildPackageContext = {
+  readonly assets: string[];
   readonly entryPoints: string[];
   readonly isUmbrella: boolean;
   readonly manifest: PackageManifest;

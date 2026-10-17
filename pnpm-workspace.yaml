@@ -1,12 +1,14 @@
 packages:
   - 'packages/lint-suite'
   - 'packages/eslint/*'
+  - 'packages/oxlint/*'
   - 'packages/stylelint/*'
   - 'shared/*'
   - 'tools'
 
 catalogs:
   angular:
+    '@angular-eslint/eslint-plugin': '^22.5.0'
     '@angular/compiler': '22.2.2'
     angular-eslint: '^22.5.0'
     globals: '17.13.0'
@@ -21,6 +23,12 @@ catalogs:
     '@eslint/js': '^10.0.1'
   json:
     '@eslint/json': '^2.1.1'
+  oxlint:
+    oxlint: '1.88.0'
+    oxlint-plugin-eslint: '1.88.0'
+  oxlint-compatibility:
+    oxlint: '>=1.88.0'
+    oxlint-tsgolint: '>=7.0.2004'
   playwright:
     eslint-plugin-playwright: '2.12.1'
   prettier:
