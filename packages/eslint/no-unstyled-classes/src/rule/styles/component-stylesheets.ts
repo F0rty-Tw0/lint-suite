@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-import { componentMetadata } from '@lint-suite/rule-internals/component-metadata.ts';
 import type { ComponentDescriptor } from '@lint-suite/rule-internals/common/class-usage.type.ts';
+import { componentMetadata } from '@lint-suite/rule-internals/component-metadata.ts';
 
 import type { StylesheetSource } from '../common/no-unstyled-classes.type.ts';
 

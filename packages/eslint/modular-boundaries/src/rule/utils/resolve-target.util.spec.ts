@@ -8,7 +8,7 @@ import {
 } from '../test/utils/fixture-workspace.spec.util.ts';
 import { buildWorkspaceModel } from '../workspace-model.ts';
 import { resolveTarget } from './resolve-target.util.ts';
-
+import { importMatcher } from './tag-patterns.util.ts';
 import type {
   Project,
   Target,
@@ -70,8 +70,9 @@ const resolveAll = (
   allow: string[] = []
 ): Target[] => {
   const { model, source } = testCase;
+  const matchers = allow.map(importMatcher);
   const resolveOne = (specifier: string): Target => {
-    return resolveTarget(specifier, source, model, allow);
+    return resolveTarget(specifier, source, model, matchers);
   };
 
   return specifiers.map(resolveOne);

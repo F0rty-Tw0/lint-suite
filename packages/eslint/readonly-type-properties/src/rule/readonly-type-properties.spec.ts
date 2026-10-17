@@ -1,56 +1,92 @@
-import assert from 'node:assert/strict';
+import type { RuleTester } from 'eslint';
 
-import { RuleTester } from 'eslint';
-import type { Linter } from 'eslint';
-import tseslint from 'typescript-eslint';
-import { describe, test } from 'vitest';
-
-import plugin from '../index.ts';
+import { missingReadonly } from './test/utils/readonly-type-properties-cases.spec.util.ts';
 import {
-  missingReadonly,
-  readonlyArray
-} from './test/utils/readonly-type-properties-cases.spec.util.ts';
+  rule,
+  ruleName,
+  ruleTester
+} from './test/utils/readonly-type-properties-tester.spec.util.ts';
 
-const rule = plugin.rules?.['readonly-type-properties'];
-
-assert.ok(rule);
-
-RuleTester.describe = describe;
-RuleTester.it = test;
-RuleTester.itOnly = test.only;
-
-const languageOptions: Linter.LanguageOptions = {
-  ecmaVersion: 'latest',
-  parser: tseslint.parser,
-  sourceType: 'module'
-};
-
-const ruleTester = new RuleTester({ languageOptions });
-
-const nameErrors: RuleTester.TestCaseError[] = [missingReadonly('name')];
 const primitiveErrors: RuleTester.TestCaseError[] = [
-  missingReadonly('name'),
-  missingReadonly('count'),
-  missingReadonly('ok')
+  missingReadonly(
+    'name',
+    `type A = { readonly name: string; count: number; ok: boolean };`
+  ),
+  missingReadonly(
+    'count',
+    `type A = { name: string; readonly count: number; ok: boolean };`
+  ),
+  missingReadonly(
+    'ok',
+    `type A = { name: string; count: number; readonly ok: boolean };`
+  )
 ];
-const kindErrors: RuleTester.TestCaseError[] = [missingReadonly('kind')];
+const onlyPrimitiveErrors: RuleTester.TestCaseError[] = [
+  missingReadonly(
+    'name',
+    `type A = { roles: string[]; role: Role; readonly name: string };`
+  )
+];
+const kindErrors: RuleTester.TestCaseError[] = [
+  missingReadonly('kind', `type A = { readonly kind: 'a' | 'b' };`)
+];
 const nullableErrors: RuleTester.TestCaseError[] = [
-  missingReadonly('id'),
-  missingReadonly('label')
+  missingReadonly(
+    'id',
+    `type A = { readonly id: string | null; label?: string | undefined };`
+  ),
+  missingReadonly(
+    'label',
+    `type A = { id: string | null; readonly label?: string | undefined };`
+  )
 ];
 const exoticErrors: RuleTester.TestCaseError[] = [
-  missingReadonly('big'),
-  missingReadonly('sym'),
-  missingReadonly('tpl')
+  missingReadonly(
+    'big',
+    'type A = { readonly big: bigint; sym: symbol; tpl: `id-${string}` };'
+  ),
+  missingReadonly(
+    'sym',
+    'type A = { big: bigint; readonly sym: symbol; tpl: `id-${string}` };'
+  ),
+  missingReadonly(
+    'tpl',
+    'type A = { big: bigint; sym: symbol; readonly tpl: `id-${string}` };'
+  )
 ];
-const parameterErrors: RuleTester.TestCaseError[] = [missingReadonly('a')];
+const nestedErrors: RuleTester.TestCaseError[] = [
+  missingReadonly('name', `type A = { item: { readonly name: string } };`)
+];
+const interfaceErrors: RuleTester.TestCaseError[] = [
+  missingReadonly(
+    'name',
+    `interface A { readonly name: string; roles: string[] }`
+  )
+];
+const parameterErrors: RuleTester.TestCaseError[] = [
+  missingReadonly(
+    'a',
+    `function f(opts: { readonly a: string; list: number[] }): void {}`
+  )
+];
 const stringKeyErrors: RuleTester.TestCaseError[] = [
-  missingReadonly("'my-key'")
+  missingReadonly("'my-key'", `type A = { readonly 'my-key': string };`)
 ];
 const computedKeyErrors: RuleTester.TestCaseError[] = [
-  missingReadonly('Symbol.iterator')
+  missingReadonly(
+    'Symbol.iterator',
+    `type A = { readonly [Symbol.iterator]: number };`
+  )
 ];
-const mixedErrors: RuleTester.TestCaseError[] = [missingReadonly('b')];
+const mixedErrors: RuleTester.TestCaseError[] = [
+  missingReadonly('b', `type A = { readonly a: string; readonly b: string };`)
+];
+const assignedErrors: RuleTester.TestCaseError[] = [
+  missingReadonly(
+    'n',
+    `type S = { readonly n: number }; const s: S = { n: 1 }; s.n = 2;`
+  )
+];
 
 const valid: RuleTester.ValidTestCase[] = [
   {
@@ -133,93 +169,77 @@ const valid: RuleTester.ValidTestCase[] = [
 
 const invalid: RuleTester.InvalidTestCase[] = [
   {
-    name: 'fixes all primitive properties in a type alias',
+    name: 'suggests readonly for each primitive property in a type alias',
     code: `type A = { name: string; count: number; ok: boolean };`,
-    output: `type A = { readonly name: string; readonly count: number; readonly ok: boolean };`,
+    output: null,
     errors: primitiveErrors
   },
   {
     name: 'reports only the primitive property, leaving array and reference properties untouched',
     code: `type A = { roles: string[]; role: Role; name: string };`,
-    output: `type A = { roles: string[]; role: Role; readonly name: string };`,
-    errors: nameErrors
+    output: null,
+    errors: onlyPrimitiveErrors
   },
   {
-    name: 'fixes a literal-union property',
+    name: 'suggests readonly for a literal-union property',
     code: `type A = { kind: 'a' | 'b' };`,
-    output: `type A = { readonly kind: 'a' | 'b' };`,
+    output: null,
     errors: kindErrors
   },
   {
-    name: 'fixes properties with null/undefined unions',
+    name: 'suggests readonly for properties with null/undefined unions',
     code: `type A = { id: string | null; label?: string | undefined };`,
-    output: `type A = { readonly id: string | null; readonly label?: string | undefined };`,
+    output: null,
     errors: nullableErrors
   },
   {
-    name: 'fixes bigint, symbol, and template-literal properties',
+    name: 'suggests readonly for bigint, symbol, and template-literal properties',
     code: 'type A = { big: bigint; sym: symbol; tpl: `id-${string}` };',
-    output:
-      'type A = { readonly big: bigint; readonly sym: symbol; readonly tpl: `id-${string}` };',
+    output: null,
     errors: exoticErrors
   },
   {
-    name: 'fixes a nested primitive property without touching the outer object property',
+    name: 'suggests readonly for a nested primitive property without touching the outer object property',
     code: `type A = { item: { name: string } };`,
-    output: `type A = { item: { readonly name: string } };`,
-    errors: nameErrors
+    output: null,
+    errors: nestedErrors
   },
   {
-    name: 'fixes a primitive interface member',
+    name: 'suggests readonly for a primitive interface member',
     code: `interface A { name: string; roles: string[] }`,
-    output: `interface A { readonly name: string; roles: string[] }`,
-    errors: nameErrors
+    output: null,
+    errors: interfaceErrors
   },
   {
-    name: 'fixes a primitive property in an inline parameter object type',
+    name: 'suggests readonly for a primitive property in an inline parameter object type',
     code: `function f(opts: { a: string; list: number[] }): void {}`,
-    output: `function f(opts: { readonly a: string; list: number[] }): void {}`,
+    output: null,
     errors: parameterErrors
   },
   {
-    name: 'fixes a string-literal key',
+    name: 'suggests readonly for a string-literal key',
     code: `type A = { 'my-key': string };`,
-    output: `type A = { readonly 'my-key': string };`,
+    output: null,
     errors: stringKeyErrors
   },
   {
-    name: 'fixes a computed key',
+    name: 'suggests readonly for a computed key',
     code: `type A = { [Symbol.iterator]: number };`,
-    output: `type A = { readonly [Symbol.iterator]: number };`,
+    output: null,
     errors: computedKeyErrors
   },
   {
     name: 'reports only the missing primitive property in a mixed type',
     code: `type A = { readonly a: string; b: string };`,
-    output: `type A = { readonly a: string; readonly b: string };`,
+    output: null,
     errors: mixedErrors
   },
   {
-    name: 'fixes a readonly array type to T[]',
-    code: `type A = readonly string[];`,
-    output: `type A = string[];`,
-    errors: [readonlyArray()]
-  },
-  {
-    name: 'fixes a ReadonlyArray<T> property to T[]',
-    code: `type A = { roles: ReadonlyArray<string> };`,
-    output: `type A = { roles: string[] };`,
-    errors: [readonlyArray()]
-  },
-  {
-    name: 'fixes a ReadonlyArray<A | B> to a parenthesised union array',
-    code: `type A = ReadonlyArray<A | B>;`,
-    output: `type A = (A | B)[];`,
-    errors: [readonlyArray()]
+    name: 'does not autofix a property the code assigns, so --fix keeps it compiling',
+    code: `type S = { n: number }; const s: S = { n: 1 }; s.n = 2;`,
+    output: null,
+    errors: assignedErrors
   }
 ];
 
-ruleTester.run('readonly-type-properties/readonly-type-properties', rule, {
-  valid,
-  invalid
-});
+ruleTester.run(ruleName, rule, { valid, invalid });

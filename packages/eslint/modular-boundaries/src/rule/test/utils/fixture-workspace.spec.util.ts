@@ -7,10 +7,9 @@ import {
   rmSync,
   writeFileSync
 } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-
-import type { Dirent } from 'node:fs';
 
 import type { FixtureWorkspace } from '../common/fixture-workspace.type.ts';
 

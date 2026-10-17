@@ -3,7 +3,6 @@ import { join, resolve } from 'node:path';
 import { isStringArray } from './guards.util.ts';
 import { recordField, stringField } from './manifest-fields.util.ts';
 import { readTrackedRecord } from './tracked-read.util.ts';
-
 import type {
   ConfigError,
   JsonObject,
@@ -18,7 +17,8 @@ const readRootTsconfig = (
 ): JsonObject => {
   const basePath = join(root, 'tsconfig.base.json');
   const base = readTrackedRecord(readSet, basePath, errors);
-  const isBaseMissing = readSet.get(basePath) === null;
+  const baseRead = readSet.get(basePath);
+  const isBaseMissing = baseRead === null;
 
   if (!isBaseMissing) return base;
 
@@ -43,7 +43,8 @@ export const readPathAliases = (
   const baseUrl = stringField(compilerOptions, 'baseUrl') ?? '.';
   const directory = resolve(root, baseUrl);
   const toAlias = ([pattern, targets]: [string, unknown]): PathAlias[] => {
-    const [first] = isStringArray(targets) ? targets : [];
+    const noTargets: string[] = [];
+    const [first] = isStringArray(targets) ? targets : noTargets;
 
     if (first === undefined) return [];
 

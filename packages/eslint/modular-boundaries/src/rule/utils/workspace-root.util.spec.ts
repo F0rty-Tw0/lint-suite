@@ -3,8 +3,8 @@ import { join } from 'node:path';
 
 import { onTestFinished, test } from 'vitest';
 
-import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 import { findWorkspaceRoot, isWorkspaceRoot } from './workspace-root.util.ts';
+import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
 
 const isRootWith = (files: Record<string, string>): boolean => {
   const workspace = writeTempWorkspace(files);

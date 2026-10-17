@@ -54,6 +54,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: `const g = () => (\n  a &&\n  b\n);`,
     output: `const g = () => {\n  return a &&\n  b;\n};`,
     errors: [arrowBodyWrappedError]
+  },
+  {
+    name: 'wraps with the CRLF line break of a CRLF file',
+    code: `a();\r\nconst f = (x) => x.a &&\r\n  x.b;`,
+    output: `a();\r\nconst f = (x) => {\r\n  return x.a &&\r\n  x.b;\r\n};`,
+    errors: [arrowBodyWrappedError]
   }
 ];
 

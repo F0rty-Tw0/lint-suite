@@ -3,6 +3,7 @@ import type {
   ConstraintSet,
   Project
 } from '../../common/modular-boundaries.type.ts';
+import { compiledPatterns } from '../../utils/tag-patterns.util.ts';
 
 type ConstraintSetSpec = {
   constraints: Constraint[];
@@ -49,13 +50,16 @@ export const constraintSetStub = (spec: ConstraintSetSpec): ConstraintSet => {
   const sourceMatches = new Map(spec.sourceMatches);
   const targetMatches = new Map(spec.targetMatches);
   const eslintSourceMatched = new Set(spec.eslintSourceMatched);
+  const patterns = compiledPatterns(spec.constraints);
   const constraintSet: ConstraintSet = {
     constraints: spec.constraints,
     sourceMatches,
     targetMatches,
     eslintSourceMatched,
     hasEslintConstraints,
-    errors: []
+    errors: [],
+    patterns,
+    allow: []
   };
 
   return constraintSet;

@@ -3,24 +3,23 @@ import { utimesSync, writeFileSync } from 'node:fs';
 
 import { onTestFinished, test, vi } from 'vitest';
 
+import type {
+  Project,
+  RawGraph,
+  WorkspaceModel
+} from './common/modular-boundaries.type.ts';
 import {
   projectGraphFor,
   reachesSource,
   shortestProjectPath
 } from './project-graph.ts';
+import type { FixtureWorkspace } from './test/common/fixture-workspace.type.ts';
 import {
   copyFixtureWorkspace,
   writeTempWorkspace
 } from './test/utils/fixture-workspace.spec.util.ts';
 import { extractSpecifiers } from './utils/specifiers.util.ts';
 import { buildWorkspaceModel, workspaceModelFor } from './workspace-model.ts';
-
-import type {
-  Project,
-  RawGraph,
-  WorkspaceModel
-} from './common/modular-boundaries.type.ts';
-import type { FixtureWorkspace } from './test/common/fixture-workspace.type.ts';
 
 type Cycles = {
   readonly workspace: FixtureWorkspace;
@@ -56,7 +55,8 @@ const edgeIds = (graph: RawGraph): Record<string, string[]> => {
     string,
     string[]
   ] => {
-    const ids = [...targets].map((target) => target.id);
+    const targetList = [...targets];
+    const ids = targetList.map((target) => target.id);
 
     return [source.id, ids.toSorted()];
   };
@@ -178,10 +178,10 @@ test('after the window a changed source file rebuilds only the graph', (): void 
 
   assert.notEqual(nextGraph, graph);
   assert.deepEqual(edgeIds(nextGraph)['@c/b'], []);
-  assert.equal(nextGraph.validatedAt, model.lastValidatedAt);
+  assert.equal(nextGraph.validation, model.validation);
 });
 
-test('after the window with no change the same RawGraph is returned and validatedAt advances', (): void => {
+test('after the window with no change the same RawGraph is returned and validation advances', (): void => {
   useFakeClock();
 
   const { workspace } = cycles();
@@ -191,13 +191,13 @@ test('after the window with no change the same RawGraph is returned and validate
   assert.ok(model);
 
   const graph = projectGraphFor(model);
-  const { validatedAt } = graph;
+  const { at } = graph.validation;
 
   vi.advanceTimersByTime(PAST_WINDOW_MS);
   workspaceModelFor(file);
 
   assert.equal(projectGraphFor(model), graph);
-  assert.equal(graph.validatedAt, validatedAt + PAST_WINDOW_MS);
+  assert.equal(graph.validation.at, at + PAST_WINDOW_MS);
 });
 
 test('a source file outside every project contributes no edges', (): void => {

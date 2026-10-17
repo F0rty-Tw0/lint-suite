@@ -1,23 +1,28 @@
+import { tagMatcherIn } from './tag-patterns.util.ts';
 import type {
+  CompiledPatterns,
   Constraint,
   ConstraintSet,
   EdgeReport,
   Project
 } from '../common/modular-boundaries.type.ts';
 
-import { hasTag } from './tag-patterns.util.ts';
-
 type Edge = { source: Project; target: Project };
 
 const carriesAnyTag = (
   project: Project,
   patterns: string[],
-  matchesPackageName: boolean
+  matchesPackageName: boolean,
+  compiled: CompiledPatterns
 ): boolean => {
   const matchesPattern = (pattern: string): boolean => {
     const isPackageName = matchesPackageName && pattern === project.packageName;
 
-    return isPackageName || hasTag(project.tags, pattern);
+    if (isPackageName) return true;
+
+    const matches = tagMatcherIn(compiled, pattern);
+
+    return matches(project.tags);
   };
 
   return patterns.some(matchesPattern);
@@ -68,36 +73,46 @@ const emptyOnlyTagsReport = (
   return report;
 };
 
-const violationOf = (
+const onlyTagsViolation = (
   constraint: Constraint,
-  edge: Edge
+  edge: Edge,
+  other: Project,
+  compiled: CompiledPatterns
 ): EdgeReport | undefined => {
-  const { onlyTags, notTags, matchesPackageName } = constraint;
-  const other = constraint.side === 'source' ? edge.target : edge.source;
+  const { onlyTags, matchesPackageName } = constraint;
 
-  if (onlyTags?.length === 0) {
+  if (onlyTags === undefined) return undefined;
+
+  if (onlyTags.length === 0) {
     const isTurbo = constraint.origin === 'turbo.json';
     const isTagged = other.tags.length > 0;
 
     if (isTagged || isTurbo) return emptyOnlyTagsReport(constraint, edge);
+
+    return undefined;
   }
 
-  if (onlyTags && onlyTags.length > 0) {
-    const allowed = carriesAnyTag(other, onlyTags, matchesPackageName);
+  const allowed = carriesAnyTag(other, onlyTags, matchesPackageName, compiled);
 
-    if (!allowed) {
-      return tagReport(
-        'onlyTagsConstraintViolation',
-        constraint,
-        edge,
-        onlyTags
-      );
-    }
-  }
+  if (allowed) return undefined;
+
+  return tagReport('onlyTagsConstraintViolation', constraint, edge, onlyTags);
+};
+
+const violationOf = (
+  constraint: Constraint,
+  edge: Edge,
+  compiled: CompiledPatterns
+): EdgeReport | undefined => {
+  const { notTags, matchesPackageName } = constraint;
+  const other = constraint.side === 'source' ? edge.target : edge.source;
+  const onlyTagsReport = onlyTagsViolation(constraint, edge, other, compiled);
+
+  if (onlyTagsReport) return onlyTagsReport;
 
   if (!notTags) return undefined;
 
-  const denied = carriesAnyTag(other, notTags, matchesPackageName);
+  const denied = carriesAnyTag(other, notTags, matchesPackageName, compiled);
 
   if (!denied) return undefined;
 
@@ -119,7 +134,7 @@ export const findConstraintViolation = (
 
     if (!applies) continue;
 
-    const report = violationOf(constraint, edge);
+    const report = violationOf(constraint, edge, constraints.patterns);
 
     if (report) return report;
   }

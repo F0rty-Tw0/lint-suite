@@ -1,16 +1,17 @@
+import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
+import { enclosingStatement } from '@lint-suite/rule-internals/utils/enclosing-statement.util.ts';
+import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
+import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 
-import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
-import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
 import { defaultOptions, meta } from './common/no-nested-object-value.const.ts';
 import type {
   MessageIds,
   Options
 } from './common/no-nested-object-value.type.ts';
 import { isInsideDecoratorConfig } from './utils/decorator-config.util.ts';
-import { enclosingStatement } from '@lint-suite/rule-internals/utils/enclosing-statement.util.ts';
-import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
 
 const createRule = ESLintUtils.RuleCreator(
   () =>
@@ -88,10 +89,11 @@ const suggestionsFor = (
   const statement = enclosingStatement(property);
   const indent = indentOf(statement, sourceCode);
   const valueText = sourceCode.getText(property.value);
+  const lineBreak = lineBreakOf(sourceCode.text);
   const fix: TSESLint.ReportFixFunction = (fixer) => {
     const declaration = fixer.insertTextBefore(
       statement,
-      `const ${key} = ${valueText};\n${indent}`
+      `const ${key} = ${valueText};${lineBreak}${indent}`
     );
     const replaced = fixer.replaceText(property.value, key);
     const fixes = [declaration, replaced];

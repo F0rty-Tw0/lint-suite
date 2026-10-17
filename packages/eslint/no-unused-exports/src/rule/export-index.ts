@@ -1,5 +1,6 @@
 import { dirname } from 'node:path';
 
+import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
 import type { Program, SourceFile } from 'typescript';
 
 import type {
@@ -18,7 +19,6 @@ import {
 import { fileChanges, isIncremental } from './utils/file-changes.util.ts';
 import { moduleEdges } from './utils/module-edges.util.ts';
 import { publicExports } from './utils/public-exports.util.ts';
-import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
 
 const FILE_EDGES = new WeakMap<SourceFile, FileEdges>();
 

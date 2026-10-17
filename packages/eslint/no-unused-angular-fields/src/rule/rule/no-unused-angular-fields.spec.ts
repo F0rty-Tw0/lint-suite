@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 
+import { projectRuleTester } from '@lint-suite/rule-test-support/utils/project-rule-tester.spec.util.ts';
 import { Linter } from 'eslint';
 import type { RuleTester } from 'eslint';
 import { test } from 'vitest';
 
-import { projectRuleTester } from '@lint-suite/rule-test-support/utils/project-rule-tester.spec.util.ts';
 import { component } from '../test/utils/component-source.spec.util.ts';
 import {
   fixtureCase,
@@ -19,14 +19,25 @@ import {
 const projectDirectory = fixtureDirectory('project-usage');
 const projectTester = projectRuleTester(projectDirectory);
 
+const analysisLintConfig = (analysis?: 'project'): Linter.Config => {
+  if (analysis === undefined) {
+    const defaultConfig = lintConfig({});
+
+    return defaultConfig;
+  }
+
+  const analysisConfig = lintConfig({ analysis });
+
+  return analysisConfig;
+};
+
 test.each([undefined, 'project'] as const)(
   'requires parser services for %s analysis',
   (analysis) => {
     const linter = new Linter();
     const lintProjectComponent = (): void => {
       const source = component(`private readonly unread = 'unused';`);
-      const options = analysis === undefined ? {} : { analysis };
-      const config = lintConfig(options);
+      const config = analysisLintConfig(analysis);
 
       linter.verify(source, config, { filename: 'component.ts' });
     };

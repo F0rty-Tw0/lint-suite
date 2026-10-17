@@ -3,8 +3,10 @@ import type { Node, Program } from 'typescript';
 
 import { buildDirectiveIndex } from './angular/angular-directive-index.ts';
 import type {
+  DirectiveState,
   ProjectIndex,
-  ProjectUsageIndex
+  ProjectUsageIndex,
+  TemplateCheck
 } from './common/project-index.type.ts';
 import { reconcile } from './project-index-reconciliation.ts';
 
@@ -45,17 +47,18 @@ const usageOf = (index: ProjectIndex): ProjectUsageIndex => {
 };
 
 const createIndex = (): ProjectIndex => {
+  const directives = buildDirectiveIndex([]);
+  const directiveState: DirectiveState = { directives, shape: '' };
+  const templateCheck: TemplateCheck = { checkedAt: 0, duration: 0 };
   const emptyIndex: ProjectIndex = {
     candidateNames: new Set(),
     classes: new Map(),
     declarationCounts: new Map(),
-    directives: buildDirectiveIndex([]),
-    directiveShape: '',
+    directiveState,
     entries: new Map(),
     fallbackNameCounts: new Map(),
     program: null,
-    templateCheckDuration: 0,
-    templateCheckedAt: 0
+    templateCheck
   };
 
   return emptyIndex;

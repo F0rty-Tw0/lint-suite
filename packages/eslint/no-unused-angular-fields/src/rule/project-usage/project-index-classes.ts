@@ -106,20 +106,20 @@ const rebuildDirectives = (index: ProjectIndex): void => {
   const fileClasses = [...classesValues];
   const classes = fileClasses.flatMap((entry) => entry.classes);
   const shape = directiveShape(classes);
+  const directives = buildDirectiveIndex(classes);
+  const isSameShape = shape === index.directiveState.shape;
 
-  index.directives = buildDirectiveIndex(classes);
+  index.directiveState = { directives, shape };
 
-  if (shape === index.directiveShape) return;
+  if (isSameShape) return;
 
-  index.directiveShape = shape;
   dropEntries(index, (entry) => entry.usedDirectiveIndex);
 };
 
 const shapesOf = (files: FileClasses[]): string => {
-  return files
-    .map((file) => file.shape)
-    .sort()
-    .join('\n');
+  const shapes = files.map((file) => file.shape);
+
+  return shapes.sort().join('\n');
 };
 
 const repointDirectives = (
@@ -130,7 +130,7 @@ const repointDirectives = (
   const previous = dropped.flatMap((file) => file.classes);
   const next = added.flatMap((file) => file.classes);
 
-  replaceDeclarations(index.directives, previous, next);
+  replaceDeclarations(index.directiveState.directives, previous, next);
 };
 
 /** Re-index changed files' classes; returns member names never seen before. */

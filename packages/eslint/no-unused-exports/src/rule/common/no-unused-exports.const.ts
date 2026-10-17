@@ -10,7 +10,7 @@ import type {
   RuleOptions
 } from './no-unused-exports.type.ts';
 
-export const entryPointDefaults: string[] = [
+const entryPointDefaults: string[] = [
   '**/main.ts',
   '**/main.*.ts',
   '**/public-api.ts',

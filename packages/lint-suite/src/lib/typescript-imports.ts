@@ -41,7 +41,7 @@ export const typescriptImports = defineConfig([
       'import-x/no-unresolved': 'error',
       'import-x/no-duplicates': 'error',
       'import-x/prefer-default-export': 'off',
-      'import-x/no-useless-path-segments': ['error', { noUselessIndex: true }],
+      'import-x/no-useless-path-segments': 'error',
       'import-x/newline-after-import': 'error',
       'import-x/first': 'error',
       'import-x/no-mutable-exports': 'error',

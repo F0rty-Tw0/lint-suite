@@ -92,11 +92,12 @@ test('drops entries that mention a new candidate name by exact name', () => {
 test('throttles template checks by the duration of the last check', () => {
   const index = emptyProjectIndex();
 
-  index.templateCheckedAt = performance.now();
-  index.templateCheckDuration = 1_000;
+  const checkedAt = performance.now();
+
+  index.templateCheck = { checkedAt, duration: 1_000 };
   dropStaleTemplateEntries(index, false);
-  assert.equal(index.templateCheckDuration, 1_000);
+  assert.equal(index.templateCheck.duration, 1_000);
 
   dropStaleTemplateEntries(index, true);
-  assert.notEqual(index.templateCheckDuration, 1_000);
+  assert.notEqual(index.templateCheck.duration, 1_000);
 });

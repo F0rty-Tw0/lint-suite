@@ -5,6 +5,11 @@ import {
   readCached
 } from '@lint-suite/rule-internals/file-cache.ts';
 
+import type {
+  Project,
+  RawGraph,
+  WorkspaceModel
+} from './common/modular-boundaries.type.ts';
 import {
   breadthFirstParents,
   pathBetween,
@@ -14,12 +19,6 @@ import {
 import { resolveTarget } from './utils/resolve-target.util.ts';
 import { extractSpecifiers } from './utils/specifiers.util.ts';
 import { projectForFile } from './workspace-model.ts';
-
-import type {
-  Project,
-  RawGraph,
-  WorkspaceModel
-} from './common/modular-boundaries.type.ts';
 
 type PrunedGraph = {
   readonly adjacency: Map<Project, Set<Project>>;
@@ -37,24 +36,23 @@ const readSpecifiers = (file: string): string[] | null => {
   return readCached(specifierCache, file, (text) => extractSpecifiers(text));
 };
 
-const addEdges = (
+const edgeTargets = (
   model: WorkspaceModel,
-  adjacency: Map<Project, Set<Project>>,
   file: string,
   source: Project,
   specifiers: string[]
-): void => {
-  const edges = adjacency.get(source) ?? new Set<Project>();
-
-  adjacency.set(source, edges);
+): Project[] => {
+  const targets: Project[] = [];
 
   for (const specifier of specifiers) {
     const target = resolveTarget(specifier, file, model, undefined);
     const isOtherProject =
       target.kind === 'project' && target.project !== source;
 
-    if (isOtherProject) edges.add(target.project);
+    if (isOtherProject) targets.push(target.project);
   }
+
+  return targets;
 };
 
 const buildGraph = (model: WorkspaceModel): RawGraph => {
@@ -70,17 +68,22 @@ const buildGraph = (model: WorkspaceModel): RawGraph => {
 
     const specifiers = readSpecifiers(file);
 
+    const edges = adjacency.get(source) ?? new Set<Project>();
+    const targets = edgeTargets(model, file, source, specifiers ?? []);
+
     specifierRefs.set(file, specifiers);
-    addEdges(model, adjacency, file, source, specifiers ?? []);
+    adjacency.set(source, edges);
+
+    for (const target of targets) edges.add(target);
   }
 
   const sourceFiles = model.listing.sourceFiles.toSorted();
-  const validatedAt = model.lastValidatedAt;
+  const { validation } = model;
   const graph: RawGraph = {
     adjacency,
     sourceFiles,
     specifierRefs,
-    validatedAt
+    validation
   };
 
   graphs.set(model, graph);
@@ -102,19 +105,20 @@ const isGraphChanged = (graph: RawGraph, model: WorkspaceModel): boolean => {
 /**
  * The raw import graph between the model's projects, cached per model. Once
  * the model was revalidated, the graph is rebuilt when the source file list or
- * any source file's specifiers changed; otherwise its `validatedAt` advances.
+ * any source file's specifiers changed; otherwise its `validation` advances.
  */
 export const projectGraphFor = (model: WorkspaceModel): RawGraph => {
   const cached = graphs.get(model);
 
   if (cached === undefined) return buildGraph(model);
-  if (cached.validatedAt >= model.lastValidatedAt) return cached;
+
+  if (cached.validation.at >= model.validation.at) return cached;
 
   const isChanged = isGraphChanged(cached, model);
 
   if (isChanged) return buildGraph(model);
 
-  cached.validatedAt = model.lastValidatedAt;
+  cached.validation = model.validation;
 
   return cached;
 };

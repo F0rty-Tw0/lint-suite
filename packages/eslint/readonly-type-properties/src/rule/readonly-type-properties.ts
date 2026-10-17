@@ -1,8 +1,11 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 
-type Options = [];
-type MessageIds = 'missingReadonly' | 'readonlyArray';
+import type {
+  MessageIds,
+  Options
+} from './common/readonly-type-properties.type.ts';
+import { readonlyArrayListeners } from './readonly-array.ts';
 
 const docs: TSESLint.RuleMetaDataDocs = {
   description:
@@ -10,15 +13,18 @@ const docs: TSESLint.RuleMetaDataDocs = {
 };
 
 const messages: Record<MessageIds, string> = {
+  addReadonly: "Add readonly to '{{ name }}'.",
   missingReadonly:
     "Type property '{{ name }}' should be readonly. Disable this rule on the line if mutation is required.",
-  readonlyArray: 'Write a readonly array type as T[].'
+  readonlyArray:
+    'Write a readonly array type as T[]. Disable this rule on the line if a readonly value is assigned to it.',
+  useMutableArray: "Replace with '{{ replacement }}'."
 };
 
 const meta: ESLintUtils.NamedCreateRuleMeta<MessageIds, unknown, Options> = {
   type: 'suggestion',
   docs,
-  fixable: 'code',
+  hasSuggestions: true,
   schema: [],
   messages
 };
@@ -84,46 +90,16 @@ const readonlyFix = (
   };
 };
 
-const NEEDS_PARENS = new Set([
-  TSESTree.AST_NODE_TYPES.TSUnionType,
-  TSESTree.AST_NODE_TYPES.TSIntersectionType,
-  TSESTree.AST_NODE_TYPES.TSFunctionType,
-  TSESTree.AST_NODE_TYPES.TSConditionalType
-]);
-
-const arrayTypeText = (
-  argument: TSESTree.TypeNode,
-  sourceCode: TSESLint.SourceCode
-): string => {
-  const argumentText = sourceCode.getText(argument);
-  const needsParens = NEEDS_PARENS.has(argument.type);
-
-  if (needsParens) return `(${argumentText})[]`;
-
-  return `${argumentText}[]`;
-};
-
-const readonlyArrayReport = (
-  node: TSESTree.Node,
-  fix: TSESLint.ReportFixFunction
-): TSESLint.ReportDescriptor<MessageIds> => {
-  const report: TSESLint.ReportDescriptor<MessageIds> = {
-    node,
-    messageId: 'readonlyArray',
-    fix
-  };
-
-  return report;
-};
-
 export default createRule<Options, MessageIds>({
   name: 'readonly-type-properties',
   meta,
   defaultOptions: [],
   create(context) {
     const { sourceCode } = context;
+    const arrayListeners = readonlyArrayListeners(context);
 
     const listeners: TSESLint.RuleListener = {
+      ...arrayListeners,
       TSPropertySignature(node): void {
         if (node.readonly || !node.typeAnnotation) return;
 
@@ -134,47 +110,19 @@ export default createRule<Options, MessageIds>({
         const name = propertyName(node, sourceCode);
         const data = { name };
         const fix = readonlyFix(node, sourceCode);
+        const addReadonly: TSESLint.SuggestionReportDescriptor<MessageIds> = {
+          messageId: 'addReadonly',
+          data,
+          fix
+        };
         const report: TSESLint.ReportDescriptor<MessageIds> = {
           node: node.key,
           messageId: 'missingReadonly',
           data,
-          fix
+          suggest: [addReadonly]
         };
 
         context.report(report);
-      },
-      TSTypeOperator(node): void {
-        if (node.operator !== 'readonly' || !node.typeAnnotation) return;
-
-        const isArray =
-          node.typeAnnotation.type === TSESTree.AST_NODE_TYPES.TSArrayType;
-
-        if (!isArray) return;
-
-        const replacement = sourceCode.getText(node.typeAnnotation);
-        const fix: TSESLint.ReportFixFunction = (fixer) =>
-          fixer.replaceText(node, replacement);
-
-        context.report(readonlyArrayReport(node, fix));
-      },
-      TSTypeReference(node): void {
-        if (node.typeName.type !== TSESTree.AST_NODE_TYPES.Identifier) return;
-
-        if (node.typeName.name !== 'ReadonlyArray') return;
-
-        const params = node.typeArguments?.params ?? [];
-
-        if (params.length !== 1) return;
-
-        const [argument] = params;
-
-        if (!argument) return;
-
-        const replacement = arrayTypeText(argument, sourceCode);
-        const fix: TSESLint.ReportFixFunction = (fixer) =>
-          fixer.replaceText(node, replacement);
-
-        context.report(readonlyArrayReport(node, fix));
       }
     };
 

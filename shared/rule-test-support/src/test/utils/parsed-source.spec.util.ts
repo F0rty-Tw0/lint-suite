@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import type { ParsedSource } from '../common/parsed-source.type.ts';
 import tseslint from 'typescript-eslint';
+
+import type { ParsedSource } from '../common/parsed-source.type.ts';
 
 const isProgram = (value: unknown): value is TSESLint.SourceCode.Program => {
   const isObject = typeof value === 'object' && value !== null;

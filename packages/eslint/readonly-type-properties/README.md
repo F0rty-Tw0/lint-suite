@@ -35,7 +35,13 @@ This rule has no options.
 
 The rule checks TypeScript property signatures only: type aliases, interfaces, and inline object types. It does not check class fields, object-literal properties, methods, mapped types, or index signatures.
 
-Only primitive keyword types (`string`, `number`, `boolean`, `bigint`, `symbol`, `null`, and `undefined`), literal and template-literal types, and unions or intersections made entirely from those types require `readonly`. Array, tuple, function, type-reference, `unknown`, `any`, `object`, `keyof`, `typeof`, and generic-parameter properties are exempt. `readonly T[]` and one-argument `ReadonlyArray<T>` are always reported and autofixed to `T[]`, independently of property signatures.
+Only primitive keyword types (`string`, `number`, `boolean`, `bigint`, `symbol`, `null`, and `undefined`), literal and template-literal types, and unions or intersections made entirely from those types require `readonly`. Array, tuple, function, type-reference, `unknown`, `any`, `object`, `keyof`, `typeof`, and generic-parameter properties are exempt. `readonly T[]` and one-argument `ReadonlyArray<T>` are always reported, with a suggestion to write `T[]`, independently of property signatures.
+
+## Fixes
+
+A missing `readonly` is offered as an editor suggestion, not an autofix: the rule cannot see code that assigns the property, possibly in another file, and adding `readonly` there would break compilation (TS2540). `eslint --fix` therefore leaves property signatures unchanged; apply the suggestion where the property is never written, or disable the rule on that line where mutation is required.
+
+The readonly array forms are also suggestions, not autofixes, for the same reason: the rule cannot see what is assigned to the type, possibly in another file, and rewriting `readonly T[]` or `ReadonlyArray<T>` to `T[]` breaks compilation (TS4104) where a readonly value, such as an `as const` array or an `Object.freeze` result, flows into it. `eslint --fix` leaves them unchanged; apply the suggestion where only mutable arrays are assigned, or disable the rule on that line.
 
 ## Examples
 
@@ -83,7 +89,7 @@ type Session = { owner: User };
 type User = { name: string };
 ```
 
-Add `readonly` before `name`.
+Add `readonly` before `name`; the rule suggests this edit.
 
 #### 2. Mutable interface number property
 
@@ -117,7 +123,7 @@ Add `readonly` before `id`.
 type Names = readonly string[];
 ```
 
-Use `string[]`; the rule autofixes this form.
+Use `string[]`; the rule suggests this edit.
 
 #### 6. `ReadonlyArray` syntax
 
@@ -125,6 +131,6 @@ Use `string[]`; the rule autofixes this form.
 type Group = { members: ReadonlyArray<string> };
 ```
 
-Use `string[]`; the rule autofixes this form.
+Use `string[]`; the rule suggests this edit.
 
 The named `readonlyTypePropertiesRule` export is for composed plugin registries.

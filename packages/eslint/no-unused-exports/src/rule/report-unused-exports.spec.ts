@@ -1,3 +1,4 @@
+import { projectRuleTester } from '@lint-suite/rule-test-support/utils/project-rule-tester.spec.util.ts';
 import type { RuleTester } from 'eslint';
 
 import { fixtureDirectory } from './test/utils/fixture-project.spec.util.ts';
@@ -9,7 +10,6 @@ import {
   ruleName,
   validCase
 } from './test/utils/rule-under-test.spec.util.ts';
-import { projectRuleTester } from '@lint-suite/rule-test-support/utils/project-rule-tester.spec.util.ts';
 
 const unusedExportsDirectory = fixtureDirectory('unused-exports');
 const edgeCasesDirectory = fixtureDirectory('edge-cases');

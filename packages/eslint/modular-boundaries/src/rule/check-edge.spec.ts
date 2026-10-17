@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 import { test } from 'vitest';
 
+import { checkEdge } from './check-edge.ts';
 import type {
   ConstraintSet,
   EdgeReport,
@@ -9,8 +10,6 @@ import type {
   RuleOptions,
   Target
 } from './common/modular-boundaries.type.ts';
-
-import { checkEdge } from './check-edge.ts';
 import {
   constraintSetStub,
   constraintStub,
@@ -21,7 +20,7 @@ import {
 type EdgeOverrides = {
   source?: Project;
   target: Target;
-  specifier?: string;
+  readonly specifier?: string;
   constraints?: ConstraintSet;
   options?: RuleOptions;
   reachesSource?: () => boolean;
@@ -63,9 +62,10 @@ const npm = (name: string, specifier = name): Target => {
 test('cross-project relative import reports and stops', (): void => {
   const target: Target = { kind: 'project', project: lib, via: 'relative' };
   const report = check({ target, constraints: untaggedApp });
+  const data = { source: 'app', target: 'lib' };
   const expected: EdgeReport = {
     messageId: 'noRelativeOrAbsoluteImportsAcrossLibraries',
-    data: { source: 'app', target: 'lib' }
+    data
   };
 
   assert.deepEqual(report, expected);
@@ -74,9 +74,10 @@ test('cross-project relative import reports and stops', (): void => {
 test('package-name import of own project reports noSelfCircularDependencies', (): void => {
   const alias: Target = { kind: 'project', project: app, via: 'alias' };
   const report = check({ target: viaPackage(app), specifier: '@ws/app/x' });
+  const data = { source: 'app', specifier: '@ws/app/x' };
   const expected: EdgeReport = {
     messageId: 'noSelfCircularDependencies',
-    data: { source: 'app', specifier: '@ws/app/x' }
+    data
   };
 
   assert.deepEqual(report, expected);
@@ -88,8 +89,10 @@ test('relative import inside own project reports nothing', (): void => {
   const reachesSource = (): boolean => true;
   const report = check({ target, constraints: untaggedApp, reachesSource });
 
+  const skip: Target = { kind: 'skip' };
+
   assert.equal(report, undefined);
-  assert.equal(check({ target: { kind: 'skip' } }), undefined);
+  assert.equal(check({ target: skip }), undefined);
 });
 
 test('banned external matches the full specifier', (): void => {
@@ -99,13 +102,14 @@ test('banned external matches the full specifier', (): void => {
     source
   );
   const target = npm('@nestjs/common', '@nestjs/common/testing');
+  const data = {
+    specifier: '@nestjs/common/testing',
+    source: 'app',
+    origin: 'eslint'
+  };
   const expected: EdgeReport = {
     messageId: 'bannedExternalImportsViolation',
-    data: {
-      specifier: '@nestjs/common/testing',
-      source: 'app',
-      origin: 'eslint'
-    }
+    data
   };
 
   assert.deepEqual(check({ source, target, constraints }), expected);
@@ -121,7 +125,11 @@ test('banned external matches the specifier, not the package name', (): void => 
     { bannedExternal: ['lodash/fp'] },
     source
   );
-  const subpath = check({ source, target: npm('lodash', 'lodash/fp'), constraints });
+  const subpath = check({
+    source,
+    target: npm('lodash', 'lodash/fp'),
+    constraints
+  });
   const root = check({ source, target: npm('lodash'), constraints });
 
   assert.equal(subpath?.messageId, 'bannedExternalImportsViolation');
@@ -138,9 +146,10 @@ test('allowedExternal [] bans every npm import', (): void => {
 test('undeclared npm dependency reports; @types/x satisfies x', (): void => {
   const typed = projectStub('app', { declaredDependencies: ['@types/lodash'] });
   const options = { checkUndeclaredDependencies: false };
+  const data = { name: 'lodash', source: 'app' };
   const expected: EdgeReport = {
     messageId: 'undeclaredDependency',
-    data: { name: 'lodash', source: 'app' }
+    data
   };
 
   assert.deepEqual(check({ target: npm('lodash', 'lodash/fp') }), expected);
@@ -165,9 +174,10 @@ test('project via package name is undeclared only when the source has its own pa
     hasOwnPackageJson: true,
     declaredDependencies: ['@ws/lib']
   });
+  const data = { name: '@ws/lib', source: 'app' };
   const expected: EdgeReport = {
     messageId: 'undeclaredDependency',
-    data: { name: '@ws/lib', source: 'app' }
+    data
   };
 
   assert.equal(check({ target: viaPackage(lib) }), undefined);
@@ -179,9 +189,14 @@ test('circular reports the joined cycle path when reachesSource returns true', (
   const target = viaPackage(lib);
   const cyclePath = (): string[] => ['app', 'lib', 'bare', 'app'];
   const report = check({ target, reachesSource: () => true, cyclePath });
+  const data = {
+    source: 'app',
+    target: 'lib',
+    path: 'app -> lib -> bare -> app'
+  };
   const expected: EdgeReport = {
     messageId: 'noCircularDependencies',
-    data: { source: 'app', target: 'lib', path: 'app -> lib -> bare -> app' }
+    data
   };
 
   assert.deepEqual(report, expected);
@@ -203,9 +218,10 @@ test('untagged: only ESLint-origin constraints count', (): void => {
   const turboOnly = constraintSetStub({ constraints: [turbo] });
   const matched = sourceConstraintSetStub({}, app);
   const target = viaPackage(lib);
+  const data = { source: 'app', target: 'lib' };
   const expected: EdgeReport = {
     messageId: 'projectWithoutTagsCannotHaveDependencies',
-    data: { source: 'app', target: 'lib' }
+    data
   };
 
   assert.deepEqual(check({ target, constraints: untaggedApp }), expected);
@@ -216,16 +232,17 @@ test('untagged: only ESLint-origin constraints count', (): void => {
 test('onlyTags failure reports onlyTagsConstraintViolation', (): void => {
   const onlyTags = ['type:util', 'type:feature'];
   const constraints = sourceConstraintSetStub({ onlyTags }, app);
+  const data = {
+    source: 'app',
+    target: 'bare',
+    side: 'target',
+    project: 'bare',
+    tags: "'type:util', 'type:feature'",
+    origin: 'eslint'
+  };
   const expected: EdgeReport = {
     messageId: 'onlyTagsConstraintViolation',
-    data: {
-      source: 'app',
-      target: 'bare',
-      side: 'target',
-      project: 'bare',
-      tags: "'type:util', 'type:feature'",
-      origin: 'eslint'
-    }
+    data
   };
 
   assert.deepEqual(check({ target: viaPackage(bare), constraints }), expected);

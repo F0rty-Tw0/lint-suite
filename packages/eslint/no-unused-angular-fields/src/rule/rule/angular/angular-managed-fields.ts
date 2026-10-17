@@ -4,6 +4,7 @@ import { angularName, isImportBinding } from './angular-imports.ts';
 import type {
   AngularImport,
   AngularImports,
+  FieldCandidateOptions,
   InstanceField
 } from '../common/no-unused-angular-fields.type.ts';
 
@@ -108,14 +109,11 @@ export const isAngularComponentRefField = (
 
 export const isManagedField = (
   node: InstanceField,
-  imports: AngularImports,
-  allowEffectFields: boolean,
-  sourceCode: TSESLint.SourceCode,
-  allowRxjsInteropFields: boolean
+  options: FieldCandidateOptions
 ): boolean => {
   if (node.value?.type !== TSESTree.AST_NODE_TYPES.CallExpression) return false;
 
-  const name = angularName(node.value.callee, imports);
+  const name = angularName(node.value.callee, options.imports);
   const isString = typeof name === 'string';
 
   if (!isString) return false;
@@ -124,15 +122,17 @@ export const isManagedField = (
 
   if (isManagedApi) return true;
 
-  if (allowRxjsInteropFields && rxjsInteropApis.has(name)) {
-    return isImportBinding(node.value.callee, sourceCode);
+  const isRxjsInteropApi = rxjsInteropApis.has(name);
+
+  if (options.allowRxjsInteropFields && isRxjsInteropApi) {
+    return isImportBinding(node.value.callee, options.sourceCode);
   }
 
-  if (!allowEffectFields) return false;
+  if (!options.allowEffectFields) return false;
 
   if (name !== 'effect') return false;
 
-  const isImported = isImportBinding(node.value.callee, sourceCode);
+  const isImported = isImportBinding(node.value.callee, options.sourceCode);
 
   if (!isImported) return false;
 

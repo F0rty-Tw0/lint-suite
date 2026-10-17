@@ -37,14 +37,14 @@ test('reports nothing new when the same program is reconciled again', () => {
   reconcileClasses(index, indexable, current, lazyChecker);
 
   const classCount = index.classes.size;
-  const shape = index.directiveShape;
-  const directives = index.directives;
+  const shape = index.directiveState.shape;
+  const directives = index.directiveState.directives;
   const newNames = reconcileClasses(index, indexable, current, lazyChecker);
 
   assert.equal(newNames.size, 0);
   assert.equal(index.classes.size, classCount);
-  assert.equal(index.directiveShape, shape);
-  assert.equal(index.directives, directives);
+  assert.equal(index.directiveState.shape, shape);
+  assert.equal(index.directiveState.directives, directives);
 });
 
 test('re-indexes a file whose source object was replaced', () => {
@@ -59,7 +59,7 @@ test('re-indexes a file whose source object was replaced', () => {
   );
 
   const before = index.classes.get(sourceFile.fileName);
-  const directives = index.directives;
+  const directives = index.directiveState.directives;
 
   reconcileClasses(index, indexable, current, lazyChecker);
 
@@ -69,10 +69,12 @@ test('re-indexes a file whose source object was replaced', () => {
   assert.notEqual(before.sourceFile, after.sourceFile);
   assert.equal(after.sourceFile, sourceFile);
   assert.equal(after.shape, before.shape);
-  assert.equal(index.directives, directives);
+  assert.equal(index.directiveState.directives, directives);
 
   const [replacedClass] = after.classes;
 
   assert.ok(replacedClass);
-  assert.ok(index.directives.byDeclaration.has(replacedClass.declaration));
+  const { byDeclaration } = index.directiveState.directives;
+
+  assert.ok(byDeclaration.has(replacedClass.declaration));
 });

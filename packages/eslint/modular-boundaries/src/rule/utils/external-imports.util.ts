@@ -1,14 +1,18 @@
+import { globRegExpIn } from './tag-patterns.util.ts';
 import type {
+  CompiledPatterns,
   Constraint,
   EdgeReport,
   Project
 } from '../common/modular-boundaries.type.ts';
 
-import { mapGlobToRegExp } from './tag-patterns.util.ts';
-
-const matchesExternal = (patterns: string[], specifier: string): boolean => {
+const matchesExternal = (
+  patterns: string[],
+  specifier: string,
+  compiled: CompiledPatterns
+): boolean => {
   const matchesPattern = (pattern: string): boolean => {
-    const regex = mapGlobToRegExp(pattern);
+    const regex = globRegExpIn(compiled, pattern);
 
     return regex.test(specifier);
   };
@@ -16,24 +20,30 @@ const matchesExternal = (patterns: string[], specifier: string): boolean => {
   return patterns.some(matchesPattern);
 };
 
-const isBannedBy = (constraint: Constraint, specifier: string): boolean => {
+const isBannedBy = (
+  constraint: Constraint,
+  specifier: string,
+  compiled: CompiledPatterns
+): boolean => {
   const { allowedExternal, bannedExternal = [] } = constraint;
-  const isBanned = matchesExternal(bannedExternal, specifier);
+  const isBanned = matchesExternal(bannedExternal, specifier, compiled);
 
   if (isBanned) return true;
+
   if (!allowedExternal) return false;
 
-  return !matchesExternal(allowedExternal, specifier);
+  return !matchesExternal(allowedExternal, specifier, compiled);
 };
 
 /** README § Checks, step 3, against the full import specifier. */
 export const bannedExternalReport = (
   matched: Constraint[],
   source: Project,
-  specifier: string
+  specifier: string,
+  compiled: CompiledPatterns
 ): EdgeReport | undefined => {
   const isBanning = (constraint: Constraint): boolean => {
-    return isBannedBy(constraint, specifier);
+    return isBannedBy(constraint, specifier, compiled);
   };
   const banning = matched.find(isBanning);
 
@@ -50,7 +60,9 @@ export const bannedExternalReport = (
 
 /** `@types/x` for `x`, `@types/scope__name` for `@scope/name`. */
 export const typesPackageName = (name: string): string => {
-  const unscoped = name.startsWith('@') ? name.slice(1) : name;
+  const isScoped = name.startsWith('@');
+  const withoutAt = name.slice(1);
+  const unscoped = isScoped ? withoutAt : name;
   const flattened = unscoped.replace('/', '__');
 
   return `@types/${flattened}`;
@@ -63,7 +75,9 @@ export const undeclaredDependencyReport = (
 ): EdgeReport | undefined => {
   const declared = source.declaredDependencies;
   const typesName = typesPackageName(name);
-  const isDeclared = declared.includes(name) || declared.includes(typesName);
+  const declaresName = declared.includes(name);
+  const declaresTypes = declared.includes(typesName);
+  const isDeclared = declaresName || declaresTypes;
 
   if (isDeclared) return undefined;
 

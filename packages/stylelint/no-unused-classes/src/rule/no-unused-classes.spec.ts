@@ -5,8 +5,8 @@ import type { Config, LinterOptions, Warning } from 'stylelint';
 import { test } from 'vitest';
 
 import plugin from '../index.ts';
-import { messages, ruleName } from './no-unused-classes.ts';
 import type { RuleOptions } from './common/no-unused-classes.type.ts';
+import { messages, ruleName } from './no-unused-classes.ts';
 import {
   fixtureCase,
   useFixtureWorkingDirectory

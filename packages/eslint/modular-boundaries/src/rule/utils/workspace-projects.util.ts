@@ -1,7 +1,6 @@
 import { dropDuplicateProjects } from './duplicate-projects.util.ts';
 import { discoverProjectRoots } from './project-roots.util.ts';
 import { readProject } from './read-project.util.ts';
-
 import type {
   ConfigError,
   DiscoveredRoot,
@@ -26,7 +25,11 @@ export const readWorkspaceProjects = (
     return readProject(root, entry, readSet);
   };
   const toProjects = (read: ProjectRead): Project[] => {
-    return read.project === undefined ? [] : [read.project];
+    const { project } = read;
+
+    if (project === undefined) return [];
+
+    return [project];
   };
   const reads = discovered.roots.map(toRead);
   const readErrors = reads.flatMap((read) => read.errors);
@@ -52,7 +55,11 @@ export const packageNameIndex = (projects: Project[]): Map<string, Project> => {
   const toEntries = (project: Project): [string, Project][] => {
     const { packageName } = project;
 
-    return packageName === undefined ? [] : [[packageName, project]];
+    if (packageName === undefined) return [];
+
+    const entry: [string, Project] = [packageName, project];
+
+    return [entry];
   };
   const entries = projects.flatMap(toEntries);
 

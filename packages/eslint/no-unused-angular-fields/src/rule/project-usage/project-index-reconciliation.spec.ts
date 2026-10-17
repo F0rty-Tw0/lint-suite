@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 
+import { projectRuleTester } from '@lint-suite/rule-test-support/utils/project-rule-tester.spec.util.ts';
 import { Linter } from 'eslint';
 import { afterAll, test } from 'vitest';
 
-import { projectRuleTester } from '@lint-suite/rule-test-support/utils/project-rule-tester.spec.util.ts';
 import {
   copyFixtureProject,
   fixtureCase,

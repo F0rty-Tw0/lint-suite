@@ -1,29 +1,12 @@
-import assert from 'node:assert/strict';
+import type { RuleTester } from 'eslint';
 
-import { RuleTester } from 'eslint';
-import type { Linter } from 'eslint';
-import tseslint from 'typescript-eslint';
-import { describe, test } from 'vitest';
+import { UTIL_FILE } from './test/common/util-purity.const.ts';
+import {
+  rule,
+  ruleName,
+  ruleTester
+} from './test/utils/rule-under-test.spec.util.ts';
 
-import plugin from '../index.ts';
-
-const rule = plugin.rules?.['util-purity'];
-
-assert.ok(rule);
-
-RuleTester.describe = describe;
-RuleTester.it = test;
-RuleTester.itOnly = test.only;
-
-const languageOptions: Linter.LanguageOptions = {
-  ecmaVersion: 'latest',
-  parser: tseslint.parser,
-  sourceType: 'module'
-};
-
-const ruleTester = new RuleTester({ languageOptions });
-
-const UTIL_FILE = '/p/feature/utils/parse-line.util.ts';
 const SPEC_UTIL_FILE = '/p/feature/test/utils/parse-line.spec.util.ts';
 const UNPLACED_SPEC_UTIL_FILE = '/p/feature/utils/parse-line.spec.util.ts';
 const NON_UTIL_FILE = '/p/feature/service.ts';
@@ -32,6 +15,18 @@ const impureImportData = { source: 'fs' };
 const impureImportError: RuleTester.TestCaseError = {
   messageId: 'impureImport',
   data: impureImportData
+};
+
+const nodeFsImportData = { source: 'node:fs' };
+const nodeFsImportError: RuleTester.TestCaseError = {
+  messageId: 'impureImport',
+  data: nodeFsImportData
+};
+
+const fetchCallData = { name: 'fetch' };
+const fetchCallError: RuleTester.TestCaseError = {
+  messageId: 'impureCall',
+  data: fetchCallData
 };
 
 const moduleLetError: RuleTester.TestCaseError = { messageId: 'moduleLet' };
@@ -93,6 +88,41 @@ const valid: RuleTester.ValidTestCase[] = [
     name: 'allows a plain function call',
     filename: UTIL_FILE,
     code: `const parsed = parseLine('x');`
+  },
+  {
+    name: 'allows a re-export from a non-banned module',
+    filename: UTIL_FILE,
+    code: `export { parse } from './parse.util.ts';`
+  },
+  {
+    name: 'allows a local export without a source',
+    filename: UTIL_FILE,
+    code: `export const limit = 10;`
+  },
+  {
+    name: 'allows a dynamic import of a non-banned module',
+    filename: UTIL_FILE,
+    code: `const load = () => import('./parse.util.ts');`
+  },
+  {
+    name: 'allows a type-only import of a banned module',
+    filename: UTIL_FILE,
+    code: `import type { Stats } from 'node:fs';`
+  },
+  {
+    name: 'allows a type-only re-export from a banned module',
+    filename: UTIL_FILE,
+    code: `export type { Stats } from 'node:fs';`
+  },
+  {
+    name: 'allows a type-only star re-export from a banned module',
+    filename: UTIL_FILE,
+    code: `export type * from 'node:fs';`
+  },
+  {
+    name: 'allows a type-only import-equals require of a banned module',
+    filename: UTIL_FILE,
+    code: `import type fs = require('fs');`
   }
 ];
 
@@ -138,7 +168,73 @@ const invalid: RuleTester.InvalidTestCase[] = [
     filename: UTIL_FILE,
     code: `setTimeout(() => {}, 10);`,
     errors: [impureCallError]
+  },
+  {
+    name: 'reports I/O inside a non-exported helper called by an export',
+    filename: UTIL_FILE,
+    code: `const get = (url) => fetch(url);\nexport const load = (url) => get(url);`,
+    errors: [fetchCallError]
+  },
+  {
+    name: 'reports a dynamic import of a banned module',
+    filename: UTIL_FILE,
+    code: `const load = () => import('node:fs');`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a named re-export from a banned module',
+    filename: UTIL_FILE,
+    code: `export { readFileSync } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a star re-export from a banned module',
+    filename: UTIL_FILE,
+    code: `export * from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports an import-equals require of a banned module',
+    filename: UTIL_FILE,
+    code: `import fs = require('fs');`,
+    errors: [impureImportError]
+  },
+  {
+    name: 'reports an import mixing type and value specifiers',
+    filename: UTIL_FILE,
+    code: `import { type Stats, readFileSync } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a default import next to a type specifier',
+    filename: UTIL_FILE,
+    code: `import fs, { type Stats } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a re-export mixing type and value specifiers',
+    filename: UTIL_FILE,
+    code: `export { type Stats, readFileSync } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports an import whose every specifier is inline type-only',
+    filename: UTIL_FILE,
+    code: `import { type Stats, type Dirent } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a re-export whose every specifier is inline type-only',
+    filename: UTIL_FILE,
+    code: `export { type Stats } from 'node:fs';`,
+    errors: [nodeFsImportError]
+  },
+  {
+    name: 'reports a side-effect import of a banned module',
+    filename: UTIL_FILE,
+    code: `import 'node:fs';`,
+    errors: [nodeFsImportError]
   }
 ];
 
-ruleTester.run('util-purity/util-purity', rule, { valid, invalid });
+ruleTester.run(ruleName, rule, { valid, invalid });

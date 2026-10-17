@@ -81,13 +81,45 @@ export const defaultOptions: Options = [
   { bannedModules: DEFAULT_BANNED_MODULES }
 ];
 
+export const MODULE_SOURCE_SELECTOR =
+  'ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration, ImportExpression, TSImportEqualsDeclaration';
+
 export const MODULE_LET_SELECTOR = 'Program > VariableDeclaration[kind="let"]';
 
 export const MODULE_STATE_SELECTOR =
   'Program > VariableDeclaration > VariableDeclarator > NewExpression[callee.name=/^(Map|Set|WeakMap|WeakSet)$/]';
 
-export const AMBIENT_SELECTOR =
-  'MemberExpression[object.name=/^(process|globalThis|window|document|localStorage|sessionStorage|console)$/]';
+const AMBIENT_GLOBALS: string[] = [
+  'process',
+  'globalThis',
+  'window',
+  'document',
+  'localStorage',
+  'sessionStorage',
+  'console'
+];
+
+const IMPURE_CALLS: string[] = [
+  'setTimeout',
+  'setInterval',
+  'queueMicrotask',
+  'setImmediate',
+  'requestAnimationFrame',
+  'fetch',
+  'inject',
+  'require'
+];
+
+const AMBIENT_PATTERN = AMBIENT_GLOBALS.join('|');
+
+const IMPURE_CALL_PATTERN = IMPURE_CALLS.join('|');
+
+export const AMBIENT_REFERENCE_NAMES: ReadonlySet<string> = new Set([
+  ...AMBIENT_GLOBALS,
+  ...IMPURE_CALLS
+]);
+
+export const AMBIENT_SELECTOR = `MemberExpression[object.name=/^(${AMBIENT_PATTERN})$/]`;
 
 const NONDETERMINISTIC_SELECTORS: string[] = [
   'MemberExpression[object.name="Date"][property.name="now"]',
@@ -98,5 +130,7 @@ const NONDETERMINISTIC_SELECTORS: string[] = [
 
 export const NONDETERMINISTIC_SELECTOR = NONDETERMINISTIC_SELECTORS.join(', ');
 
-export const CALL_SELECTOR =
-  'CallExpression[callee.name=/^(setTimeout|setInterval|fetch|inject|require)$/]';
+export const NEW_DATE_SELECTOR =
+  'NewExpression[callee.name="Date"][arguments.length=0]';
+
+export const CALL_SELECTOR = `CallExpression[callee.name=/^(${IMPURE_CALL_PATTERN})$/]`;

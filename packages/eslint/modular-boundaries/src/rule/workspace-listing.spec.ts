@@ -5,10 +5,9 @@ import { resolve } from 'node:path';
 
 import { onTestFinished, test } from 'vitest';
 
-import { writeTempWorkspace } from '../test/utils/fixture-workspace.spec.util.ts';
-import { listWorkspaceFiles } from './workspace-listing.util.ts';
-
-import type { WorkspaceListing } from '../common/modular-boundaries.type.ts';
+import type { WorkspaceListing } from './common/modular-boundaries.type.ts';
+import { writeTempWorkspace } from './test/utils/fixture-workspace.spec.util.ts';
+import { listWorkspaceFiles } from './workspace-listing.ts';
 
 type ListedWorkspace = {
   readonly file: (path: string) => string;
@@ -17,6 +16,7 @@ type ListedWorkspace = {
 
 const PNPM_MARKER = 'packages:\n  - packages/*\n';
 const isRoot = process.getuid?.() === 0;
+const noChmod = isRoot || process.platform === 'win32';
 
 const runGit = (directory: string, args: string[]): void => {
   const result = spawnSync('git', args, { cwd: directory, encoding: 'utf8' });
@@ -150,7 +150,7 @@ test('listing falls back to a walk outside git and skips node_modules', (): void
   assert.deepEqual(listing.sourceFiles, []);
 });
 
-test.skipIf(isRoot)('the walk skips a directory it cannot read', (): void => {
+test.skipIf(noChmod)('the walk skips a directory it cannot read', (): void => {
   const { file, listing } = listed(
     {
       'pnpm-workspace.yaml': PNPM_MARKER,

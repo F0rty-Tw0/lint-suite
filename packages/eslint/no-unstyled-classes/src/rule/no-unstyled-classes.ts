@@ -1,4 +1,5 @@
 import type { TmplAstElement } from '@angular/compiler';
+
 import { templateClasses } from '@lint-suite/rule-internals/utils/template-classes.util.ts';
 import { toRegExp } from '@lint-suite/rule-internals/utils/to-regexp.util.ts';
 import { ESLintUtils } from '@typescript-eslint/utils';

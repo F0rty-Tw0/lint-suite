@@ -1,3 +1,4 @@
+import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
 import type {
   ParserServicesWithTypeInformation,
   TSESLint,
@@ -11,7 +12,6 @@ import type {
 } from './common/no-unused-exports.type.ts';
 import { exportIndex, publicExportIndex } from './export-index.ts';
 import { exportNodes } from './utils/export-nodes.util.ts';
-import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
 
 type ReportOptions = {
   readonly context: RuleContext;

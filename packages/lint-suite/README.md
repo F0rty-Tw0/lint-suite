@@ -480,8 +480,10 @@ modifier. `#private` members are ignored: TypeScript forbids a modifier there.
 
 The `typescript` preset enables `local/readonly-type-properties`, which
 reports primitive-typed properties in `type` aliases, interfaces, and
-inline object types that are not marked `readonly`, and auto-fixes them
-with `eslint --fix`. A property is primitive-typed when its annotation is
+inline object types that are not marked `readonly`, and suggests adding
+the modifier. It is a suggestion, not an `eslint --fix` autofix, because
+the rule cannot see assignments in other files and a forced `readonly`
+would break them (TS2540). A property is primitive-typed when its annotation is
 `string`, `number`, `boolean`, `bigint`, `symbol`, `null`, `undefined`, a
 literal or template-literal type, or a union/intersection of those.
 
@@ -489,16 +491,17 @@ literal or template-literal type, or a union/intersection of those.
 // Before
 type User = { name: string; roles: string[]; profile: Profile };
 
-// After --fix
+// After applying the suggestion
 type User = { readonly name: string; roles: string[]; profile: Profile };
 ```
 
 - Arrays, object types, type references (including string-union aliases
   like `Status`), functions, and tuples are left untouched because the
   rule is syntactic and does not resolve types.
-- The same rule reports and fixes `readonly T[]` and `ReadonlyArray<T>` to
+- The same rule reports `readonly T[]` and `ReadonlyArray<T>` and suggests
   `T[]`: the property reference is readonly, the array contents stay
-  mutable.
+  mutable. Also a suggestion, because passing a readonly value to the
+  rewritten type fails with TS4104.
 - Index signatures, mapped types, and method signatures are out of scope.
 - Use `// eslint-disable-next-line local/readonly-type-properties` when a
   property genuinely needs to stay mutable.
@@ -778,10 +781,10 @@ The Prettier preset is published with `prettier` as a peer dependency. The Style
 
 ### @smarttools/eslint-plugin-rxjs
 
-- `@rxjs/finnish`: Enforces Finnish notation for observables
-- `@rxjs/no-exposed-subjects`: Enforces subject encapsulation
-- `@rxjs/no-cyclic-action`: Prevents infinite loops in NgRx effects
-- `@rxjs/no-unsafe-takeuntil`: Ensures proper usage of takeUntil operator
+- `@smarttools/rxjs/finnish`: Enforces Finnish notation for observables
+- `@smarttools/rxjs/no-exposed-subjects`: Enforces subject encapsulation
+- `@smarttools/rxjs/no-cyclic-action`: Prevents infinite loops in NgRx effects
+- `@smarttools/rxjs/no-unsafe-takeuntil`: Ensures proper usage of takeUntil operator
 - ...
 
 ### eslint-plugin-storybook

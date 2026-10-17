@@ -8,12 +8,14 @@ import {
   stringField
 } from './manifest-fields.util.ts';
 
+const NX_FIELD = { name: 'b' };
+
 const MANIFEST = {
   name: 'a',
   empty: '',
   tags: ['x', 'y'],
   mixed: ['x', 1],
-  nx: { name: 'b' },
+  nx: NX_FIELD,
   list: []
 };
 

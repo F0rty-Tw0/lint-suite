@@ -4,8 +4,8 @@ import { RuleTester } from 'eslint';
 import type { ESLint } from 'eslint';
 import { describe, test, vi } from 'vitest';
 
-import plugin from '../../../index.ts';
 import { fixtureCase } from './fixture-project.spec.util.ts';
+import plugin from '../../../index.ts';
 
 const pluginRule = plugin.rules?.['no-unused-exports'];
 

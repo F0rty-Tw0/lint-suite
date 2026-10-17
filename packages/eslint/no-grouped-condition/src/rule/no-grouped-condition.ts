@@ -1,3 +1,4 @@
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
 
@@ -80,7 +81,8 @@ const suggestionFor = (
   const groupText = sourceCode.getText(node);
   const line = sourceCode.lines[statement.loc.start.line - 1] ?? '';
   const indent = line.slice(0, statement.loc.start.column);
-  const declaration = `const ${GROUP_NAME} = ${groupText};\n${indent}`;
+  const lineBreak = lineBreakOf(sourceCode.text);
+  const declaration = `const ${GROUP_NAME} = ${groupText};${lineBreak}${indent}`;
   const fix: TSESLint.ReportFixFunction = (fixer) => {
     const hoisted = fixer.insertTextBefore(statement, declaration);
     const replaced = fixer.replaceText(node, GROUP_NAME);

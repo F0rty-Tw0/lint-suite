@@ -1,5 +1,4 @@
 import { preProcessFile } from 'typescript';
-
 import type { FileReference } from 'typescript';
 
 const nameOf = (reference: FileReference): string => reference.fileName;

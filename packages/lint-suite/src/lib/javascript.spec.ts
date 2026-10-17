@@ -7,9 +7,11 @@ import { describe, expect, it } from 'vitest';
 import { javascript } from './javascript.ts';
 import { ruleSeverity } from './test/utils/rule-severity.spec.util.ts';
 
+const tsAnchor: Linter.Config = { files: ['**/*.ts'] };
+
 const eslint = new ESLint({
   overrideConfigFile: true,
-  overrideConfig: [...javascript, { files: ['**/*.ts'] }]
+  overrideConfig: [...javascript, tsAnchor]
 });
 
 const globalNames = (config: Linter.Config): string[] => {
@@ -94,12 +96,13 @@ describe('javascript', () => {
     expect(ruleIds).toEqual(['no-undef']);
   });
   it('runs file-less typescript-eslint rules on JS files', async () => {
+    const consumerRules: Linter.RulesRecord = {
+      '@typescript-eslint/naming-convention': 'error'
+    };
+    const consumerConfig: Linter.Config = { rules: consumerRules };
     const withConsumerRule = new ESLint({
       overrideConfigFile: true,
-      overrideConfig: [
-        ...javascript,
-        { rules: { '@typescript-eslint/naming-convention': 'error' } }
-      ]
+      overrideConfig: [...javascript, consumerConfig]
     });
     const [result] = await withConsumerRule.lintText(
       'export const Bad_Name = 1;\n',

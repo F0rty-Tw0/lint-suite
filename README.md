@@ -229,10 +229,10 @@ The Prettier preset is published with `prettier` as a peer dependency. The Style
 
 ### @smarttools/eslint-plugin-rxjs
 
-- `@rxjs/finnish`: Enforces Finnish notation for observables
-- `@rxjs/no-exposed-subjects`: Enforces subject encapsulation
-- `@rxjs/no-cyclic-action`: Prevents infinite loops in NgRx effects
-- `@rxjs/no-unsafe-takeuntil`: Ensures proper usage of takeUntil operator
+- `@smarttools/rxjs/finnish`: Enforces Finnish notation for observables
+- `@smarttools/rxjs/no-exposed-subjects`: Enforces subject encapsulation
+- `@smarttools/rxjs/no-cyclic-action`: Prevents infinite loops in NgRx effects
+- `@smarttools/rxjs/no-unsafe-takeuntil`: Ensures proper usage of takeUntil operator
 - ...
 
 ### eslint-plugin-storybook

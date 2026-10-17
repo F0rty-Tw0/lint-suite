@@ -3,22 +3,22 @@ import { dirname, join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 import { STALE_AFTER_MS } from './common/modular-boundaries.const.ts';
+import type {
+  ConfigError,
+  Project,
+  ReadSet,
+  Validation,
+  WorkspaceModel
+} from './common/modular-boundaries.type.ts';
 import { readPathAliases } from './utils/path-aliases.util.ts';
 import { readTracked, readTrackedData } from './utils/tracked-read.util.ts';
-import { listWorkspaceFiles } from './utils/workspace-listing.util.ts';
 import {
   packageNameIndex,
   projectRootIndex,
   readWorkspaceProjects
 } from './utils/workspace-projects.util.ts';
 import { findWorkspaceRoot } from './utils/workspace-root.util.ts';
-
-import type {
-  ConfigError,
-  Project,
-  ReadSet,
-  WorkspaceModel
-} from './common/modular-boundaries.type.ts';
+import { listWorkspaceFiles } from './workspace-listing.ts';
 
 type RootLookup = {
   readonly root: string | undefined;
@@ -37,7 +37,9 @@ const uniqueErrors = (errors: ConfigError[]): ConfigError[] => {
     byKey.set(key, error);
   }
 
-  return [...byKey.values()];
+  const unique = byKey.values();
+
+  return [...unique];
 };
 
 /**
@@ -59,7 +61,8 @@ export const buildWorkspaceModel = (root: string): WorkspaceModel => {
   const projectByRoot = projectRootIndex(projects);
   const projectByPackageName = packageNameIndex(projects);
   const configErrors = uniqueErrors(errors);
-  const lastValidatedAt = Date.now();
+  const at = Date.now();
+  const validation: Validation = { at };
   const model: WorkspaceModel = {
     root: base,
     projects,
@@ -71,7 +74,7 @@ export const buildWorkspaceModel = (root: string): WorkspaceModel => {
     listing,
     errors: configErrors,
     readSet,
-    lastValidatedAt
+    validation
   };
 
   return model;
@@ -80,7 +83,7 @@ export const buildWorkspaceModel = (root: string): WorkspaceModel => {
 /**
  * Rebuilds the model when the manifest or package `turbo.json` list changed or
  * any read-set file now reads to a different value reference; otherwise
- * refreshes `listing` and `lastValidatedAt` on the same model object.
+ * refreshes `listing` and `validation` on the same model object.
  */
 export const validateModel = (model: WorkspaceModel): WorkspaceModel => {
   const scratch: ReadSet = new Map();
@@ -95,13 +98,19 @@ export const validateModel = (model: WorkspaceModel): WorkspaceModel => {
   const isChangedRead = ([path, value]: [string, unknown]): boolean => {
     return readTracked(scratch, path) !== value;
   };
-  const isChanged =
-    !isSameManifests || !isSameTurbo || readEntries.some(isChangedRead);
+  const isSameListing = isSameManifests && isSameTurbo;
 
-  if (isChanged) return buildWorkspaceModel(model.root);
+  if (!isSameListing) return buildWorkspaceModel(model.root);
+
+  const hasChangedRead = readEntries.some(isChangedRead);
+
+  if (hasChangedRead) return buildWorkspaceModel(model.root);
+
+  const at = Date.now();
+  const validation: Validation = { at };
 
   model.listing = listing;
-  model.lastValidatedAt = Date.now();
+  model.validation = validation;
 
   return model;
 };
@@ -132,6 +141,15 @@ const existingDirectory = (path: string): string | undefined => {
   return directory;
 };
 
+const workspaceRootFor = (
+  directory: string,
+  workspaceRootOption?: string
+): string | undefined => {
+  if (workspaceRootOption === undefined) return workspaceRootOf(directory);
+
+  return existingDirectory(workspaceRootOption);
+};
+
 /**
  * The model for the workspace holding `filename`: `workspaceRootOption`
  * (resolved against the cwd; no model when it is not an existing directory) or
@@ -143,10 +161,7 @@ export const workspaceModelFor = (
   workspaceRootOption?: string
 ): WorkspaceModel | undefined => {
   const directory = dirname(filename);
-  const root =
-    workspaceRootOption === undefined
-      ? workspaceRootOf(directory)
-      : existingDirectory(workspaceRootOption);
+  const root = workspaceRootFor(directory, workspaceRootOption);
 
   if (root === undefined) return undefined;
 
@@ -160,7 +175,8 @@ export const workspaceModelFor = (
     return built;
   }
 
-  const isFresh = Date.now() - cached.lastValidatedAt <= STALE_AFTER_MS;
+  const now = Date.now();
+  const isFresh = now - cached.validation.at <= STALE_AFTER_MS;
 
   if (isFresh) return cached;
 

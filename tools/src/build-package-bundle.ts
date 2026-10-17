@@ -50,8 +50,8 @@ export const bundlePackage = async (
   const external = externalDependencies(context);
   const plugins = [owningPackageMetadataPlugin(context)];
   const define = {
-    __LINT_SUITE_PACKAGE_NAME__: JSON.stringify(context.manifest.name),
-    __LINT_SUITE_PACKAGE_VERSION__: JSON.stringify(context.manifest.version)
+    LINT_SUITE_PACKAGE_NAME: JSON.stringify(context.manifest.name),
+    LINT_SUITE_PACKAGE_VERSION: JSON.stringify(context.manifest.version)
   };
   const options: BuildOptions = {
     bundle: true,

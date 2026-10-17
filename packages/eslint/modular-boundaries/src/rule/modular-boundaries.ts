@@ -1,12 +1,13 @@
 import { isAbsolute, relative, sep } from 'node:path';
 
-import { AST_NODE_TYPES, ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 import { checkEdge } from './check-edge.ts';
 import { defaultOptions, meta } from './common/modular-boundaries.const.ts';
 import type {
   ConfigError,
+  EdgeVisitor,
   MessageIds,
   Options,
   Project,
@@ -15,12 +16,12 @@ import type {
   Target,
   WorkspaceModel
 } from './common/modular-boundaries.type.ts';
+import { importEdgeListeners } from './import-edges.ts';
 import { constraintsFor } from './load-constraints.ts';
 import { reachesSource, shortestProjectPath } from './project-graph.ts';
+import { toPosixPath } from './utils/posix-path.util.ts';
 import { resolveTarget } from './utils/resolve-target.util.ts';
 import { projectForFile, workspaceModelFor } from './workspace-model.ts';
-
-type EdgeVisitor = (node: TSESTree.Node, specifier: string) => void;
 
 type CycleCheck = {
   readonly reachesSource?: () => boolean;
@@ -34,65 +35,13 @@ const createRule = ESLintUtils.RuleCreator(
 
 const FIRST_LINE: TSESTree.Position = { line: 1, column: 0 };
 
-/** A string literal, or a template literal without expressions. */
-const specifierOf = (node: TSESTree.Node): string | undefined => {
-  if (node.type === AST_NODE_TYPES.Literal) {
-    const { value } = node;
-
-    return typeof value === 'string' ? value : undefined;
-  }
-
-  if (node.type !== AST_NODE_TYPES.TemplateLiteral) return undefined;
-  if (node.expressions.length > 0) return undefined;
-
-  return node.quasis[0]?.value.cooked ?? undefined;
-};
-
-/** The AST nodes whose specifier is one import edge. */
-const importEdgeListeners = (visit: EdgeVisitor): TSESLint.RuleListener => {
-  const visitSource = (node: TSESTree.Node | null): void => {
-    if (node === null) return;
-
-    const specifier = specifierOf(node);
-
-    if (specifier !== undefined) visit(node, specifier);
-  };
-  const visitRequire = (node: TSESTree.CallExpression): void => {
-    const { callee } = node;
-    const [first] = node.arguments;
-    const isRequire =
-      callee.type === AST_NODE_TYPES.Identifier && callee.name === 'require';
-
-    if (isRequire && first !== undefined) visitSource(first);
-  };
-  const visitImportEquals = (
-    node: TSESTree.TSImportEqualsDeclaration
-  ): void => {
-    const reference = node.moduleReference;
-    const isExternal =
-      reference.type === AST_NODE_TYPES.TSExternalModuleReference;
-
-    if (isExternal) visitSource(reference.expression);
-  };
-  const listeners: TSESLint.RuleListener = {
-    ImportDeclaration: (node): void => visitSource(node.source),
-    ExportNamedDeclaration: (node): void => visitSource(node.source),
-    ExportAllDeclaration: (node): void => visitSource(node.source),
-    ImportExpression: (node): void => visitSource(node.source),
-    CallExpression: visitRequire,
-    TSImportEqualsDeclaration: visitImportEquals,
-    TSImportType: (node): void => visitSource(node.source)
-  };
-
-  return listeners;
-};
-
 const reportConfigError = (
   context: RuleContext,
   root: string,
   error: ConfigError
 ): void => {
-  const file = relative(root, error.file).split(sep).join('/');
+  const path = relative(root, error.file);
+  const file = toPosixPath(path);
   const data = { file, message: error.message };
 
   context.report({ loc: FIRST_LINE, messageId: 'workspaceConfigError', data });
@@ -116,6 +65,7 @@ const cycleCheckFor = (
   const isEnabled = options.checkCircularDependencies !== false;
 
   if (!isEnabled || target.kind !== 'project') return noCycleCheck;
+
   if (target.project === source) return noCycleCheck;
 
   const ignored = options.ignoredCircularDependencies ?? [];
@@ -165,7 +115,7 @@ export default createRule<Options, MessageIds>({
 
     if (source === undefined) return configListeners;
 
-    const allow = options.allow ?? [];
+    const { allow } = constraints;
     const checkSpecifier: EdgeVisitor = (node, specifier) => {
       const target = resolveTarget(specifier, filename, model, allow);
       const cycleCheck = cycleCheckFor(model, options, source, target);

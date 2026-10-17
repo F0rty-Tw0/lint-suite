@@ -36,7 +36,9 @@
     "typescript": "catalog:typescript-compatibility"
   },
   "devDependencies": {
-    "typescript-eslint": "catalog:dev"
+    "vitest": "catalog:dev",
+    "typescript-eslint": "catalog:dev",
+    "@lint-suite/rule-internals": "workspace:*"
   },
   "nx": {
     "name": "eslint-arrow-fits-line",

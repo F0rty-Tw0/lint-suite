@@ -1,4 +1,5 @@
 import type { ParseSourceSpan } from '@angular/compiler';
+
 import type { ClassMatcher } from '@lint-suite/rule-internals/common/class-usage.type.ts';
 import type { TSESTree } from '@typescript-eslint/utils';
 

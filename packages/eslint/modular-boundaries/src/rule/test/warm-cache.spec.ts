@@ -3,11 +3,10 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { LINTER_LANGUAGE_OPTIONS_STUB } from '@lint-suite/rule-test-support/stubs/linter-config.stub.ts';
 import { Linter } from 'eslint';
 import type { ESLint } from 'eslint';
 import { afterAll, test, vi } from 'vitest';
-
-import { LINTER_LANGUAGE_OPTIONS_STUB } from '@lint-suite/rule-test-support/stubs/linter-config.stub.ts';
 
 import { copyFixtureWorkspace } from './utils/fixture-workspace.spec.util.ts';
 
@@ -55,9 +54,8 @@ const lintWithFreshModules = async (file: string): Promise<FlushFileCaches> => {
   vi.resetModules();
 
   const { default: plugin } = await import('../../index.ts');
-  const { flushFileCaches } = await import(
-    '@lint-suite/rule-internals/file-cache.ts'
-  );
+  const { flushFileCaches } =
+    await import('@lint-suite/rule-internals/file-cache.ts');
   const code = readFileSync(file, 'utf8');
   const config = linterConfig(plugin);
   const linter = new Linter({ cwd: workspace.directory });

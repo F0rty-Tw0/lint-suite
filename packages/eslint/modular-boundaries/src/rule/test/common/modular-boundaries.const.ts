@@ -3,6 +3,10 @@ import type {
   RuleOptions
 } from '../../common/modular-boundaries.type.ts';
 
+export const BENCHMARK_PROJECT_COUNT = 500;
+
+export const BENCHMARK_FILES_PER_PROJECT = 100;
+
 export const FEATURE_FILE_PATH = 'packages/feature/src/a.ts';
 
 export const IMPORT_DATA = "import { data } from '@ws/data';";

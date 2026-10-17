@@ -2,18 +2,17 @@ import assert from 'node:assert/strict';
 
 import { onTestFinished, test } from 'vitest';
 
-import {
-  copyFixtureWorkspace,
-  writeTempWorkspace
-} from '../test/utils/fixture-workspace.spec.util.ts';
 import { discoverProjectRoots } from './project-roots.util.ts';
-import { listWorkspaceFiles } from './workspace-listing.util.ts';
-
 import type {
   ConfigError,
   DiscoveredRoot
 } from '../common/modular-boundaries.type.ts';
 import type { FixtureWorkspace } from '../test/common/fixture-workspace.type.ts';
+import {
+  copyFixtureWorkspace,
+  writeTempWorkspace
+} from '../test/utils/fixture-workspace.spec.util.ts';
+import { listWorkspaceFiles } from '../workspace-listing.ts';
 
 type DiscoveredWorkspace = {
   readonly file: (path: string) => string;

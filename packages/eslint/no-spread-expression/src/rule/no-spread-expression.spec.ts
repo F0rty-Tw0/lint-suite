@@ -78,6 +78,14 @@ const enclosingIndentErrors: RuleTester.TestCaseError[] = [
   { ...spreadExpressionError, suggestions: [enclosingIndentSuggestion] }
 ];
 
+const crlfSuggestion: RuleTester.SuggestionOutput = {
+  messageId: 'spreadExpression',
+  output: `x();\r\nconst spread = getArgs();\r\nf(...spread);`
+};
+const crlfErrors: RuleTester.TestCaseError[] = [
+  { ...spreadExpressionError, suggestions: [crlfSuggestion] }
+];
+
 const invalid: RuleTester.InvalidTestCase[] = [
   {
     name: 'hoists a call spread into a call argument',
@@ -102,6 +110,12 @@ const invalid: RuleTester.InvalidTestCase[] = [
     code: `function f() {\n  return [...getItems()];\n}`,
     output: null,
     errors: enclosingIndentErrors
+  },
+  {
+    name: 'hoists with the CRLF line break of a CRLF file',
+    code: `x();\r\nf(...getArgs());`,
+    output: null,
+    errors: crlfErrors
   }
 ];
 

@@ -76,6 +76,15 @@ const invalid: RuleTester.InvalidTestCase[] = [
     errors: [
       groupedConditionError(`const isGroup = a || b;\nif ((isGroup) && c) {}`)
     ]
+  },
+  {
+    name: 'hoists with the CRLF line break of a CRLF file',
+    code: `x();\r\nif (a && (b || c)) {}`,
+    errors: [
+      groupedConditionError(
+        `x();\r\nconst isGroup = b || c;\r\nif (a && (isGroup)) {}`
+      )
+    ]
   }
 ];
 

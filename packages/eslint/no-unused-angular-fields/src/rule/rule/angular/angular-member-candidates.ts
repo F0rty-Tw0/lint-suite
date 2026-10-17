@@ -61,13 +61,13 @@ const isExcludedField = (
   if (isModified) return true;
 
   const isDecorated = node.decorators.length > 0;
-  const isOtherDecorated =
-    isDecorated && !isCandidateDecoratedField(node, options.imports);
+  const isCandidateDecorated = isCandidateDecoratedField(node, options.imports);
+  const isOtherDecorated = isDecorated && !isCandidateDecorated;
 
   if (isOtherDecorated) return true;
 
-  const isObservedInput =
-    options.observesInputChanges && isInputField(node, options.imports);
+  const isInput = isInputField(node, options.imports);
+  const isObservedInput = options.observesInputChanges && isInput;
 
   if (isObservedInput) return true;
 
@@ -143,13 +143,7 @@ export const fieldCandidate = (
 
   if (isExcluded) return null;
 
-  const isManaged = isManagedField(
-    node,
-    options.imports,
-    options.allowEffectFields,
-    options.sourceCode,
-    options.allowRxjsInteropFields
-  );
+  const isManaged = isManagedField(node, options);
 
   if (isManaged) return null;
 

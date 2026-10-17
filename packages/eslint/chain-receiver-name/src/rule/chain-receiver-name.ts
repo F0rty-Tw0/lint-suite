@@ -1,7 +1,7 @@
+import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
+import { lineBreakOf } from '@lint-suite/rule-internals/utils/line-break.util.ts';
 import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import type { TSESLint } from '@typescript-eslint/utils';
-
-import { indentOf } from '@lint-suite/rule-internals/utils/indent-of.util.ts';
 
 type Options = [];
 type MessageIds = 'chainReceiver' | 'extractReceiver';
@@ -62,7 +62,8 @@ const suggestionOf = (
   const statement = enclosingStatement(node);
   const indent = indentOf(statement, sourceCode);
   const objectText = sourceCode.getText(node.object);
-  const declaration = `const value = ${objectText};\n${indent}`;
+  const lineBreak = lineBreakOf(sourceCode.text);
+  const declaration = `const value = ${objectText};${lineBreak}${indent}`;
   const fix: TSESLint.ReportFixFunction = (fixer) => {
     const hoisted = fixer.insertTextBefore(statement, declaration);
     const replaced = fixer.replaceText(node.object, 'value');

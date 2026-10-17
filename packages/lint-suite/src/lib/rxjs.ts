@@ -31,43 +31,27 @@ export const rxjs = defineConfig([
       '**/*.cts',
       '**/*.mts'
     ],
-    plugins: {
-      rxjs: rxjsEslint
-    }
-  },
-  {
-    files: [
-      '**/*.js',
-      '**/*.jsx',
-      '**/*.cjs',
-      '**/*.mjs',
-      '**/*.ts',
-      '**/*.tsx',
-      '**/*.cts',
-      '**/*.mts'
-    ],
     rules: {
-      'rxjs/prefer-observer': 'error',
-      'rxjs/finnish': 'warn',
-      'rxjs/no-ignored-subscription': 'warn',
-      'rxjs/no-ignored-error': 'warn',
-      'rxjs/no-unsafe-switchmap': 'error',
-      'rxjs/no-unsafe-takeuntil': 'error',
-      'rxjs/no-unsafe-catch': 'error',
-      'rxjs/no-unsafe-first': 'error',
-      'rxjs/no-topromise': 'error',
-      'rxjs/throw-error': 'error',
-      'rxjs/no-async-subscribe': 'off',
-      'rxjs/no-exposed-subjects': 'error', // Enforce subject encapsulation
-      'rxjs/no-cyclic-action': 'error', // Prevent infinite loops in NgRx effects
-      'rxjs/no-subscribe-handlers': 'warn' // Prefer observer objects (complements prefer-observer)
+      '@smarttools/rxjs/prefer-observer': 'error',
+      '@smarttools/rxjs/finnish': 'warn',
+      '@smarttools/rxjs/no-ignored-subscription': 'warn',
+      '@smarttools/rxjs/no-ignored-error': 'warn',
+      '@smarttools/rxjs/no-unsafe-switchmap': 'error',
+      '@smarttools/rxjs/no-unsafe-catch': 'error',
+      '@smarttools/rxjs/no-unsafe-first': 'error',
+      '@smarttools/rxjs/no-topromise': 'error',
+      '@smarttools/rxjs/throw-error': 'error',
+      '@smarttools/rxjs/no-async-subscribe': 'off',
+      '@smarttools/rxjs/no-exposed-subjects': 'error', // Enforce subject encapsulation
+      '@smarttools/rxjs/no-cyclic-action': 'error', // Prevent infinite loops in NgRx effects
+      '@smarttools/rxjs/no-subscribe-handlers': 'warn' // Prefer observer objects (complements prefer-observer)
     }
   },
   {
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
     rules: {
-      'rxjs/no-ignored-subscription': 'off',
-      'rxjs/no-subscribe-handlers': 'off'
+      '@smarttools/rxjs/no-ignored-subscription': 'off',
+      '@smarttools/rxjs/no-subscribe-handlers': 'off'
     }
   }
 ]);

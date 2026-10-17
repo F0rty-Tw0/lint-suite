@@ -2,12 +2,11 @@ import assert from 'node:assert/strict';
 
 import { onTestFinished, test, vi } from 'vitest';
 
+import type { RuleOptions } from './common/modular-boundaries.type.ts';
 import { IMPORT_B } from './test/common/modular-boundaries.const.ts';
 import { copyFixtureWorkspace } from './test/utils/fixture-workspace.spec.util.ts';
 import { lintWithRule } from './test/utils/rule-under-test.spec.util.ts';
 import { extractSpecifiers } from './utils/specifiers.util.ts';
-
-import type { RuleOptions } from './common/modular-boundaries.type.ts';
 
 vi.mock('./utils/specifiers.util.ts', { spy: true });
 

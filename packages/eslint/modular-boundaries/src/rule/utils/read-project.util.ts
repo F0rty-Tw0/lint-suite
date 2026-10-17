@@ -1,12 +1,12 @@
-import { basename, join, relative, sep } from 'node:path';
+import { basename, join, relative } from 'node:path';
 
 import {
   recordField,
   stringArrayField,
   stringField
 } from './manifest-fields.util.ts';
+import { toPosixPath } from './posix-path.util.ts';
 import { readTrackedRecord } from './tracked-read.util.ts';
-
 import type {
   ConfigError,
   DiscoveredRoot,
@@ -67,6 +67,7 @@ const projectId = (
   const nxName = stringField(nx, 'name');
 
   if (projectName !== undefined) return projectName;
+
   if (nxName !== undefined) return nxName;
 
   const isMoonProject =
@@ -80,7 +81,7 @@ const projectId = (
 
   const path = relative(workspaceRoot, discovered.root);
 
-  return path.split(sep).join('/');
+  return toPosixPath(path);
 };
 
 const npmTags = (packageJson: JsonObject): string[] => {
@@ -135,6 +136,17 @@ const declaredDependencies = (
   return dependencyNames(rootPackageJson);
 };
 
+const withPackageName = (
+  project: Project,
+  packageName: string | undefined
+): Project => {
+  if (packageName === undefined) return project;
+
+  const named: Project = { ...project, packageName };
+
+  return named;
+};
+
 /**
  * Reads one project's manifests. A malformed manifest adds a `ConfigError` and is
  * read as absent; the root is no project when no manifest parsed and no moon id names it.
@@ -164,16 +176,14 @@ export const readProject = (
     packageJson,
     readSet
   );
-  const project: Project = {
+  const unnamed: Project = {
     id,
     root: discovered.root,
     tags,
     declaredDependencies: dependencies,
     hasOwnPackageJson: packageJson !== undefined
   };
-
-  if (packageName !== undefined) project.packageName = packageName;
-
+  const project = withPackageName(unnamed, packageName);
   const read: ProjectRead = { project, errors };
 
   return read;

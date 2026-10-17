@@ -1,4 +1,5 @@
 import type {
+  CompiledPatterns,
   ConfigError,
   Constraint,
   ConstraintMatch,
@@ -9,7 +10,11 @@ import type {
   WorkspaceModel
 } from './common/modular-boundaries.type.ts';
 import { configConstraints } from './utils/config-constraints.util.ts';
-import { hasTag } from './utils/tag-patterns.util.ts';
+import {
+  compiledPatterns,
+  importMatcher,
+  tagMatcherIn
+} from './utils/tag-patterns.util.ts';
 
 const setsByModel = new WeakMap<WorkspaceModel, Map<string, ConstraintSet>>();
 
@@ -53,12 +58,21 @@ const translateEslintConstraint = (entry: DepConstraint): Constraint => {
   return constraint;
 };
 
-const matchesTags = (match: ConstraintMatch, tags: string[]): boolean => {
-  const carries = (pattern: string): boolean => hasTag(tags, pattern);
+const matchesTags = (
+  match: ConstraintMatch,
+  tags: string[],
+  patterns: CompiledPatterns
+): boolean => {
+  const carries = (pattern: string): boolean => {
+    const matches = tagMatcherIn(patterns, pattern);
+
+    return matches(tags);
+  };
   const allOf = match.allOf ?? [];
   const hasAll = allOf.every(carries);
 
   if (!hasAll) return false;
+
   if (!match.anyOf) return true;
 
   return match.anyOf.some(carries);
@@ -67,14 +81,15 @@ const matchesTags = (match: ConstraintMatch, tags: string[]): boolean => {
 const matchesBySide = (
   constraints: Constraint[],
   projects: Project[],
-  side: Constraint['side']
+  side: Constraint['side'],
+  patterns: CompiledPatterns
 ): Map<Project, Constraint[]> => {
   const matches = new Map<Project, Constraint[]>();
   const sided = constraints.filter((constraint) => constraint.side === side);
 
   for (const project of projects) {
     const matchesProject = (constraint: Constraint): boolean => {
-      return matchesTags(constraint.match, project.tags);
+      return matchesTags(constraint.match, project.tags, patterns);
     };
     const matching = sided.filter(matchesProject);
 
@@ -112,16 +127,32 @@ const loadConstraints = (
   const errors: ConfigError[] = [];
   const translated = configConstraints(model, options, errors);
   const constraints = [...eslintConstraints, ...translated];
-  const sourceMatches = matchesBySide(constraints, model.projects, 'source');
-  const targetMatches = matchesBySide(constraints, model.projects, 'target');
+  const patterns = compiledPatterns(constraints);
+  const { projects } = model;
+  const sourceMatches = matchesBySide(
+    constraints,
+    projects,
+    'source',
+    patterns
+  );
+  const targetMatches = matchesBySide(
+    constraints,
+    projects,
+    'target',
+    patterns
+  );
   const eslintSourceMatched = eslintMatchedProjects(sourceMatches);
+  const allowPatterns = options.allow ?? [];
+  const allow = allowPatterns.map(importMatcher);
   const set: ConstraintSet = {
     constraints,
     sourceMatches,
     targetMatches,
     eslintSourceMatched,
     hasEslintConstraints: depConstraints.length > 0,
-    errors
+    errors,
+    patterns,
+    allow
   };
 
   return set;

@@ -56,11 +56,11 @@ const probeRule = createRule<Options, MessageIds>({
   }
 });
 
-const probePlugin: ESLint.Plugin = { meta: { name: 'probe' } };
+const probeMeta = { name: 'probe' };
+const probePlugin: ESLint.Plugin = { meta: probeMeta };
+const probeRules = { 'decorator-config-probe': probeRule };
 
-Object.assign(probePlugin, {
-  rules: { 'decorator-config-probe': probeRule }
-});
+Object.assign(probePlugin, { rules: probeRules });
 const probePlugins = { probe: probePlugin };
 const probeConfig = defineConfig([{ plugins: probePlugins }]);
 const rule = probeConfig

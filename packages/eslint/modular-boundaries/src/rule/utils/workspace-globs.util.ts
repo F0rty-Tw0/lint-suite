@@ -1,8 +1,7 @@
 import { basename, dirname, relative } from 'node:path';
 
-import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
-
 import type { GlobMatcher } from '@lint-suite/rule-internals/common/glob-matcher.type.ts';
+import { compileGlobs } from '@lint-suite/rule-internals/utils/glob-matcher.util.ts';
 
 import type {
   DiscoveredRoot,

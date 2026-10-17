@@ -5,7 +5,6 @@ import {
 
 import { isRecord } from './guards.util.ts';
 import { parserFor } from './parse-config.util.ts';
-
 import type {
   ConfigError,
   JsonObject,
@@ -39,6 +38,7 @@ export const readTrackedData = (
   const result = readTracked(readSet, path);
 
   if (result === null) return undefined;
+
   if (result.ok) return result.data;
 
   const error: ConfigError = { file: path, message: result.message };
@@ -71,5 +71,7 @@ export const readTrackedRecord = (
 
   if (isRecord(result.data)) return result.data;
 
-  return {};
+  const empty: JsonObject = {};
+
+  return empty;
 };
