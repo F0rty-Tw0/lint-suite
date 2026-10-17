@@ -36,6 +36,7 @@
     "typescript": "catalog:typescript-compatibility"
   },
   "devDependencies": {
+    "vitest": "catalog:dev",
     "typescript-eslint": "catalog:dev"
   },
   "nx": {

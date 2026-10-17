@@ -22,5 +22,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
-  }
+  },
+  "files": ["packages/lint-suite/src/types/eslint-plugin-boundaries.d.ts"]
 }

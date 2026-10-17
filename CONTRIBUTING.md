@@ -73,12 +73,15 @@ See the [Nx target defaults reference](https://nx.dev/docs/reference/nx-json#tar
 - Document new rules or configurations
 - Include appropriate tests for new features
 
-Shared typed lint settings live in the named `typescriptConfig` export in
-`eslint.config.base.ts`. Tools and rule packages import it and compose their
-own configs with `defineConfig`; only ESLint entrypoints use default exports.
-Tools selects `tools/tsconfig.json` explicitly for typed linting; package
-configs use the TypeScript project service.
-The separate `workspaceConfig` adds Nx boundary checks for the umbrella.
+Rule packages and lint-suite lint with the house preset through `dogfoodConfig`
+in `eslint.config.dogfood.ts`; shared packages use `sharedPackageConfig` from the
+same file. Each package composes its own config with `defineConfig`; only ESLint
+entrypoints use default exports. Lint runs with `node --conditions=development`
+so the presets load rule sources (the nx `lint` target and `eslint.execArgv` in
+`.vscode/settings.json` pass it). Tools still uses the typed `typescriptConfig`
+from `eslint.config.base.ts` and selects `tools/tsconfig.json` explicitly; package
+configs use the TypeScript project service. `workspaceConfig` adds Nx boundary
+checks.
 
 ## Adding New Rules
 

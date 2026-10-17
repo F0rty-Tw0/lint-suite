@@ -38,6 +38,8 @@
     "typescript": "catalog:typescript-compatibility"
   },
   "devDependencies": {
+    "eslint": "catalog:dev",
+    "vitest": "catalog:dev",
     "@lint-suite/rule-internals": "workspace:*",
     "postcss-scss": "catalog:styles"
   },

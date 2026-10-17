@@ -40,6 +40,7 @@
     "typescript": "catalog:typescript-compatibility"
   },
   "devDependencies": {
+    "vitest": "catalog:dev",
     "@lint-suite/rule-internals": "workspace:*",
     "angular-eslint": "catalog:dev",
     "typescript-eslint": "catalog:dev"

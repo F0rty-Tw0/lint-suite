@@ -11,9 +11,6 @@
       "options": {
         "cwd": "."
       }
-    },
-    "lint": {
-      "command": "eslint shared/rule-test-support --config shared/rule-test-support/eslint.config.ts --max-warnings=0"
     }
   }
 }

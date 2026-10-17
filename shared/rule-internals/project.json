@@ -11,9 +11,6 @@
       "options": {
         "cwd": "."
       }
-    },
-    "lint": {
-      "command": "eslint shared/rule-internals --config shared/rule-internals/eslint.config.ts --max-warnings=0"
     }
   }
 }
