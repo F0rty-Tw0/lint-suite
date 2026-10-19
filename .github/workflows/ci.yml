@@ -22,7 +22,7 @@ jobs:
 
       # SHA = pnpm/setup@v2.1.0
       - name: Setup toolchain and install dependencies
-        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024
+        uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4
         with:
           runtime: node@24.20.0
           cache: true
