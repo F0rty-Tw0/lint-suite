@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/npm/l/lint-suite.svg)](https://github.com/F0rty-Tw0/lint-suite/blob/main/LICENSE)
 [![NPM Downloads](https://img.shields.io/npm/dm/lint-suite.svg)](https://www.npmjs.com/package/lint-suite)
 
+[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-donate-yellow.svg)](https://buymeacoffee.com/f0rty_tw0)
+
 A comprehensive collection of ESLint Flat configurations for modern web applications.
 
 ## Features
