@@ -160,7 +160,7 @@ Rules that are ported with options different from ESLint's. A rule here is porte
 
 ### `local/no-call-in-condition`
 
-There is no type checker, so the type-predicate exemption is skipped and the rule gives more reports.
+There is no type checker, so the rule exempts calls by name (`allowPredicates`, default `^(is|has)[A-Z]`) instead of by signature. It reports more for imported type predicates with other names and fewer for `is*`/`has*` calls that are not type predicates. Type predicate functions declared in the same file and called by bare name are still exempt by signature.
 
 ### `no-unused-angular-fields` in project mode
 

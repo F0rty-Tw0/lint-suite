@@ -6,7 +6,7 @@ import type {
 
 export type CallExemptions = {
   readonly allowed: RegExp[];
-  readonly scope: TSESLint.Scope.Scope;
+  readonly scopeOf: () => TSESLint.Scope.Scope;
   readonly services: ParserServicesWithTypeInformation | undefined;
 };
 
@@ -20,6 +20,13 @@ export type ConstFeed = {
   readonly statement: TSESTree.VariableDeclaration;
 };
 
+export type HoistTarget = TSESTree.IfStatement | TSESTree.VariableDeclaration;
+
+export type PendingFeed = {
+  readonly identifier: TSESTree.Identifier;
+  readonly exemptions: CallExemptions;
+};
+
 export type MessageIds = 'callInCondition' | 'hoistCall';
 
 export type RuleOptions = {
@@ -29,3 +36,9 @@ export type RuleOptions = {
 export type Options = [RuleOptions];
 
 export type RuleContext = TSESLint.RuleContext<MessageIds, Options>;
+
+export type CallReporter = (
+  calls: TSESTree.CallExpression[],
+  statement: HoistTarget,
+  exemptions: CallExemptions
+) => void;

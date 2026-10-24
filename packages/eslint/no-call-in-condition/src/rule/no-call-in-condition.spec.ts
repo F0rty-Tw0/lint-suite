@@ -103,6 +103,30 @@ const boolConstOutputLines = [
   'if (isNamed) {}'
 ];
 const boolConstOutput = boolConstOutputLines.join('\n');
+const laterConstLines = [
+  'function run() {',
+  '  if (isNamed) {}',
+  '}',
+  '',
+  'const isNamed = validate(order) && order.name;'
+];
+const laterConst = laterConstLines.join('\n');
+const laterConstOutputLines = [
+  'function run() {',
+  '  if (isNamed) {}',
+  '}',
+  '',
+  'const validateResult = validate(order);',
+  'const isNamed = validateResult && order.name;'
+];
+const laterConstOutput = laterConstOutputLines.join('\n');
+const destructuredConst = 'const { data } = load(key) || {};\nif (data) {}';
+const destructuredConstOutputLines = [
+  'const loadResult = load(key);',
+  'const { data } = loadResult || {};',
+  'if (data) {}'
+];
+const destructuredConstOutput = destructuredConstOutputLines.join('\n');
 
 const predicateInlineLines = [
   'const looksLikeFoo = (value: unknown): value is Foo => true;',
@@ -204,6 +228,16 @@ const invalid: RuleTester.InvalidTestCase[] = [
     name: 'reports a call inside a boolean const feeding an if',
     code: boolConst,
     errors: hoisted('validate', 'validateResult', boolConstOutput)
+  },
+  {
+    name: 'reports a call inside a const declared after the if reading it',
+    code: laterConst,
+    errors: hoisted('validate', 'validateResult', laterConstOutput)
+  },
+  {
+    name: 'reports a call inside a destructured const read by an if',
+    code: destructuredConst,
+    errors: hoisted('load', 'loadResult', destructuredConstOutput)
   },
   {
     name: 'reports a this call that takes arguments',

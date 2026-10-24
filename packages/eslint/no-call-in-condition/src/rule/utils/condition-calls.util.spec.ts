@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 
+import { isProgram } from '@lint-suite/rule-test-support/utils/parsed-program.spec.util.ts';
 import { TSESTree } from '@typescript-eslint/utils';
+import tseslint from 'typescript-eslint';
 import { test } from 'vitest';
 
 import {
   calleeName,
   conditionParts,
-  constFeed
+  constFeed,
+  isFedConst
 } from './condition-calls.util.ts';
 import { parseCondition } from '../test/utils/parsed-condition.spec.util.ts';
 
@@ -26,6 +29,18 @@ const feedInitType = (code: string): string | undefined => {
   const feed = constFeed(identifier, scope);
 
   return feed?.init.type;
+};
+
+const declaresFeed = (code: string): boolean => {
+  const { ast } = tseslint.parser.parseForESLint(code);
+
+  assert.ok(isProgram(ast), 'parser must return a Program');
+
+  const statement = ast.body.at(0);
+
+  assert.ok(statement?.type === TSESTree.AST_NODE_TYPES.VariableDeclaration);
+
+  return isFedConst(statement);
 };
 
 test('collects a bare call in the condition', () => {
@@ -109,4 +124,33 @@ test('skips a let binding and an unresolved identifier', () => {
 
   assert.equal(feedInitType(code), undefined);
   assert.equal(feedInitType('if (isNamed) {}'), undefined);
+});
+
+test('flags a const whose initializer feeds a call into an if', () => {
+  const code = 'const isNamed = check(entry) && entry.name;';
+
+  assert.equal(declaresFeed(code), true);
+});
+
+test('flags a const whose later declarator feeds a call', () => {
+  const code = 'const size = 1, isNamed = check(entry) && entry.name;';
+
+  assert.equal(declaresFeed(code), true);
+});
+
+test('flags a destructured const whose initializer feeds a call', () => {
+  assert.equal(declaresFeed('const { data } = load(key) || {};'), true);
+  assert.equal(declaresFeed('const [first] = pick(list) || [];'), true);
+});
+
+test('flags no const that holds a bare call or a nullish fallback', () => {
+  assert.equal(declaresFeed('const isNamed = check(entry);'), false);
+  assert.equal(declaresFeed('const size = read(key) ?? 0;'), false);
+});
+
+test('flags no let binding and no const without a call', () => {
+  const letCode = 'let isNamed = check(entry) && entry.name;';
+
+  assert.equal(declaresFeed(letCode), false);
+  assert.equal(declaresFeed('const isNamed = a && b;'), false);
 });

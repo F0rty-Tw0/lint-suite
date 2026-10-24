@@ -1,3 +1,4 @@
+import { TSESTree } from '@typescript-eslint/utils';
 import type {
   ESLintUtils,
   JSONSchema,
@@ -9,6 +10,14 @@ import type {
   Options,
   RuleOptions
 } from './no-call-in-condition.type.ts';
+
+export const HOISTABLE_PARENTS: ReadonlySet<TSESTree.AST_NODE_TYPES> = new Set([
+  TSESTree.AST_NODE_TYPES.BlockStatement,
+  TSESTree.AST_NODE_TYPES.Program,
+  TSESTree.AST_NODE_TYPES.StaticBlock,
+  TSESTree.AST_NODE_TYPES.SwitchCase,
+  TSESTree.AST_NODE_TYPES.TSModuleBlock
+]);
 
 export const PREDICATE_PATTERNS: string[] = ['^(is|has)[A-Z]'];
 
