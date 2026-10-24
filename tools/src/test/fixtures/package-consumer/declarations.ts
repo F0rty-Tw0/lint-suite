@@ -6,6 +6,7 @@ import {
   recommended as oxlintRecommended
 } from '@lint-suite/oxlint-config';
 import { oxlintOverlap } from '@lint-suite/oxlint-config/eslint';
+import { recommended as missingRecommended } from '@lint-suite/oxlint-config/eslint-missing';
 import localPlugin from '@lint-suite/oxlint-config/local-plugin';
 import stylePlugin from '@lint-suite/stylelint-no-unused-classes';
 import { recommended } from 'lint-suite/eslint';
@@ -20,5 +21,6 @@ void oxlintRecommended;
 void defineLintSuiteConfig;
 void localPlugin;
 void oxlintOverlap;
+void missingRecommended;
 void prettier;
 void stylelint;

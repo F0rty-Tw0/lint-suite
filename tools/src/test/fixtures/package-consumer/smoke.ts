@@ -3,9 +3,11 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import modularBoundaries from '@lint-suite/eslint-modular-boundaries';
 import { oxlintOverlap } from '@lint-suite/oxlint-config/eslint';
+import * as eslintMissing from '@lint-suite/oxlint-config/eslint-missing';
 import localPlugin from '@lint-suite/oxlint-config/local-plugin';
 import { Linter } from 'eslint';
 import engine from 'stylelint';
+import * as lintSuiteEslint from 'lint-suite/eslint';
 import { stylelint } from 'lint-suite/stylelint';
 
 const stylesheet = join(process.cwd(), 'card.component.scss');
@@ -88,4 +90,20 @@ const overlapRules = overlap.flatMap((block) => Object.keys(block.rules ?? {}));
 assert.deepEqual(overlapRules, ['no-console']);
 console.log(
   'PASS: packed oxlint ESLint overlap turns the oxlint-enabled rule off in ESLint'
+);
+
+assert.equal(eslintMissing.json, lintSuiteEslint.json);
+const consoleSource = 'console.log(1);\n';
+const consoleMessagesFor = (config: Linter.Config[]): string[] => {
+  const messages = new Linter().verify(consoleSource, config, 'a.js');
+  const ruleIds = messages.map((message) => message.ruleId ?? '');
+
+  return ruleIds.filter((ruleId) => ruleId === 'no-console');
+};
+assert.deepEqual(consoleMessagesFor([...lintSuiteEslint.recommended]), [
+  'no-console'
+]);
+assert.deepEqual(consoleMessagesFor([...eslintMissing.recommended]), []);
+console.log(
+  'PASS: packed eslint-missing reuses the lint-suite json array and turns off the rules oxlint runs'
 );
