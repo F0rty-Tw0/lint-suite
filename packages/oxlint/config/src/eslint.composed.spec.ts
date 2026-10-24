@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { oxlintOverlap } from './eslint.ts';
 import { angular } from './lib/angular.ts';
 import { recommended } from './lib/recommended.ts';
-import { PARITY_SAMPLES } from './test/common/parity.const.ts';
+import { KEPT_SAMPLES, OVERLAP_SAMPLES } from './test/common/overlap.const.ts';
 import type { ParityPass } from './test/common/parity.type.ts';
 import { eslintConfigFor } from './test/utils/eslint-sample-config.spec.util.ts';
 import {
@@ -18,18 +18,6 @@ import {
 import { parityPasses } from './test/utils/parity-passes.spec.util.ts';
 import { defineLintSuiteConfig } from './utils/define-lint-suite-config.util.ts';
 import { normalizeSeverity } from './utils/rule-name.util.ts';
-
-const OVERLAP_SAMPLES: string[] = [...PARITY_SAMPLES, 'src/a.component.ts'];
-
-const KEPT_SAMPLES: string[] = [
-  ...OVERLAP_SAMPLES,
-  'scripts/a.ts',
-  'generated/a.ts',
-  'vendor/a.min.js',
-  'src/a-min.ts',
-  'src/a_min.ts',
-  'vendor/keep.min.js'
-];
 
 const consoleOff: DummyRuleMap = { 'eslint/no-console': 'off' };
 
