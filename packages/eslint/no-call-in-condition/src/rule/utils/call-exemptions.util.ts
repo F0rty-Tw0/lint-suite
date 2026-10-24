@@ -49,10 +49,11 @@ const isThisSignalRead = (call: TSESTree.CallExpression): boolean => {
 
 const isScopePredicate = (
   callee: TSESTree.Node,
-  scope: TSESLint.Scope.Scope
+  scopeOf: () => TSESLint.Scope.Scope
 ): boolean => {
   if (callee.type !== TSESTree.AST_NODE_TYPES.Identifier) return false;
 
+  const scope = scopeOf();
   const variable = ASTUtils.findVariable(scope, callee);
   const definition = variable?.defs.at(0);
 
@@ -100,9 +101,9 @@ export const isExemptCall = (
 
   if (isSignalRead) return true;
 
-  const { allowed, scope, services } = exemptions;
+  const { allowed, scopeOf, services } = exemptions;
   const { callee } = call;
-  const isDeclaredPredicate = isScopePredicate(callee, scope);
+  const isDeclaredPredicate = isScopePredicate(callee, scopeOf);
 
   if (isDeclaredPredicate) return true;
 

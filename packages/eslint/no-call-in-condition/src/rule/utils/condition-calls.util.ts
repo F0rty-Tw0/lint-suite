@@ -64,6 +64,31 @@ const isTracedInit = (init: TSESTree.Expression): boolean => {
   return init.operator !== '??';
 };
 
+const isFedDeclarator = (declarator: TSESTree.VariableDeclarator): boolean => {
+  const { init } = declarator;
+
+  if (!init) return false;
+
+  const isTraced = isTracedInit(init);
+
+  if (!isTraced) return false;
+
+  const { calls } = conditionParts(init);
+
+  return calls.length > 0;
+};
+
+export const isFedConst = (
+  declaration: TSESTree.VariableDeclaration
+): boolean => {
+  if (declaration.kind !== 'const') return false;
+
+  const { declarations } = declaration;
+  const isFed = declarations.some(isFedDeclarator);
+
+  return isFed;
+};
+
 export const constFeed = (
   identifier: TSESTree.Identifier,
   scope: TSESLint.Scope.Scope

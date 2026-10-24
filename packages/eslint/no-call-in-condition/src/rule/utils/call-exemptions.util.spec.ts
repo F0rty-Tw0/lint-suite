@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 
+import type { TSESLint } from '@typescript-eslint/utils';
 import { test } from 'vitest';
 
 import { isExemptCall } from './call-exemptions.util.ts';
@@ -13,10 +14,30 @@ const isExempt = (code: string, allowed: RegExp[] = []): boolean => {
 
   assert.ok(call);
 
-  const exemptions: CallExemptions = { allowed, scope, services: undefined };
+  const scopeOf = (): TSESLint.Scope.Scope => scope;
+  const exemptions: CallExemptions = { allowed, scopeOf, services: undefined };
 
   return isExemptCall(call, exemptions);
 };
+
+const throwingScope = (): never => {
+  throw new Error('scope resolved');
+};
+
+test('does not resolve scope for a member callee', () => {
+  const { condition } = parseCondition('if (guards.compute(input)) {}');
+  const call = conditionParts(condition).calls.at(0);
+
+  assert.ok(call);
+
+  const exemptions: CallExemptions = {
+    allowed: [],
+    scopeOf: throwingScope,
+    services: undefined
+  };
+
+  assert.equal(isExemptCall(call, exemptions), false);
+});
 
 test('exempts a zero-argument signal read on this', () => {
   assert.equal(isExempt('if (this.loading()) {}'), true);
