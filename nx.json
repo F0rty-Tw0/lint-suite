@@ -172,5 +172,8 @@
       "automaticFromRef": true
     }
   },
+  "sync": {
+    "disabledTaskSyncGenerators": ["@nx/js:typescript-sync"]
+  },
   "analytics": false
 }
