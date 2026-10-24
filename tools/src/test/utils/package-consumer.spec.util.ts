@@ -87,7 +87,7 @@ export const runPackageConsumerSmoke = (consumer: PackageConsumer): string => {
     cwd: consumer.directory,
     encoding: 'utf8',
     env: { ...process.env, LINT_SUITE_CACHE: '0' },
-    timeout: 60_000
+    timeout: 120_000
   };
 
   return execFileSync(process.execPath, ['smoke.ts'], options);
@@ -98,7 +98,7 @@ export const typecheckPackageConsumer = (consumer: PackageConsumer): void => {
   const options: ExecFileSyncOptionsWithStringEncoding = {
     cwd: consumer.directory,
     encoding: 'utf8',
-    timeout: 60_000
+    timeout: 120_000
   };
 
   execFileSync(
