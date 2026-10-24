@@ -1,3 +1,7 @@
+## 2.0.1 (2026-10-24)
+
+This was a version bump only for stylelint-no-unused-classes to align it with other projects, there were no code changes.
+
 # 2.0.0 (2026-10-13)
 
 This was a version bump only for stylelint-no-unused-classes to align it with other projects, there were no code changes.

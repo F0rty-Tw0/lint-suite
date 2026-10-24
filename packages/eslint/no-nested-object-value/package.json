@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-no-nested-object-value",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Require nested object property values to be named",
   "type": "module",
   "license": "MIT",

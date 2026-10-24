@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-ternary-branch-shape",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Require ternary branches to use simple expressions",
   "type": "module",
   "license": "MIT",

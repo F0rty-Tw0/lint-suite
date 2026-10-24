@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-type-placement",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Require types and type-only imports to use prescribed file placement",
   "type": "module",
   "license": "MIT",

@@ -1,3 +1,58 @@
+## 3.0.1 (2026-10-24)
+
+### 🚀 Features
+
+- ⚠️  **lint-suite:** 💥 register only @smarttools/rxjs in the rxjs preset ([4f73a87](https://github.com/F0rty-Tw0/lint-suite/commit/4f73a87))
+
+### 🩹 Fixes
+
+- **lint-suite:** 🐛 lint nested .storybook/main configs in the storybook preset ([3605ce1](https://github.com/F0rty-Tw0/lint-suite/commit/3605ce1))
+- **lint-suite:** 🐛 stop rewriting index imports to directory imports ([6484fa2](https://github.com/F0rty-Tw0/lint-suite/commit/6484fa2))
+- **lint-suite:** 🐛 cover .storybook/main and all story extensions in the storybook preset ([a277d47](https://github.com/F0rty-Tw0/lint-suite/commit/a277d47))
+- **lint-suite:** 🐛 parse JSONC config files in the json preset ([417280e](https://github.com/F0rty-Tw0/lint-suite/commit/417280e))
+
+### ⚠️  Breaking Changes
+
+- **lint-suite:** 💥 register only @smarttools/rxjs in the rxjs preset  ([4f73a87](https://github.com/F0rty-Tw0/lint-suite/commit/4f73a87))
+  rxjs preset rule keys are renamed from `rxjs/<id>` to
+  `@smarttools/rxjs/<id>`: prefer-observer, finnish, no-ignored-subscription,
+  no-ignored-error, no-unsafe-switchmap, no-unsafe-catch, no-unsafe-first,
+  no-topromise, throw-error, no-async-subscribe, no-exposed-subjects,
+  no-cyclic-action, no-subscribe-handlers. The preset no longer sets
+  `rxjs/no-unsafe-takeuntil`; `@smarttools/rxjs/no-unsafe-takeuntil` follows the
+  plugin's recommended config.
+  Consumers that override any `rxjs/<id>` key must rename it, or ESLint reports
+  an unknown rule.
+
+### 🧱 Updated Dependencies
+
+- Updated eslint-arrow-fits-line to 1.0.1
+- Updated eslint-chain-fits-line to 1.0.1
+- Updated eslint-chain-receiver-name to 1.0.1
+- Updated eslint-explicit-accessibility to 1.0.1
+- Updated eslint-max-condition-operands to 1.0.1
+- Updated eslint-modular-boundaries to 1.0.1
+- Updated eslint-no-call-in-condition to 1.0.1
+- Updated eslint-no-grouped-condition to 1.0.1
+- Updated eslint-no-inline-object-types to 1.0.1
+- Updated eslint-no-inline-return-object to 1.0.1
+- Updated eslint-no-nested-object-value to 1.0.1
+- Updated eslint-no-spread-expression to 1.0.1
+- Updated eslint-no-unused-exports to 1.0.1
+- Updated eslint-one-line-guard to 1.0.1
+- Updated eslint-readonly-type-properties to 1.0.1
+- Updated eslint-ternary-branch-shape to 1.0.1
+- Updated eslint-test-file-shape to 1.0.1
+- Updated eslint-type-placement to 1.0.1
+- Updated eslint-util-purity to 1.0.1
+- Updated eslint-no-unused-angular-fields to 1.0.1
+- Updated eslint-no-unstyled-classes to 1.0.1
+- Updated stylelint-no-unused-classes to 2.0.1
+
+### ❤️ Thank You
+
+- Artiom Tofan
+
 # 3.0.0 (2026-10-13)
 
 ### 🧱 Updated Dependencies

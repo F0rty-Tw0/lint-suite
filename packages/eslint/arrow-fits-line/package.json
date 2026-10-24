@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-arrow-fits-line",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Require expression-bodied arrow functions to fit on one line",
   "type": "module",
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-no-grouped-condition",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Disallow mixed-operator groups in conditions",
   "type": "module",
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-modular-boundaries",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Enforce module boundaries between workspace projects by tag, without depending on Nx",
   "type": "module",
   "license": "MIT",

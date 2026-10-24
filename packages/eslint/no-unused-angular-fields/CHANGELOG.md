@@ -1,3 +1,7 @@
+## 1.0.1 (2026-10-24)
+
+This was a version bump only for eslint-no-unused-angular-fields to align it with other projects, there were no code changes.
+
 ## 1.2.0 (2026-10-11)
 
 This was a version bump only for eslint-plugin-no-unused-angular-instance-fields to align it with other projects, there were no code changes.
