@@ -70,6 +70,27 @@ export const enabledAfterOverlap = async (
   return enabledInBoth(combined, oxlint, sample);
 };
 
+export const lostAgainstPlain = async (
+  plain: CompatibleConfigArray,
+  mirrored: CompatibleConfigArray,
+  oxlint: OxlintConfig,
+  sample: string
+): Promise<string[]> => {
+  const plainConfig = await eslintConfigFor(plain, sample);
+  const mirroredConfig = await eslintConfigFor(mirrored, sample);
+  const plainOn = enabledEslintNames(plainConfig.rules);
+  const mirroredOn = enabledEslintNames(mirroredConfig.rules);
+  const oxlintOn = oxlintEnabledNames(oxlint, sample);
+  const isLost = (name: string): boolean => {
+    const isOnInMirrored = mirroredOn.includes(name);
+    const isOnInOxlint = oxlintOn.includes(name);
+
+    return !isOnInMirrored && !isOnInOxlint;
+  };
+
+  return plainOn.filter(isLost);
+};
+
 export const lostAfterOverlap = async (
   eslint: CompatibleConfigArray,
   oxlint: OxlintConfig,
@@ -77,19 +98,8 @@ export const lostAfterOverlap = async (
 ): Promise<string[]> => {
   const overlay = oxlintOverlap(oxlint);
   const combined: CompatibleConfigArray = [...eslint, ...overlay];
-  const before = await eslintConfigFor(eslint, sample);
-  const after = await eslintConfigFor(combined, sample);
-  const beforeOn = enabledEslintNames(before.rules);
-  const afterOn = enabledEslintNames(after.rules);
-  const oxlintOn = oxlintEnabledNames(oxlint, sample);
-  const isLost = (name: string): boolean => {
-    const isOnInEslint = afterOn.includes(name);
-    const isOnInOxlint = oxlintOn.includes(name);
 
-    return !isOnInEslint && !isOnInOxlint;
-  };
-
-  return beforeOn.filter(isLost);
+  return lostAgainstPlain(eslint, combined, oxlint, sample);
 };
 
 /** The no-console severity ESLint gives `sample` once `config` is overlapped onto a no-console block. */

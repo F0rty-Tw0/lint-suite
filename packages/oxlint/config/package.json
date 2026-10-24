@@ -25,6 +25,11 @@
       "types": "./eslint.d.ts",
       "default": "./eslint.js"
     },
+    "./eslint-missing": {
+      "development": "./src/eslint-missing.ts",
+      "types": "./eslint-missing.d.ts",
+      "default": "./eslint-missing.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -71,9 +76,13 @@
     "oxlint": "catalog:oxlint-compatibility",
     "oxlint-tsgolint": "catalog:oxlint-compatibility",
     "typescript": "catalog:typescript-compatibility",
-    "eslint": "catalog:base"
+    "eslint": "catalog:base",
+    "lint-suite": "^3.0.0"
   },
   "peerDependenciesMeta": {
+    "lint-suite": {
+      "optional": true
+    },
     "oxlint-tsgolint": {
       "optional": true
     }

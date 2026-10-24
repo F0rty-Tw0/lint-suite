@@ -55,11 +55,44 @@ Add the layers you need next to each other, or start from `recommended`.
 | `storybook`             | Storybook rules (opt-in)                                          |
 | `defineLintSuiteConfig` | Helper that composes the configs above                            |
 
-Subpaths: `@lint-suite/oxlint-config/local-plugin` (the `local` JS plugin) and `@lint-suite/oxlint-config/eslint` (`oxlintOverlap`).
+Subpaths: `@lint-suite/oxlint-config/local-plugin` (the `local` JS plugin), `@lint-suite/oxlint-config/eslint` (`oxlintOverlap`) and `@lint-suite/oxlint-config/eslint-missing` (ESLint presets for the rules oxlint does not run).
 
 ## Type-aware rules
 
 `typescriptTypeAware` needs `oxlint-tsgolint` (optional peer). Its bundled engine is a native typescript-go build that targets TypeScript 7, so you don't install TypeScript 7 yourself. It ran here once, by hand, on this repo (TypeScript 6) and reported `typescript(no-unsafe-call)` and `typescript(require-await)`. CI does not run it, and rule options are only checked as config. `prefer-optional-chain` and `no-unnecessary-condition` are in oxlint's `nursery` category and may not run or may change.
+
+## ESLint presets for the rules oxlint does not run: `eslint-missing`
+
+An oxlint preset plus the `eslint-missing` preset of the same name gives you the lint-suite ESLint preset, with no rule run twice.
+
+```ts
+// eslint.config.ts
+import {
+  recommended,
+  angular,
+  angularTemplate
+} from '@lint-suite/oxlint-config/eslint-missing';
+export default [...recommended, ...angular, ...angularTemplate];
+
+// oxlint.config.ts
+import {
+  recommended,
+  angular,
+  defineLintSuiteConfig
+} from '@lint-suite/oxlint-config';
+export default defineLintSuiteConfig(recommended, angular);
+```
+
+It needs `lint-suite` installed (optional peer `^3.0.0`).
+
+Exports:
+
+- `recommended`, `angular`, `rxjs`, `vitest`, `playwright` and `storybook` hold the `lint-suite/eslint` preset of the same name, with the rules the same-named oxlint preset runs turned off.
+- `angularTemplate`, `json` and `prettier` are the same as in `lint-suite/eslint`. oxlint does not lint `.html` or `.json` files, and `prettier` only turns rules off.
+
+There are no layer exports (`base`, `javascript`, `typescript`, `boundaries`). lint-suite and oxlint split rules across layers differently, so one mirrored layer would turn back on rules that oxlint already runs. Start from `recommended`.
+
+If you customise the oxlint config (own overrides, `ignorePatterns`, rules turned off, `typescriptTypeAware`), use the `lint-suite/eslint` presets with `oxlintOverlap(yourConfig)` instead. See the next section. The `oxlintOverlap` limits listed there (`.gitignore`, `.eslintignore`, rule options, config location) apply to `eslint-missing` too.
 
 ## Turn off overlap in ESLint: `oxlintOverlap`
 

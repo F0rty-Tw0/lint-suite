@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../../lint-suite/src/types/*.d.ts"],
   "exclude": ["**/test/**", "**/*.spec.ts"]
 }
