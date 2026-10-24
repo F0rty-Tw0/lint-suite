@@ -275,13 +275,14 @@ test('temporaryFileName includes the process id and the worker thread id', async
     `import(${JSON.stringify(moduleUrl)}).then(({ temporaryFileName }) => ` +
     `require('node:worker_threads').parentPort.postMessage(temporaryFileName('/cache/a.json')));`;
   const worker = new Worker(source, { eval: true });
+  const { threadId } = worker;
   const name = await new Promise<unknown>((resolve, reject) => {
     worker.once('message', resolve);
     worker.once('error', reject);
   });
 
-  assert.ok(worker.threadId > 0);
-  assert.equal(name, `/cache/a.json.${process.pid}.${worker.threadId}.tmp`);
+  assert.ok(threadId > 0);
+  assert.equal(name, `/cache/a.json.${process.pid}.${threadId}.tmp`);
 });
 
 test('flushes through the per-thread temp file, not the shared process temp path', () => {
