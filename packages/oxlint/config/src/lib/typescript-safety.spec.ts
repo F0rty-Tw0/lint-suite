@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { typescriptSafety } from './typescript-safety.ts';
 import { fileUrlFlags, ruleAt } from '../test/utils/preset.spec.util.ts';
 
+const TYPED_RULES: string[] = [
+  'local/no-call-in-condition',
+  'local/no-unused-exports'
+];
+
 describe('FEATURE: typescriptSafety', () => {
   describe('GIVEN a TypeScript file', () => {
     it('WHEN local/one-line-guard is read THEN it carries the line length', () => {
@@ -19,12 +24,14 @@ describe('FEATURE: typescriptSafety', () => {
       expect(entry).toBe('error');
     });
 
-    it('WHEN local/no-unused-exports is read THEN it is absent because it needs type info', () => {
-      const rule = 'local/no-unused-exports';
-      const entry = ruleAt(typescriptSafety, 'src/a.ts', rule);
+    it.each(TYPED_RULES)(
+      'WHEN %s is read THEN it is absent because it needs type info',
+      (rule) => {
+        const entry = ruleAt(typescriptSafety, 'src/a.ts', rule);
 
-      expect(entry).toBeUndefined();
-    });
+        expect(entry).toBeUndefined();
+      }
+    );
   });
 
   describe('GIVEN a JavaScript file', () => {

@@ -38,7 +38,6 @@ export const typescriptSafety: OxlintConfig = {
         'local/chain-receiver-name': 'error',
         'local/explicit-accessibility': 'error',
         'local/max-condition-operands': 'error',
-        'local/no-call-in-condition': 'error',
         'local/no-grouped-condition': 'error',
         'local/no-inline-object-types': 'error',
         'local/no-inline-return-object': 'error',

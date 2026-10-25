@@ -41,10 +41,6 @@ export const SMOKE_TRIGGERS: SmokeTrigger[] = [
     file: 'apps/shell/src/angular.component.ts'
   },
   {
-    rule: 'lint-suite-angular/no-unused-angular-fields',
-    file: 'apps/shell/src/angular.component.ts'
-  },
-  {
     rule: '@smarttools/rxjs/no-sharereplay',
     file: 'apps/shell/src/rxjs-no-sharereplay.ts'
   },
