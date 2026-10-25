@@ -30,7 +30,7 @@ describe('FEATURE: local plugin', () => {
       expect(name).toBe('local');
     });
 
-    it('WHEN it is loaded THEN it holds the 17 type-free rules', () => {
+    it('WHEN it is loaded THEN it holds the 16 type-free rules plus the kept no-call-in-condition registration', () => {
       const rules = localPlugin.rules ?? {};
 
       const ruleNames = Object.keys(rules).sort();
