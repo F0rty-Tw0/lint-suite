@@ -4,6 +4,8 @@ export const SMOKE_WORKSPACE = 'workspace';
 
 export const SMOKE_CONFIG = 'oxlint.config.ts';
 
+export const KEPT_OFF_WORKSPACE = 'kept-off';
+
 export const SMOKE_ACCEPTED_STATUSES: number[] = [0, 1];
 
 export const JS_PLUGIN_ERROR = 'Error running JS plugin';

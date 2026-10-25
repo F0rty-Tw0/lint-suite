@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   JS_PLUGIN_ERROR,
+  KEPT_OFF_WORKSPACE,
   MINIFIED_GUARD_FILE,
   ONE_LINE_GUARD_RULE,
   SMOKE_ACCEPTED_STATUSES,
@@ -95,6 +96,18 @@ describe('FEATURE: oxlint smoke run over the fixture workspace', () => {
       const diffs = printedConfigDiff(printed, fixtureConfig);
 
       expect(diffs).toEqual([]);
+    });
+  });
+
+  describe('GIVEN a config that names the two kept registrations as off', () => {
+    it('WHEN oxlint prints it THEN the config loads', () => {
+      const keptOff = fixtureDirectory(KEPT_OFF_WORKSPACE);
+
+      const run = runOxlint(keptOff, ['-c', SMOKE_CONFIG, '--print-config']);
+
+      parseRunOutput(run, parsePrintedConfig);
+
+      expect(run.status).toBe(0);
     });
   });
 });
