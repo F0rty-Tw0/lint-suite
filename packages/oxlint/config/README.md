@@ -31,6 +31,8 @@ Always compose with `defineLintSuiteConfig`. Oxlint ignores `settings`, `globals
 
 `.oxlintrc.json` is not supported: its `extends` only takes file paths.
 
+In a package without `"type": "module"`, Node prints a `MODULE_TYPELESS_PACKAGE_JSON` warning every time it loads `oxlint.config.ts`. Name the file `oxlint.config.mts` there and pass it with `oxlint -c oxlint.config.mts`.
+
 ## Exports are layers of `recommended`
 
 `recommended` is `base`, `javascript`, `typescript` and `boundaries` together. Each export is one layer of it, not a standalone preset.
