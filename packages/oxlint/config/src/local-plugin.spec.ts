@@ -8,6 +8,7 @@ const EXPECTED = [
   'chain-receiver-name',
   'explicit-accessibility',
   'max-condition-operands',
+  'no-call-in-condition',
   'no-grouped-condition',
   'no-inline-object-types',
   'no-inline-return-object',
@@ -29,7 +30,7 @@ describe('FEATURE: local plugin', () => {
       expect(name).toBe('local');
     });
 
-    it('WHEN it is loaded THEN it holds the 16 type-free rules', () => {
+    it('WHEN it is loaded THEN it holds the 17 type-free rules', () => {
       const rules = localPlugin.rules ?? {};
 
       const ruleNames = Object.keys(rules).sort();

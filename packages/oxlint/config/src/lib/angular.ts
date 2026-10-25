@@ -2,14 +2,17 @@ import globals from 'globals';
 import type { OxlintConfig } from 'oxlint';
 
 import { ANGULAR_FILES } from '../common/file-globs.const.ts';
-import { ANGULAR_ESLINT_PLUGIN } from '../common/js-plugin.const.ts';
+import {
+  ANGULAR_ESLINT_PLUGIN,
+  NO_UNUSED_ANGULAR_FIELDS_PLUGIN
+} from '../common/js-plugin.const.ts';
 import { toOxlintGlobals } from '../utils/oxlint-globals.util.ts';
 
 const environment = { ...globals.browser, ...globals.es2025, ...globals.node };
 
 export const angular: OxlintConfig = {
   categories: { correctness: 'off' },
-  jsPlugins: [ANGULAR_ESLINT_PLUGIN],
+  jsPlugins: [ANGULAR_ESLINT_PLUGIN, NO_UNUSED_ANGULAR_FIELDS_PLUGIN],
   overrides: [
     {
       files: ANGULAR_FILES,

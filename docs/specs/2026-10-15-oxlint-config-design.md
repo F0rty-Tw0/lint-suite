@@ -102,7 +102,7 @@ Config shape follows from this: a rule ESLint enables for every JS and TS sample
 - `@typescript-eslint/x` → `typescript/x`, except the 19 extension rules oxlint has only as `eslint/x` (no `typescript/x` in oxlint 1.88, and typescript-eslint ships a same-named rule): `class-methods-use-this`, `default-param-last`, `init-declarations`, `max-params`, `no-array-constructor`, `no-dupe-class-members`, `no-empty-function`, `no-loop-func`, `no-loss-of-precision`, `no-magic-numbers`, `no-redeclare`, `no-restricted-imports`, `no-shadow`, `no-unused-expressions`, `no-unused-private-class-members`, `no-unused-vars`, `no-use-before-define`, `no-useless-constructor`, `prefer-destructuring`. Both ESLint names map to `eslint/x`. The core and TS rule of a pair are never both on for the same sample (confirmed 2026-10-15: 7 parity passes × 14 samples × 19 rules, 0 pairs both on), so the mapping is safe.
 - `import-x/x` → `import/x`
 - `vitest/x` → `vitest/x`
-- JS-plugin rules keep their ESLint names exactly. Each JS plugin is registered as `{ name: <ESLint prefix>, specifier }`, so the prefix always matches. That covers `local`, `modular-boundaries`, `@smarttools/rxjs`, `@angular-eslint`, `boundaries`, `@stylistic`, `playwright`, `storybook`, `eslint-js`. Scoped aliases load and report under these exact prefixes (confirmed).
+- JS-plugin rules keep their ESLint names exactly. Each JS plugin is registered as `{ name: <ESLint prefix>, specifier }`, so the prefix always matches. That covers `local`, `lint-suite-angular`, `modular-boundaries`, `@smarttools/rxjs`, `@angular-eslint`, `boundaries`, `@stylistic`, `playwright`, `storybook`, `eslint-js`. Scoped aliases load and report under these exact prefixes (confirmed).
 - The ESLint rxjs preset registers the plugin only as `@smarttools/rxjs`, the prefix the map knows.
 
 ### JS plugin specifiers
@@ -111,6 +111,7 @@ Config shape follows from this: a rule ESLint enables for every JS and TS sample
 - The local plugin uses a self-reference: `import.meta.resolve('@lint-suite/oxlint-config/local-plugin')`.
 - Plugins:
   - `@lint-suite/oxlint-config/local-plugin` (`local`)
+  - `@lint-suite/eslint-no-unused-angular-fields` (`lint-suite-angular`)
   - `@lint-suite/eslint-modular-boundaries` (`modular-boundaries`)
   - `@angular-eslint/eslint-plugin` (`@angular-eslint`). `angular-eslint`'s default export has no rules; the TS plugin is only the named `tsPlugin` export. So this package depends on `@angular-eslint/eslint-plugin` directly. Its default export is that plugin. It has no `meta.name`, so the alias is required.
   - `@smarttools/eslint-plugin-rxjs` (`@smarttools/rxjs`)
@@ -124,9 +125,9 @@ Config shape follows from this: a rule ESLint enables for every JS and TS sample
   - angular-eslint `no-developer-preview`, `no-experimental`, `no-uncalled-signals`, `reactive-context-must-read-signal` (exactly these 4 throw, confirmed)
   - `@typescript-eslint/naming-convention`, `@typescript-eslint/no-unsafe-enum-assignment` (typed, and tsgolint does not implement them)
   - `local/no-unused-exports`
-  - `local/no-call-in-condition` and `lint-suite-angular/no-unused-angular-fields`. They run without type info but report differently from ESLint (name-pattern predicate exemption; local analysis misses cross-file reads), so ESLint keeps them (2026-10-25).
 - ESLint `recommended` enables 29 typed `@typescript-eslint` rules for `.ts`. The two above go in `MISSING.md`. The other 27 are implemented by tsgolint (all `type_aware` in `oxlint --rules`, confirmed) and live only in `typescriptTypeAware`. They are listed in `MISSING.md` under "Type-aware only".
 - `rxjs` holds the 5 type-free rules from the ESLint rxjs preset: `@smarttools/rxjs/no-ignored-replay-buffer`, `no-ignored-takewhile-value`, `no-index`, `no-internal`, `no-sharereplay`. The preset enables 26 rxjs rules in all: those 5 plus the 21 above.
+- `angular` includes `lint-suite-angular/no-unused-angular-fields` with `analysis: 'local'`, because project mode throws without parser services. `MISSING.md` records this in Option deviations.
 - `typescriptTypeAware` needs `oxlint-tsgolint` (optional peer). It bundles a typescript-go (TS 7) binary, so consumers don't need TS 7 installed; it ran by hand on this TS 6 repo, not in CI. Parity checks its contents as config. README says so.
 
 ## `MISSING.md`
@@ -147,8 +148,11 @@ Config shape follows from this: a rule ESLint enables for every JS and TS sample
 | Failed the smoke test                  | per row, with the error   | A fix in the plugin or in oxlint                                                           |
 
 - An `Option deviations` table lists rules that are ported with options different from ESLint's: rule name, ESLint options, oxlint options, reason. A rule here is ported, so it must not also be in a cause table.
+  - Today its only row is `lint-suite-angular/no-unused-angular-fields`: `analysis: 'local'` in oxlint, `'project'` in ESLint.
   - Parity treats a row here as an allowed options mismatch for that rule only.
 - Short sections without rule rows cover behaviour gaps:
+  - `local/no-call-in-condition` has no checker, so its type-predicate exemption is skipped and it gives more reports.
+  - Project-mode `no-unused-angular-fields` is lost when `oxlintOverlap` turns the ESLint rule off. To keep it, re-enable it in ESLint and turn it off in oxlint.
   - `import-x/resolver-next` has no oxlint counterpart; the native `import` plugin resolves on its own.
   - No editor support for `.html`/`.json`.
   - Cross-file rules (`modular-boundaries`) depend on oxlint running JS plugins on a single thread.
@@ -203,6 +207,7 @@ All tests sit next to the code, with helpers under `src/test/`, following the re
      | `boundaries`         | an import across element types the settings forbid      | a `boundaries/*` rule                                                      |
      | `modular-boundaries` | an import from one project into another the tags forbid | `modular-boundaries/*`                                                     |
      | `@angular-eslint`    | a component                                             | `@angular-eslint/prefer-output-readonly`                                   |
+     | `lint-suite-angular` | the same component with an unread private field         | `lint-suite-angular/no-unused-angular-fields`                              |
      | `@smarttools/rxjs`   | an rxjs file                                            | `@smarttools/rxjs/no-sharereplay`                                          |
      | `playwright`         | an `.e2e.ts` file                                       | any enabled `playwright/*` rule                                            |
      | `storybook`          | a `.stories.ts` file                                    | any enabled `storybook/*` rule                                             |
@@ -217,8 +222,8 @@ All tests sit next to the code, with helpers under `src/test/`, following the re
 ## Dependencies
 
 - `dependencies` (`workspace:*` or catalog):
-  - the 16 `@lint-suite/eslint-*` packages behind the local plugin (all of `typescript-local-plugin.ts` except `@lint-suite/eslint-no-unused-exports` and `@lint-suite/eslint-no-call-in-condition`)
-  - `@lint-suite/eslint-modular-boundaries`
+  - the 17 `@lint-suite/eslint-*` packages behind the local plugin (all of `typescript-local-plugin.ts` except `@lint-suite/eslint-no-unused-exports`)
+  - `@lint-suite/eslint-modular-boundaries`, `@lint-suite/eslint-no-unused-angular-fields`
   - `@angular-eslint/eslint-plugin` (add to the `angular` catalog at the version `angular-eslint` uses, 22.5.0)
   - `@smarttools/eslint-plugin-rxjs`, `eslint-plugin-boundaries`, `eslint-import-resolver-typescript`, `@stylistic/eslint-plugin`, `eslint-plugin-playwright`, `eslint-plugin-storybook` (existing catalogs)
   - `oxlint-plugin-eslint` (new `oxlint` catalog)

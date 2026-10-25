@@ -25,6 +25,11 @@ export const MODULAR_BOUNDARIES_PLUGIN: JsPluginEntry = {
   specifier: import.meta.resolve('@lint-suite/eslint-modular-boundaries')
 };
 
+export const NO_UNUSED_ANGULAR_FIELDS_PLUGIN: JsPluginEntry = {
+  name: 'lint-suite-angular',
+  specifier: import.meta.resolve('@lint-suite/eslint-no-unused-angular-fields')
+};
+
 export const PLAYWRIGHT_PLUGIN: JsPluginEntry = {
   name: 'playwright',
   specifier: import.meta.resolve('eslint-plugin-playwright')
@@ -51,6 +56,7 @@ export const JS_PLUGINS: JsPluginEntry[] = [
   ESLINT_JS_PLUGIN,
   LOCAL_PLUGIN,
   MODULAR_BOUNDARIES_PLUGIN,
+  NO_UNUSED_ANGULAR_FIELDS_PLUGIN,
   PLAYWRIGHT_PLUGIN,
   RXJS_PLUGIN,
   STORYBOOK_PLUGIN,

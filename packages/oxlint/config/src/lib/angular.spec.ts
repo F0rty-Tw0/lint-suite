@@ -23,10 +23,10 @@ describe('FEATURE: angular', () => {
       expect(categories).toEqual({ correctness: 'off' });
     });
 
-    it('WHEN its JS plugin specifiers are read THEN the plugin is a file URL', () => {
+    it('WHEN its JS plugin specifiers are read THEN both plugins are file URLs', () => {
       const flags = fileUrlFlags(angular);
 
-      expect(flags).toEqual([true]);
+      expect(flags).toEqual([true, true]);
     });
 
     it.each(UNSET_FIELDS)(

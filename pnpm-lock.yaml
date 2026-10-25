@@ -1075,6 +1075,9 @@ importers:
       '@lint-suite/eslint-modular-boundaries':
         specifier: workspace:*
         version: link:../../eslint/modular-boundaries
+      '@lint-suite/eslint-no-call-in-condition':
+        specifier: workspace:*
+        version: link:../../eslint/no-call-in-condition
       '@lint-suite/eslint-no-grouped-condition':
         specifier: workspace:*
         version: link:../../eslint/no-grouped-condition
@@ -1090,6 +1093,9 @@ importers:
       '@lint-suite/eslint-no-spread-expression':
         specifier: workspace:*
         version: link:../../eslint/no-spread-expression
+      '@lint-suite/eslint-no-unused-angular-fields':
+        specifier: workspace:*
+        version: link:../../eslint/no-unused-angular-fields
       '@lint-suite/eslint-one-line-guard':
         specifier: workspace:*
         version: link:../../eslint/one-line-guard

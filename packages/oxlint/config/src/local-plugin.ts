@@ -3,6 +3,7 @@ import { chainFitsLineRule } from '@lint-suite/eslint-chain-fits-line';
 import { chainReceiverNameRule } from '@lint-suite/eslint-chain-receiver-name';
 import { explicitAccessibilityRule } from '@lint-suite/eslint-explicit-accessibility';
 import { maxConditionOperandsRule } from '@lint-suite/eslint-max-condition-operands';
+import { noCallInConditionRule } from '@lint-suite/eslint-no-call-in-condition';
 import { noGroupedConditionRule } from '@lint-suite/eslint-no-grouped-condition';
 import { noInlineObjectTypesRule } from '@lint-suite/eslint-no-inline-object-types';
 import { noInlineReturnObjectRule } from '@lint-suite/eslint-no-inline-return-object';
@@ -23,6 +24,7 @@ const rules = {
   'chain-receiver-name': chainReceiverNameRule,
   'explicit-accessibility': explicitAccessibilityRule,
   'max-condition-operands': maxConditionOperandsRule,
+  'no-call-in-condition': noCallInConditionRule,
   'no-grouped-condition': noGroupedConditionRule,
   'no-inline-object-types': noInlineObjectTypesRule,
   'no-inline-return-object': noInlineReturnObjectRule,
