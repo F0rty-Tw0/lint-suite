@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-no-unused-exports",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Disallow exports that no other file in the TypeScript program imports",
   "type": "module",
   "license": "MIT",

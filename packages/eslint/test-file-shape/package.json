@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-test-file-shape",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Restrict test-support file shapes and enforce stub and mock exports",
   "type": "module",
   "license": "MIT",

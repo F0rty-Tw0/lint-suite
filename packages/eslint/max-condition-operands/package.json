@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-max-condition-operands",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Limit operands in if statement conditions",
   "type": "module",
   "license": "MIT",

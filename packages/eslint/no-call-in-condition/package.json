@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-no-call-in-condition",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Disallow calls that decide if conditions",
   "type": "module",
   "license": "MIT",

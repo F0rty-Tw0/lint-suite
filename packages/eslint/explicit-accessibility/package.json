@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-explicit-accessibility",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Require TypeScript class members to declare accessibility",
   "type": "module",
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-no-inline-object-types",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Require object type literals to be named aliases",
   "type": "module",
   "license": "MIT",

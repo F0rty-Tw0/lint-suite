@@ -1,3 +1,7 @@
+## 1.0.2 (2026-10-25)
+
+This was a version bump only for eslint-no-unstyled-classes to align it with other projects, there were no code changes.
+
 ## 1.0.1 (2026-10-24)
 
 This was a version bump only for eslint-no-unstyled-classes to align it with other projects, there were no code changes.

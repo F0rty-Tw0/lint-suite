@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/eslint-chain-receiver-name",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Require call chains to start from a named receiver",
   "type": "module",
   "license": "MIT",
