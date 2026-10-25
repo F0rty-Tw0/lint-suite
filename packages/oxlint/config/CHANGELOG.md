@@ -1,3 +1,7 @@
+## 1.0.3 (2026-10-25)
+
+This was a version bump only for oxlint-config to align it with other projects, there were no code changes.
+
 ## 1.0.2 (2026-10-25)
 
 ### 🩹 Fixes

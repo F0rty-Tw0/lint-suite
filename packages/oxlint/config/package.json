@@ -1,6 +1,6 @@
 {
   "name": "@lint-suite/oxlint-config",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Oxlint configuration presets mirroring the lint-suite ESLint presets",
   "type": "module",
   "license": "MIT",
