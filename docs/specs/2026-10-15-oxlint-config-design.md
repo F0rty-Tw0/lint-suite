@@ -125,9 +125,10 @@ Config shape follows from this: a rule ESLint enables for every JS and TS sample
   - angular-eslint `no-developer-preview`, `no-experimental`, `no-uncalled-signals`, `reactive-context-must-read-signal` (exactly these 4 throw, confirmed)
   - `@typescript-eslint/naming-convention`, `@typescript-eslint/no-unsafe-enum-assignment` (typed, and tsgolint does not implement them)
   - `local/no-unused-exports`
-- ESLint `recommended` enables 29 typed `@typescript-eslint` rules for `.ts`. The two above go in `MISSING.md`. The other 27 are implemented by tsgolint (all `type_aware` in `oxlint --rules`, confirmed) and live only in `typescriptTypeAware`. They are listed in `MISSING.md` under "Type-aware only".
+  - `local/no-call-in-condition` and `lint-suite-angular/no-unused-angular-fields` (2026-10-25). They run without type info but report differently from ESLint: the predicate exemption falls back to name patterns, and local analysis misses cross-file reads. So ESLint keeps them. Their plugins stay registered, so a consumer config that names either rule still loads.
+- ESLint `recommended` enables 29 typed `@typescript-eslint` rules for `.ts`. `naming-convention` and `no-unsafe-enum-assignment` go in `MISSING.md`. The other 27 are implemented by tsgolint (all `type_aware` in `oxlint --rules`, confirmed) and live only in `typescriptTypeAware`. They are listed in `MISSING.md` under "Type-aware only".
 - `rxjs` holds the 5 type-free rules from the ESLint rxjs preset: `@smarttools/rxjs/no-ignored-replay-buffer`, `no-ignored-takewhile-value`, `no-index`, `no-internal`, `no-sharereplay`. The preset enables 26 rxjs rules in all: those 5 plus the 21 above.
-- `angular` includes `lint-suite-angular/no-unused-angular-fields` with `analysis: 'local'`, because project mode throws without parser services. `MISSING.md` records this in Option deviations.
+- `angular` loads the `lint-suite-angular` JS plugin but enables none of its rules (see the 2026-10-25 entry above).
 - `typescriptTypeAware` needs `oxlint-tsgolint` (optional peer). It bundles a typescript-go (TS 7) binary, so consumers don't need TS 7 installed; it ran by hand on this TS 6 repo, not in CI. Parity checks its contents as config. README says so.
 
 ## `MISSING.md`
@@ -148,11 +149,8 @@ Config shape follows from this: a rule ESLint enables for every JS and TS sample
 | Failed the smoke test                  | per row, with the error   | A fix in the plugin or in oxlint                                                           |
 
 - An `Option deviations` table lists rules that are ported with options different from ESLint's: rule name, ESLint options, oxlint options, reason. A rule here is ported, so it must not also be in a cause table.
-  - Today its only row is `lint-suite-angular/no-unused-angular-fields`: `analysis: 'local'` in oxlint, `'project'` in ESLint.
   - Parity treats a row here as an allowed options mismatch for that rule only.
 - Short sections without rule rows cover behaviour gaps:
-  - `local/no-call-in-condition` has no checker, so its type-predicate exemption is skipped and it gives more reports.
-  - Project-mode `no-unused-angular-fields` is lost when `oxlintOverlap` turns the ESLint rule off. To keep it, re-enable it in ESLint and turn it off in oxlint.
   - `import-x/resolver-next` has no oxlint counterpart; the native `import` plugin resolves on its own.
   - No editor support for `.html`/`.json`.
   - Cross-file rules (`modular-boundaries`) depend on oxlint running JS plugins on a single thread.
@@ -207,7 +205,7 @@ All tests sit next to the code, with helpers under `src/test/`, following the re
      | `boundaries`         | an import across element types the settings forbid      | a `boundaries/*` rule                                                      |
      | `modular-boundaries` | an import from one project into another the tags forbid | `modular-boundaries/*`                                                     |
      | `@angular-eslint`    | a component                                             | `@angular-eslint/prefer-output-readonly`                                   |
-     | `lint-suite-angular` | the same component with an unread private field         | `lint-suite-angular/no-unused-angular-fields`                              |
+     | `lint-suite-angular` | none: loaded, no rule enabled (2026-10-25)              | none                                                                       |
      | `@smarttools/rxjs`   | an rxjs file                                            | `@smarttools/rxjs/no-sharereplay`                                          |
      | `playwright`         | an `.e2e.ts` file                                       | any enabled `playwright/*` rule                                            |
      | `storybook`          | a `.stories.ts` file                                    | any enabled `storybook/*` rule                                             |

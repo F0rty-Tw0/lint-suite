@@ -35,6 +35,8 @@ Comes back with type info in JS plugins, or with the rule building its own `ts.P
 | `@smarttools/rxjs/throw-error`                      | oxc#19596 |
 | `@typescript-eslint/naming-convention`              | oxc#19596 |
 | `@typescript-eslint/no-unsafe-enum-assignment`      | oxc#19596 |
+| `lint-suite-angular/no-unused-angular-fields`       | oxc#19596 |
+| `local/no-call-in-condition`                        | oxc#19596 |
 | `local/no-unused-exports`                           | oxc#19596 |
 
 ## Type-aware only
@@ -149,22 +151,13 @@ Loaded as a JS plugin rule but failed under oxlint. Comes back with a fix in the
 
 Rules that are ported with options different from ESLint's. A rule here is ported, so it is in no cause table.
 
-| Rule                                          | ESLint options                                          | oxlint options                     | Reason                                                                                           |
-| --------------------------------------------- | ------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `lint-suite-angular/no-unused-angular-fields` | `{ analysis: 'project' }`                               | `{ analysis: 'local' }`            | Project mode throws without parser services, which oxlint JS plugins lack.                       |
-| `preserve-caught-error`                       | `{ requireCatchParameter: false, errorClassNames: [] }` | `{ requireCatchParameter: false }` | oxlint rejects `errorClassNames` when it loads the config; the empty list is the ESLint default. |
-| `vitest/no-conditional-expect`                | `{ expectAssertions: false }`                           | none                               | oxlint rejects any option for this rule when it loads the config; `false` is the ESLint default. |
-| `vitest/no-focused-tests`                     | `{ fixable: true }`                                     | none                               | oxlint rejects any option for this rule when it loads the config; `true` is the ESLint default.  |
+| Rule                           | ESLint options                                          | oxlint options                     | Reason                                                                                           |
+| ------------------------------ | ------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `preserve-caught-error`        | `{ requireCatchParameter: false, errorClassNames: [] }` | `{ requireCatchParameter: false }` | oxlint rejects `errorClassNames` when it loads the config; the empty list is the ESLint default. |
+| `vitest/no-conditional-expect` | `{ expectAssertions: false }`                           | none                               | oxlint rejects any option for this rule when it loads the config; `false` is the ESLint default. |
+| `vitest/no-focused-tests`      | `{ fixable: true }`                                     | none                               | oxlint rejects any option for this rule when it loads the config; `true` is the ESLint default.  |
 
 ## Behaviour gaps
-
-### `local/no-call-in-condition`
-
-There is no type checker, so the rule exempts calls by name (`allowPredicates`, default `^(is|has)[A-Z]`) instead of by signature. It reports more for imported type predicates with other names and fewer for `is*`/`has*` calls that are not type predicates. Type predicate functions declared in the same file and called by bare name are still exempt by signature.
-
-### `no-unused-angular-fields` in project mode
-
-Project mode is lost when `oxlintOverlap` turns the ESLint rule off. To keep it, re-enable the rule in ESLint and turn it off in oxlint.
 
 ### `import-x/resolver-next`
 

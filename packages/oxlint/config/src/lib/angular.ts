@@ -34,10 +34,6 @@ export const angular: OxlintConfig = {
         '@angular-eslint/prefer-standalone': 'error',
         '@angular-eslint/use-pipe-transform-interface': 'error',
         '@angular-eslint/use-lifecycle-interface': 'warn',
-        'lint-suite-angular/no-unused-angular-fields': [
-          'error',
-          { analysis: 'local' }
-        ],
         '@angular-eslint/prefer-signals': [
           'error',
           {

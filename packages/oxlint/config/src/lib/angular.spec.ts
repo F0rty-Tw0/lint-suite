@@ -11,7 +11,8 @@ const TYPED_RULES: string[] = [
   '@angular-eslint/no-developer-preview',
   '@angular-eslint/no-experimental',
   '@angular-eslint/no-uncalled-signals',
-  '@angular-eslint/reactive-context-must-read-signal'
+  '@angular-eslint/reactive-context-must-read-signal',
+  'lint-suite-angular/no-unused-angular-fields'
 ];
 
 describe('FEATURE: angular', () => {
@@ -39,13 +40,6 @@ describe('FEATURE: angular', () => {
   });
 
   describe('GIVEN a TypeScript file', () => {
-    it('WHEN no-unused-angular-fields is read THEN it uses local analysis', () => {
-      const rule = 'lint-suite-angular/no-unused-angular-fields';
-      const entry = ruleAt(angular, 'src/a.ts', rule);
-
-      expect(entry).toEqual(['error', { analysis: 'local' }]);
-    });
-
     it('WHEN prefer-on-push-component-change-detection is read THEN it allows explicit OnPush', () => {
       const rule = '@angular-eslint/prefer-on-push-component-change-detection';
       const entry = ruleAt(angular, 'src/a.ts', rule);
